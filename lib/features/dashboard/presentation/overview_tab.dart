@@ -83,14 +83,15 @@ class OverviewTab extends ConsumerWidget {
   }
 
   Widget _buildLineChart(BuildContext context, List<MonthlyIndex> history) {
-    if (history.isEmpty || history.length == 1) {
+    final validHistory = history.where((h) => h.index.isFinite).toList();
+    if (validHistory.isEmpty || validHistory.length == 1) {
       return const SizedBox(
         height: 200,
         child: Center(child: Text('Not enough data to chart.')),
       );
     }
 
-    final spots = history.asMap().entries.map((e) {
+    final spots = validHistory.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.index);
     }).toList();
 

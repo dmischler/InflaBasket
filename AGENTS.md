@@ -187,6 +187,15 @@ Context is your most important resource. Proactively use subagents to keep explo
 - Conversations requiring back-and-forth
 - Tasks where the user needs immediate steps
 
+## 8. Documentation
+
+- **Always update `docs/project_outline.md`** when adding a new feature or changing the implementation strategy. This includes:
+  - Adding new features to the implementation status section
+  - Updating the database schema section if tables/columns change
+  - Updating the inflation calculation logic if the math changes
+  - Updating the AI prompt template if receipt parsing changes
+  - Adding new roadmap items to the Future Roadmap section
+
 ---
 
 Last updated: March 2026

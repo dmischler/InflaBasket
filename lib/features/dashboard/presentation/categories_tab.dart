@@ -42,16 +42,18 @@ class CategoriesTab extends ConsumerWidget {
     final minInflation = data.fold<double>(
         0, (min, e) => e.inflationPercent < min ? e.inflationPercent : min);
 
-    // Filter to top 7 categories for the chart so it doesn't get squished
     final chartData = data.take(7).toList();
+
+    final clampedMax = maxInflation.clamp(-100, 1000);
+    final clampedMin = minInflation.clamp(-100, 1000);
 
     return SizedBox(
       height: 300,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: maxInflation > 0 ? maxInflation * 1.2 : 10,
-          minY: minInflation < 0 ? minInflation * 1.2 : 0,
+          maxY: clampedMax > 0 ? clampedMax * 1.2 : 10,
+          minY: clampedMin < 0 ? clampedMin * 1.2 : 0,
           titlesData: FlTitlesData(
             show: true,
             bottomTitles: AxisTitles(

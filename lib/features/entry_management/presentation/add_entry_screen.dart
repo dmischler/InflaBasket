@@ -193,42 +193,41 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 },
               ),
               const SizedBox(height: 16),
+              TextFormField(
+                controller: _priceController,
+                decoration: InputDecoration(
+                    labelText: 'Price',
+                    border: const OutlineInputBorder(),
+                    prefixText: '${settings.currency} '),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) => value == null ||
+                        value.isEmpty ||
+                        double.tryParse(value) == null
+                    ? 'Invalid Price'
+                    : null,
+              ),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
-                      controller: _priceController,
-                      decoration: InputDecoration(
-                          labelText: 'Price',
-                          border: const OutlineInputBorder(),
-                          prefixText: '${settings.currency} '),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) => value == null ||
-                              value.isEmpty ||
-                              double.tryParse(value) == null
-                          ? 'Invalid Price'
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
                       controller: _quantityController,
                       decoration: const InputDecoration(
-                          labelText: 'Quantity', border: OutlineInputBorder()),
+                        labelText: 'Package Size',
+                        border: OutlineInputBorder(),
+                        hintText: 'e.g. 500',
+                      ),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       validator: (value) => value == null ||
                               value.isEmpty ||
                               double.tryParse(value) == null
-                          ? 'Invalid Qty'
+                          ? 'Invalid'
                           : null,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  // Unit picker — ensure the selected unit is valid for current
-                  // metric/imperial setting; fall back to count if not.
+                  const SizedBox(width: 12),
                   DropdownButtonFormField<UnitType>(
                     value: units.contains(_selectedUnit)
                         ? _selectedUnit
