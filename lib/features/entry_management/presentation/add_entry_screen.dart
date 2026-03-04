@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/features/entry_management/presentation/autocomplete_field.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 
 class AddEntryScreen extends ConsumerStatefulWidget {
-  const AddEntryScreen({super.key});
+  final EntryWithDetails? entryToEdit;
+
+  const AddEntryScreen({super.key, this.entryToEdit});
 
   @override
   ConsumerState<AddEntryScreen> createState() => _AddEntryScreenState();
@@ -13,13 +18,30 @@ class AddEntryScreen extends ConsumerStatefulWidget {
 
 class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _productController = TextEditingController();
-  final _categoryController = TextEditingController();
-  final _storeController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _quantityController = TextEditingController(text: '1.0');
-  DateTime _selectedDate = DateTime.now();
+  late final TextEditingController _productController;
+  late final TextEditingController _categoryController;
+  late final TextEditingController _storeController;
+  late final TextEditingController _locationController;
+  late final TextEditingController _priceController;
+  late final TextEditingController _quantityController;
+  late DateTime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    final edit = widget.entryToEdit;
+    _productController = TextEditingController(text: edit?.product.name ?? '');
+    _categoryController =
+        TextEditingController(text: edit?.category.name ?? '');
+    _storeController = TextEditingController(text: edit?.entry.storeName ?? '');
+    _locationController =
+        TextEditingController(text: edit?.entry.location ?? '');
+    _priceController =
+        TextEditingController(text: edit?.entry.price.toString() ?? '');
+    _quantityController =
+        TextEditingController(text: edit?.entry.quantity.toString() ?? '1.0');
+    _selectedDate = edit?.entry.purchaseDate ?? DateTime.now();
+  }
 
   @override
   void dispose() {
@@ -44,6 +66,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
             location: _locationController.text.trim().isEmpty
                 ? null
                 : _locationController.text.trim(),
+            existingEntryId: widget.entryToEdit?.entry.id,
           );
       if (context.mounted) {
         context.pop();
@@ -53,18 +76,24 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = ref.watch(settingsControllerProvider);
+    final repo = ref.read(entryRepositoryProvider);
+    final isEditing = widget.entryToEdit != null;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Purchase Entry')),
+      appBar: AppBar(
+          title:
+              Text(isEditing ? 'Edit Purchase Entry' : 'Add Purchase Entry')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(
+              AsyncAutocompleteField(
+                labelText: 'Product Name',
                 controller: _productController,
-                decoration: const InputDecoration(
-                    labelText: 'Product Name', border: OutlineInputBorder()),
+                optionsBuilder: repo.searchProductNames,
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Required' : null,
               ),
@@ -77,19 +106,18 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     value == null || value.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              AsyncAutocompleteField(
+                labelText: 'Store Name',
                 controller: _storeController,
-                decoration: const InputDecoration(
-                    labelText: 'Store Name', border: OutlineInputBorder()),
+                optionsBuilder: repo.searchStoreNames,
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              AsyncAutocompleteField(
+                labelText: 'Location (City/Branch)',
                 controller: _locationController,
-                decoration: const InputDecoration(
-                    labelText: 'Location (City/Branch)',
-                    border: OutlineInputBorder()),
+                optionsBuilder: repo.searchLocations,
               ),
               const SizedBox(height: 16),
               ListTile(
@@ -122,10 +150,10 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _priceController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                           labelText: 'Price',
-                          border: OutlineInputBorder(),
-                          prefixText: '\$'),
+                          border: const OutlineInputBorder(),
+                          prefixText: '${settings.currency} '),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       validator: (value) => value == null ||
@@ -156,27 +184,30 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               ElevatedButton.icon(
                 onPressed: _submit,
                 icon: const Icon(Icons.save),
-                label: const Text('Save Manual Entry'),
+                label: Text(isEditing ? 'Save Changes' : 'Save Manual Entry'),
                 style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50)),
               ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: () {
-                  final isPremium =
-                      ref.read(subscriptionControllerProvider).valueOrNull ??
-                          false;
-                  if (isPremium) {
-                    context.push('/scanner');
-                  } else {
-                    context.push('/paywall');
-                  }
-                },
-                icon: const Icon(Icons.document_scanner, color: Colors.purple),
-                label: const Text('Scan Receipt (Premium)'),
-                style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50)),
-              )
+              if (!isEditing) ...[
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    final isPremium =
+                        ref.read(subscriptionControllerProvider).valueOrNull ??
+                            false;
+                    if (isPremium) {
+                      context.push('/scanner');
+                    } else {
+                      context.push('/paywall');
+                    }
+                  },
+                  icon:
+                      const Icon(Icons.document_scanner, color: Colors.purple),
+                  label: const Text('Scan Receipt (Premium)'),
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50)),
+                )
+              ]
             ],
           ),
         ),

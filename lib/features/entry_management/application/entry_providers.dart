@@ -97,12 +97,12 @@ class AddEntryController extends _$AddEntryController {
     required double quantity,
     required DateTime date,
     String? location,
+    int? existingEntryId,
   }) async {
     await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
 
       // 1. Resolve or create category
-      // Hardcoded simplified logic for MVP (Ideally we pick from a dropdown)
       final existingCategories = await repo.watchCategories().first;
       int catId;
       try {
@@ -118,15 +118,29 @@ class AddEntryController extends _$AddEntryController {
       final productId =
           product?.id ?? await repo.addProduct(productName, catId);
 
-      // 3. Add purchase entry
-      await repo.addPurchaseEntry(
-        productId: productId,
-        storeName: storeName,
-        purchaseDate: date,
-        price: price,
-        quantity: quantity,
-        location: location,
-      );
+      // 3. Update or Add purchase entry
+      if (existingEntryId != null) {
+        await repo.updatePurchaseEntry(
+          PurchaseEntry(
+            id: existingEntryId,
+            productId: productId,
+            storeName: storeName,
+            purchaseDate: date,
+            price: price,
+            quantity: quantity,
+            location: location,
+          ),
+        );
+      } else {
+        await repo.addPurchaseEntry(
+          productId: productId,
+          storeName: storeName,
+          purchaseDate: date,
+          price: price,
+          quantity: quantity,
+          location: location,
+        );
+      }
     });
   }
 }

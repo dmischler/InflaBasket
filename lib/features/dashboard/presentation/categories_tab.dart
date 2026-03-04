@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
 class CategoriesTab extends ConsumerWidget {
   const CategoriesTab({super.key});
@@ -9,6 +11,7 @@ class CategoriesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoriesInflation = ref.watch(categoryInflationListProvider);
+    final settings = ref.watch(settingsControllerProvider);
 
     if (categoriesInflation.isEmpty) {
       return const Center(child: Text('Not enough data to show categories.'));
@@ -27,7 +30,7 @@ class CategoriesTab extends ConsumerWidget {
           Text('Category Details',
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildCategoryList(context, categoriesInflation),
+          _buildCategoryList(context, categoriesInflation, settings),
         ],
       ),
     );
@@ -116,8 +119,9 @@ class CategoriesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategoryList(
-      BuildContext context, List<CategoryInflation> data) {
+  Widget _buildCategoryList(BuildContext context, List<CategoryInflation> data,
+      AppSettings settings) {
+    final format = NumberFormat.simpleCurrency(name: settings.currency);
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -139,8 +143,8 @@ class CategoriesTab extends ConsumerWidget {
                   : '?'),
             ),
             title: Text(item.category.name),
-            subtitle: Text(
-                'Weight: \$${item.totalSpend.toStringAsFixed(2)} total spend'),
+            subtitle:
+                Text('Weight: ${format.format(item.totalSpend)} total spend'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

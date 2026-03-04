@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/features/settings/application/export_service.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -10,6 +12,8 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final premiumAsync = ref.watch(subscriptionControllerProvider);
     final isPremium = premiumAsync.valueOrNull ?? false;
+    final settings = ref.watch(settingsControllerProvider);
+    final exportState = ref.watch(exportServiceProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -42,6 +46,46 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
+          Text('Preferences', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.currency_exchange),
+                  title: const Text('Currency'),
+                  trailing: DropdownButton<String>(
+                    value: settings.currency,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(value: 'CHF', child: Text('CHF')),
+                      DropdownMenuItem(value: 'EUR', child: Text('EUR')),
+                      DropdownMenuItem(value: 'USD', child: Text('USD')),
+                      DropdownMenuItem(value: 'GBP', child: Text('GBP')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        ref
+                            .read(settingsControllerProvider.notifier)
+                            .setCurrency(val);
+                      }
+                    },
+                  ),
+                ),
+                const Divider(height: 1),
+                SwitchListTile.adaptive(
+                  secondary: const Icon(Icons.straighten),
+                  title: const Text('Use Metric System'),
+                  subtitle: const Text('For quantities and unit prices'),
+                  value: settings.isMetric,
+                  onChanged: (val) => ref
+                      .read(settingsControllerProvider.notifier)
+                      .setMetric(val),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           Text('Data Management',
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
@@ -57,10 +101,18 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.download_outlined),
+                  leading: exportState.isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.download_outlined),
                   title: const Text('Export Data (CSV)'),
-                  subtitle: const Text('Coming soon'),
-                  enabled: false,
+                  subtitle: const Text('Download your purchase history'),
+                  onTap: () {
+                    ref.read(exportServiceProvider.notifier).exportData();
+                  },
                 ),
               ],
             ),

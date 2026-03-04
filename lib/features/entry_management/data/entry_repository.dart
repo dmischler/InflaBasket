@@ -112,4 +112,44 @@ class EntryRepository {
           ),
         );
   }
+
+  // Autocomplete helpers
+  Future<List<String>> searchProductNames(String query) async {
+    final res = await (_db.select(_db.products)
+          ..where((p) => p.name.like('%$query%'))
+          ..limit(10))
+        .get();
+    return res.map((p) => p.name).toList();
+  }
+
+  Future<List<String>> searchStoreNames(String query) async {
+    final queryExp = _db.selectOnly(_db.purchaseEntries, distinct: true)
+      ..addColumns([_db.purchaseEntries.storeName])
+      ..where(_db.purchaseEntries.storeName.like('%$query%'))
+      ..limit(10);
+    final res = await queryExp.get();
+    return res.map((row) => row.read(_db.purchaseEntries.storeName)!).toList();
+  }
+
+  Future<List<String>> searchLocations(String query) async {
+    final queryExp = _db.selectOnly(_db.purchaseEntries, distinct: true)
+      ..addColumns([_db.purchaseEntries.location])
+      ..where(_db.purchaseEntries.location.like('%$query%'))
+      ..limit(10);
+    final res = await queryExp.get();
+    return res
+        .map((row) => row.read(_db.purchaseEntries.location))
+        .where((loc) => loc != null && loc.isNotEmpty)
+        .cast<String>()
+        .toList();
+  }
+
+  Future<bool> updatePurchaseEntry(PurchaseEntry entry) {
+    return _db.update(_db.purchaseEntries).replace(entry);
+  }
+
+  Future<int> deletePurchaseEntry(int entryId) {
+    return (_db.delete(_db.purchaseEntries)..where((e) => e.id.equals(entryId)))
+        .go();
+  }
 }

@@ -5,6 +5,7 @@ import 'package:inflabasket/features/entry_management/presentation/add_entry_scr
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
 import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart';
 import 'package:inflabasket/features/settings/presentation/category_management_screen.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'app_router.g.dart';
 
@@ -19,7 +20,13 @@ GoRouter appRouter(AppRouterRef ref) {
         routes: [
           GoRoute(
             path: 'add',
-            builder: (context, state) => const AddEntryScreen(),
+            builder: (context, state) {
+              final extra = state.extra;
+              if (extra is EntryWithDetails) {
+                return AddEntryScreen(entryToEdit: extra);
+              }
+              return const AddEntryScreen();
+            },
           ),
         ],
       ),

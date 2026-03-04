@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/router/app_router.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final sharedPreferences = await SharedPreferences.getInstance();
+
   runApp(
-    const ProviderScope(
-      child: InflaBasketApp(),
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const InflaBasketApp(),
     ),
   );
 }
@@ -25,7 +33,8 @@ class InflaBasketApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       darkTheme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple, brightness: Brightness.dark),
       ),
       themeMode: ThemeMode.system,
       routerConfig: router,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
 class OverviewTab extends ConsumerWidget {
   const OverviewTab({super.key});
@@ -12,6 +13,7 @@ class OverviewTab extends ConsumerWidget {
     final overallInflation = ref.watch(basketInflationProvider);
     final history = ref.watch(basketIndexHistoryProvider);
     final topInflators = ref.watch(itemInflationListProvider);
+    final settings = ref.watch(settingsControllerProvider);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -27,11 +29,11 @@ class OverviewTab extends ConsumerWidget {
           const SizedBox(height: 24),
           Text('Top Inflators', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopInflators(context, topInflators),
+          _buildTopInflators(context, topInflators, settings),
           const SizedBox(height: 24),
           Text('Top Deflators', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopDeflators(context, topInflators),
+          _buildTopDeflators(context, topInflators, settings),
         ],
       ),
     );
@@ -141,7 +143,8 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildTopInflators(BuildContext context, List<ItemInflation> items) {
+  Widget _buildTopInflators(
+      BuildContext context, List<ItemInflation> items, AppSettings settings) {
     if (items.isEmpty) {
       return const Text(
           'Add multiple entries of the same product to track inflation.');
@@ -155,6 +158,8 @@ class OverviewTab extends ConsumerWidget {
       return const Text('No price increases detected yet! 🎉');
     }
 
+    final format = NumberFormat.simpleCurrency(name: settings.currency);
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -165,7 +170,7 @@ class OverviewTab extends ConsumerWidget {
           contentPadding: EdgeInsets.zero,
           title: Text(item.product.name),
           subtitle: Text(
-              '${NumberFormat.simpleCurrency().format(item.basePrice)} → ${NumberFormat.simpleCurrency().format(item.currentPrice)}'),
+              '${format.format(item.basePrice)} → ${format.format(item.currentPrice)}'),
           trailing: Text(
             '+${item.inflationPercent.toStringAsFixed(1)}%',
             style: const TextStyle(
@@ -176,7 +181,8 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildTopDeflators(BuildContext context, List<ItemInflation> items) {
+  Widget _buildTopDeflators(
+      BuildContext context, List<ItemInflation> items, AppSettings settings) {
     if (items.isEmpty) {
       return const Text(
           'Add multiple entries of the same product to track inflation.');
@@ -190,6 +196,8 @@ class OverviewTab extends ConsumerWidget {
       return const Text('No price decreases detected yet.');
     }
 
+    final format = NumberFormat.simpleCurrency(name: settings.currency);
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -200,7 +208,7 @@ class OverviewTab extends ConsumerWidget {
           contentPadding: EdgeInsets.zero,
           title: Text(item.product.name),
           subtitle: Text(
-              '${NumberFormat.simpleCurrency().format(item.basePrice)} → ${NumberFormat.simpleCurrency().format(item.currentPrice)}'),
+              '${format.format(item.basePrice)} → ${format.format(item.currentPrice)}'),
           trailing: Text(
             '${item.inflationPercent.toStringAsFixed(1)}%',
             style: const TextStyle(

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});
@@ -12,6 +15,7 @@ class HistoryTab extends ConsumerWidget {
     final entries = ref.watch(filteredEntriesProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final filter = ref.watch(historyFilterControllerProvider);
+    final settings = ref.watch(settingsControllerProvider);
 
     if (entries.isEmpty) {
       return const Center(child: Text('No entries yet. Tap + to add one.'));
@@ -51,25 +55,68 @@ class HistoryTab extends ConsumerWidget {
               final category = entryDetails.category;
 
               final dateFormat = DateFormat.yMMMd();
-              final currencyFormat = NumberFormat.simpleCurrency();
+              final currencyFormat =
+                  NumberFormat.simpleCurrency(name: settings.currency);
               final locationText =
                   entry.location == null || entry.location!.isEmpty
                       ? ''
                       : ' (${entry.location})';
 
-              return ListTile(
-                leading: CircleAvatar(
-                  child: Text(category.name.isNotEmpty
-                      ? category.name[0].toUpperCase()
-                      : '?'),
+              return Dismissible(
+                key: ValueKey(entry.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: const Icon(Icons.delete, color: Colors.white),
                 ),
-                title: Text(product.name),
-                subtitle: Text(
-                    '${entry.storeName}$locationText • ${dateFormat.format(entry.purchaseDate)}'),
-                trailing: Text(
-                  currencyFormat.format(entry.price),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
+                confirmDismiss: (direction) async {
+                  return await showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Delete Entry?'),
+                      content: const Text(
+                          'Are you sure you want to delete this purchase entry?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Delete',
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                onDismissed: (direction) {
+                  ref
+                      .read(entryRepositoryProvider)
+                      .deletePurchaseEntry(entry.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Entry deleted')),
+                  );
+                },
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Text(category.name.isNotEmpty
+                        ? category.name[0].toUpperCase()
+                        : '?'),
+                  ),
+                  title: Text(product.name),
+                  subtitle: Text(
+                      '${entry.storeName}$locationText • ${dateFormat.format(entry.purchaseDate)}'),
+                  trailing: Text(
+                    currencyFormat.format(entry.price),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  onLongPress: () {
+                    context.push('/home/add', extra: entryDetails);
+                  },
                 ),
               );
             },
