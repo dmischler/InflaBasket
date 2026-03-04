@@ -1,7 +1,14 @@
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'settings_provider.g.dart';
+
+@riverpod
+Future<String> appVersion(AppVersionRef ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return info.version;
+}
 
 @Riverpod(keepAlive: true)
 SharedPreferences sharedPreferences(SharedPreferencesRef ref) {

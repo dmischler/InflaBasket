@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/autocomplete_field.dart';
@@ -19,20 +20,20 @@ class AddEntryScreen extends ConsumerStatefulWidget {
 class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _productController;
-  late final TextEditingController _categoryController;
   late final TextEditingController _storeController;
   late final TextEditingController _locationController;
   late final TextEditingController _priceController;
   late final TextEditingController _quantityController;
+  late final TextEditingController _notesController;
   late DateTime _selectedDate;
+  String? _selectedCategoryName;
 
   @override
   void initState() {
     super.initState();
     final edit = widget.entryToEdit;
     _productController = TextEditingController(text: edit?.product.name ?? '');
-    _categoryController =
-        TextEditingController(text: edit?.category.name ?? '');
+    _selectedCategoryName = edit?.category.name;
     _storeController = TextEditingController(text: edit?.entry.storeName ?? '');
     _locationController =
         TextEditingController(text: edit?.entry.location ?? '');
@@ -40,17 +41,18 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
         TextEditingController(text: edit?.entry.price.toString() ?? '');
     _quantityController =
         TextEditingController(text: edit?.entry.quantity.toString() ?? '1.0');
+    _notesController = TextEditingController(text: edit?.entry.notes ?? '');
     _selectedDate = edit?.entry.purchaseDate ?? DateTime.now();
   }
 
   @override
   void dispose() {
     _productController.dispose();
-    _categoryController.dispose();
     _storeController.dispose();
     _locationController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -58,7 +60,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     if (_formKey.currentState!.validate()) {
       await ref.read(addEntryControllerProvider.notifier).submitEntry(
             productName: _productController.text,
-            categoryName: _categoryController.text,
+            categoryName: _selectedCategoryName!,
             storeName: _storeController.text,
             price: double.parse(_priceController.text),
             quantity: double.parse(_quantityController.text),
@@ -66,9 +68,21 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
             location: _locationController.text.trim().isEmpty
                 ? null
                 : _locationController.text.trim(),
+            notes: _notesController.text.trim().isEmpty
+                ? null
+                : _notesController.text.trim(),
             existingEntryId: widget.entryToEdit?.entry.id,
           );
-      if (context.mounted) {
+      if (!mounted) return;
+      final state = ref.read(addEntryControllerProvider);
+      if (state is AsyncError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving entry: ${state.error}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      } else {
         context.pop();
       }
     }
@@ -78,7 +92,25 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsControllerProvider);
     final repo = ref.read(entryRepositoryProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
     final isEditing = widget.entryToEdit != null;
+
+    final categories = categoriesAsync.valueOrNull ?? <Category>[];
+
+    // Auto-select the first category once the list loads, if nothing is chosen
+    if (_selectedCategoryName == null && categories.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() => _selectedCategoryName = categories.first.name);
+        }
+      });
+    }
+
+    // Safe dropdown value: only use _selectedCategoryName if it's in the list
+    final dropdownValue = (_selectedCategoryName != null &&
+            categories.any((c) => c.name == _selectedCategoryName))
+        ? _selectedCategoryName
+        : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -98,10 +130,21 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     value == null || value.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _categoryController,
+              DropdownButtonFormField<String>(
+                value: dropdownValue,
                 decoration: const InputDecoration(
-                    labelText: 'Category', border: OutlineInputBorder()),
+                  labelText: 'Category',
+                  border: OutlineInputBorder(),
+                ),
+                items: categories
+                    .map((c) => DropdownMenuItem(
+                          value: c.name,
+                          child: Text(c.name),
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedCategoryName = val);
+                },
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Required' : null,
               ),
@@ -179,6 +222,17 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _notesController,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (optional)',
+                  border: OutlineInputBorder(),
+                  hintText: 'e.g. on sale, organic, bulk pack',
+                ),
+                maxLines: 2,
+                textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(

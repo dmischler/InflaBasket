@@ -152,4 +152,60 @@ class EntryRepository {
     return (_db.delete(_db.purchaseEntries)..where((e) => e.id.equals(entryId)))
         .go();
   }
+
+  /// Saves a list of receipt items atomically. If any item fails, the entire
+  /// batch is rolled back. Each [items] entry must have keys:
+  /// `productName`, `categoryName`, `price`, `quantity`.
+  Future<void> bulkAddFromReceipt({
+    required String storeName,
+    required DateTime receiptDate,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    await _db.transaction(() async {
+      for (final item in items) {
+        final categoryName = item['categoryName'] as String? ?? 'Groceries';
+        final productName = item['productName'] as String? ?? 'Unknown';
+        final price = (item['price'] as num?)?.toDouble() ?? 0.0;
+        final quantity = (item['quantity'] as num?)?.toDouble() ?? 1.0;
+
+        // Resolve or create category
+        final allCategories = await _db.select(_db.categories).get();
+        int catId;
+        try {
+          catId = allCategories
+              .firstWhere(
+                  (c) => c.name.toLowerCase() == categoryName.toLowerCase())
+              .id;
+        } catch (_) {
+          catId = await _db.into(_db.categories).insert(
+                CategoriesCompanion.insert(
+                  name: categoryName,
+                  isCustom: const Value(true),
+                ),
+              );
+        }
+
+        // Resolve or create product
+        final existingProduct = await (_db.select(_db.products)
+              ..where((p) => p.name.equals(productName)))
+            .getSingleOrNull();
+        final productId = existingProduct?.id ??
+            await _db.into(_db.products).insert(
+                  ProductsCompanion.insert(
+                      name: productName, categoryId: catId),
+                );
+
+        // Insert entry
+        await _db.into(_db.purchaseEntries).insert(
+              PurchaseEntriesCompanion.insert(
+                productId: productId,
+                storeName: storeName,
+                purchaseDate: receiptDate,
+                price: price,
+                quantity: Value(quantity),
+              ),
+            );
+      }
+    });
+  }
 }

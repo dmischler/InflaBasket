@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AsyncAutocompleteField extends StatelessWidget {
+class AsyncAutocompleteField extends StatefulWidget {
   final String labelText;
   final TextEditingController controller;
   final Future<Iterable<String>> Function(String) optionsBuilder;
@@ -15,26 +15,46 @@ class AsyncAutocompleteField extends StatelessWidget {
   });
 
   @override
+  State<AsyncAutocompleteField> createState() => _AsyncAutocompleteFieldState();
+}
+
+class _AsyncAutocompleteFieldState extends State<AsyncAutocompleteField> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) => RawAutocomplete<String>(
-        textEditingController: controller,
-        focusNode: FocusNode(),
+        textEditingController: widget.controller,
+        focusNode: _focusNode,
         optionsBuilder: (TextEditingValue textEditingValue) async {
           if (textEditingValue.text == '') {
             return const Iterable<String>.empty();
           }
-          return await optionsBuilder(textEditingValue.text);
+          return await widget.optionsBuilder(textEditingValue.text);
         },
-        fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+        fieldViewBuilder:
+            (context, textEditingController, focusNode, onFieldSubmitted) {
           return TextFormField(
             controller: textEditingController,
             focusNode: focusNode,
             decoration: InputDecoration(
-              labelText: labelText,
+              labelText: widget.labelText,
               border: const OutlineInputBorder(),
             ),
-            validator: validator,
+            validator: widget.validator,
             onFieldSubmitted: (String value) {
               onFieldSubmitted();
             },
@@ -46,7 +66,8 @@ class AsyncAutocompleteField extends StatelessWidget {
             child: Material(
               elevation: 4.0,
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: 200, maxWidth: constraints.biggest.width),
+                constraints: BoxConstraints(
+                    maxHeight: 200, maxWidth: constraints.biggest.width),
                 child: ListView.builder(
                   padding: EdgeInsets.zero,
                   shrinkWrap: true,

@@ -107,8 +107,26 @@ class HistoryTab extends ConsumerWidget {
                         : '?'),
                   ),
                   title: Text(product.name),
-                  subtitle: Text(
-                      '${entry.storeName}$locationText • ${dateFormat.format(entry.purchaseDate)}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          '${entry.storeName}$locationText • ${dateFormat.format(entry.purchaseDate)}'),
+                      if (entry.notes != null && entry.notes!.isNotEmpty)
+                        Text(
+                          entry.notes!,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontStyle: FontStyle.italic,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
+                  isThreeLine: entry.notes != null && entry.notes!.isNotEmpty,
                   trailing: Text(
                     currencyFormat.format(entry.price),
                     style: const TextStyle(

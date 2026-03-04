@@ -97,6 +97,7 @@ class AddEntryController extends _$AddEntryController {
     required double quantity,
     required DateTime date,
     String? location,
+    String? notes,
     int? existingEntryId,
   }) async {
     await AsyncValue.guard(() async {
@@ -129,6 +130,7 @@ class AddEntryController extends _$AddEntryController {
             price: price,
             quantity: quantity,
             location: location,
+            notes: notes,
           ),
         );
       } else {
@@ -139,6 +141,7 @@ class AddEntryController extends _$AddEntryController {
           price: price,
           quantity: quantity,
           location: location,
+          notes: notes,
         );
       }
     });

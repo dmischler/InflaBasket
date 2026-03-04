@@ -220,9 +220,19 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] Dark/Light mode support via Material 3.
 - [x] Desktop (Linux) support enabled.
 
-### 📝 Remaining Tasks (Minor Polish)
-- Export Data (CSV) functionality is a placeholder.
-- Edit/Delete functionality for individual entries in History tab.
+**Sprint 2: Bug Fixes & Polish**
+- [x] **Category Dropdown:** Replaced free-text category input in Add Entry with a `DropdownButtonFormField` sourced from the database via `categoriesProvider`. Ensures data consistency for inflation calculations.
+- [x] **Error Feedback:** `Add Entry` screen now shows a `SnackBar` when `submitEntry` throws, surfacing errors to the user instead of failing silently.
+- [x] **FocusNode Fix:** `AsyncAutocompleteField` converted to `StatefulWidget`; `FocusNode` now created in `initState` and disposed in `dispose`, eliminating the per-build leak.
+- [x] **Notes Field:** Added optional `notes` field to Add Entry form and the database column is now surfaced in the History list tile (italic, muted, collapsed to 1 line).
+- [x] **Receipt Date Parsing:** AI Scanner now parses the `date` field returned by the Vision API and uses it for all saved entries, instead of always using `DateTime.now()`.
+- [x] **Scanner Bulk Transaction:** Items from receipt scanning are now saved in a single `database.transaction()` with full rollback if any item fails.
+- [x] **Per-Item Receipt Review:** Replaced the "Save All or Cancel" scanner dialog with a full stateful `_ReceiptReviewDialog`: per-item checkboxes to deselect, inline product name editing, and category dropdown per item. A "Select All / Deselect All" toggle and item count on the Save button are included.
+- [x] **Dynamic Version:** Settings screen now reads the app version from `pubspec.yaml` via `package_info_plus` instead of using a hardcoded `'1.0.0'` string.
+
+### 📝 Production Configuration (Not Code)
+- Replace `'appl_apiKey'` / `'goog_apiKey'` placeholders in `subscription_providers.dart` with real RevenueCat keys before store submission.
+- Replace `'YOUR_API_KEY'` in `vision_client.dart`; ideally move to a backend proxy rather than bundling the key in the binary.
 
 ---
 
@@ -258,14 +268,23 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ## 13. Future Roadmap
 
-### Sprint 1 – Quick Wins (High Priority)
+### Sprint 1 – Quick Wins ✅ COMPLETE
 
-These are small-scope, high-value improvements that polish the current feature set.
+1. **Edit/Delete History Entries** ✅ — Swipe-to-delete and long-press to edit in the History tab.
+2. **Autocomplete for Manual Entry** ✅ — TypeAhead dropdown on Product, Store, and Location fields.
+3. **CSV Export** ✅ — Settings → Export Data, implemented via `ExportService` using `CsvEncoder` + `share_plus`.
+4. **Default Currency & Units** ✅ — CHF default with metric/imperial toggle, persisted via `SharedPreferences`.
 
-1. **Edit/Delete History Entries** — Swipe-to-delete or long-press context menu on entries in the History tab. Allows users to correct mistakes without re-entering data.
-2. **Autocomplete for Manual Entry** — TypeAhead dropdown on Product and Store fields, sourcing suggestions from existing DB records. Reduces friction and improves data consistency.
-3. **CSV/PDF Export** — Settings → Export Data. Generate a downloadable file of all purchase history. Currently a placeholder; real implementation needed.
-4. **Default Currency & Units Setting** — CHF default with metric/imperial toggle. Persisted via shared preferences. Switzerland-first; important for target market.
+### Sprint 2 – Bug Fixes & Polish ✅ COMPLETE
+
+5. **Category Dropdown** ✅ — DB-sourced `DropdownButtonFormField` in Add Entry (replaces free-text input).
+6. **Add Entry Error Feedback** ✅ — SnackBar shown on `submitEntry` failure.
+7. **FocusNode Fix** ✅ — `AsyncAutocompleteField` converted to `StatefulWidget` to prevent per-build FocusNode leak.
+8. **Notes Field** ✅ — Optional notes in Add Entry form; displayed in History tile.
+9. **Receipt Date Parsing** ✅ — AI scanner uses the date from the receipt JSON response, not `DateTime.now()`.
+10. **Scanner Bulk Transaction** ✅ — `bulkAddFromReceipt()` wraps all inserts in a single `database.transaction()`.
+11. **Per-Item Receipt Review** ✅ — Stateful review dialog with per-item checkboxes, editable names, category dropdowns, and Select All toggle.
+12. **Dynamic App Version** ✅ — Version read from `pubspec.yaml` via `package_info_plus`.
 
 ---
 

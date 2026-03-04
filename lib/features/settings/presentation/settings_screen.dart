@@ -14,6 +14,7 @@ class SettingsScreen extends ConsumerWidget {
     final isPremium = premiumAsync.valueOrNull ?? false;
     final settings = ref.watch(settingsControllerProvider);
     final exportState = ref.watch(exportServiceProvider);
+    final versionAsync = ref.watch(appVersionProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -122,21 +123,21 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Card(
             child: Column(
-              children: const [
+              children: [
                 ListTile(
-                  leading: Icon(Icons.info_outline),
-                  title: Text('Version'),
-                  subtitle: Text('1.0.0'),
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('Version'),
+                  subtitle: Text(versionAsync.valueOrNull ?? '...'),
                 ),
-                Divider(height: 1),
-                ListTile(
+                const Divider(height: 1),
+                const ListTile(
                   leading: Icon(Icons.privacy_tip_outlined),
                   title: Text('Privacy Policy'),
                   subtitle: Text('Coming soon'),
                   enabled: false,
                 ),
-                Divider(height: 1),
-                ListTile(
+                const Divider(height: 1),
+                const ListTile(
                   leading: Icon(Icons.description_outlined),
                   title: Text('Terms of Service'),
                   subtitle: Text('Coming soon'),
