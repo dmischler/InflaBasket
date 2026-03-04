@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
@@ -158,19 +159,17 @@ class OverviewTab extends ConsumerWidget {
       return const Text('No price increases detected yet! 🎉');
     }
 
-    final format = NumberFormat.simpleCurrency(name: settings.currency);
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: inflators.length,
       itemBuilder: (context, index) {
         final item = inflators[index];
+        final unitLabel = _unitPriceLabel(item, settings.currency);
         return ListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(item.product.name),
-          subtitle: Text(
-              '${format.format(item.basePrice)} → ${format.format(item.currentPrice)}'),
+          subtitle: Text(unitLabel),
           trailing: Text(
             '+${item.inflationPercent.toStringAsFixed(1)}%',
             style: const TextStyle(
@@ -196,19 +195,17 @@ class OverviewTab extends ConsumerWidget {
       return const Text('No price decreases detected yet.');
     }
 
-    final format = NumberFormat.simpleCurrency(name: settings.currency);
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: top.length,
       itemBuilder: (context, index) {
         final item = top[index];
+        final unitLabel = _unitPriceLabel(item, settings.currency);
         return ListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(item.product.name),
-          subtitle: Text(
-              '${format.format(item.basePrice)} → ${format.format(item.currentPrice)}'),
+          subtitle: Text(unitLabel),
           trailing: Text(
             '${item.inflationPercent.toStringAsFixed(1)}%',
             style: const TextStyle(
@@ -217,5 +214,13 @@ class OverviewTab extends ConsumerWidget {
         );
       },
     );
+  }
+
+  /// Builds a subtitle string showing base → current per-unit price.
+  String _unitPriceLabel(ItemInflation item, String currency) {
+    final unit = item.baseUnit;
+    String fmt(double pricePerBase) =>
+        unit.formattedUnitPriceFromNormalized(pricePerBase, currency);
+    return '${fmt(item.baseUnitPrice)} → ${fmt(item.currentUnitPrice)}';
   }
 }

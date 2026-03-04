@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'entry_providers.g.dart';
@@ -96,6 +97,7 @@ class AddEntryController extends _$AddEntryController {
     required double price,
     required double quantity,
     required DateTime date,
+    UnitType? unit,
     String? location,
     String? notes,
     int? existingEntryId,
@@ -119,6 +121,9 @@ class AddEntryController extends _$AddEntryController {
       final productId =
           product?.id ?? await repo.addProduct(productName, catId);
 
+      // Normalise: store null for count (default)
+      final storedUnit = (unit == null || unit == UnitType.count) ? null : unit;
+
       // 3. Update or Add purchase entry
       if (existingEntryId != null) {
         await repo.updatePurchaseEntry(
@@ -129,6 +134,7 @@ class AddEntryController extends _$AddEntryController {
             purchaseDate: date,
             price: price,
             quantity: quantity,
+            unit: storedUnit?.name,
             location: location,
             notes: notes,
           ),
@@ -140,6 +146,7 @@ class AddEntryController extends _$AddEntryController {
           purchaseDate: date,
           price: price,
           quantity: quantity,
+          unit: storedUnit,
           location: location,
           notes: notes,
         );

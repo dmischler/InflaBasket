@@ -5,9 +5,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/ai_scanner/data/vision_client.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
@@ -52,6 +54,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         (dateStr != null ? DateTime.tryParse(dateStr) : null) ?? DateTime.now();
     final items = result['items'] as List<dynamic>? ?? [];
     final categories = ref.read(categoriesProvider).valueOrNull ?? <Category>[];
+    final settings = ref.read(settingsControllerProvider);
 
     showDialog(
       context: context,
@@ -60,6 +63,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         receiptDate: receiptDate,
         items: items,
         categories: categories,
+        isMetric: settings.isMetric,
         onSave: (selectedItems) async {
           try {
             await ref.read(entryRepositoryProvider).bulkAddFromReceipt(
@@ -132,12 +136,13 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 }
 
 /// Stateful review dialog: per-item checkboxes, editable product names,
-/// category dropdowns. Only checked items are saved.
+/// category dropdowns, and unit pickers. Only checked items are saved.
 class _ReceiptReviewDialog extends StatefulWidget {
   final String storeName;
   final DateTime receiptDate;
   final List<dynamic> items;
   final List<Category> categories;
+  final bool isMetric;
   final Future<void> Function(List<Map<String, dynamic>>) onSave;
 
   const _ReceiptReviewDialog({
@@ -145,6 +150,7 @@ class _ReceiptReviewDialog extends StatefulWidget {
     required this.receiptDate,
     required this.items,
     required this.categories,
+    required this.isMetric,
     required this.onSave,
   });
 
@@ -156,6 +162,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
   late final List<bool> _selected;
   late final List<TextEditingController> _nameControllers;
   late final List<String> _categorySelections;
+  late final List<UnitType> _unitSelections;
   bool _isSaving = false;
 
   @override
@@ -170,6 +177,14 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
         .map((item) =>
             _resolveCategory(item['suggestedCategory'] as String? ?? ''))
         .toList();
+    _unitSelections = widget.items.map((item) {
+      final unitStr = item['unit'] as String?;
+      final parsed = unitTypeFromString(unitStr);
+      // If the parsed unit isn't available for the current metric/imperial
+      // setting, fall back to count.
+      final available = availableUnits(widget.isMetric);
+      return available.contains(parsed) ? parsed : UnitType.count;
+    }).toList();
   }
 
   @override
@@ -226,6 +241,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
             ? 'Unknown'
             : _nameControllers[i].text.trim();
         item['categoryName'] = _categorySelections[i];
+        item['unit'] = _unitSelections[i].name;
         selectedItems.add(item);
       }
     }
@@ -324,6 +340,28 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                                       ))
                                   .toList(),
                             ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Unit picker
+                          DropdownButton<UnitType>(
+                            value: _unitSelections[index],
+                            isDense: true,
+                            underline: const SizedBox(),
+                            style: Theme.of(context).textTheme.bodySmall,
+                            onChanged: _selected[index]
+                                ? (val) {
+                                    if (val != null) {
+                                      setState(() =>
+                                          _unitSelections[index] = val);
+                                    }
+                                  }
+                                : null,
+                            items: availableUnits(widget.isMetric)
+                                .map((u) => DropdownMenuItem(
+                                      value: u,
+                                      child: Text(u.label),
+                                    ))
+                                .toList(),
                           ),
                           const SizedBox(width: 8),
                           Text(

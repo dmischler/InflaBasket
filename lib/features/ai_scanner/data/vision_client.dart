@@ -43,6 +43,7 @@ class VisionClient {
                   '''You are an expert receipt parser. Analyze the provided receipt image.
 Extract the store name, date, and all individual line items.
 For each item, provide a "suggestedCategory" strictly chosen from this list: [Groceries, Dairy, Meat, Beverages, Household, Personal Care, Electronics, Transportation, Dining Out]. If none fit perfectly, deduce the closest match.
+Also extract the package size and unit for each item. Infer the unit from the product name or any weight/volume printed on the receipt (e.g. "Milk 1L" → unit: "liter", quantity: 1; "Chicken 500g" → unit: "gram", quantity: 500; "Eggs 6 pcs" → unit: "count", quantity: 6).
 Return ONLY a valid JSON object matching this schema, without markdown formatting:
 {
   "storeName": "string",
@@ -52,9 +53,10 @@ Return ONLY a valid JSON object matching this schema, without markdown formattin
       "productName": "string",
       "price": number,
       "quantity": number,
+      "unit": "count|gram|kilogram|ounce|pound|milliliter|liter|fluidOunce",
       "total": number,
       "suggestedCategory": "string",
-      "confidence": number
+      "confidence": number (0.0 to 1.0)
     }
   ]
 }'''

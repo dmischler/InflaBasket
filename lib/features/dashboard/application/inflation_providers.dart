@@ -1,25 +1,65 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:collection/collection.dart';
+import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/core/database/database.dart';
 
 part 'inflation_providers.g.dart';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Returns the price normalised to the *base unit* for the given entry.
+///
+/// Base units: mass → g, volume → ml, count → 1 item.
+/// E.g. 2.00 CHF / 500 g  → 0.004 CHF/g
+///      3.50 CHF / 1.5 kg → 0.002333… CHF/g
+double _normalizedUnitPrice(PurchaseEntry e) {
+  final unit = unitTypeFromString(e.unit);
+  return unit.normalizedPrice(e.price, e.quantity);
+}
+
+/// Returns true when two entries for the same product can be meaningfully
+/// compared (same physical dimension: both mass, both volume, or both count).
+bool _compatible(PurchaseEntry a, PurchaseEntry b) {
+  final ua = unitTypeFromString(a.unit);
+  final ub = unitTypeFromString(b.unit);
+  return ua.compatibleWith(ub);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────────────────────────────────────────
+
 class ItemInflation {
   final Product product;
   final Category category;
-  final double basePrice;
-  final double currentPrice;
+
+  /// Per-base-unit price at the earliest entry (CHF/g, CHF/ml, or CHF/item).
+  final double baseUnitPrice;
+
+  /// Per-base-unit price at the most recent entry.
+  final double currentUnitPrice;
+
+  /// The unit stored on the base entry (used for display).
+  final UnitType baseUnit;
+
   final double inflationPercent;
 
   ItemInflation({
     required this.product,
     required this.category,
-    required this.basePrice,
-    required this.currentPrice,
+    required this.baseUnitPrice,
+    required this.currentUnitPrice,
+    required this.baseUnit,
     required this.inflationPercent,
   });
+
+  // Legacy aliases kept so existing UI code compiles without changes.
+  double get basePrice => baseUnitPrice;
+  double get currentPrice => currentUnitPrice;
 }
 
 class CategoryInflation {
@@ -33,6 +73,10 @@ class CategoryInflation {
     required this.totalSpend,
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Providers
+// ─────────────────────────────────────────────────────────────────────────────
 
 @riverpod
 List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
@@ -50,21 +94,34 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
         .sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
 
     final baseEntry = productEntries.first;
-    final currentEntry = productEntries.last;
 
-    final basePrice = baseEntry.entry.price / baseEntry.entry.quantity;
-    final currentPrice = currentEntry.entry.price / currentEntry.entry.quantity;
+    // Walk forward to find the most recent entry that is unit-compatible with
+    // the base entry. This allows g↔kg etc. while skipping incompatible units.
+    EntryWithDetails? currentEntry;
+    for (int i = productEntries.length - 1; i > 0; i--) {
+      if (_compatible(baseEntry.entry, productEntries[i].entry)) {
+        currentEntry = productEntries[i];
+        break;
+      }
+    }
+
+    // No compatible pair found — skip this product
+    if (currentEntry == null) continue;
+
+    final baseUnitPrice = _normalizedUnitPrice(baseEntry.entry);
+    final currentUnitPrice = _normalizedUnitPrice(currentEntry.entry);
 
     double inflation = 0;
-    if (basePrice > 0) {
-      inflation = ((currentPrice - basePrice) / basePrice) * 100;
+    if (baseUnitPrice > 0) {
+      inflation = ((currentUnitPrice - baseUnitPrice) / baseUnitPrice) * 100;
     }
 
     result.add(ItemInflation(
       product: baseEntry.product,
       category: baseEntry.category,
-      basePrice: basePrice,
-      currentPrice: currentPrice,
+      baseUnitPrice: baseUnitPrice,
+      currentUnitPrice: currentUnitPrice,
+      baseUnit: unitTypeFromString(baseEntry.entry.unit),
       inflationPercent: inflation,
     ));
   }
@@ -159,37 +216,41 @@ List<MonthlyIndex> basketIndexHistory(BasketIndexHistoryRef ref) {
       groupedByMonth.keys.reduce((a, b) => a.isBefore(b) ? a : b);
   final baseBasket = groupedByMonth[firstMonthDate]!;
 
-  final baseBasketQuantities = <int, double>{};
-  for (final entry in baseBasket) {
-    baseBasketQuantities[entry.product.id] =
-        (baseBasketQuantities[entry.product.id] ?? 0) + entry.entry.quantity;
-    baseCost += entry.entry.price;
+  // Base basket: quantities in base units (g or ml) per product.
+  final baseBasketBaseQty = <int, double>{};
+  for (final e in baseBasket) {
+    final unit = unitTypeFromString(e.entry.unit);
+    final baseQty = e.entry.quantity * unit.toBaseMultiplier;
+    baseBasketBaseQty[e.product.id] =
+        (baseBasketBaseQty[e.product.id] ?? 0) + baseQty;
+    baseCost += e.entry.price;
   }
 
   if (baseCost == 0) return [];
 
-  final latestPrices = <int, double>{};
+  // Latest normalised unit price (CHF per base unit) seen up to current month.
+  final latestUnitPrices = <int, double>{};
   final sortedMonths = groupedByMonth.keys.toList()..sort();
 
   for (final month in sortedMonths) {
     final monthEntries = groupedByMonth[month]!;
 
-    for (final entry in monthEntries) {
-      latestPrices[entry.product.id] = entry.entry.price / entry.entry.quantity;
+    for (final e in monthEntries) {
+      latestUnitPrices[e.product.id] = _normalizedUnitPrice(e.entry);
     }
 
     double currentCost = 0;
-    for (final productId in baseBasketQuantities.keys) {
-      final qty = baseBasketQuantities[productId]!;
-      final price = latestPrices[productId] ?? 0;
+    for (final productId in baseBasketBaseQty.keys) {
+      final baseQty = baseBasketBaseQty[productId]!;
+      final unitPrice = latestUnitPrices[productId];
 
-      if (price == 0) {
+      if (unitPrice == null || unitPrice == 0) {
+        // Use original base unit price for this product
         final originalEntry =
             baseBasket.firstWhere((e) => e.product.id == productId);
-        currentCost +=
-            (originalEntry.entry.price / originalEntry.entry.quantity) * qty;
+        currentCost += _normalizedUnitPrice(originalEntry.entry) * baseQty;
       } else {
-        currentCost += price * qty;
+        currentCost += unitPrice * baseQty;
       }
     }
 

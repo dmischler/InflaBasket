@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/autocomplete_field.dart';
@@ -27,6 +28,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   late final TextEditingController _notesController;
   late DateTime _selectedDate;
   String? _selectedCategoryName;
+  UnitType _selectedUnit = UnitType.count;
 
   @override
   void initState() {
@@ -43,6 +45,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
         TextEditingController(text: edit?.entry.quantity.toString() ?? '1.0');
     _notesController = TextEditingController(text: edit?.entry.notes ?? '');
     _selectedDate = edit?.entry.purchaseDate ?? DateTime.now();
+    _selectedUnit = unitTypeFromString(edit?.entry.unit);
   }
 
   @override
@@ -65,6 +68,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
             price: double.parse(_priceController.text),
             quantity: double.parse(_quantityController.text),
             date: _selectedDate,
+            unit: _selectedUnit,
             location: _locationController.text.trim().isEmpty
                 ? null
                 : _locationController.text.trim(),
@@ -94,6 +98,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     final repo = ref.read(entryRepositoryProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final isEditing = widget.entryToEdit != null;
+    final units = availableUnits(settings.isMetric);
 
     final categories = categoriesAsync.valueOrNull ?? <Category>[];
 
@@ -220,6 +225,27 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                           ? 'Invalid Qty'
                           : null,
                     ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Unit picker — ensure the selected unit is valid for current
+                  // metric/imperial setting; fall back to count if not.
+                  DropdownButtonFormField<UnitType>(
+                    value: units.contains(_selectedUnit)
+                        ? _selectedUnit
+                        : UnitType.count,
+                    decoration: const InputDecoration(
+                      labelText: 'Unit',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: units
+                        .map((u) => DropdownMenuItem(
+                              value: u,
+                              child: Text(u.label),
+                            ))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedUnit = val);
+                    },
                   ),
                 ],
               ),

@@ -66,6 +66,7 @@ class PurchaseEntries extends Table {
   DateTimeColumn get purchaseDate => dateTime()();
   RealColumn get price => real()(); // Store exact decimal
   RealColumn get quantity => real().withDefault(const Constant(1.0))();
+  TextColumn get unit => text().nullable()(); // UnitType.name; null = count
   TextColumn get notes => text().nullable()();
 }
 ```
@@ -122,17 +123,34 @@ lib/
 
 ## 6. Inflation Calculation Logic
 
-**1. Item-Level Inflation:**
-`((CurrentPrice - BasePrice) / BasePrice) * 100`
-*(BasePrice is the first recorded price of the product, or the average price from a specific past window).*
+**1. Item-Level Inflation (Unit-Normalised):**
+
+All prices are normalised to a canonical base unit before comparison:
+- Mass: CHF/g (g, kg, oz, lb all convert to g)
+- Volume: CHF/ml (ml, l, fl oz all convert to ml)
+- Count: CHF/item
+
+`normalizedUnitPrice = price / (quantity × toBaseMultiplier)`
+
+Inflation is then: `((currentNormPrice - baseNormPrice) / baseNormPrice) × 100`
+
+This means shrinkflation (e.g. 500g → 450g at the same sticker price) shows up
+as an effective price increase of ~11.1%, just as it should.
+
+Cross-unit comparisons are allowed when both entries measure the same dimension
+(e.g. g↔kg, ml↔l, oz↔lb, g↔oz). Entries with incompatible units (e.g. kg vs l)
+are skipped — the newer entry becomes a new baseline.
 
 **2. Category-Level Inflation:**
-Weighted average. Sum of `(Item_Inflation * Item_Total_Spend)` / `Total_Category_Spend`.
+Weighted average. Sum of `(Item_Inflation × Item_Total_Spend)` / `Total_Category_Spend`.
 
 **3. Basket-Level Inflation (Modified Laspeyres Index):**
 Compare the cost of the *exact same basket of goods* over time.
 $Index_t = \frac{\sum (Price_{t} \times Quantity_{base})}{\sum (Price_{base} \times Quantity_{base})} \times 100$
 If the index moves from 100 to 105, the user's personal inflation is 5%.
+
+Base-basket quantities are stored in base units (g/ml), so a 500g → 450g
+repackaging is correctly reflected in the index without any manual adjustment.
 
 ---
 
@@ -315,6 +333,39 @@ Long-term features that expand the product into a platform.
 18. **Voice Entry (Premium)** — Dictate a purchase ("Milk, 2.50, Migros") using on-device speech recognition. Parsed and pre-filled into the Add Entry form.
 19. **Loyalty Card Scanner** — Scan Migros Cumulus or Coop Supercard barcodes to auto-populate the store name field and potentially link to loyalty program history via partner APIs.
 20. **Seasonal & Location Insights (Premium)** — Detect seasonal price patterns (e.g., "Tomatoes are typically 30% cheaper in August") and regional price differences across logged store locations.
+
+---
+
+### Bitcoin Standard Mode
+
+A toggle to view all inflation data denominated in Bitcoin (satoshis) instead of fiat currency. This feature appeals to Bitcoin users who want to track their purchasing power in BTC terms.
+
+21. **Fiat/Bitcoin Toggle** — A prominent toggle in the Settings and/or Dashboard header to switch between "Fiat Standard" and "Bitcoin Standard". Persisted via `SharedPreferences`.
+
+22. **Bitcoin-Theme UI** — When Bitcoin Standard is active, the app's color scheme switches to an orange palette (Bitcoin orange: #F7931A) throughout the UI:
+    - Primary color changes from default blue/green to Bitcoin orange.
+    - Accent elements, icons, and chart colors adapt to the orange theme.
+    - Toggle switch itself uses orange when active.
+    - Smooth animated transition between fiat (default theme) and Bitcoin (orange theme) modes.
+
+23. **Bitcoin Price Data** — Integrate a Bitcoin price API (e.g., CoinGecko or similar free tier) to fetch historical BTC/fiat exchange rates. Store historical rates alongside purchase entries or fetch on-demand for calculations.
+
+23. **Sats Conversion** — When Bitcoin Standard is active:
+    - All purchase amounts are converted to satoshis (1 BTC = 100,000,000 sats) using the exchange rate at the time of purchase.
+    - Display values in sats (or mBTC/BTC for larger amounts) throughout the UI.
+
+24. **Bitcoin Inflation Calculation** — In Bitcoin Standard mode:
+    - **Item-Level Sats Inflation:** Calculate how many more/fewer sats are required to purchase the same product now vs. in the past.
+    - Formula: `((CurrentSatsPrice - BaseSatsPrice) / BaseSatsPrice) * 100`
+    - This captures both fiat price inflation AND Bitcoin exchange rate changes.
+    - If BTC appreciates against fiat faster than product prices rise, sats inflation may be negative (purchasing power in BTC increases).
+
+25. **Dual-Mode Dashboard** — When Bitcoin Standard is active:
+    - Show all inflation charts, category breakdowns, and totals in sats.
+    - Include a secondary "Fiat Equivalent" indicator for context.
+    - Line charts show sats-denominated basket index over time.
+
+26. **Historical Rate Handling** — For each purchase entry, optionally store the BTC/fiat rate at time of purchase. If not stored, fetch historical rates from the API based on the purchase date. Cache rates locally to minimize API calls.
 
 ---
 

@@ -171,6 +171,22 @@ final entry = state.extra as EntryWithDetails;
 - `shared_preferences` — Local settings
 - `csv` / `share_plus` — Data export
 
+## 7. Context Management
+
+Context is your most important resource. Proactively use subagents to keep exploration, research, and verbose operations out of the main conversation.
+
+### Use Subagents (Task tool) for:
+- **Codebase exploration** — reading 3+ files to answer a question
+- **Research tasks** — web searches, doc lookups, investigating how something works
+- **Code review or analysis** — tasks that produce verbose output
+- **Any investigation** where only the summary matters
+
+### Stay in Main Context for:
+- Direct file edits the user requested
+- Short targeted reads (1-2 files)
+- Conversations requiring back-and-forth
+- Tasks where the user needs immediate steps
+
 ---
 
 Last updated: March 2026

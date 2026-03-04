@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -127,10 +128,17 @@ class HistoryTab extends ConsumerWidget {
                     ],
                   ),
                   isThreeLine: entry.notes != null && entry.notes!.isNotEmpty,
-                  trailing: Text(
-                    currencyFormat.format(entry.price),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        currencyFormat.format(entry.price),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      _buildUnitPriceLabel(entry, settings.currency),
+                    ],
                   ),
                   onLongPress: () {
                     context.push('/home/add', extra: entryDetails);
@@ -141,6 +149,22 @@ class HistoryTab extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// Shows a small per-unit price label below the total price.
+  /// For count units with qty = 1, nothing is shown (no useful extra info).
+  Widget _buildUnitPriceLabel(PurchaseEntry entry, String currency) {
+    final unit = unitTypeFromString(entry.unit);
+    // Hide label when it's trivially 'same as price' (count, qty=1)
+    if (unit == UnitType.count && entry.quantity == 1.0) {
+      return const SizedBox.shrink();
+    }
+    final label =
+        unit.formattedUnitPrice(entry.price, entry.quantity, currency);
+    return Text(
+      label,
+      style: const TextStyle(fontSize: 11, color: Colors.grey),
     );
   }
 

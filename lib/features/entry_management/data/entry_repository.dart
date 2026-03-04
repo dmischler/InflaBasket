@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/models/unit.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'entry_repository.g.dart';
@@ -97,6 +98,7 @@ class EntryRepository {
     required DateTime purchaseDate,
     required double price,
     required double quantity,
+    UnitType? unit,
     String? location,
     String? notes,
   }) {
@@ -107,6 +109,7 @@ class EntryRepository {
             purchaseDate: purchaseDate,
             price: price,
             quantity: Value(quantity),
+            unit: Value(unit == UnitType.count ? null : unit?.name),
             location: Value(location),
             notes: Value(notes),
           ),
@@ -155,7 +158,7 @@ class EntryRepository {
 
   /// Saves a list of receipt items atomically. If any item fails, the entire
   /// batch is rolled back. Each [items] entry must have keys:
-  /// `productName`, `categoryName`, `price`, `quantity`.
+  /// `productName`, `categoryName`, `price`, `quantity`, `unit` (optional, UnitType.name string).
   Future<void> bulkAddFromReceipt({
     required String storeName,
     required DateTime receiptDate,
@@ -167,6 +170,8 @@ class EntryRepository {
         final productName = item['productName'] as String? ?? 'Unknown';
         final price = (item['price'] as num?)?.toDouble() ?? 0.0;
         final quantity = (item['quantity'] as num?)?.toDouble() ?? 1.0;
+        final unitStr = item['unit'] as String?;
+        final unit = unitTypeFromString(unitStr);
 
         // Resolve or create category
         final allCategories = await _db.select(_db.categories).get();
@@ -203,6 +208,7 @@ class EntryRepository {
                 purchaseDate: receiptDate,
                 price: price,
                 quantity: Value(quantity),
+                unit: Value(unit == UnitType.count ? null : unit.name),
               ),
             );
       }

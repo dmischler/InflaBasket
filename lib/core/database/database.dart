@@ -31,6 +31,8 @@ class PurchaseEntries extends Table {
   DateTimeColumn get purchaseDate => dateTime()();
   RealColumn get price => real()();
   RealColumn get quantity => real().withDefault(const Constant(1.0))();
+  /// Stores the [UnitType.name] string. Null means 'count'.
+  TextColumn get unit => text().nullable()();
   TextColumn get notes => text().nullable()();
 }
 
@@ -39,13 +41,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
           await _seedDefaultCategories();
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(purchaseEntries, purchaseEntries.unit);
+          }
         },
       );
 
