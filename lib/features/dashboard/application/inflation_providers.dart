@@ -189,6 +189,7 @@ double basketInflation(BasketInflationRef ref) {
   double weightedInflationSum = 0;
 
   for (final cat in categoryInflations) {
+    if (!cat.inflationPercent.isFinite) continue;
     totalSpend += cat.totalSpend;
     weightedInflationSum += (cat.inflationPercent * cat.totalSpend);
   }
@@ -261,6 +262,7 @@ List<MonthlyIndex> basketIndexHistory(BasketIndexHistoryRef ref) {
     }
 
     final index = (currentCost / baseCost) * 100;
+    if (!index.isFinite) continue;
     result.add(MonthlyIndex(month, index));
   }
 

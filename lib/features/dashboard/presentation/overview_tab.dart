@@ -1,3 +1,5 @@
+import 'dart:math' show min, max;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -95,10 +97,22 @@ class OverviewTab extends ConsumerWidget {
       return FlSpot(e.key.toDouble(), e.value.index);
     }).toList();
 
+    // Compute explicit Y bounds so fl_chart always has a non-zero vertical
+    // range. When all spots share the same Y value (e.g. only one month of
+    // data), verticalDiff=0 causes fl_chart to construct a degenerate
+    // TransformLayer, triggering the "invalid matrix" engine warning.
+    final yValues = spots.map((s) => s.y).toList();
+    final dataMinY = yValues.reduce(min);
+    final dataMaxY = yValues.reduce(max);
+    final chartMinY = dataMinY == dataMaxY ? dataMinY - 10.0 : dataMinY;
+    final chartMaxY = dataMinY == dataMaxY ? dataMaxY + 10.0 : dataMaxY;
+
     return SizedBox(
       height: 250,
       child: LineChart(
         LineChartData(
+          minY: chartMinY,
+          maxY: chartMaxY,
           gridData: const FlGridData(show: false),
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
@@ -106,11 +120,13 @@ class OverviewTab extends ConsumerWidget {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
-                  if (index >= 0 && index < history.length) {
+                  // Use validHistory so the index aligns with the FlSpot x
+                  // values, which are indexed against validHistory too.
+                  if (index >= 0 && index < validHistory.length) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child:
-                          Text(DateFormat.MMM().format(history[index].month)),
+                      child: Text(
+                          DateFormat.MMM().format(validHistory[index].month)),
                     );
                   }
                   return const Text('');

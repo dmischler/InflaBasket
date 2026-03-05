@@ -37,23 +37,41 @@ class CategoriesTab extends ConsumerWidget {
   }
 
   Widget _buildBarChart(BuildContext context, List<CategoryInflation> data) {
-    final maxInflation = data.fold<double>(
+    // Filter out any non-finite values before any computation to prevent
+    // TransformLayer invalid matrix errors in fl_chart.
+    final validData =
+        data.where((e) => e.inflationPercent.isFinite).toList();
+
+    if (validData.isEmpty) {
+      return const SizedBox(
+        height: 300,
+        child: Center(child: Text('Not enough data to chart.')),
+      );
+    }
+
+    final maxInflation = validData.fold<double>(
         0, (max, e) => e.inflationPercent > max ? e.inflationPercent : max);
-    final minInflation = data.fold<double>(
+    final minInflation = validData.fold<double>(
         0, (min, e) => e.inflationPercent < min ? e.inflationPercent : min);
 
-    final chartData = data.take(7).toList();
+    final chartData = validData.take(7).toList();
 
-    final clampedMax = maxInflation.clamp(-100, 1000);
-    final clampedMin = minInflation.clamp(-100, 1000);
+    // Clamp axis bounds and ensure maxY > minY so fl_chart never gets an
+    // invalid (zero-height or inverted) axis range.
+    final clampedMax = maxInflation.clamp(-100.0, 1000.0);
+    final clampedMin = minInflation.clamp(-100.0, 1000.0);
+    final maxY = (clampedMax > 0 ? clampedMax * 1.2 : 10.0);
+    final minY = (clampedMin < 0 ? clampedMin * 1.2 : 0.0);
+    // Guarantee a non-zero range
+    final safeMaxY = (maxY <= minY) ? minY + 10.0 : maxY;
 
     return SizedBox(
       height: 300,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: clampedMax > 0 ? clampedMax * 1.2 : 10,
-          minY: clampedMin < 0 ? clampedMin * 1.2 : 0,
+          maxY: safeMaxY,
+          minY: minY,
           titlesData: FlTitlesData(
             show: true,
             bottomTitles: AxisTitles(
@@ -103,11 +121,15 @@ class CategoriesTab extends ConsumerWidget {
             final index = e.key;
             final item = e.value;
             final isPositive = item.inflationPercent >= 0;
+            // Clamp individual bar values as a secondary defence against
+            // out-of-range values slipping through to fl_chart's painter.
+            final toY =
+                item.inflationPercent.clamp(-100.0, 1000.0).toDouble();
             return BarChartGroupData(
               x: index,
               barRods: [
                 BarChartRodData(
-                  toY: item.inflationPercent,
+                  toY: toY,
                   color:
                       isPositive ? Colors.red.shade400 : Colors.green.shade400,
                   width: 20,

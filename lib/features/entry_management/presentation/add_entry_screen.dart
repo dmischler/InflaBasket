@@ -214,7 +214,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     child: TextFormField(
                       controller: _quantityController,
                       decoration: const InputDecoration(
-                        labelText: 'Package Size',
+                        labelText: 'Amount',
                         border: OutlineInputBorder(),
                         hintText: 'e.g. 500',
                       ),
@@ -228,23 +228,26 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  DropdownButtonFormField<UnitType>(
-                    value: units.contains(_selectedUnit)
-                        ? _selectedUnit
-                        : UnitType.count,
-                    decoration: const InputDecoration(
-                      labelText: 'Unit',
-                      border: OutlineInputBorder(),
+                  SizedBox(
+                    width: 130,
+                    child: DropdownButtonFormField<UnitType>(
+                      value: units.contains(_selectedUnit)
+                          ? _selectedUnit
+                          : UnitType.count,
+                      decoration: const InputDecoration(
+                        labelText: 'Unit',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: units
+                          .map((u) => DropdownMenuItem(
+                                value: u,
+                                child: Text(u.label),
+                              ))
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) setState(() => _selectedUnit = val);
+                      },
                     ),
-                    items: units
-                        .map((u) => DropdownMenuItem(
-                              value: u,
-                              child: Text(u.label),
-                            ))
-                        .toList(),
-                    onChanged: (val) {
-                      if (val != null) setState(() => _selectedUnit = val);
-                    },
                   ),
                 ],
               ),
