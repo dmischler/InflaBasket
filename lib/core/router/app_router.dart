@@ -5,6 +5,8 @@ import 'package:inflabasket/features/entry_management/presentation/add_entry_scr
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
 import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart';
 import 'package:inflabasket/features/settings/presentation/category_management_screen.dart';
+import 'package:inflabasket/features/settings/presentation/weight_editor_screen.dart';
+import 'package:inflabasket/features/settings/presentation/templates_screen.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'app_router.g.dart';
@@ -41,6 +43,14 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/settings/categories',
         builder: (context, state) => const CategoryManagementScreen(),
+      ),
+      GoRoute(
+        path: '/settings/weights',
+        builder: (context, state) => const WeightEditorScreen(),
+      ),
+      GoRoute(
+        path: '/settings/templates',
+        builder: (context, state) => const TemplatesScreen(),
       ),
     ],
   );

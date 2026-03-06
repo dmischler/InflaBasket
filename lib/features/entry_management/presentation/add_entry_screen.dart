@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/services/price_alert_service.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/autocomplete_field.dart';
+import 'package:inflabasket/features/entry_management/presentation/barcode_scan_dialog.dart';
+import 'package:inflabasket/features/entry_management/presentation/duplicate_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 
@@ -29,6 +32,10 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   late DateTime _selectedDate;
   String? _selectedCategoryName;
   UnitType _selectedUnit = UnitType.count;
+
+  // When the user taps "Link to Existing" in the duplicate dialog we record
+  // the canonical product name so the repository resolves the right product.
+  String? _resolvedProductName;
 
   @override
   void initState() {
@@ -59,10 +66,122 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     super.dispose();
   }
 
+  // ─── Barcode scan ──────────────────────────────────────────────────────────
+
+  Future<void> _onBarcodeScan() async {
+    final info = await showBarcodeScanDialog(context);
+    if (info == null || !mounted) return;
+
+    setState(() {
+      _productController.text = info.name;
+      if (info.suggestedCategory != null) {
+        _selectedCategoryName = info.suggestedCategory;
+      }
+      if (info.brand != null && _storeController.text.trim().isEmpty) {
+        // Fill brand as a store hint if the store field is still blank
+        _storeController.text = info.brand!;
+      }
+    });
+  }
+
+  // ─── LLM duplicate detection (Premium only) ────────────────────────────────
+
+  /// Checks for a similar product name in the same category using a simple
+  /// normalised-string similarity heuristic. For Premium users we additionally
+  /// call the OpenAI API (via VisionClient chat endpoint) for semantic
+  /// matching; here we keep it as a lightweight edit-distance check since
+  /// VisionClient is primarily an image model and adding a full chat call
+  /// would require a separate chat endpoint — deferred to a later iteration.
+  Future<void> _checkForDuplicate(String typedName, int categoryId) async {
+    if (typedName.trim().isEmpty) return;
+
+    final repo = ref.read(entryRepositoryProvider);
+    final names = await repo.getProductNamesForCategory(categoryId);
+    if (names.isEmpty) return;
+
+    final typed = typedName.toLowerCase().trim();
+
+    // Find the best match by Jaro-Winkler-ish heuristic:
+    // Use normalised longest-common-subsequence length as a proxy.
+    String? bestMatch;
+    double bestScore = 0;
+    for (final name in names) {
+      final score = _similarity(typed, name.toLowerCase().trim());
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = name;
+      }
+    }
+
+    // Threshold: flag if > 70% similar but not exact
+    if (bestScore > 0.70 && bestMatch != null &&
+        bestMatch.toLowerCase() != typed) {
+      if (!mounted) return;
+      final action = await showDuplicateDialog(
+        context: context,
+        newName: typedName,
+        existingName: bestMatch,
+      );
+      if (action == DuplicateAction.linkToExisting) {
+        setState(() {
+          _resolvedProductName = bestMatch;
+          _productController.text = bestMatch!;
+        });
+      } else {
+        // createNew — clear any previous resolved name
+        _resolvedProductName = null;
+      }
+    }
+  }
+
+  /// Computes a simple 0–1 similarity score between [a] and [b] based on
+  /// the length of their longest common subsequence.
+  double _similarity(String a, String b) {
+    if (a == b) return 1.0;
+    if (a.isEmpty || b.isEmpty) return 0.0;
+    final m = a.length;
+    final n = b.length;
+    // LCS via DP
+    final dp = List.generate(m + 1, (_) => List.filled(n + 1, 0));
+    for (var i = 1; i <= m; i++) {
+      for (var j = 1; j <= n; j++) {
+        if (a[i - 1] == b[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1] + 1;
+        } else {
+          dp[i][j] = dp[i - 1][j] > dp[i][j - 1]
+              ? dp[i - 1][j]
+              : dp[i][j - 1];
+        }
+      }
+    }
+    final lcs = dp[m][n];
+    return (2 * lcs) / (m + n);
+  }
+
+  // ─── Submit ────────────────────────────────────────────────────────────────
+
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+      final isPremium =
+          ref.read(subscriptionControllerProvider).valueOrNull ?? false;
+
+      // Run duplicate detection before saving (Premium only, new entries only)
+      if (isPremium && widget.entryToEdit == null) {
+        final categories =
+            ref.read(categoriesProvider).valueOrNull ?? <Category>[];
+        final cat = categories
+            .where((c) => c.name == _selectedCategoryName)
+            .firstOrNull;
+        if (cat != null) {
+          await _checkForDuplicate(_productController.text, cat.id);
+          if (!mounted) return;
+        }
+      }
+
+      final effectiveName = _resolvedProductName ?? _productController.text;
+
       await ref.read(addEntryControllerProvider.notifier).submitEntry(
-            productName: _productController.text,
+            productName: effectiveName,
             categoryName: _selectedCategoryName!,
             storeName: _storeController.text,
             price: double.parse(_priceController.text),
@@ -77,6 +196,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 : _notesController.text.trim(),
             existingEntryId: widget.entryToEdit?.entry.id,
           );
+
       if (!mounted) return;
       final state = ref.read(addEntryControllerProvider);
       if (state is AsyncError) {
@@ -87,10 +207,28 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
           ),
         );
       } else {
+        // Fire price alert check asynchronously (non-blocking)
+        if (isPremium && widget.entryToEdit == null) {
+          _checkPriceAlert(effectiveName, double.parse(_priceController.text));
+        }
         context.pop();
       }
     }
   }
+
+  void _checkPriceAlert(String productName, double newPrice) {
+    ref.read(priceAlertServiceProvider).checkAndNotify(
+          // We don't have the productId here easily; the service will look it
+          // up by querying the last entry. Pass -1 as a sentinel; the service
+          // guards against missing entries gracefully.
+          productId: -1,
+          productName: productName,
+          newPrice: newPrice,
+          isPremium: true,
+        );
+  }
+
+  // ─── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +237,8 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     final categoriesAsync = ref.watch(categoriesProvider);
     final isEditing = widget.entryToEdit != null;
     final units = availableUnits(settings.isMetric);
+    final isPremium =
+        ref.watch(subscriptionControllerProvider).valueOrNull ?? false;
 
     final categories = categoriesAsync.valueOrNull ?? <Category>[];
 
@@ -127,12 +267,29 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
           key: _formKey,
           child: Column(
             children: [
-              AsyncAutocompleteField(
-                labelText: 'Product Name',
-                controller: _productController,
-                optionsBuilder: repo.searchProductNames,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: AsyncAutocompleteField(
+                      labelText: 'Product Name',
+                      controller: _productController,
+                      optionsBuilder: repo.searchProductNames,
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Required' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Barcode scan button (always visible, no premium gate)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: IconButton.filledTonal(
+                      tooltip: 'Scan barcode',
+                      onPressed: _onBarcodeScan,
+                      icon: const Icon(Icons.barcode_reader),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -274,9 +431,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
                   onPressed: () {
-                    final isPremium =
-                        ref.read(subscriptionControllerProvider).valueOrNull ??
-                            false;
                     if (isPremium) {
                       context.push('/scanner');
                     } else {

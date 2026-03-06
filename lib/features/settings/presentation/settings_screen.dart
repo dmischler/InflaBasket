@@ -102,6 +102,22 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
+                  leading: const Icon(Icons.balance_outlined),
+                  title: const Text('Category Weights'),
+                  subtitle: const Text('Customise inflation basket weights'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/settings/weights'),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.repeat_outlined),
+                  title: const Text('Recurring Purchases'),
+                  subtitle: const Text('Manage saved purchase templates'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/settings/templates'),
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: exportState.isLoading
                       ? const SizedBox(
                           width: 24,

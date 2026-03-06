@@ -15,18 +15,19 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _tabs = [
-    const OverviewTab(),
-    const HistoryTab(),
-    const CategoriesTab(),
-    const SettingsScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('InflaBasket')),
-      body: _tabs[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: const [
+          OverviewTab(),
+          HistoryTab(),
+          CategoriesTab(),
+          SettingsScreen(),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.go('/home/add'),
         child: const Icon(Icons.add),

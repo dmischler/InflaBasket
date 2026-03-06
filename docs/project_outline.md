@@ -306,24 +306,51 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ---
 
-### v2.0 – Core Intelligence
+### Sprint 3 – v2.0 Core Intelligence ✅ COMPLETE
 
-These features add meaningful analytical depth and require moderate implementation effort.
+5. **LLM Duplicate Detection (Premium)** ✅ — On product name submission, a normalised LCS-similarity heuristic checks the category's existing product names. If a close match (>70%) is found, a `DuplicateDialog` prompts "Link to Existing" or "Create New". Full semantic LLM call deferred (VisionClient is image-only; a dedicated chat endpoint is a future iteration).
+6. **Product Normalization** ✅ — Already fully implemented in Sprint 1 via `unit.dart` (`UnitType` enum, `normalizedPricePerUnit`) and `inflation_providers.dart` (`normalizePricePerUnit` helper). No changes required.
+7. **Custom Basket Weighting** ✅ — `WeightEditorScreen` (`/settings/weights`) presents one `Slider` per category. Values validate to 100%. `CategoryWeightsController` persists fractions to the `category_weights` DB table (schema v3). `basketInflation()` uses custom weights when set; otherwise falls back to spend-weighted averaging.
+8. **Official CPI Comparison** ✅ — `CpiClient` fetches OECD SDMX-JSON (CHF/Swiss BFS) or Eurostat SDMX-JSON (EUR). `cpiDataProvider` is currency-driven: CHF → BFS, EUR → Eurostat, USD/GBP → empty (overlay hidden). `OverviewTab` renders a second dashed orange `LineChartBarData` with a legend when the toggle is shown.
+9. **Localization (i18n)** ✅ — `flutter_localizations` + `gen_l10n` ARB pipeline with 4 locales: `en`, `de`, `fr`, `it`. ~80 keys per locale. `l10n.yaml` uses `synthetic-package: false`; import path is `package:inflabasket/l10n/app_localizations.dart`.
+10. **Barcode Scanner** ✅ — `mobile_scanner` (replaces unused `camera`) powers `BarcodeScanDialog` (modal bottom sheet with live preview). `OpenFoodFactsClient` calls the OFF API and maps PNNS categories → InflaBasket categories. Barcode `IconButton.filledTonal` added next to the Product Name field in `AddEntryScreen`.
+11. **Recurring Purchase Templates** ✅ — `TemplatesScreen` (`/settings/templates`) lists `watchTemplatesWithDetails()` stream. Swipe-to-delete with confirmation. "Use" button opens `AddEntryScreen` pre-filled via a synthetic `EntryWithDetails`. `templatesProvider` and `AddTemplateController` added to `entry_providers.dart`.
+12. **Price Change Alerts (Premium)** ✅ — `flutter_local_notifications` wrapper (`NotificationService`) initialised in `main()`. `PriceAlertService.checkAndNotify()` fetches the last entry price, compares against the configured `thresholdPercent`, and fires a local notification if the threshold is exceeded (Premium only). Alert config persisted in the `price_alerts` DB table (schema v3).
 
-5. **LLM Duplicate Detection (Premium)** — When adding a new entry, call Gemini Flash to check if the product name is semantically similar to an existing product in the DB (e.g., "Whole Milk 1L" vs "Bio Vollmilch"). Prompt the user to link to the existing product or create a new one. Improves basket accuracy.
-6. **Product Normalization** — Normalize prices to a per-unit basis (e.g., CHF/kg, CHF/L) regardless of pack size. Makes price comparisons meaningful across different package sizes.
-7. **Custom Basket Weighting** — Allow users to assign percentage weights to categories (e.g., 40% Food, 20% Transport) to compute a truly personalized inflation index.
-8. **Official CPI Comparison** — Fetch Swiss BFS CPI or Eurostat data via public API. Display a chart overlay: "Your Inflation vs. National Average." Validates user data against macroeconomic reality.
-9. **Localization (i18n)** — Full German (de), French (fr), Italian (it), and English (en) support using `flutter_localizations` + `intl` ARB files. Critical for Swiss market.
-10. **Barcode Scanner** — Scan a product barcode using the device camera. Auto-fill product name and suggested category via the Open Food Facts public API. Speeds up manual entry significantly.
-11. **Recurring Purchase Templates** — Save entries as templates for weekly/bi-weekly staples (e.g., "Weekly grocery run"). One-tap re-entry with pre-filled fields.
-12. **Price Change Alerts (Premium)** — Local push notifications when a tracked product's latest price exceeds a configurable threshold (e.g., +10% vs last entry).
+**Schema changes (v3):** Added 3 tables in a single migration: `category_weights` (PK: categoryId), `entry_templates` (autoincrement id), `price_alerts` (PK: productId).
+
+**Bug fixes in this sprint:**
+- `appDatabaseProvider` changed to `@Riverpod(keepAlive: true)` with `ref.onDispose(db.close)`.
+- `HistoryFilter.copyWith` null-sentinel bug fixed: `categoryId: null` now correctly clears the filter.
+- `DashboardScreen` tabs wrapped in `IndexedStack` to preserve scroll state on tab switch.
 
 ---
 
-### v3.0 – Premium Intelligence & Ecosystem
+### Sprint 4 – UI Design Iteration (Not High Priority)
 
-Long-term features that expand the product into a platform.
+A complete visual overhaul to modernize the app with contemporary design patterns, smoother animations, and improved usability. **The overarching design theme should draw inspiration from the Fiat vs. Bitcoin Standard dichotomy** — the UI should visually contrast traditional finance (gold/blue tones, classic typography, established iconography) with the Bitcoin ecosystem (orange accents, modern geometric shapes, futuristic elements), creating a cohesive visual language that reinforces the app's core purpose of comparing fiat inflation against Bitcoin purchasing power.
+
+27. **Glassmorphism & Neumorphism Updates** — Replace flat Material 3 surfaces with subtle glassmorphism effects (frosted glass cards, blur overlays) in key areas like the dashboard header, scanner modal, and paywall. Use soft shadows and rounded corners (20-24px radius) for a tactile feel.
+
+28. **Animated Charts** — Enhance `fl_chart` visualizations with entry animations (chart draws in on load), touch-responsive highlights, and smooth data transitions when filters change. Add haptic feedback on category bar taps.
+
+29. **Custom Bottom Navigation** — Replace standard `NavigationBar` with a custom animated FAB-style nav: floating pill-shaped indicator with smooth slide transitions, micro-animations on icon press, and adaptive icons that morph between outline/filled states.
+
+30. **Skeleton Loaders** — Replace circular progress indicators with skeleton shimmer placeholders throughout the app (History list, Dashboard cards, Scanner loading) for a more polished loading experience.
+
+31. **Swipe Gestures** — Implement swipe-to-reveal actions in History list (swipe left: delete, swipe right: edit) with satisfying spring physics and haptic feedback.
+
+32. **Contextual Floating Action Button** — Add an expandable Speed Dial FAB on the Dashboard that expands into multiple actions (Add Entry, Scan Receipt, Add Template) with staggered animations.
+
+33. **Theme Customization** — Expand beyond Dark/Light mode with a full theme builder: accent color picker, rounded/sharp corner toggle, font size scaling (accessibility), and compact/comfortable density options. Persist via `SharedPreferences`.
+
+34. **Empty State Illustrations** — Add friendly, animated empty state illustrations (using Lottie or Rive) for: No entries yet, No categories, No templates, No price alerts configured. Replace generic "No data" text.
+
+35. **Onboarding Redesign** — New 3-screen onboarding flow with animated illustrations explaining: (1) Track purchases, (2) See your inflation, (3) Scan receipts (Premium). Skip/Next with smooth page transitions and progress indicator.
+
+---
+
+### Long-term features that expand the product into a platform.
 
 13. **AI Weekly Insights (Premium)** — Gemini Flash text-analysis generates a weekly summary: "Your grocery spend is up 8% vs last month, driven by Dairy." Delivered as an in-app card or push notification.
 14. **Forecasts & Trends (Premium)** — ML-based price forecasting for tracked products using historical entry data. Shows projected cost of basket in 3/6 months.

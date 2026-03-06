@@ -23,7 +23,56 @@ Stream<List<Category>> categories(CategoriesRef ref) {
   return repo.watchCategories();
 }
 
+// ─── Template providers ───────────────────────────────────────────────────────
+
+@riverpod
+Stream<List<TemplateWithDetails>> templates(TemplatesRef ref) {
+  final repo = ref.watch(entryRepositoryProvider);
+  return repo.watchTemplatesWithDetails();
+}
+
+@riverpod
+class AddTemplateController extends _$AddTemplateController {
+  @override
+  FutureOr<void> build() {}
+
+  Future<void> addTemplate({
+    required int productId,
+    required String storeName,
+    String? location,
+    double quantity = 1.0,
+    UnitType? unit,
+    String? notes,
+  }) async {
+    await AsyncValue.guard(() async {
+      final repo = ref.read(entryRepositoryProvider);
+      await repo.addTemplate(
+        productId: productId,
+        storeName: storeName,
+        location: location,
+        quantity: quantity,
+        unit: unit,
+        notes: notes,
+      );
+    });
+  }
+
+  Future<void> deleteTemplate(int templateId) async {
+    await AsyncValue.guard(() async {
+      final repo = ref.read(entryRepositoryProvider);
+      await repo.deleteTemplate(templateId);
+    });
+  }
+}
+
+// ─── History filter ───────────────────────────────────────────────────────────
+
 enum HistoryDateRange { last30Days, last6Months, allTime }
+
+/// Sentinel value used to explicitly clear [HistoryFilter.categoryId].
+/// Using a plain `null` default in `copyWith` makes it impossible to
+/// distinguish "not provided" from "set to null".
+const _clearCategory = Object();
 
 class HistoryFilter {
   final HistoryDateRange range;
@@ -34,10 +83,17 @@ class HistoryFilter {
     this.categoryId,
   });
 
-  HistoryFilter copyWith({HistoryDateRange? range, int? categoryId}) {
+  HistoryFilter copyWith({
+    HistoryDateRange? range,
+    Object? categoryId = _clearCategory,
+  }) {
     return HistoryFilter(
       range: range ?? this.range,
-      categoryId: categoryId,
+      // If caller passed categoryId explicitly (even null), use it;
+      // otherwise keep the current value.
+      categoryId: identical(categoryId, _clearCategory)
+          ? this.categoryId
+          : categoryId as int?,
     );
   }
 }
@@ -48,11 +104,11 @@ class HistoryFilterController extends _$HistoryFilterController {
   HistoryFilter build() => const HistoryFilter();
 
   void setRange(HistoryDateRange range) {
-    state = state.copyWith(range: range, categoryId: state.categoryId);
+    state = state.copyWith(range: range);
   }
 
   void setCategory(int? categoryId) {
-    state = state.copyWith(categoryId: categoryId, range: state.range);
+    state = HistoryFilter(range: state.range, categoryId: categoryId);
   }
 }
 

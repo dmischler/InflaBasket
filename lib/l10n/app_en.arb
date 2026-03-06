@@ -1,0 +1,419 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "InflaBasket",
+  "@appTitle": { "description": "App title" },
+
+  "navOverview": "Overview",
+  "@navOverview": { "description": "Bottom nav: Overview tab" },
+
+  "navHistory": "History",
+  "@navHistory": { "description": "Bottom nav: History tab" },
+
+  "navCategories": "Categories",
+  "@navCategories": { "description": "Bottom nav: Categories tab" },
+
+  "navSettings": "Settings",
+  "@navSettings": { "description": "Bottom nav: Settings tab" },
+
+  "addEntry": "Add Entry",
+  "@addEntry": { "description": "FAB / AppBar button to add a new purchase entry" },
+
+  "editEntry": "Edit Entry",
+  "@editEntry": { "description": "AppBar title when editing an existing entry" },
+
+  "save": "Save",
+  "@save": { "description": "Generic save button" },
+
+  "cancel": "Cancel",
+  "@cancel": { "description": "Generic cancel button" },
+
+  "delete": "Delete",
+  "@delete": { "description": "Generic delete button" },
+
+  "confirm": "Confirm",
+  "@confirm": { "description": "Generic confirm button" },
+
+  "yes": "Yes",
+  "@yes": { "description": "Generic yes" },
+
+  "no": "No",
+  "@no": { "description": "Generic no" },
+
+  "close": "Close",
+  "@close": { "description": "Generic close button" },
+
+  "edit": "Edit",
+  "@edit": { "description": "Generic edit button" },
+
+  "reset": "Reset",
+  "@reset": { "description": "Generic reset button" },
+
+  "loading": "Loading…",
+  "@loading": { "description": "Generic loading label" },
+
+  "errorGeneric": "An error occurred. Please try again.",
+  "@errorGeneric": { "description": "Generic error message" },
+
+  "fieldRequired": "This field is required",
+  "@fieldRequired": { "description": "Form validation: required field" },
+
+  "fieldInvalidNumber": "Please enter a valid number",
+  "@fieldInvalidNumber": { "description": "Form validation: invalid number" },
+
+  "fieldPositiveNumber": "Must be greater than zero",
+  "@fieldPositiveNumber": { "description": "Form validation: must be positive" },
+
+  "product": "Product",
+  "@product": { "description": "Label for product name field" },
+
+  "productHint": "e.g. Whole Milk",
+  "@productHint": { "description": "Hint text for product name field" },
+
+  "category": "Category",
+  "@category": { "description": "Label for category field" },
+
+  "store": "Store",
+  "@store": { "description": "Label for store name field" },
+
+  "storeHint": "e.g. Migros",
+  "@storeHint": { "description": "Hint text for store name field" },
+
+  "location": "Location (City / Branch)",
+  "@location": { "description": "Label for location field" },
+
+  "locationHint": "e.g. Zurich, Bahnhofstrasse",
+  "@locationHint": { "description": "Hint text for location field" },
+
+  "price": "Price",
+  "@price": { "description": "Label for price field" },
+
+  "quantity": "Quantity",
+  "@quantity": { "description": "Label for quantity field" },
+
+  "unit": "Unit",
+  "@unit": { "description": "Label for unit dropdown" },
+
+  "date": "Date",
+  "@date": { "description": "Label for date picker" },
+
+  "notes": "Notes",
+  "@notes": { "description": "Label for notes field" },
+
+  "notesHint": "Optional notes…",
+  "@notesHint": { "description": "Hint for notes field" },
+
+  "scanReceipt": "Scan Receipt (Premium)",
+  "@scanReceipt": { "description": "Button to open AI receipt scanner" },
+
+  "scanBarcode": "Scan Barcode",
+  "@scanBarcode": { "description": "Button to scan a product barcode" },
+
+  "barcodeNotFound": "Product not found for this barcode.",
+  "@barcodeNotFound": { "description": "Message when barcode lookup returns no result" },
+
+  "barcodeError": "Could not scan barcode. Please try again.",
+  "@barcodeError": { "description": "Error message for barcode scan failure" },
+
+  "entrySaved": "Entry saved successfully.",
+  "@entrySaved": { "description": "Snackbar message when entry is saved" },
+
+  "entryDeleted": "Entry deleted.",
+  "@entryDeleted": { "description": "Snackbar message when entry is deleted" },
+
+  "entrySaveError": "Error saving entry: {error}",
+  "@entrySaveError": {
+    "description": "Snackbar error when save fails",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "deleteEntryConfirm": "Delete this entry?",
+  "@deleteEntryConfirm": { "description": "Confirmation dialog title for deleting an entry" },
+
+  "deleteEntryMessage": "This action cannot be undone.",
+  "@deleteEntryMessage": { "description": "Confirmation dialog body for deleting an entry" },
+
+  "noEntriesYet": "No entries yet.",
+  "@noEntriesYet": { "description": "Empty state message in history tab" },
+
+  "noEntriesFiltered": "No entries match the current filters.",
+  "@noEntriesFiltered": { "description": "Empty state when filters produce no results" },
+
+  "filterTitle": "Filter History",
+  "@filterTitle": { "description": "Bottom sheet title for filter options" },
+
+  "filterDateRange": "Date Range",
+  "@filterDateRange": { "description": "Section header for date range filter" },
+
+  "filterLast30Days": "Last 30 Days",
+  "@filterLast30Days": { "description": "Date range filter option" },
+
+  "filterLast6Months": "Last 6 Months",
+  "@filterLast6Months": { "description": "Date range filter option" },
+
+  "filterAllTime": "All Time",
+  "@filterAllTime": { "description": "Date range filter option" },
+
+  "filterCategory": "Category",
+  "@filterCategory": { "description": "Section header for category filter" },
+
+  "filterAllCategories": "All Categories",
+  "@filterAllCategories": { "description": "Option for no category filter" },
+
+  "applyFilters": "Apply",
+  "@applyFilters": { "description": "Button to apply filters" },
+
+  "clearFilters": "Clear",
+  "@clearFilters": { "description": "Button to clear filters" },
+
+  "overviewTitle": "Your Inflation",
+  "@overviewTitle": { "description": "Title card on overview tab" },
+
+  "overviewBasketIndex": "Basket Index",
+  "@overviewBasketIndex": { "description": "Chart section header" },
+
+  "overviewTopInflators": "Top Inflators",
+  "@overviewTopInflators": { "description": "Section header for biggest price increases" },
+
+  "overviewTopDeflators": "Top Deflators",
+  "@overviewTopDeflators": { "description": "Section header for biggest price decreases" },
+
+  "overviewNoData": "Log at least two purchases of the same product to see inflation.",
+  "@overviewNoData": { "description": "Empty state on overview tab" },
+
+  "showNationalAverage": "vs National Average",
+  "@showNationalAverage": { "description": "Toggle label for CPI comparison overlay" },
+
+  "cpiUnavailable": "National CPI data not available for the selected currency.",
+  "@cpiUnavailable": { "description": "Message when no CPI source exists for currency" },
+
+  "cpiLoadError": "Could not load national CPI data.",
+  "@cpiLoadError": { "description": "Error loading CPI data" },
+
+  "yourInflation": "Your Inflation",
+  "@yourInflation": { "description": "Legend label for user basket line" },
+
+  "nationalCpi": "National CPI",
+  "@nationalCpi": { "description": "Legend label for CPI line" },
+
+  "categoriesTitle": "Category Breakdown",
+  "@categoriesTitle": { "description": "Section title for categories tab" },
+
+  "categoryNoCategoryData": "No category data available yet.",
+  "@categoryNoCategoryData": { "description": "Empty state on categories tab" },
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": { "description": "Settings screen AppBar title" },
+
+  "settingsSubscription": "Subscription",
+  "@settingsSubscription": { "description": "Settings section header" },
+
+  "settingsPremiumActive": "Premium Active",
+  "@settingsPremiumActive": { "description": "Status for active premium subscription" },
+
+  "settingsFreeTier": "Free Tier",
+  "@settingsFreeTier": { "description": "Status for free tier" },
+
+  "settingsPremiumSubtitle": "Enjoy AI receipt scanning and auto-categorization.",
+  "@settingsPremiumSubtitle": { "description": "Subtitle for premium status" },
+
+  "settingsFreeSubtitle": "Upgrade to unlock AI receipt scanning.",
+  "@settingsFreeSubtitle": { "description": "Subtitle for free tier status" },
+
+  "settingsRestore": "Restore",
+  "@settingsRestore": { "description": "Button to restore purchases" },
+
+  "settingsUpgrade": "Upgrade",
+  "@settingsUpgrade": { "description": "Button to upgrade to premium" },
+
+  "settingsPreferences": "Preferences",
+  "@settingsPreferences": { "description": "Settings section header" },
+
+  "settingsCurrency": "Currency",
+  "@settingsCurrency": { "description": "Currency setting label" },
+
+  "settingsMetricSystem": "Use Metric System",
+  "@settingsMetricSystem": { "description": "Toggle label for metric/imperial" },
+
+  "settingsMetricSubtitle": "For quantities and unit prices",
+  "@settingsMetricSubtitle": { "description": "Subtitle for metric toggle" },
+
+  "settingsDataManagement": "Data Management",
+  "@settingsDataManagement": { "description": "Settings section header" },
+
+  "settingsManageCategories": "Manage Categories",
+  "@settingsManageCategories": { "description": "List tile label" },
+
+  "settingsManageCategoriesSubtitle": "Add or remove custom categories",
+  "@settingsManageCategoriesSubtitle": { "description": "Subtitle for manage categories tile" },
+
+  "settingsExportData": "Export Data (CSV)",
+  "@settingsExportData": { "description": "List tile label for CSV export" },
+
+  "settingsExportSubtitle": "Download your purchase history",
+  "@settingsExportSubtitle": { "description": "Subtitle for export tile" },
+
+  "settingsCategoryWeights": "Category Weights",
+  "@settingsCategoryWeights": { "description": "List tile label for custom basket weights" },
+
+  "settingsCategoryWeightsSubtitle": "Customize how categories are weighted in your basket",
+  "@settingsCategoryWeightsSubtitle": { "description": "Subtitle for category weights tile" },
+
+  "settingsTemplates": "Recurring Purchases",
+  "@settingsTemplates": { "description": "List tile label for purchase templates" },
+
+  "settingsTemplatesSubtitle": "Quick-add templates for regular purchases",
+  "@settingsTemplatesSubtitle": { "description": "Subtitle for templates tile" },
+
+  "settingsAbout": "About",
+  "@settingsAbout": { "description": "Settings section header" },
+
+  "settingsVersion": "Version",
+  "@settingsVersion": { "description": "Version list tile label" },
+
+  "settingsPrivacyPolicy": "Privacy Policy",
+  "@settingsPrivacyPolicy": { "description": "Privacy policy list tile label" },
+
+  "settingsTerms": "Terms of Service",
+  "@settingsTerms": { "description": "Terms of service list tile label" },
+
+  "settingsComingSoon": "Coming soon",
+  "@settingsComingSoon": { "description": "Placeholder for unavailable features" },
+
+  "categoryManagementTitle": "Manage Categories",
+  "@categoryManagementTitle": { "description": "Screen title for category management" },
+
+  "categoryManagementCustomBadge": "Custom",
+  "@categoryManagementCustomBadge": { "description": "Badge for custom categories" },
+
+  "categoryManagementDefaultBadge": "Default",
+  "@categoryManagementDefaultBadge": { "description": "Badge for default categories" },
+
+  "addCategoryTitle": "Add Category",
+  "@addCategoryTitle": { "description": "Dialog title for adding a category" },
+
+  "addCategoryHint": "Category name",
+  "@addCategoryHint": { "description": "Hint text for new category name field" },
+
+  "deleteCategoryConfirm": "Delete \"{name}\"?",
+  "@deleteCategoryConfirm": {
+    "description": "Confirmation dialog title for deleting a category",
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "deleteCategoryHasProducts": "Cannot delete: this category has existing products.",
+  "@deleteCategoryHasProducts": { "description": "Error when deleting category with products" },
+
+  "weightEditorTitle": "Category Weights",
+  "@weightEditorTitle": { "description": "Screen title for weight editor" },
+
+  "weightEditorSubtitle": "Adjust how much each category contributes to your basket inflation. Weights must sum to 100%.",
+  "@weightEditorSubtitle": { "description": "Explanation text on weight editor screen" },
+
+  "weightEditorTotal": "Total: {percent}%",
+  "@weightEditorTotal": {
+    "description": "Shows current sum of all weights",
+    "placeholders": { "percent": { "type": "int" } }
+  },
+
+  "weightEditorResetEqual": "Reset to Equal",
+  "@weightEditorResetEqual": { "description": "Button to reset all weights to equal distribution" },
+
+  "weightEditorSaveError": "Weights must sum to 100% before saving.",
+  "@weightEditorSaveError": { "description": "Error when trying to save weights that don't sum to 100" },
+
+  "templatesTitle": "Recurring Purchases",
+  "@templatesTitle": { "description": "Screen title for templates" },
+
+  "templatesEmpty": "No templates yet. Add a template to quickly re-enter regular purchases.",
+  "@templatesEmpty": { "description": "Empty state for templates screen" },
+
+  "templateAdd": "Add Template",
+  "@templateAdd": { "description": "FAB label on templates screen" },
+
+  "templateDelete": "Delete template?",
+  "@templateDelete": { "description": "Confirmation title when deleting a template" },
+
+  "templateUseButton": "Use",
+  "@templateUseButton": { "description": "Button to apply a template as a new entry" },
+
+  "templateSaved": "Template saved.",
+  "@templateSaved": { "description": "Snackbar when template is saved" },
+
+  "templateDeleted": "Template deleted.",
+  "@templateDeleted": { "description": "Snackbar when template is deleted" },
+
+  "duplicateDetectionTitle": "Similar Product Found",
+  "@duplicateDetectionTitle": { "description": "Dialog title for duplicate product detection" },
+
+  "duplicateDetectionMessage": "\"{newName}\" looks similar to an existing product: \"{existing}\". Link to the existing product or create a new one?",
+  "@duplicateDetectionMessage": {
+    "description": "Dialog body for duplicate detection",
+    "placeholders": {
+      "newName": { "type": "String" },
+      "existing": { "type": "String" }
+    }
+  },
+
+  "duplicateDetectionLinkExisting": "Link to Existing",
+  "@duplicateDetectionLinkExisting": { "description": "Button to link to existing product" },
+
+  "duplicateDetectionCreateNew": "Create New",
+  "@duplicateDetectionCreateNew": { "description": "Button to create a new product" },
+
+  "priceAlerts": "Price Alerts",
+  "@priceAlerts": { "description": "Feature name" },
+
+  "priceAlertTitle": "Price Alert: {product}",
+  "@priceAlertTitle": {
+    "description": "Notification title for price alert",
+    "placeholders": { "product": { "type": "String" } }
+  },
+
+  "priceAlertBody": "{product} is {percent}% more expensive than your last purchase ({oldPrice} → {newPrice}).",
+  "@priceAlertBody": {
+    "description": "Notification body for price alert",
+    "placeholders": {
+      "product": { "type": "String" },
+      "percent": { "type": "String" },
+      "oldPrice": { "type": "String" },
+      "newPrice": { "type": "String" }
+    }
+  },
+
+  "priceAlertThreshold": "Alert threshold: {percent}%",
+  "@priceAlertThreshold": {
+    "description": "Label showing the alert threshold",
+    "placeholders": { "percent": { "type": "int" } }
+  },
+
+  "scannerTitle": "Scan Receipt",
+  "@scannerTitle": { "description": "AppBar title for scanner screen" },
+
+  "scannerSelectCamera": "Camera",
+  "@scannerSelectCamera": { "description": "Button to use camera for scanning" },
+
+  "scannerSelectGallery": "Gallery",
+  "@scannerSelectGallery": { "description": "Button to select from gallery" },
+
+  "scannerProcessing": "Processing receipt…",
+  "@scannerProcessing": { "description": "Loading label while AI processes" },
+
+  "scannerError": "Could not parse receipt. Please try again.",
+  "@scannerError": { "description": "Error when AI scanning fails" },
+
+  "scannerReviewTitle": "Review Items",
+  "@scannerReviewTitle": { "description": "Dialog/screen title for receipt review" },
+
+  "scannerSaveItems": "Save {count} Items",
+  "@scannerSaveItems": {
+    "description": "Button to save selected items from receipt",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "scannerSelectAll": "Select All",
+  "@scannerSelectAll": { "description": "Toggle to select all receipt items" },
+
+  "scannerDeselectAll": "Deselect All",
+  "@scannerDeselectAll": { "description": "Toggle to deselect all receipt items" }
+}

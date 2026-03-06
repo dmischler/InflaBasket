@@ -5,9 +5,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'entry_repository.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 AppDatabase appDatabase(AppDatabaseRef ref) {
-  return AppDatabase();
+  final db = AppDatabase();
+  ref.onDispose(db.close);
+  return db;
 }
 
 @riverpod
@@ -24,13 +26,24 @@ class EntryWithDetails {
       {required this.entry, required this.product, required this.category});
 }
 
+class TemplateWithDetails {
+  final EntryTemplate template;
+  final Product product;
+  final Category category;
+
+  TemplateWithDetails(
+      {required this.template, required this.product, required this.category});
+}
+
 class EntryRepository {
   final AppDatabase _db;
   EntryRepository(this._db);
 
-  // Categories
+  // ─── Categories ─────────────────────────────────────────────────────────────
+
   Stream<List<Category>> watchCategories() =>
       _db.select(_db.categories).watch();
+
   Future<int> addCategory(String name,
       {String? iconString, bool isCustom = true}) {
     return _db.into(_db.categories).insert(
@@ -57,10 +70,47 @@ class EntryRepository {
         .go();
   }
 
-  // Products
+  // ─── Category Weights ────────────────────────────────────────────────────────
+
+  /// Returns a map of categoryId → weight for all stored weights.
+  Future<Map<int, double>> getCategoryWeights() async {
+    final rows = await _db.select(_db.categoryWeights).get();
+    return {for (final r in rows) r.categoryId: r.weight};
+  }
+
+  /// Persists the full set of category weights, replacing any existing ones.
+  /// [weights] maps categoryId → weight (values should sum to 1.0).
+  Future<void> saveCategoryWeights(Map<int, double> weights) async {
+    await _db.transaction(() async {
+      await _db.delete(_db.categoryWeights).go();
+      for (final entry in weights.entries) {
+        await _db.into(_db.categoryWeights).insert(
+              CategoryWeightsCompanion.insert(
+                categoryId: Value(entry.key),
+                weight: entry.value,
+              ),
+            );
+      }
+    });
+  }
+
+  /// Clears all custom weights so the basket reverts to spend-weighted averaging.
+  Future<void> clearCategoryWeights() =>
+      _db.delete(_db.categoryWeights).go();
+
+  // ─── Products ────────────────────────────────────────────────────────────────
+
   Future<Product?> getProductByName(String name) async {
     return (_db.select(_db.products)..where((p) => p.name.equals(name)))
         .getSingleOrNull();
+  }
+
+  /// Returns all product names in a given category (for duplicate detection).
+  Future<List<String>> getProductNamesForCategory(int categoryId) async {
+    final res = await (_db.select(_db.products)
+          ..where((p) => p.categoryId.equals(categoryId)))
+        .get();
+    return res.map((p) => p.name).toList();
   }
 
   Future<int> addProduct(String name, int categoryId) {
@@ -69,7 +119,8 @@ class EntryRepository {
         );
   }
 
-  // Entries
+  // ─── Entries ─────────────────────────────────────────────────────────────────
+
   Stream<List<PurchaseEntry>> watchEntries() =>
       _db.select(_db.purchaseEntries).watch();
 
@@ -116,7 +167,17 @@ class EntryRepository {
         );
   }
 
-  // Autocomplete helpers
+  /// Returns the most recent entry for the given product, or null if none.
+  Future<PurchaseEntry?> getLatestEntryForProduct(int productId) async {
+    return (_db.select(_db.purchaseEntries)
+          ..where((e) => e.productId.equals(productId))
+          ..orderBy([(e) => OrderingTerm.desc(e.purchaseDate)])
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  // ─── Autocomplete ────────────────────────────────────────────────────────────
+
   Future<List<String>> searchProductNames(String query) async {
     final res = await (_db.select(_db.products)
           ..where((p) => p.name.like('%$query%'))
@@ -158,7 +219,7 @@ class EntryRepository {
 
   /// Saves a list of receipt items atomically. If any item fails, the entire
   /// batch is rolled back. Each [items] entry must have keys:
-  /// `productName`, `categoryName`, `price`, `quantity`, `unit` (optional, UnitType.name string).
+  /// `productName`, `categoryName`, `price`, `quantity`, `unit` (optional).
   Future<void> bulkAddFromReceipt({
     required String storeName,
     required DateTime receiptDate,
@@ -213,5 +274,87 @@ class EntryRepository {
             );
       }
     });
+  }
+
+  // ─── Templates ───────────────────────────────────────────────────────────────
+
+  Stream<List<TemplateWithDetails>> watchTemplatesWithDetails() {
+    final query = _db.select(_db.entryTemplates).join([
+      innerJoin(_db.products,
+          _db.products.id.equalsExp(_db.entryTemplates.productId)),
+      innerJoin(
+          _db.categories, _db.categories.id.equalsExp(_db.products.categoryId)),
+    ]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        return TemplateWithDetails(
+          template: row.readTable(_db.entryTemplates),
+          product: row.readTable(_db.products),
+          category: row.readTable(_db.categories),
+        );
+      }).toList();
+    });
+  }
+
+  Future<int> addTemplate({
+    required int productId,
+    required String storeName,
+    String? location,
+    double quantity = 1.0,
+    UnitType? unit,
+    String? notes,
+  }) {
+    return _db.into(_db.entryTemplates).insert(
+          EntryTemplatesCompanion.insert(
+            productId: productId,
+            storeName: storeName,
+            location: Value(location),
+            quantity: Value(quantity),
+            unit: Value(unit == UnitType.count ? null : unit?.name),
+            notes: Value(notes),
+          ),
+        );
+  }
+
+  Future<int> deleteTemplate(int templateId) {
+    return (_db.delete(_db.entryTemplates)
+          ..where((t) => t.id.equals(templateId)))
+        .go();
+  }
+
+  // ─── Price Alerts ────────────────────────────────────────────────────────────
+
+  Future<PriceAlert?> getPriceAlert(int productId) async {
+    return (_db.select(_db.priceAlerts)
+          ..where((a) => a.productId.equals(productId)))
+        .getSingleOrNull();
+  }
+
+  Future<void> setPriceAlert({
+    required int productId,
+    required double thresholdPercent,
+    required bool isEnabled,
+  }) {
+    return _db.into(_db.priceAlerts).insertOnConflictUpdate(
+          PriceAlertsCompanion.insert(
+            productId: Value(productId),
+            thresholdPercent: Value(thresholdPercent),
+            isEnabled: Value(isEnabled),
+          ),
+        );
+  }
+
+  Future<int> deletePriceAlert(int productId) {
+    return (_db.delete(_db.priceAlerts)
+          ..where((a) => a.productId.equals(productId)))
+        .go();
+  }
+
+  /// Returns all enabled price alerts with their products.
+  Future<List<PriceAlert>> getEnabledPriceAlerts() async {
+    return (_db.select(_db.priceAlerts)
+          ..where((a) => a.isEnabled.equals(true)))
+        .get();
   }
 }

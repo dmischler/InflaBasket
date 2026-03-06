@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
+import 'package:inflabasket/core/api/cpi_client.dart';
+import 'package:inflabasket/core/api/cpi_provider.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -13,36 +16,47 @@ class OverviewTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final overallInflation = ref.watch(basketInflationProvider);
     final history = ref.watch(basketIndexHistoryProvider);
     final topInflators = ref.watch(itemInflationListProvider);
     final settings = ref.watch(settingsControllerProvider);
+    final showCpi = ref.watch(showCpiOverlayProvider);
+    final cpiAsync = ref.watch(cpiDataProvider);
+    final hasCpiSource =
+        cpiSourceForCurrency(settings.currency) != null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSummaryCard(context, overallInflation),
+          _buildSummaryCard(context, l, overallInflation),
           const SizedBox(height: 24),
-          Text('Basket Index History',
+          _buildChartHeader(context, l, ref, hasCpiSource, showCpi),
+          const SizedBox(height: 8),
+          _buildLineChart(context, l, ref, history, showCpi, cpiAsync),
+          if (showCpi && hasCpiSource) ...[
+            const SizedBox(height: 8),
+            _buildChartLegend(context, l),
+          ],
+          const SizedBox(height: 24),
+          Text(l.overviewTopInflators,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildLineChart(context, history),
+          _buildTopInflators(context, l, topInflators, settings),
           const SizedBox(height: 24),
-          Text('Top Inflators', style: Theme.of(context).textTheme.titleLarge),
+          Text(l.overviewTopDeflators,
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopInflators(context, topInflators, settings),
-          const SizedBox(height: 24),
-          Text('Top Deflators', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
-          _buildTopDeflators(context, topInflators, settings),
+          _buildTopDeflators(context, l, topInflators, settings),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard(BuildContext context, double inflation) {
+  Widget _buildSummaryCard(
+      BuildContext context, AppLocalizations l, double inflation) {
     final color = inflation > 0
         ? Colors.red
         : (inflation < 0 ? Colors.green : Colors.grey);
@@ -61,7 +75,7 @@ class OverviewTab extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Personal Inflation',
+                Text(l.overviewTitle,
                     style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 Text(
@@ -84,12 +98,69 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildLineChart(BuildContext context, List<MonthlyIndex> history) {
+  Widget _buildChartHeader(BuildContext context, AppLocalizations l,
+      WidgetRef ref, bool hasCpiSource, bool showCpi) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(l.overviewBasketIndex,
+              style: Theme.of(context).textTheme.titleLarge),
+        ),
+        if (hasCpiSource)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l.showNationalAverage,
+                  style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(width: 4),
+              Switch.adaptive(
+                value: showCpi,
+                onChanged: (_) =>
+                    ref.read(showCpiOverlayProvider.notifier).toggle(),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildChartLegend(BuildContext context, AppLocalizations l) {
+    return Row(
+      children: [
+        _legendDot(Theme.of(context).colorScheme.primary),
+        const SizedBox(width: 4),
+        Text(l.yourInflation,
+            style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(width: 16),
+        _legendDot(Colors.orange),
+        const SizedBox(width: 4),
+        Text(l.nationalCpi,
+            style: Theme.of(context).textTheme.bodySmall),
+      ],
+    );
+  }
+
+  Widget _legendDot(Color color) {
+    return Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+
+  Widget _buildLineChart(
+    BuildContext context,
+    AppLocalizations l,
+    WidgetRef ref,
+    List<MonthlyIndex> history,
+    bool showCpi,
+    AsyncValue<List<CpiDataPoint>> cpiAsync,
+  ) {
     final validHistory = history.where((h) => h.index.isFinite).toList();
     if (validHistory.isEmpty || validHistory.length == 1) {
-      return const SizedBox(
+      return SizedBox(
         height: 200,
-        child: Center(child: Text('Not enough data to chart.')),
+        child: Center(child: Text(l.overviewNoData)),
       );
     }
 
@@ -97,15 +168,71 @@ class OverviewTab extends ConsumerWidget {
       return FlSpot(e.key.toDouble(), e.value.index);
     }).toList();
 
-    // Compute explicit Y bounds so fl_chart always has a non-zero vertical
-    // range. When all spots share the same Y value (e.g. only one month of
-    // data), verticalDiff=0 causes fl_chart to construct a degenerate
-    // TransformLayer, triggering the "invalid matrix" engine warning.
-    final yValues = spots.map((s) => s.y).toList();
-    final dataMinY = yValues.reduce(min);
-    final dataMaxY = yValues.reduce(max);
+    // Build CPI spots aligned to the same x-axis if overlay is active
+    List<FlSpot> cpiSpots = [];
+    if (showCpi) {
+      final cpiPoints = cpiAsync.valueOrNull ?? [];
+      if (cpiPoints.isNotEmpty && validHistory.isNotEmpty) {
+        // Align CPI months to our basket history months
+        final basketStart = validHistory.first.month;
+        final basketEnd = validHistory.last.month;
+        final relevantCpi = cpiPoints.where((p) =>
+            !p.month.isBefore(basketStart) && !p.month.isAfter(basketEnd));
+
+        for (final cp in relevantCpi) {
+          // Find the closest basket month index for this CPI month
+          int bestIdx = 0;
+          int bestDiff = 999999;
+          for (int i = 0; i < validHistory.length; i++) {
+            final diff =
+                (validHistory[i].month.millisecondsSinceEpoch -
+                        cp.month.millisecondsSinceEpoch)
+                    .abs();
+            if (diff < bestDiff) {
+              bestDiff = diff;
+              bestIdx = i;
+            }
+          }
+          cpiSpots.add(FlSpot(bestIdx.toDouble(), cp.index));
+        }
+      }
+    }
+
+    // Compute explicit Y bounds
+    final allYValues = [
+      ...spots.map((s) => s.y),
+      if (cpiSpots.isNotEmpty) ...cpiSpots.map((s) => s.y),
+    ];
+    final dataMinY = allYValues.reduce(min);
+    final dataMaxY = allYValues.reduce(max);
     final chartMinY = dataMinY == dataMaxY ? dataMinY - 10.0 : dataMinY;
     final chartMaxY = dataMinY == dataMaxY ? dataMaxY + 10.0 : dataMaxY;
+
+    final barData = <LineChartBarData>[
+      LineChartBarData(
+        spots: spots,
+        isCurved: true,
+        color: Theme.of(context).colorScheme.primary,
+        barWidth: 4,
+        isStrokeCapRound: true,
+        dotData: const FlDotData(show: true),
+        belowBarData: BarAreaData(
+          show: true,
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+        ),
+      ),
+      if (showCpi && cpiSpots.isNotEmpty)
+        LineChartBarData(
+          spots: cpiSpots,
+          isCurved: true,
+          color: Colors.orange,
+          barWidth: 2,
+          isStrokeCapRound: true,
+          dashArray: [6, 4],
+          dotData: const FlDotData(show: false),
+          belowBarData: BarAreaData(show: false),
+        ),
+    ];
 
     return SizedBox(
       height: 250,
@@ -120,8 +247,6 @@ class OverviewTab extends ConsumerWidget {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
-                  // Use validHistory so the index aligns with the FlSpot x
-                  // values, which are indexed against validHistory too.
                   if (index >= 0 && index < validHistory.length) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
@@ -142,38 +267,23 @@ class OverviewTab extends ConsumerWidget {
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(show: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: true,
-              color: Theme.of(context).colorScheme.primary,
-              barWidth: 4,
-              isStrokeCapRound: true,
-              dotData: const FlDotData(show: true),
-              belowBarData: BarAreaData(
-                show: true,
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-              ),
-            ),
-          ],
+          lineBarsData: barData,
         ),
       ),
     );
   }
 
-  Widget _buildTopInflators(
-      BuildContext context, List<ItemInflation> items, AppSettings settings) {
+  Widget _buildTopInflators(BuildContext context, AppLocalizations l,
+      List<ItemInflation> items, AppSettings settings) {
     if (items.isEmpty) {
-      return const Text(
-          'Add multiple entries of the same product to track inflation.');
+      return Text(l.overviewNoData);
     }
 
-    // Only show items with > 0% inflation, up to top 5
     final inflators =
         items.where((i) => i.inflationPercent > 0).take(5).toList();
 
     if (inflators.isEmpty) {
-      return const Text('No price increases detected yet! 🎉');
+      return const Text('No price increases detected yet!');
     }
 
     return ListView.builder(
@@ -197,11 +307,10 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildTopDeflators(
-      BuildContext context, List<ItemInflation> items, AppSettings settings) {
+  Widget _buildTopDeflators(BuildContext context, AppLocalizations l,
+      List<ItemInflation> items, AppSettings settings) {
     if (items.isEmpty) {
-      return const Text(
-          'Add multiple entries of the same product to track inflation.');
+      return Text(l.overviewNoData);
     }
 
     final deflators = items.where((i) => i.inflationPercent < 0).toList()

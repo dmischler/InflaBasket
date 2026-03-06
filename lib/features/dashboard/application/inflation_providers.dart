@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/core/database/database.dart';
 
 part 'inflation_providers.g.dart';
@@ -185,17 +186,30 @@ double basketInflation(BasketInflationRef ref) {
   final categoryInflations = ref.watch(categoryInflationListProvider);
   if (categoryInflations.isEmpty) return 0.0;
 
-  double totalSpend = 0;
+  // Check for user-defined category weights
+  final weightsAsync = ref.watch(categoryWeightsControllerProvider);
+  final customWeights = weightsAsync.valueOrNull ?? {};
+
+  double totalWeight = 0;
   double weightedInflationSum = 0;
 
   for (final cat in categoryInflations) {
     if (!cat.inflationPercent.isFinite) continue;
-    totalSpend += cat.totalSpend;
-    weightedInflationSum += (cat.inflationPercent * cat.totalSpend);
+    final customWeight = customWeights[cat.category.id];
+    if (customWeights.isNotEmpty && customWeight != null) {
+      // User-defined weighting
+      weightedInflationSum += cat.inflationPercent * customWeight;
+      totalWeight += customWeight;
+    } else if (customWeights.isEmpty) {
+      // Fall back to spend-weighted averaging
+      weightedInflationSum += cat.inflationPercent * cat.totalSpend;
+      totalWeight += cat.totalSpend;
+    }
+    // If customWeights is set but this category has no weight, skip it
   }
 
-  if (totalSpend == 0) return 0.0;
-  return weightedInflationSum / totalSpend;
+  if (totalWeight == 0) return 0.0;
+  return weightedInflationSum / totalWeight;
 }
 
 class MonthlyIndex {

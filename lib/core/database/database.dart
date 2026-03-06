@@ -36,12 +36,57 @@ class PurchaseEntries extends Table {
   TextColumn get notes => text().nullable()();
 }
 
-@DriftDatabase(tables: [Categories, Products, PurchaseEntries])
+/// Stores user-defined basket weights per category.
+/// Weight is a fraction 0.0–1.0; all weights should sum to 1.0.
+/// If no weights are stored, the basket uses equal (spend-weighted) averaging.
+@DataClassName('CategoryWeight')
+class CategoryWeights extends Table {
+  IntColumn get categoryId =>
+      integer().references(Categories, #id)();
+  RealColumn get weight => real()();
+
+  @override
+  Set<Column> get primaryKey => {categoryId};
+}
+
+/// A saved template for a recurring purchase.
+/// Stores all fields needed to pre-fill [AddEntryScreen] — only the price
+/// and date are supplied fresh at use-time.
+@DataClassName('EntryTemplate')
+class EntryTemplates extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productId => integer().references(Products, #id)();
+  TextColumn get storeName => text()();
+  TextColumn get location => text().nullable()();
+  RealColumn get quantity => real().withDefault(const Constant(1.0))();
+  TextColumn get unit => text().nullable()();
+  TextColumn get notes => text().nullable()();
+}
+
+/// Per-product price-change alert configuration.
+/// When a new entry is saved and the price rise exceeds [thresholdPercent],
+/// a local notification is triggered (Premium only).
+@DataClassName('PriceAlert')
+class PriceAlerts extends Table {
+  IntColumn get productId =>
+      integer().references(Products, #id)();
+  RealColumn get thresholdPercent =>
+      real().withDefault(const Constant(10.0))();
+  BoolColumn get isEnabled =>
+      boolean().withDefault(const Constant(true))();
+
+  @override
+  Set<Column> get primaryKey => {productId};
+}
+
+@DriftDatabase(
+    tables: [Categories, Products, PurchaseEntries, CategoryWeights,
+             EntryTemplates, PriceAlerts])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -52,6 +97,11 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.addColumn(purchaseEntries, purchaseEntries.unit);
+          }
+          if (from < 3) {
+            await m.createTable(categoryWeights);
+            await m.createTable(entryTemplates);
+            await m.createTable(priceAlerts);
           }
         },
       );
