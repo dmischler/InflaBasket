@@ -39,6 +39,9 @@ class EntryRepository {
   final AppDatabase _db;
   EntryRepository(this._db);
 
+  static const metricCpi = 'cpi';
+  static const metricMoneySupplyM2 = 'money_supply_m2';
+
   // ─── Categories ─────────────────────────────────────────────────────────────
 
   Stream<List<Category>> watchCategories() =>
@@ -358,5 +361,54 @@ class EntryRepository {
   Future<List<PriceAlert>> getEnabledPriceAlerts() async {
     return (_db.select(_db.priceAlerts)..where((a) => a.isEnabled.equals(true)))
         .get();
+  }
+
+  // ─── External Series Cache ──────────────────────────────────────────────────
+
+  Future<List<ExternalSeriesCacheEntry>> getExternalSeriesCache({
+    required String source,
+    required String currency,
+    required String metric,
+    required DateTime startMonth,
+  }) {
+    return (_db.select(_db.externalSeriesCache)
+          ..where((row) =>
+              row.source.equals(source) &
+              row.currency.equals(currency) &
+              row.metric.equals(metric) &
+              row.month.isBiggerOrEqualValue(startMonth))
+          ..orderBy([(row) => OrderingTerm.asc(row.month)]))
+        .get();
+  }
+
+  Future<void> replaceExternalSeriesCache({
+    required String source,
+    required String currency,
+    required String metric,
+    required List<(DateTime month, double value)> points,
+    DateTime? fetchedAt,
+  }) async {
+    final timestamp = fetchedAt ?? DateTime.now();
+    await _db.transaction(() async {
+      await (_db.delete(_db.externalSeriesCache)
+            ..where((row) =>
+                row.source.equals(source) &
+                row.currency.equals(currency) &
+                row.metric.equals(metric)))
+          .go();
+
+      for (final point in points) {
+        await _db.into(_db.externalSeriesCache).insert(
+              ExternalSeriesCacheCompanion.insert(
+                source: source,
+                currency: currency,
+                metric: metric,
+                month: point.$1,
+                value: point.$2,
+                fetchedAt: timestamp,
+              ),
+            );
+      }
+    });
   }
 }

@@ -31,6 +31,57 @@ class ComparisonDataPoint {
   const ComparisonDataPoint({required this.month, required this.index});
 }
 
+@visibleForTesting
+List<CpiDataPoint> parseCpiSdmxSeries(Map<String, dynamic> json) {
+  final result = <CpiDataPoint>[];
+  try {
+    final structure = json['structure'] as Map<String, dynamic>;
+    final observationDimensions = (structure['dimensions']
+        as Map<String, dynamic>)['observation'] as List<dynamic>;
+    final timeValues = (observationDimensions.first
+        as Map<String, dynamic>)['values'] as List<dynamic>;
+
+    final seriesMap = ((json['dataSets'] as List<dynamic>).first
+        as Map<String, dynamic>)['series'] as Map<String, dynamic>;
+    if (seriesMap.isEmpty) return const [];
+
+    final observations = (seriesMap.values.first
+        as Map<String, dynamic>)['observations'] as Map<String, dynamic>;
+
+    for (final entry in observations.entries) {
+      final index = int.tryParse(entry.key);
+      if (index == null || index >= timeValues.length) continue;
+      final observation = entry.value as List<dynamic>;
+      final time = timeValues[index] as Map<String, dynamic>;
+      final month =
+          parseYearMonthId(((time['id'] ?? time['name'])?.toString()) ?? '');
+      final value =
+          parseDoubleValue(observation.isEmpty ? null : observation.first);
+      if (month == null || value == null) continue;
+      result.add(CpiDataPoint(month: month, index: value));
+    }
+  } catch (e) {
+    debugPrint('parseCpiSdmxSeries error: $e');
+  }
+  result.sort((a, b) => a.month.compareTo(b.month));
+  return result;
+}
+
+DateTime? parseYearMonthId(String s) {
+  final parts = s.split('-');
+  if (parts.length < 2) return null;
+  final year = int.tryParse(parts[0]);
+  final month = int.tryParse(parts[1]);
+  if (year == null || month == null) return null;
+  return DateTime(year, month);
+}
+
+double? parseDoubleValue(Object? raw) {
+  if (raw == null) return null;
+  if (raw is num) return raw.toDouble();
+  return double.tryParse(raw.toString());
+}
+
 /// Returns the appropriate [CpiSource] for a given currency code, or null
 /// if no CPI comparison is available for that currency.
 CpiSource? cpiSourceForCurrency(String currency) {
@@ -124,55 +175,7 @@ class CpiClient {
   }
 
   List<CpiDataPoint> _parseSdmxSeries(Map<String, dynamic> json) {
-    final result = <CpiDataPoint>[];
-    try {
-      final structure = json['structure'] as Map<String, dynamic>;
-      final observationDimensions = (structure['dimensions']
-          as Map<String, dynamic>)['observation'] as List<dynamic>;
-      final timeValues = (observationDimensions.first
-          as Map<String, dynamic>)['values'] as List<dynamic>;
-
-      final seriesMap = ((json['dataSets'] as List<dynamic>).first
-          as Map<String, dynamic>)['series'] as Map<String, dynamic>;
-      if (seriesMap.isEmpty) return [];
-
-      final observations = (seriesMap.values.first
-          as Map<String, dynamic>)['observations'] as Map<String, dynamic>;
-
-      for (final entry in observations.entries) {
-        final index = int.tryParse(entry.key);
-        if (index == null || index >= timeValues.length) continue;
-        final observation = entry.value as List<dynamic>;
-        final time = timeValues[index] as Map<String, dynamic>;
-        final month = _parseYearMonth(
-          ((time['id'] ?? time['name'])?.toString()) ?? '',
-        );
-        final value =
-            _tryParseDouble(observation.isEmpty ? null : observation.first);
-        if (month == null || value == null) continue;
-        result.add(CpiDataPoint(month: month, index: value));
-      }
-    } catch (e) {
-      debugPrint('CpiClient._parseSdmxSeries error: $e');
-    }
-    result.sort((a, b) => a.month.compareTo(b.month));
-    return result;
-  }
-
-  /// Parses "YYYY-MM" or "YYYY-M" into a [DateTime] at the 1st of that month.
-  DateTime? _parseYearMonth(String s) {
-    final parts = s.split('-');
-    if (parts.length < 2) return null;
-    final year = int.tryParse(parts[0]);
-    final month = int.tryParse(parts[1]);
-    if (year == null || month == null) return null;
-    return DateTime(year, month);
-  }
-
-  double? _tryParseDouble(Object? raw) {
-    if (raw == null) return null;
-    if (raw is num) return raw.toDouble();
-    return double.tryParse(raw.toString());
+    return parseCpiSdmxSeries(json);
   }
 
   void _logDioError(CpiSource source, DioException error) {

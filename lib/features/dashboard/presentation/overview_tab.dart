@@ -105,7 +105,7 @@ class OverviewTab extends ConsumerWidget {
             ),
             CircleAvatar(
               radius: 32,
-              backgroundColor: color.withOpacity(0.1),
+              backgroundColor: color.withValues(alpha: 0.1),
               child: Icon(icon, size: 32, color: color),
             )
           ],
@@ -290,7 +290,7 @@ class OverviewTab extends ConsumerWidget {
         dotData: const FlDotData(show: true),
         belowBarData: BarAreaData(
           show: true,
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
         ),
       ),
       if (showCpi && comparisonSpots.isNotEmpty)

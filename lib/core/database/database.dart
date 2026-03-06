@@ -31,6 +31,7 @@ class PurchaseEntries extends Table {
   DateTimeColumn get purchaseDate => dateTime()();
   RealColumn get price => real()();
   RealColumn get quantity => real().withDefault(const Constant(1.0))();
+
   /// Stores the [UnitType.name] string. Null means 'count'.
   TextColumn get unit => text().nullable()();
   TextColumn get notes => text().nullable()();
@@ -41,8 +42,7 @@ class PurchaseEntries extends Table {
 /// If no weights are stored, the basket uses equal (spend-weighted) averaging.
 @DataClassName('CategoryWeight')
 class CategoryWeights extends Table {
-  IntColumn get categoryId =>
-      integer().references(Categories, #id)();
+  IntColumn get categoryId => integer().references(Categories, #id)();
   RealColumn get weight => real()();
 
   @override
@@ -68,25 +68,41 @@ class EntryTemplates extends Table {
 /// a local notification is triggered (Premium only).
 @DataClassName('PriceAlert')
 class PriceAlerts extends Table {
-  IntColumn get productId =>
-      integer().references(Products, #id)();
-  RealColumn get thresholdPercent =>
-      real().withDefault(const Constant(10.0))();
-  BoolColumn get isEnabled =>
-      boolean().withDefault(const Constant(true))();
+  IntColumn get productId => integer().references(Products, #id)();
+  RealColumn get thresholdPercent => real().withDefault(const Constant(10.0))();
+  BoolColumn get isEnabled => boolean().withDefault(const Constant(true))();
 
   @override
   Set<Column> get primaryKey => {productId};
 }
 
-@DriftDatabase(
-    tables: [Categories, Products, PurchaseEntries, CategoryWeights,
-             EntryTemplates, PriceAlerts])
-class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+@DataClassName('ExternalSeriesCacheEntry')
+class ExternalSeriesCache extends Table {
+  TextColumn get source => text()();
+  TextColumn get currency => text().withLength(min: 3, max: 3)();
+  TextColumn get metric => text()();
+  DateTimeColumn get month => dateTime()();
+  RealColumn get value => real()();
+  DateTimeColumn get fetchedAt => dateTime()();
 
   @override
-  int get schemaVersion => 3;
+  Set<Column> get primaryKey => {source, currency, metric, month};
+}
+
+@DriftDatabase(tables: [
+  Categories,
+  Products,
+  PurchaseEntries,
+  CategoryWeights,
+  EntryTemplates,
+  PriceAlerts,
+  ExternalSeriesCache,
+])
+class AppDatabase extends _$AppDatabase {
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
+
+  @override
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -102,6 +118,9 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(categoryWeights);
             await m.createTable(entryTemplates);
             await m.createTable(priceAlerts);
+          }
+          if (from < 4) {
+            await m.createTable(externalSeriesCache);
           }
         },
       );

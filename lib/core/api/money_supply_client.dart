@@ -96,17 +96,7 @@ class MoneySupplyClient {
     final csv = response.data;
     if (csv == null || csv.trim().isEmpty) return [];
 
-    final rows = const LineSplitter().convert(csv);
-    final result = <MoneySupplyDataPoint>[];
-    for (final row in rows.skip(1)) {
-      final columns = row.split(',');
-      if (columns.length < 2) continue;
-      final month = _parseIsoMonth(columns[0]);
-      final value = _tryParseDouble(columns[1]);
-      if (month == null || value == null) continue;
-      result.add(MoneySupplyDataPoint(month: month, value: value));
-    }
-    return result;
+    return parseFredMoneySupplyCsv(csv);
   }
 
   Future<List<MoneySupplyDataPoint>> _fetchBoe(DateTime startMonth) async {
@@ -126,17 +116,7 @@ class MoneySupplyClient {
     final csv = response.data;
     if (csv == null || csv.trim().isEmpty) return [];
 
-    final rows = const LineSplitter().convert(csv);
-    final result = <MoneySupplyDataPoint>[];
-    for (final row in rows.skip(1)) {
-      final columns = row.split(',');
-      if (columns.length < 3) continue;
-      final month = _parseBoeDate(columns[0]);
-      final value = _tryParseDouble(columns[2]);
-      if (month == null || value == null) continue;
-      result.add(MoneySupplyDataPoint(month: month, value: value));
-    }
-    return result;
+    return parseBoeMoneySupplyCsv(csv);
   }
 
   Future<List<MoneySupplyDataPoint>> _fetchSnb(DateTime startMonth) async {
@@ -167,59 +147,11 @@ class MoneySupplyClient {
     final json = response.data;
     if (json == null) return [];
 
-    final rows =
-        ((json['data'] as Map<String, dynamic>)['data'] as List<dynamic>?) ??
-            const <dynamic>[];
-    final result = <MoneySupplyDataPoint>[];
-    for (final rawRow in rows) {
-      final row = rawRow as List<dynamic>;
-      if (row.length < 3 || row[1]?.toString() != 'M2') continue;
-      final month = _parseYearMonth(row[0]?.toString());
-      final value = _tryParseDouble(row[2]);
-      if (month == null || value == null || month.isBefore(startMonth)) {
-        continue;
-      }
-      result.add(MoneySupplyDataPoint(month: month, value: value));
-    }
-    return result;
+    return extractSnbM2Series(json, startMonth: startMonth);
   }
 
   List<MoneySupplyDataPoint> _parseSdmxSeries(Map<String, dynamic> json) {
-    final result = <MoneySupplyDataPoint>[];
-    try {
-      final structure = json['structure'] as Map<String, dynamic>;
-      final observationDimensions = (structure['dimensions']
-          as Map<String, dynamic>)['observation'] as List<dynamic>;
-      final timeValues = (observationDimensions.first
-          as Map<String, dynamic>)['values'] as List<dynamic>;
-
-      final seriesMap = ((json['dataSets'] as List<dynamic>).first
-          as Map<String, dynamic>)['series'] as Map<String, dynamic>;
-      if (seriesMap.isEmpty) return [];
-
-      final observations = (seriesMap.values.first
-          as Map<String, dynamic>)['observations'] as Map<String, dynamic>;
-
-      for (final entry in observations.entries) {
-        final index = int.tryParse(entry.key);
-        if (index == null || index >= timeValues.length) continue;
-
-        final observation = entry.value as List<dynamic>;
-        final value =
-            _tryParseDouble(observation.isEmpty ? null : observation.first);
-        final time = timeValues[index] as Map<String, dynamic>;
-        final month = _parseYearMonth(
-          (time['id'] ?? time['name'])?.toString(),
-        );
-        if (month == null || value == null) continue;
-        result.add(MoneySupplyDataPoint(month: month, value: value));
-      }
-    } catch (error) {
-      debugPrint('MoneySupplyClient._parseSdmxSeries error: $error');
-    }
-
-    result.sort((a, b) => a.month.compareTo(b.month));
-    return result;
+    return parseSdmxMoneySupplySeries(json);
   }
 
   Options _jsonOptions() {
@@ -231,43 +163,8 @@ class MoneySupplyClient {
     );
   }
 
-  DateTime? _parseIsoMonth(String? value) {
-    if (value == null || value.isEmpty) return null;
-    final parsed = DateTime.tryParse(value);
-    if (parsed == null) return null;
-    return DateTime(parsed.year, parsed.month);
-  }
-
-  DateTime? _parseBoeDate(String? value) {
-    if (value == null || value.isEmpty) return null;
-    try {
-      final parsed = DateFormat('dd MMM yyyy', 'en_US').parseStrict(value);
-      return DateTime(parsed.year, parsed.month);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  DateTime? _parseYearMonth(String? value) {
-    if (value == null || value.isEmpty) return null;
-    final parts = value.split('-');
-    if (parts.length < 2) return null;
-    final year = int.tryParse(parts[0]);
-    final month = int.tryParse(parts[1]);
-    if (year == null || month == null) return null;
-    return DateTime(year, month);
-  }
-
   String _formatIsoDate(DateTime date) {
     return '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
-
-  double? _tryParseDouble(Object? raw) {
-    if (raw == null) return null;
-    if (raw is num) return raw.toDouble();
-    final text = raw.toString().trim();
-    if (text.isEmpty || text == '.') return null;
-    return double.tryParse(text);
   }
 
   void _logDioError(MoneySupplySource source, DioException error) {
@@ -291,4 +188,120 @@ class MoneySupplyClient {
     final message = error.message ?? underlying?.toString() ?? 'request failed';
     debugPrint('MoneySupplyClient network error ($source/$kind): $message');
   }
+}
+
+@visibleForTesting
+List<MoneySupplyDataPoint> parseSdmxMoneySupplySeries(
+    Map<String, dynamic> json) {
+  final result = <MoneySupplyDataPoint>[];
+  try {
+    final structure = json['structure'] as Map<String, dynamic>;
+    final observationDimensions = (structure['dimensions']
+        as Map<String, dynamic>)['observation'] as List<dynamic>;
+    final timeValues = (observationDimensions.first
+        as Map<String, dynamic>)['values'] as List<dynamic>;
+
+    final seriesMap = ((json['dataSets'] as List<dynamic>).first
+        as Map<String, dynamic>)['series'] as Map<String, dynamic>;
+    if (seriesMap.isEmpty) return const [];
+
+    final observations = (seriesMap.values.first
+        as Map<String, dynamic>)['observations'] as Map<String, dynamic>;
+
+    for (final entry in observations.entries) {
+      final index = int.tryParse(entry.key);
+      if (index == null || index >= timeValues.length) continue;
+      final observation = entry.value as List<dynamic>;
+      final value = parseMoneySupplyDouble(
+          observation.isEmpty ? null : observation.first);
+      final time = timeValues[index] as Map<String, dynamic>;
+      final month = parseMoneySupplyYearMonthId(
+        ((time['id'] ?? time['name'])?.toString()) ?? '',
+      );
+      if (month == null || value == null) continue;
+      result.add(MoneySupplyDataPoint(month: month, value: value));
+    }
+  } catch (error) {
+    debugPrint('parseSdmxMoneySupplySeries error: $error');
+  }
+
+  result.sort((a, b) => a.month.compareTo(b.month));
+  return result;
+}
+
+@visibleForTesting
+List<MoneySupplyDataPoint> parseFredMoneySupplyCsv(String csv) {
+  final rows = const LineSplitter().convert(csv);
+  final result = <MoneySupplyDataPoint>[];
+  for (final row in rows.skip(1)) {
+    final columns = row.split(',');
+    if (columns.length < 2) continue;
+    final month = DateTime.tryParse(columns[0]);
+    final value = parseMoneySupplyDouble(columns[1]);
+    if (month == null || value == null) continue;
+    result.add(MoneySupplyDataPoint(
+      month: DateTime(month.year, month.month),
+      value: value,
+    ));
+  }
+  return result;
+}
+
+@visibleForTesting
+List<MoneySupplyDataPoint> parseBoeMoneySupplyCsv(String csv) {
+  final rows = const LineSplitter().convert(csv);
+  final result = <MoneySupplyDataPoint>[];
+  for (final row in rows.skip(1)) {
+    final columns = row.split(',');
+    if (columns.length < 3) continue;
+    try {
+      final parsed = DateFormat('dd MMM yyyy', 'en_US').parseStrict(columns[0]);
+      final month = DateTime(parsed.year, parsed.month);
+      final value = parseMoneySupplyDouble(columns[2]);
+      if (value == null) continue;
+      result.add(MoneySupplyDataPoint(month: month, value: value));
+    } catch (_) {}
+  }
+  return result;
+}
+
+@visibleForTesting
+List<MoneySupplyDataPoint> extractSnbM2Series(
+  Map<String, dynamic> json, {
+  DateTime? startMonth,
+}) {
+  final rows =
+      ((json['data'] as Map<String, dynamic>?)?['data'] as List<dynamic>?) ??
+          const <dynamic>[];
+  final result = <MoneySupplyDataPoint>[];
+  for (final rawRow in rows) {
+    final row = rawRow as List<dynamic>;
+    if (row.length < 3 || row[1]?.toString() != 'M2') continue;
+    final month = parseMoneySupplyYearMonthId(row[0]?.toString() ?? '');
+    final value = parseMoneySupplyDouble(row[2]);
+    if (month == null || value == null) continue;
+    if (startMonth != null && month.isBefore(startMonth)) continue;
+    result.add(MoneySupplyDataPoint(month: month, value: value));
+  }
+  result.sort((a, b) => a.month.compareTo(b.month));
+  return result;
+}
+
+@visibleForTesting
+double? parseMoneySupplyDouble(Object? raw) {
+  if (raw == null) return null;
+  if (raw is num) return raw.toDouble();
+  final text = raw.toString().trim();
+  if (text.isEmpty || text == '.') return null;
+  return double.tryParse(text);
+}
+
+@visibleForTesting
+DateTime? parseMoneySupplyYearMonthId(String value) {
+  final parts = value.split('-');
+  if (parts.length < 2) return null;
+  final year = int.tryParse(parts[0]);
+  final month = int.tryParse(parts[1]);
+  if (year == null || month == null) return null;
+  return DateTime(year, month);
 }

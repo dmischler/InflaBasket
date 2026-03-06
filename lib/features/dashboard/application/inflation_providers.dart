@@ -20,9 +20,13 @@ part 'inflation_providers.g.dart';
 double _normalizedUnitPrice(PurchaseEntry e) {
   final price = e.price;
   final quantity = e.quantity;
-  if (price.isNaN || price.isInfinite ||
-      quantity.isNaN || quantity.isInfinite ||
-      quantity <= 0) return 0;
+  if (price.isNaN ||
+      price.isInfinite ||
+      quantity.isNaN ||
+      quantity.isInfinite ||
+      quantity <= 0) {
+    return 0;
+  }
 
   final unit = unitTypeFromString(e.unit);
   return unit.normalizedPrice(price, quantity);

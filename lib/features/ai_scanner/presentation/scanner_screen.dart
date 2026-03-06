@@ -24,6 +24,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   Future<void> _scanReceipt(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source, imageQuality: 80);
+    if (!mounted) return;
 
     if (pickedFile != null) {
       setState(() => _isProcessing = true);
@@ -31,18 +32,16 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       try {
         final client = ref.read(visionClientProvider);
         final result = await client.parseReceipt(File(pickedFile.path));
+        if (!mounted) return;
 
-        if (mounted) {
-          setState(() => _isProcessing = false);
-          _showReviewDialog(result);
-        }
+        setState(() => _isProcessing = false);
+        _showReviewDialog(result);
       } catch (e) {
-        if (mounted) {
-          setState(() => _isProcessing = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString())),
-          );
-        }
+        if (!mounted) return;
+        setState(() => _isProcessing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
       }
     }
   }
@@ -71,24 +70,22 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   receiptDate: receiptDate,
                   items: selectedItems,
                 );
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      '${selectedItems.length} item${selectedItems.length == 1 ? '' : 's'} saved successfully!'),
-                ),
-              );
-              context.pop();
-            }
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    '${selectedItems.length} item${selectedItems.length == 1 ? '' : 's'} saved successfully!'),
+              ),
+            );
+            context.pop();
           } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error saving receipt: $e'),
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
-              );
-            }
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error saving receipt: $e'),
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+            );
           }
         },
       ),
@@ -351,8 +348,8 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                             onChanged: _selected[index]
                                 ? (val) {
                                     if (val != null) {
-                                      setState(() =>
-                                          _unitSelections[index] = val);
+                                      setState(
+                                          () => _unitSelections[index] = val);
                                     }
                                   }
                                 : null,

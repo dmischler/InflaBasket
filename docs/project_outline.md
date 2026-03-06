@@ -231,6 +231,7 @@ final isPremiumProvider = Provider<bool>((ref) {
   - Category filter.
   - Implemented via bottom sheet modal.
 - [x] **Macro Comparison Overlay:** Overview chart can compare the user's basket against official CPI or central-bank / public-data money-supply series, depending on the selected currency.
+- [x] **Macro Series Reliability:** External CPI and M2 series are cached locally for offline fallback and transient API / certificate-failure recovery.
 
 **Phase 3: AI Scanner & Monetization**
 - [x] RevenueCat integration (SubscriptionController, OfferingsProvider) with Android/iOS-only initialization and graceful desktop/web fallback.
@@ -324,13 +325,15 @@ final isPremiumProvider = Provider<bool>((ref) {
 5. **LLM Duplicate Detection (Premium)** ✅ — On product name submission, a normalised LCS-similarity heuristic checks the category's existing product names. If a close match (>70%) is found, a `DuplicateDialog` prompts "Link to Existing" or "Create New". Full semantic LLM call deferred (VisionClient is image-only; a dedicated chat endpoint is a future iteration).
 6. **Product Normalization** ✅ — Already fully implemented in Sprint 1 via `unit.dart` (`UnitType` enum, `normalizedPricePerUnit`) and `inflation_providers.dart` (`normalizePricePerUnit` helper). No changes required.
 7. **Custom Basket Weighting** ✅ — `WeightEditorScreen` (`/settings/weights`) presents one `Slider` per category. Values validate to 100%. `CategoryWeightsController` persists fractions to the `category_weights` DB table (schema v3). `basketInflation()` uses custom weights when set; otherwise falls back to spend-weighted averaging.
-8. **Official CPI + Money Supply Comparison** ✅ — `CpiClient` now uses Eurostat SDMX 3.0 monthly HICP index feeds with bounded history windows for supported CPI currencies: CHF → Switzerland (`M.I15.CP00.CH`), EUR → EU27 aggregate (`M.I15.CP00.EU27_2020`). `MoneySupplyClient` fetches currency-specific broad-money data with time-range filtering: CHF → SNB M2, EUR → ECB M2 stocks, USD → FRED M2, GBP → Bank of England M2. `OverviewTab` lets users switch the overlay between CPI and M2 when available, rebasing external series to the same 100-index baseline for visual comparison. TLS/network/API failures degrade to an empty overlay with a non-fatal unavailable state.
+8. **Official CPI + Money Supply Comparison** ✅ — `CpiClient` now uses Eurostat SDMX 3.0 monthly HICP index feeds with bounded history windows for supported CPI currencies: CHF → Switzerland (`M.I15.CP00.CH`), EUR → EU27 aggregate (`M.I15.CP00.EU27_2020`). `MoneySupplyClient` fetches currency-specific broad-money data with time-range filtering: CHF → SNB M2, EUR → ECB M2 stocks, USD → FRED M2, GBP → Bank of England M2. `OverviewTab` lets users switch the overlay between CPI and M2 when available, rebasing external series to the same 100-index baseline for visual comparison. External macro series are cached in Drift for offline fallback and transient TLS/network/API failures; if refresh fails, the app falls back to the latest cached series before degrading to an empty overlay.
 9. **Localization (i18n)** ✅ — `flutter_localizations` + `gen_l10n` ARB pipeline with 4 locales: `en`, `de`, `fr`, `it`. ~80 keys per locale. `l10n.yaml` uses `synthetic-package: false`; import path is `package:inflabasket/l10n/app_localizations.dart`.
 10. **Barcode Scanner** ✅ — `mobile_scanner` (replaces unused `camera`) powers `BarcodeScanDialog` (modal bottom sheet with live preview). `OpenFoodFactsClient` calls the OFF API and maps PNNS categories → InflaBasket categories. Barcode `IconButton.filledTonal` added next to the Product Name field in `AddEntryScreen`.
 11. **Recurring Purchase Templates** ✅ — `TemplatesScreen` (`/settings/templates`) lists `watchTemplatesWithDetails()` stream. Swipe-to-delete with confirmation. "Use" button opens `AddEntryScreen` pre-filled via a synthetic `EntryWithDetails`. `AddEntryScreen` also exposes a direct "Save as Template" action backed by `AddTemplateController.addTemplateFromForm()`.
 12. **Price Change Alerts (Premium)** ✅ — `flutter_local_notifications` wrapper (`NotificationService`) is initialised in `main()`. `PriceAlertService.checkAndNotify()` compares new purchases against the prior logged price and fires a local notification when the configured threshold is crossed (Premium only). Alert config is persisted in the `price_alerts` DB table (schema v3), and users can manage thresholds from `PriceAlertsScreen` (`/settings/price-alerts`).
 
-**Schema changes (v3):** Added 3 tables in a single migration: `category_weights` (PK: categoryId), `entry_templates` (autoincrement id), `price_alerts` (PK: productId).
+**Schema changes (v3/v4):**
+- **v3:** Added 3 tables in a single migration: `category_weights` (PK: categoryId), `entry_templates` (autoincrement id), `price_alerts` (PK: productId).
+- **v4:** Added `external_series_cache` (composite PK: `source + currency + metric + month`) to persist cached CPI and M2 observations plus fetch timestamps.
 
 **Bug fixes in this sprint:**
 - `appDatabaseProvider` changed to `@Riverpod(keepAlive: true)` with `ref.onDispose(db.close)`.
@@ -338,6 +341,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 - `DashboardScreen` tabs wrapped in `IndexedStack` to preserve scroll state on tab switch.
 - RevenueCat plugin calls are now platform-gated so desktop/web no longer throw expected `MissingPluginException`s during startup or paywall flows.
 - CPI fetch failures are now logged by error type and degrade safely without breaking the dashboard chart experience.
+- Added parser/regression tests for Eurostat SDMX, ECB SDMX, FRED CSV, Bank of England CSV, SNB M2 extraction, request-window sizing, rebasing, and cache freshness behavior.
 
 ---
 

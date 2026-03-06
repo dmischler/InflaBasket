@@ -39,8 +39,7 @@ class CategoriesTab extends ConsumerWidget {
   Widget _buildBarChart(BuildContext context, List<CategoryInflation> data) {
     // Filter out any non-finite values before any computation to prevent
     // TransformLayer invalid matrix errors in fl_chart.
-    final validData =
-        data.where((e) => e.inflationPercent.isFinite).toList();
+    final validData = data.where((e) => e.inflationPercent.isFinite).toList();
 
     if (validData.isEmpty) {
       return const SizedBox(
@@ -112,7 +111,7 @@ class CategoriesTab extends ConsumerWidget {
             show: true,
             drawVerticalLine: false,
             getDrawingHorizontalLine: (value) => FlLine(
-              color: Theme.of(context).dividerColor.withOpacity(0.2),
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
               strokeWidth: 1,
             ),
           ),
@@ -123,8 +122,7 @@ class CategoriesTab extends ConsumerWidget {
             final isPositive = item.inflationPercent >= 0;
             // Clamp individual bar values as a secondary defence against
             // out-of-range values slipping through to fl_chart's painter.
-            final toY =
-                item.inflationPercent.clamp(-100.0, 1000.0).toDouble();
+            final toY = item.inflationPercent.clamp(-100.0, 1000.0).toDouble();
             return BarChartGroupData(
               x: index,
               barRods: [
@@ -161,7 +159,7 @@ class CategoriesTab extends ConsumerWidget {
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               child: Text(item.category.name.isNotEmpty
                   ? item.category.name[0].toUpperCase()
                   : '?'),

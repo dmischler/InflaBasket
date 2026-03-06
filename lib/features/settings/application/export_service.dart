@@ -69,9 +69,11 @@ class ExportService extends _$ExportService {
       await file.writeAsString(csvData);
 
       // Share
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'My InflaBasket Purchase History',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'My InflaBasket Purchase History',
+        ),
       );
     });
   }
