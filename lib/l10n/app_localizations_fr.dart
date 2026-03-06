@@ -194,6 +194,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get showNationalAverage => 'vs Moyenne nationale';
 
   @override
+  String get showComparisonOverlay => 'Comparer avec';
+
+  @override
   String get cpiUnavailable =>
       'Données IPC nationales non disponibles pour la devise sélectionnée.';
 
@@ -202,10 +205,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible de charger les données IPC nationales.';
 
   @override
+  String get comparisonLoadError =>
+      'Impossible de charger les données de comparaison.';
+
+  @override
   String get yourInflation => 'Votre inflation';
 
   @override
   String get nationalCpi => 'IPC national';
+
+  @override
+  String get moneySupplyM2 => 'Masse monétaire M2';
 
   @override
   String get categoriesTitle => 'Répartition par catégorie';

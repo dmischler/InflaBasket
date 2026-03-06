@@ -95,8 +95,7 @@ class EntryRepository {
   }
 
   /// Clears all custom weights so the basket reverts to spend-weighted averaging.
-  Future<void> clearCategoryWeights() =>
-      _db.delete(_db.categoryWeights).go();
+  Future<void> clearCategoryWeights() => _db.delete(_db.categoryWeights).go();
 
   // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -325,6 +324,10 @@ class EntryRepository {
 
   // ─── Price Alerts ────────────────────────────────────────────────────────────
 
+  Future<List<PriceAlert>> getAllPriceAlerts() {
+    return _db.select(_db.priceAlerts).get();
+  }
+
   Future<PriceAlert?> getPriceAlert(int productId) async {
     return (_db.select(_db.priceAlerts)
           ..where((a) => a.productId.equals(productId)))
@@ -353,8 +356,7 @@ class EntryRepository {
 
   /// Returns all enabled price alerts with their products.
   Future<List<PriceAlert>> getEnabledPriceAlerts() async {
-    return (_db.select(_db.priceAlerts)
-          ..where((a) => a.isEnabled.equals(true)))
+    return (_db.select(_db.priceAlerts)..where((a) => a.isEnabled.equals(true)))
         .get();
   }
 }

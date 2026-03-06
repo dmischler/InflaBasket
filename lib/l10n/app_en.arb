@@ -184,17 +184,26 @@
   "showNationalAverage": "vs National Average",
   "@showNationalAverage": { "description": "Toggle label for CPI comparison overlay" },
 
+  "showComparisonOverlay": "Compare with",
+  "@showComparisonOverlay": { "description": "Label for macro comparison overlay controls" },
+
   "cpiUnavailable": "National CPI data not available for the selected currency.",
   "@cpiUnavailable": { "description": "Message when no CPI source exists for currency" },
 
   "cpiLoadError": "Could not load national CPI data.",
   "@cpiLoadError": { "description": "Error loading CPI data" },
 
+  "comparisonLoadError": "Could not load comparison data.",
+  "@comparisonLoadError": { "description": "Error loading comparison overlay data" },
+
   "yourInflation": "Your Inflation",
   "@yourInflation": { "description": "Legend label for user basket line" },
 
   "nationalCpi": "National CPI",
   "@nationalCpi": { "description": "Legend label for CPI line" },
+
+  "moneySupplyM2": "M2 Money Supply",
+  "@moneySupplyM2": { "description": "Legend label for M2 money supply overlay" },
 
   "categoriesTitle": "Category Breakdown",
   "@categoriesTitle": { "description": "Section title for categories tab" },

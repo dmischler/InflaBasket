@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,7 +14,7 @@ part 'export_service.g.dart';
 @riverpod
 class ExportService extends _$ExportService {
   @override
-  FutureOr<void> build() {}
+  FutureOr<void> build() => null;
 
   Future<void> exportData() async {
     state = const AsyncLoading();

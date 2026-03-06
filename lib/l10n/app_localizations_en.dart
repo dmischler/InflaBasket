@@ -192,6 +192,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showNationalAverage => 'vs National Average';
 
   @override
+  String get showComparisonOverlay => 'Compare with';
+
+  @override
   String get cpiUnavailable =>
       'National CPI data not available for the selected currency.';
 
@@ -199,10 +202,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cpiLoadError => 'Could not load national CPI data.';
 
   @override
+  String get comparisonLoadError => 'Could not load comparison data.';
+
+  @override
   String get yourInflation => 'Your Inflation';
 
   @override
   String get nationalCpi => 'National CPI';
+
+  @override
+  String get moneySupplyM2 => 'M2 Money Supply';
 
   @override
   String get categoriesTitle => 'Category Breakdown';

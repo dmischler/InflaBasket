@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -23,6 +24,13 @@ enum CpiSource {
   eurostat,
 }
 
+class ComparisonDataPoint {
+  final DateTime month;
+  final double index;
+
+  const ComparisonDataPoint({required this.month, required this.index});
+}
+
 /// Returns the appropriate [CpiSource] for a given currency code, or null
 /// if no CPI comparison is available for that currency.
 CpiSource? cpiSourceForCurrency(String currency) {
@@ -38,13 +46,11 @@ CpiSource? cpiSourceForCurrency(String currency) {
 
 /// Fetches and caches national CPI data from the appropriate source.
 ///
-/// **Swiss BFS:** Uses the SDMX-JSON REST API provided by the Swiss Federal
-/// Statistical Office. Dataset: `prc_hicp_mv12r` (monthly HICP, 12-month
-/// moving average, total). Country filter: CH.
+/// **Swiss CPI:** Uses Eurostat's monthly HICP index endpoint scoped to
+/// Switzerland (`geo=CH`, `unit=I15`, all-items `CP00`).
 ///
-/// **Eurostat:** Uses the Eurostat SDMX-JSON REST API.
-/// Dataset: `prc_hicp_mv12r` (monthly HICP, 12-month moving average, total).
-/// Country filter: EU27_2020 (EU aggregate).
+/// **Eurostat:** Uses the same monthly HICP index endpoint scoped to the EU27
+/// aggregate (`geo=EU27_2020`, `unit=I15`, all-items `CP00`).
 ///
 /// Both endpoints return an index series that can be plotted directly
 /// alongside the user's basket index on the same chart.
@@ -53,140 +59,101 @@ class CpiClient {
 
   CpiClient(this._dio);
 
-  // ─── Swiss BFS ─────────────────────────────────────────────────────────────
-  // SDMX REST endpoint for Swiss HICP (Harmonised Index of Consumer Prices).
-  // The BFS mirrors Eurostat's data for Switzerland (CH). We request the last
-  // 24 monthly observations so the chart always has enough history.
+  static const _defaultObservationCount = 24;
+
+  // ─── Switzerland ───────────────────────────────────────────────────────────
+  // Eurostat HICP monthly index for Switzerland, all-items, base 2015 = 100.
   static const _bfsUrl =
-      'https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_PRICES@DF_PRICES_ALL,1.0/'
-      'CHE.M.HICP.PA._T.IX.N'
-      '?startPeriod=2020-01&format=jsondata&dimensionAtObservation=AllDimensions';
+      'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/'
+      'dataflow/ESTAT/prc_hicp_midx/1.0/M.I15.CP00.CH';
 
   // ─── Eurostat ───────────────────────────────────────────────────────────────
-  // Eurostat SDMX-JSON for HICP monthly data, EU27 aggregate, all-items (CP00).
+  // Eurostat HICP monthly index for the EU27 aggregate, all-items, base 2015 = 100.
   static const _eurostatUrl =
-      'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/'
-      'prc_hicp_mmor?geo=EU27_2020&coicop=CP00&unit=RCH_MOM&format=JSON';
+      'https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/'
+      'dataflow/ESTAT/prc_hicp_midx/1.0/M.I15.CP00.EU27_2020';
 
   /// Fetches CPI data for [source]. Returns an empty list on any error so the
   /// chart simply hides the overlay rather than crashing.
-  Future<List<CpiDataPoint>> fetchCpi(CpiSource source) async {
+  Future<List<CpiDataPoint>> fetchCpi(
+    CpiSource source, {
+    int observationCount = _defaultObservationCount,
+  }) async {
     try {
       switch (source) {
         case CpiSource.swissBfs:
-          return await _fetchBfs();
+          return await _fetchBfs(observationCount);
         case CpiSource.eurostat:
-          return await _fetchEurostat();
+          return await _fetchEurostat(observationCount);
       }
+    } on DioException catch (e) {
+      _logDioError(source, e);
+      return [];
     } catch (e, st) {
       debugPrint('CpiClient error ($source): $e\n$st');
       return [];
     }
   }
 
-  Future<List<CpiDataPoint>> _fetchBfs() async {
-    final response = await _dio.get<String>(_bfsUrl,
+  Future<List<CpiDataPoint>> _fetchBfs(int observationCount) async {
+    final response = await _dio.get<String>(
+        '$_bfsUrl?format=json&lastNObservations=$observationCount',
         options: Options(
+          sendTimeout: const Duration(seconds: 15),
+          connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 15),
           headers: {'Accept': 'application/json'},
         ));
     if (response.data == null) return [];
     final json = jsonDecode(response.data!) as Map<String, dynamic>;
-    return _parseOecdSdmx(json);
+    return _parseSdmxSeries(json);
   }
 
-  Future<List<CpiDataPoint>> _fetchEurostat() async {
-    final response = await _dio.get<String>(_eurostatUrl,
+  Future<List<CpiDataPoint>> _fetchEurostat(int observationCount) async {
+    final response = await _dio.get<String>(
+        '$_eurostatUrl?format=json&lastNObservations=$observationCount',
         options: Options(
+          sendTimeout: const Duration(seconds: 15),
+          connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 15),
           headers: {'Accept': 'application/json'},
         ));
     if (response.data == null) return [];
     final json = jsonDecode(response.data!) as Map<String, dynamic>;
-    return _parseEurostatSdmx(json);
+    return _parseSdmxSeries(json);
   }
 
-  /// Parses OECD SDMX-JSON format into [CpiDataPoint] list.
-  List<CpiDataPoint> _parseOecdSdmx(Map<String, dynamic> json) {
+  List<CpiDataPoint> _parseSdmxSeries(Map<String, dynamic> json) {
     final result = <CpiDataPoint>[];
     try {
-      final dataSets = json['dataSets'] as List<dynamic>;
-      if (dataSets.isEmpty) return [];
-      final observations =
-          (dataSets[0] as Map<String, dynamic>)['observations']
-              as Map<String, dynamic>;
-
       final structure = json['structure'] as Map<String, dynamic>;
-      final dimensions =
-          (structure['dimensions'] as Map<String, dynamic>)['observation']
-              as List<dynamic>;
+      final observationDimensions = (structure['dimensions']
+          as Map<String, dynamic>)['observation'] as List<dynamic>;
+      final timeValues = (observationDimensions.first
+          as Map<String, dynamic>)['values'] as List<dynamic>;
 
-      // Find the TIME_PERIOD dimension to map indices → YYYY-MM strings
-      final timeDim = dimensions.firstWhere(
-        (d) => (d as Map<String, dynamic>)['id'] == 'TIME_PERIOD',
-        orElse: () => null,
-      ) as Map<String, dynamic>?;
-      if (timeDim == null) return [];
+      final seriesMap = ((json['dataSets'] as List<dynamic>).first
+          as Map<String, dynamic>)['series'] as Map<String, dynamic>;
+      if (seriesMap.isEmpty) return [];
 
-      final timeValues =
-          (timeDim['values'] as List<dynamic>).map((v) => v['id'] as String).toList();
+      final observations = (seriesMap.values.first
+          as Map<String, dynamic>)['observations'] as Map<String, dynamic>;
 
       for (final entry in observations.entries) {
-        final indices = entry.key.split(':');
-        // TIME_PERIOD is the last dimension in AllDimensions layout
-        final timeIdx = int.tryParse(indices.last);
-        if (timeIdx == null || timeIdx >= timeValues.length) continue;
-
-        final timeStr = timeValues[timeIdx]; // e.g. "2024-03"
-        final month = _parseYearMonth(timeStr);
-        if (month == null) continue;
-
-        final values = entry.value as List<dynamic>;
-        final value = (values.isNotEmpty && values[0] != null)
-            ? (values[0] as num).toDouble()
-            : null;
-        if (value == null) continue;
-
+        final index = int.tryParse(entry.key);
+        if (index == null || index >= timeValues.length) continue;
+        final observation = entry.value as List<dynamic>;
+        final time = timeValues[index] as Map<String, dynamic>;
+        final month = _parseYearMonth(
+          ((time['id'] ?? time['name'])?.toString()) ?? '',
+        );
+        final value =
+            _tryParseDouble(observation.isEmpty ? null : observation.first);
+        if (month == null || value == null) continue;
         result.add(CpiDataPoint(month: month, index: value));
       }
     } catch (e) {
-      debugPrint('CpiClient._parseOecdSdmx error: $e');
-    }
-    result.sort((a, b) => a.month.compareTo(b.month));
-    return result;
-  }
-
-  /// Parses Eurostat SDMX-JSON format into [CpiDataPoint] list.
-  List<CpiDataPoint> _parseEurostatSdmx(Map<String, dynamic> json) {
-    final result = <CpiDataPoint>[];
-    try {
-      final dimension = json['dimension'] as Map<String, dynamic>;
-      final timeDim = dimension['time'] as Map<String, dynamic>;
-      final timeCategory =
-          (timeDim['category'] as Map<String, dynamic>)['label']
-              as Map<String, dynamic>;
-
-      // timeCategory maps index-string → "YYYY-MM"
-      final timeMap = <int, String>{};
-      timeCategory.forEach((key, value) {
-        final idx = int.tryParse(key);
-        if (idx != null) timeMap[idx] = value as String;
-      });
-
-      final value = json['value'] as Map<String, dynamic>;
-      for (final entry in value.entries) {
-        final idx = int.tryParse(entry.key);
-        if (idx == null) continue;
-        final timeStr = timeMap[idx];
-        if (timeStr == null) continue;
-        final month = _parseYearMonth(timeStr);
-        if (month == null) continue;
-        final v = (entry.value as num?)?.toDouble();
-        if (v == null) continue;
-        result.add(CpiDataPoint(month: month, index: v));
-      }
-    } catch (e) {
-      debugPrint('CpiClient._parseEurostatSdmx error: $e');
+      debugPrint('CpiClient._parseSdmxSeries error: $e');
     }
     result.sort((a, b) => a.month.compareTo(b.month));
     return result;
@@ -200,5 +167,33 @@ class CpiClient {
     final month = int.tryParse(parts[1]);
     if (year == null || month == null) return null;
     return DateTime(year, month);
+  }
+
+  double? _tryParseDouble(Object? raw) {
+    if (raw == null) return null;
+    if (raw is num) return raw.toDouble();
+    return double.tryParse(raw.toString());
+  }
+
+  void _logDioError(CpiSource source, DioException error) {
+    final underlying = error.error;
+    final kind = switch (error.type) {
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.sendTimeout ||
+      DioExceptionType.receiveTimeout =>
+        'timeout',
+      DioExceptionType.badCertificate => 'certificate',
+      DioExceptionType.connectionError => 'connection',
+      DioExceptionType.badResponse =>
+        'http-${error.response?.statusCode ?? 'unknown'}',
+      DioExceptionType.cancel => 'cancelled',
+      DioExceptionType.unknown when underlying is HandshakeException =>
+        'certificate',
+      DioExceptionType.unknown when underlying is SocketException =>
+        'connection',
+      DioExceptionType.unknown => 'unknown',
+    };
+    final message = error.message ?? underlying?.toString() ?? 'request failed';
+    debugPrint('CpiClient network error ($source/$kind): $message');
   }
 }

@@ -22,9 +22,13 @@ class OverviewTab extends ConsumerWidget {
     final topInflators = ref.watch(itemInflationListProvider);
     final settings = ref.watch(settingsControllerProvider);
     final showCpi = ref.watch(showCpiOverlayProvider);
-    final cpiAsync = ref.watch(cpiDataProvider);
-    final hasCpiSource =
-        cpiSourceForCurrency(settings.currency) != null;
+    final overlayType = ref.watch(effectiveComparisonOverlayTypeProvider);
+    final overlayAsync = ref.watch(comparisonOverlayDataProvider);
+    final availableTypes = availableComparisonOverlayTypes(settings.currency);
+    final hasOverlaySource = availableTypes.isNotEmpty;
+    final overlayPoints =
+        overlayAsync.valueOrNull ?? const <ComparisonDataPoint>[];
+    final hasOverlayData = overlayPoints.isNotEmpty;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -33,12 +37,24 @@ class OverviewTab extends ConsumerWidget {
         children: [
           _buildSummaryCard(context, l, overallInflation),
           const SizedBox(height: 24),
-          _buildChartHeader(context, l, ref, hasCpiSource, showCpi),
+          _buildChartHeader(
+            context,
+            l,
+            ref,
+            availableTypes,
+            overlayType,
+            showCpi,
+            overlayAsync.isLoading,
+          ),
           const SizedBox(height: 8),
-          _buildLineChart(context, l, ref, history, showCpi, cpiAsync),
-          if (showCpi && hasCpiSource) ...[
+          _buildLineChart(context, l, history, showCpi, overlayPoints),
+          if (showCpi && hasOverlaySource) ...[
             const SizedBox(height: 8),
-            _buildChartLegend(context, l),
+            _buildOverlayStatus(context, l, overlayAsync, hasOverlayData),
+          ],
+          if (showCpi && hasOverlayData && overlayType != null) ...[
+            const SizedBox(height: 8),
+            _buildChartLegend(context, l, overlayType),
           ],
           const SizedBox(height: 24),
           Text(l.overviewTopInflators,
@@ -98,25 +114,57 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildChartHeader(BuildContext context, AppLocalizations l,
-      WidgetRef ref, bool hasCpiSource, bool showCpi) {
+  Widget _buildChartHeader(
+      BuildContext context,
+      AppLocalizations l,
+      WidgetRef ref,
+      List<ComparisonOverlayType> availableTypes,
+      ComparisonOverlayType? overlayType,
+      bool showCpi,
+      bool isLoading) {
     return Row(
       children: [
         Expanded(
           child: Text(l.overviewBasketIndex,
               style: Theme.of(context).textTheme.titleLarge),
         ),
-        if (hasCpiSource)
+        if (availableTypes.isNotEmpty)
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l.showNationalAverage,
+              Text(l.showComparisonOverlay,
                   style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(width: 8),
+              if (overlayType != null)
+                DropdownButtonHideUnderline(
+                  child: DropdownButton<ComparisonOverlayType>(
+                    value: overlayType,
+                    borderRadius: BorderRadius.circular(12),
+                    items: availableTypes
+                        .map(
+                          (type) => DropdownMenuItem<ComparisonOverlayType>(
+                            value: type,
+                            child: Text(_overlayLabel(l, type)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: availableTypes.length < 2
+                        ? null
+                        : (value) {
+                            if (value == null) return;
+                            ref
+                                .read(selectedComparisonOverlayTypeProvider
+                                    .notifier)
+                                .set(value);
+                          },
+                  ),
+                ),
               const SizedBox(width: 4),
               Switch.adaptive(
                 value: showCpi,
-                onChanged: (_) =>
-                    ref.read(showCpiOverlayProvider.notifier).toggle(),
+                onChanged: isLoading
+                    ? null
+                    : (_) => ref.read(showCpiOverlayProvider.notifier).toggle(),
               ),
             ],
           ),
@@ -124,20 +172,47 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildChartLegend(BuildContext context, AppLocalizations l) {
+  Widget _buildOverlayStatus(BuildContext context, AppLocalizations l,
+      AsyncValue<List<ComparisonDataPoint>> overlayAsync, bool hasOverlayData) {
+    if (overlayAsync.isLoading) {
+      return Text(
+        l.loading,
+        style: Theme.of(context).textTheme.bodySmall,
+      );
+    }
+    if (!hasOverlayData) {
+      return Text(
+        l.comparisonLoadError,
+        style: Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.copyWith(color: Theme.of(context).colorScheme.error),
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildChartLegend(BuildContext context, AppLocalizations l,
+      ComparisonOverlayType overlayType) {
     return Row(
       children: [
         _legendDot(Theme.of(context).colorScheme.primary),
         const SizedBox(width: 4),
-        Text(l.yourInflation,
-            style: Theme.of(context).textTheme.bodySmall),
+        Text(l.yourInflation, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(width: 16),
         _legendDot(Colors.orange),
         const SizedBox(width: 4),
-        Text(l.nationalCpi,
+        Text(_overlayLabel(l, overlayType),
             style: Theme.of(context).textTheme.bodySmall),
       ],
     );
+  }
+
+  String _overlayLabel(AppLocalizations l, ComparisonOverlayType overlayType) {
+    return switch (overlayType) {
+      ComparisonOverlayType.cpi => l.nationalCpi,
+      ComparisonOverlayType.moneySupply => l.moneySupplyM2,
+    };
   }
 
   Widget _legendDot(Color color) {
@@ -151,10 +226,9 @@ class OverviewTab extends ConsumerWidget {
   Widget _buildLineChart(
     BuildContext context,
     AppLocalizations l,
-    WidgetRef ref,
     List<MonthlyIndex> history,
     bool showCpi,
-    AsyncValue<List<CpiDataPoint>> cpiAsync,
+    List<ComparisonDataPoint> overlayPoints,
   ) {
     final validHistory = history.where((h) => h.index.isFinite).toList();
     if (validHistory.isEmpty || validHistory.length == 1) {
@@ -169,14 +243,13 @@ class OverviewTab extends ConsumerWidget {
     }).toList();
 
     // Build CPI spots aligned to the same x-axis if overlay is active
-    List<FlSpot> cpiSpots = [];
+    List<FlSpot> comparisonSpots = [];
     if (showCpi) {
-      final cpiPoints = cpiAsync.valueOrNull ?? [];
-      if (cpiPoints.isNotEmpty && validHistory.isNotEmpty) {
+      if (overlayPoints.isNotEmpty && validHistory.isNotEmpty) {
         // Align CPI months to our basket history months
         final basketStart = validHistory.first.month;
         final basketEnd = validHistory.last.month;
-        final relevantCpi = cpiPoints.where((p) =>
+        final relevantCpi = overlayPoints.where((p) =>
             !p.month.isBefore(basketStart) && !p.month.isAfter(basketEnd));
 
         for (final cp in relevantCpi) {
@@ -184,16 +257,15 @@ class OverviewTab extends ConsumerWidget {
           int bestIdx = 0;
           int bestDiff = 999999;
           for (int i = 0; i < validHistory.length; i++) {
-            final diff =
-                (validHistory[i].month.millisecondsSinceEpoch -
-                        cp.month.millisecondsSinceEpoch)
-                    .abs();
+            final diff = (validHistory[i].month.millisecondsSinceEpoch -
+                    cp.month.millisecondsSinceEpoch)
+                .abs();
             if (diff < bestDiff) {
               bestDiff = diff;
               bestIdx = i;
             }
           }
-          cpiSpots.add(FlSpot(bestIdx.toDouble(), cp.index));
+          comparisonSpots.add(FlSpot(bestIdx.toDouble(), cp.index));
         }
       }
     }
@@ -201,7 +273,7 @@ class OverviewTab extends ConsumerWidget {
     // Compute explicit Y bounds
     final allYValues = [
       ...spots.map((s) => s.y),
-      if (cpiSpots.isNotEmpty) ...cpiSpots.map((s) => s.y),
+      if (comparisonSpots.isNotEmpty) ...comparisonSpots.map((s) => s.y),
     ];
     final dataMinY = allYValues.reduce(min);
     final dataMaxY = allYValues.reduce(max);
@@ -221,9 +293,9 @@ class OverviewTab extends ConsumerWidget {
           color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
         ),
       ),
-      if (showCpi && cpiSpots.isNotEmpty)
+      if (showCpi && comparisonSpots.isNotEmpty)
         LineChartBarData(
-          spots: cpiSpots,
+          spots: comparisonSpots,
           isCurved: true,
           color: Colors.orange,
           barWidth: 2,

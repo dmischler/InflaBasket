@@ -6,7 +6,7 @@ Here is the complete, production-grade development roadmap for **InflaBasket**, 
 
 ## 1. App Overview & Prioritized User Stories
 
-**Overview:** InflaBasket empowers users to track their personal inflation rate by logging everyday purchases. By comparing their custom "basket" against official CPI metrics, users gain actionable insights into their spending power and category-level price trends.
+**Overview:** InflaBasket empowers users to track their personal inflation rate by logging everyday purchases. By comparing their custom "basket" against official CPI metrics and monetary expansion benchmarks such as M2 money supply, users gain actionable insights into their spending power and category-level price trends.
 
 **Prioritized User Stories (Agile Epics):**
 - **Epic 1: Core Tracking (Free)**
@@ -100,24 +100,31 @@ lib/
 
 ## 5. Detailed Screen Flow & Navigation Structure
 
-1.  **Splash / Bootstrap (`/`)**: Initializes DB, checks RevenueCat entitlement.
+1.  **Splash / Bootstrap (`/`)**: Initializes DB, notifications, and checks RevenueCat entitlement on supported mobile platforms.
 2.  **Dashboard (`/home`)**:
-    - Tab 1: **Overview** (Overall Inflation Index, Top Inflators/Deflators, Line Chart).
+    - Tab 1: **Overview** (Overall Inflation Index, Top Inflators/Deflators, Line Chart, selectable CPI/M2 macro overlay).
     - Tab 2: **History** (List of past entries, filterable by date and category).
     - Tab 3: **Categories** (Cross-category bar charts).
     - Tab 4: **Settings** (Premium status, Manage Categories).
 3.  **Add Entry Modal (`/home/add`)**:
     - Manual Entry form.
+    - "Save as Template" shortcut for recurring purchases.
     - "Scan Receipt (Premium)" button.
 4.  **Scan Flow (`/scanner`)**:
     - Camera/Gallery -> Loading (AI Processing) -> Review Screen -> Save.
-5.  **Paywall (`/paywall`)**: Shown if Free user taps "Scan Receipt".
+5.  **Paywall (`/paywall`)**: Shown if Free mobile user taps "Scan Receipt"; desktop/web show a graceful mobile-only subscriptions message.
 6.  **Settings (`/settings`)**:
     - Subscription status.
     - Manage Categories.
-    - Export Data (Placeholder).
+    - Category Weights.
+    - Recurring Purchase Templates.
+    - Price Alerts.
+    - Export Data (CSV).
 7.  **Category Management (`/settings/categories`)**:
     - Add/Delete custom categories.
+8.  **Price Alerts (`/settings/price-alerts`)**:
+    - Per-product threshold configuration.
+    - Enable/disable alerts for tracked products.
 
 ---
 
@@ -194,7 +201,8 @@ final isPremiumProvider = Provider<bool>((ref) {
   return customerInfo?.entitlements.all['premium']?.isActive ?? false;
 });
 ```
-4.  **UX:** If `!isPremium`, show "Scan Receipt (Premium)" button that navigates to Paywall.
+4.  **Platform Gating:** Only initialize RevenueCat on Android/iOS. Desktop and web stay on a safe free-tier path and surface mobile-only messaging instead of throwing plugin errors.
+5.  **UX:** If `!isPremium`, show "Scan Receipt (Premium)" button that navigates to Paywall on supported mobile platforms.
 
 ---
 
@@ -222,10 +230,11 @@ final isPremiumProvider = Provider<bool>((ref) {
   - Date range filter (Last 30 days, Last 6 months, All time).
   - Category filter.
   - Implemented via bottom sheet modal.
+- [x] **Macro Comparison Overlay:** Overview chart can compare the user's basket against official CPI or central-bank / public-data money-supply series, depending on the selected currency.
 
 **Phase 3: AI Scanner & Monetization**
-- [x] RevenueCat integration (SubscriptionController, OfferingsProvider).
-- [x] Paywall UI (`/paywall`) with Upgrade/Restore buttons.
+- [x] RevenueCat integration (SubscriptionController, OfferingsProvider) with Android/iOS-only initialization and graceful desktop/web fallback.
+- [x] Paywall UI (`/paywall`) with Upgrade/Restore buttons on mobile and a safe unsupported-platform state on desktop/web.
 - [x] Camera implementation (`ScannerScreen` using `image_picker`).
 - [x] Vision API Client (`VisionClient` using `dio` to connect to OpenAI/GPT-4o).
 - [x] Review & Edit Screen for AI-extracted items.
@@ -234,6 +243,9 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] **Settings Tab:** Added to bottom navigation.
 - [x] **Premium Status:** Shows active status in Settings.
 - [x] **Category Management UI:** Add/Delete custom categories (`/settings/categories`).
+- [x] **Export Data:** Settings → Export Data (CSV) implemented via `ExportService`.
+- [x] **Recurring Purchase Templates:** Settings → Templates plus direct "Save as Template" from Add Entry.
+- [x] **Price Alerts Settings UI:** Settings → Price Alerts (`/settings/price-alerts`) for per-product threshold configuration.
 - [x] **Location Tracking:** Added "Location (City/Branch)" field to manual entry and history view.
 - [x] Dark/Light mode support via Material 3.
 - [x] Desktop (Linux) support enabled.
@@ -251,6 +263,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 ### 📝 Production Configuration (Not Code)
 - Replace `'appl_apiKey'` / `'goog_apiKey'` placeholders in `subscription_providers.dart` with real RevenueCat keys before store submission.
 - Replace `'YOUR_API_KEY'` in `vision_client.dart`; ideally move to a backend proxy rather than bundling the key in the binary.
+- Keep RevenueCat purchase flows mobile-only unless/until desktop support is added upstream.
 
 ---
 
@@ -311,11 +324,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 5. **LLM Duplicate Detection (Premium)** ✅ — On product name submission, a normalised LCS-similarity heuristic checks the category's existing product names. If a close match (>70%) is found, a `DuplicateDialog` prompts "Link to Existing" or "Create New". Full semantic LLM call deferred (VisionClient is image-only; a dedicated chat endpoint is a future iteration).
 6. **Product Normalization** ✅ — Already fully implemented in Sprint 1 via `unit.dart` (`UnitType` enum, `normalizedPricePerUnit`) and `inflation_providers.dart` (`normalizePricePerUnit` helper). No changes required.
 7. **Custom Basket Weighting** ✅ — `WeightEditorScreen` (`/settings/weights`) presents one `Slider` per category. Values validate to 100%. `CategoryWeightsController` persists fractions to the `category_weights` DB table (schema v3). `basketInflation()` uses custom weights when set; otherwise falls back to spend-weighted averaging.
-8. **Official CPI Comparison** ✅ — `CpiClient` fetches OECD SDMX-JSON (CHF/Swiss BFS) or Eurostat SDMX-JSON (EUR). `cpiDataProvider` is currency-driven: CHF → BFS, EUR → Eurostat, USD/GBP → empty (overlay hidden). `OverviewTab` renders a second dashed orange `LineChartBarData` with a legend when the toggle is shown.
+8. **Official CPI + Money Supply Comparison** ✅ — `CpiClient` now uses Eurostat SDMX 3.0 monthly HICP index feeds with bounded history windows for supported CPI currencies: CHF → Switzerland (`M.I15.CP00.CH`), EUR → EU27 aggregate (`M.I15.CP00.EU27_2020`). `MoneySupplyClient` fetches currency-specific broad-money data with time-range filtering: CHF → SNB M2, EUR → ECB M2 stocks, USD → FRED M2, GBP → Bank of England M2. `OverviewTab` lets users switch the overlay between CPI and M2 when available, rebasing external series to the same 100-index baseline for visual comparison. TLS/network/API failures degrade to an empty overlay with a non-fatal unavailable state.
 9. **Localization (i18n)** ✅ — `flutter_localizations` + `gen_l10n` ARB pipeline with 4 locales: `en`, `de`, `fr`, `it`. ~80 keys per locale. `l10n.yaml` uses `synthetic-package: false`; import path is `package:inflabasket/l10n/app_localizations.dart`.
 10. **Barcode Scanner** ✅ — `mobile_scanner` (replaces unused `camera`) powers `BarcodeScanDialog` (modal bottom sheet with live preview). `OpenFoodFactsClient` calls the OFF API and maps PNNS categories → InflaBasket categories. Barcode `IconButton.filledTonal` added next to the Product Name field in `AddEntryScreen`.
-11. **Recurring Purchase Templates** ✅ — `TemplatesScreen` (`/settings/templates`) lists `watchTemplatesWithDetails()` stream. Swipe-to-delete with confirmation. "Use" button opens `AddEntryScreen` pre-filled via a synthetic `EntryWithDetails`. `templatesProvider` and `AddTemplateController` added to `entry_providers.dart`.
-12. **Price Change Alerts (Premium)** ✅ — `flutter_local_notifications` wrapper (`NotificationService`) initialised in `main()`. `PriceAlertService.checkAndNotify()` fetches the last entry price, compares against the configured `thresholdPercent`, and fires a local notification if the threshold is exceeded (Premium only). Alert config persisted in the `price_alerts` DB table (schema v3).
+11. **Recurring Purchase Templates** ✅ — `TemplatesScreen` (`/settings/templates`) lists `watchTemplatesWithDetails()` stream. Swipe-to-delete with confirmation. "Use" button opens `AddEntryScreen` pre-filled via a synthetic `EntryWithDetails`. `AddEntryScreen` also exposes a direct "Save as Template" action backed by `AddTemplateController.addTemplateFromForm()`.
+12. **Price Change Alerts (Premium)** ✅ — `flutter_local_notifications` wrapper (`NotificationService`) is initialised in `main()`. `PriceAlertService.checkAndNotify()` compares new purchases against the prior logged price and fires a local notification when the configured threshold is crossed (Premium only). Alert config is persisted in the `price_alerts` DB table (schema v3), and users can manage thresholds from `PriceAlertsScreen` (`/settings/price-alerts`).
 
 **Schema changes (v3):** Added 3 tables in a single migration: `category_weights` (PK: categoryId), `entry_templates` (autoincrement id), `price_alerts` (PK: productId).
 
@@ -323,6 +336,8 @@ final isPremiumProvider = Provider<bool>((ref) {
 - `appDatabaseProvider` changed to `@Riverpod(keepAlive: true)` with `ref.onDispose(db.close)`.
 - `HistoryFilter.copyWith` null-sentinel bug fixed: `categoryId: null` now correctly clears the filter.
 - `DashboardScreen` tabs wrapped in `IndexedStack` to preserve scroll state on tab switch.
+- RevenueCat plugin calls are now platform-gated so desktop/web no longer throw expected `MissingPluginException`s during startup or paywall flows.
+- CPI fetch failures are now logged by error type and degrade safely without breaking the dashboard chart experience.
 
 ---
 
@@ -347,6 +362,12 @@ A complete visual overhaul to modernize the app with contemporary design pattern
 34. **Empty State Illustrations** — Add friendly, animated empty state illustrations (using Lottie or Rive) for: No entries yet, No categories, No templates, No price alerts configured. Replace generic "No data" text.
 
 35. **Onboarding Redesign** — New 3-screen onboarding flow with animated illustrations explaining: (1) Track purchases, (2) See your inflation, (3) Scan receipts (Premium). Skip/Next with smooth page transitions and progress indicator.
+
+36. **Expand Macro Comparison Sources** — Build on the shipped CPI/M2 overlay system with additional benchmark series and deeper controls.
+    - **Current implementation** — CPI uses Eurostat SDMX 3.0 HICP for CHF/EUR; M2 uses SNB (CHF), ECB (EUR), FRED (USD), and Bank of England (GBP), with request windows sized to the visible basket-history range.
+    - **Additional Central Bank Inflation Metrics** — Extend beyond current CPI coverage with direct official sources such as US BLS, UK ONS, and Bank of Japan for users with multi-currency tracking.
+    - **More Monetary Benchmarks** — Add alternatives such as M3, central-bank balance sheet growth, or policy-rate overlays where available.
+    - **Advanced Overlay Controls** — Support multiple simultaneous overlays, rebasing modes, and source notes/tooltips so users can compare their basket against both reported inflation and money-supply expansion.
 
 ---
 

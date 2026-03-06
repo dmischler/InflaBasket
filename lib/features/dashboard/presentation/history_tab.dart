@@ -222,7 +222,7 @@ class HistoryTab extends ConsumerWidget {
               categoriesAsync.when(
                 data: (categories) {
                   return DropdownButtonFormField<int?>(
-                    value: filter.categoryId,
+                    initialValue: filter.categoryId,
                     decoration:
                         const InputDecoration(border: OutlineInputBorder()),
                     items: [

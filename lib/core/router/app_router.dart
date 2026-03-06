@@ -5,6 +5,7 @@ import 'package:inflabasket/features/entry_management/presentation/add_entry_scr
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
 import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart';
 import 'package:inflabasket/features/settings/presentation/category_management_screen.dart';
+import 'package:inflabasket/features/settings/presentation/price_alerts_screen.dart';
 import 'package:inflabasket/features/settings/presentation/weight_editor_screen.dart';
 import 'package:inflabasket/features/settings/presentation/templates_screen.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -47,6 +48,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/settings/weights',
         builder: (context, state) => const WeightEditorScreen(),
+      ),
+      GoRoute(
+        path: '/settings/price-alerts',
+        builder: (context, state) => const PriceAlertsScreen(),
       ),
       GoRoute(
         path: '/settings/templates',

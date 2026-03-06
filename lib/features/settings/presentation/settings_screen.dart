@@ -10,6 +10,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final subscriptionsSupported = supportsSubscriptionsOnCurrentPlatform;
     final premiumAsync = ref.watch(subscriptionControllerProvider);
     final isPremium = premiumAsync.valueOrNull ?? false;
     final settings = ref.watch(settingsControllerProvider);
@@ -30,20 +31,24 @@ class SettingsScreen extends ConsumerWidget {
                 color: isPremium ? Colors.green : Colors.orange,
               ),
               title: Text(isPremium ? 'Premium Active' : 'Free Tier'),
-              subtitle: Text(isPremium
-                  ? 'Enjoy AI receipt scanning and auto-categorization.'
-                  : 'Upgrade to unlock AI receipt scanning.'),
-              trailing: isPremium
-                  ? TextButton(
-                      onPressed: () => ref
-                          .read(subscriptionControllerProvider.notifier)
-                          .restorePurchases(),
-                      child: const Text('Restore'),
-                    )
-                  : ElevatedButton(
-                      onPressed: () => context.push('/paywall'),
-                      child: const Text('Upgrade'),
-                    ),
+              subtitle: Text(!subscriptionsSupported
+                  ? 'Purchases are available on iOS and Android only.'
+                  : isPremium
+                      ? 'Enjoy AI receipt scanning and auto-categorization.'
+                      : 'Upgrade to unlock AI receipt scanning.'),
+              trailing: !subscriptionsSupported
+                  ? const Chip(label: Text('Mobile only'))
+                  : isPremium
+                      ? TextButton(
+                          onPressed: () => ref
+                              .read(subscriptionControllerProvider.notifier)
+                              .restorePurchases(),
+                          child: const Text('Restore'),
+                        )
+                      : ElevatedButton(
+                          onPressed: () => context.push('/paywall'),
+                          child: const Text('Upgrade'),
+                        ),
             ),
           ),
           const SizedBox(height: 24),
@@ -115,6 +120,15 @@ class SettingsScreen extends ConsumerWidget {
                   subtitle: const Text('Manage saved purchase templates'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/templates'),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: const Text('Price Alerts'),
+                  subtitle: const Text(
+                      'Enable notifications for product price changes'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/settings/price-alerts'),
                 ),
                 const Divider(height: 1),
                 ListTile(

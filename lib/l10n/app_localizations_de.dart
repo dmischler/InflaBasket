@@ -196,6 +196,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get showNationalAverage => 'vs. Nationalem Durchschnitt';
 
   @override
+  String get showComparisonOverlay => 'Vergleichen mit';
+
+  @override
   String get cpiUnavailable =>
       'Nationale KPI-Daten für die gewählte Währung nicht verfügbar.';
 
@@ -204,10 +207,17 @@ class AppLocalizationsDe extends AppLocalizations {
       'Nationale KPI-Daten konnten nicht geladen werden.';
 
   @override
+  String get comparisonLoadError =>
+      'Vergleichsdaten konnten nicht geladen werden.';
+
+  @override
   String get yourInflation => 'Deine Inflation';
 
   @override
   String get nationalCpi => 'Nationaler KPI';
+
+  @override
+  String get moneySupplyM2 => 'M2-Geldmenge';
 
   @override
   String get categoriesTitle => 'Kategorienübersicht';

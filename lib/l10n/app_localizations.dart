@@ -462,6 +462,12 @@ abstract class AppLocalizations {
   /// **'vs National Average'**
   String get showNationalAverage;
 
+  /// Label for macro comparison overlay controls
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with'**
+  String get showComparisonOverlay;
+
   /// Message when no CPI source exists for currency
   ///
   /// In en, this message translates to:
@@ -474,6 +480,12 @@ abstract class AppLocalizations {
   /// **'Could not load national CPI data.'**
   String get cpiLoadError;
 
+  /// Error loading comparison overlay data
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load comparison data.'**
+  String get comparisonLoadError;
+
   /// Legend label for user basket line
   ///
   /// In en, this message translates to:
@@ -485,6 +497,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'National CPI'**
   String get nationalCpi;
+
+  /// Legend label for M2 money supply overlay
+  ///
+  /// In en, this message translates to:
+  /// **'M2 Money Supply'**
+  String get moneySupplyM2;
 
   /// Section title for categories tab
   ///

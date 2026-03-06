@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/services/price_alert_service.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 
 part 'entry_providers.g.dart';
 
@@ -34,7 +38,7 @@ Stream<List<TemplateWithDetails>> templates(TemplatesRef ref) {
 @riverpod
 class AddTemplateController extends _$AddTemplateController {
   @override
-  FutureOr<void> build() {}
+  FutureOr<void> build() => null;
 
   Future<void> addTemplate({
     required int productId,
@@ -44,7 +48,8 @@ class AddTemplateController extends _$AddTemplateController {
     UnitType? unit,
     String? notes,
   }) async {
-    await AsyncValue.guard(() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
       await repo.addTemplate(
         productId: productId,
@@ -57,8 +62,50 @@ class AddTemplateController extends _$AddTemplateController {
     });
   }
 
+  Future<void> addTemplateFromForm({
+    required String productName,
+    required String categoryName,
+    required String storeName,
+    String? location,
+    double quantity = 1.0,
+    UnitType? unit,
+    String? notes,
+  }) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(entryRepositoryProvider);
+
+      final existingCategories = await repo.watchCategories().first;
+      int categoryId;
+      try {
+        categoryId = existingCategories
+            .firstWhere(
+              (category) =>
+                  category.name.toLowerCase() == categoryName.toLowerCase(),
+            )
+            .id;
+      } catch (_) {
+        categoryId = await repo.addCategory(categoryName);
+      }
+
+      final product = await repo.getProductByName(productName);
+      final productId =
+          product?.id ?? await repo.addProduct(productName, categoryId);
+
+      await repo.addTemplate(
+        productId: productId,
+        storeName: storeName,
+        location: location,
+        quantity: quantity,
+        unit: unit,
+        notes: notes,
+      );
+    });
+  }
+
   Future<void> deleteTemplate(int templateId) async {
-    await AsyncValue.guard(() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
       await repo.deleteTemplate(templateId);
     });
@@ -144,7 +191,7 @@ List<EntryWithDetails> filteredEntries(FilteredEntriesRef ref) {
 @riverpod
 class AddEntryController extends _$AddEntryController {
   @override
-  FutureOr<void> build() {}
+  FutureOr<void> build() => null;
 
   Future<void> submitEntry({
     required String productName,
@@ -158,8 +205,11 @@ class AddEntryController extends _$AddEntryController {
     String? notes,
     int? existingEntryId,
   }) async {
-    await AsyncValue.guard(() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
+      final isPremium =
+          ref.read(subscriptionControllerProvider).valueOrNull ?? false;
 
       // 1. Resolve or create category
       final existingCategories = await repo.watchCategories().first;
@@ -179,6 +229,9 @@ class AddEntryController extends _$AddEntryController {
 
       // Normalise: store null for count (default)
       final storedUnit = (unit == null || unit == UnitType.count) ? null : unit;
+      final previousEntry = existingEntryId == null
+          ? await repo.getLatestEntryForProduct(productId)
+          : null;
 
       // 3. Update or Add purchase entry
       if (existingEntryId != null) {
@@ -206,6 +259,14 @@ class AddEntryController extends _$AddEntryController {
           location: location,
           notes: notes,
         );
+
+        await ref.read(priceAlertServiceProvider).checkAndNotify(
+              productId: productId,
+              productName: productName,
+              newPrice: price,
+              isPremium: isPremium,
+              previousPrice: previousEntry?.price,
+            );
       }
     });
   }

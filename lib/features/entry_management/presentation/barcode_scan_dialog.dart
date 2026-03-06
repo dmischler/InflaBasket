@@ -1,12 +1,31 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
 
+bool get supportsBarcodeScannerOnCurrentPlatform {
+  if (kIsWeb) return true;
+  return Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
+}
+
 /// Shows a camera barcode scanner in a bottom sheet.
 /// Returns a [ProductInfo] when a barcode is successfully decoded and
 /// matched against Open Food Facts, or null if the user cancels.
 Future<ProductInfo?> showBarcodeScanDialog(BuildContext context) {
+  if (!supportsBarcodeScannerOnCurrentPlatform) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Barcode scanning is currently available on mobile only.',
+        ),
+      ),
+    );
+    return Future.value(null);
+  }
+
   return showModalBottomSheet<ProductInfo?>(
     context: context,
     isScrollControlled: true,
@@ -69,6 +88,21 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
 
   @override
   Widget build(BuildContext context) {
+    if (!supportsBarcodeScannerOnCurrentPlatform) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.35,
+        child: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Barcode scanning is currently available on mobile only.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.6,
       child: Stack(

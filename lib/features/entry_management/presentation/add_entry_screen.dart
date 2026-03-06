@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/models/unit.dart';
-import 'package:inflabasket/core/services/price_alert_service.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/autocomplete_field.dart';
@@ -114,7 +113,8 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     }
 
     // Threshold: flag if > 70% similar but not exact
-    if (bestScore > 0.70 && bestMatch != null &&
+    if (bestScore > 0.70 &&
+        bestMatch != null &&
         bestMatch.toLowerCase() != typed) {
       if (!mounted) return;
       final action = await showDuplicateDialog(
@@ -148,9 +148,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
         if (a[i - 1] == b[j - 1]) {
           dp[i][j] = dp[i - 1][j - 1] + 1;
         } else {
-          dp[i][j] = dp[i - 1][j] > dp[i][j - 1]
-              ? dp[i - 1][j]
-              : dp[i][j - 1];
+          dp[i][j] = dp[i - 1][j] > dp[i][j - 1] ? dp[i - 1][j] : dp[i][j - 1];
         }
       }
     }
@@ -207,25 +205,44 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
           ),
         );
       } else {
-        // Fire price alert check asynchronously (non-blocking)
-        if (isPremium && widget.entryToEdit == null) {
-          _checkPriceAlert(effectiveName, double.parse(_priceController.text));
-        }
         context.pop();
       }
     }
   }
 
-  void _checkPriceAlert(String productName, double newPrice) {
-    ref.read(priceAlertServiceProvider).checkAndNotify(
-          // We don't have the productId here easily; the service will look it
-          // up by querying the last entry. Pass -1 as a sentinel; the service
-          // guards against missing entries gracefully.
-          productId: -1,
-          productName: productName,
-          newPrice: newPrice,
-          isPremium: true,
+  Future<void> _saveTemplate() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    await ref.read(addTemplateControllerProvider.notifier).addTemplateFromForm(
+          productName: (_resolvedProductName ?? _productController.text).trim(),
+          categoryName: _selectedCategoryName!,
+          storeName: _storeController.text.trim(),
+          location: _locationController.text.trim().isEmpty
+              ? null
+              : _locationController.text.trim(),
+          quantity: double.parse(_quantityController.text),
+          unit: _selectedUnit,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
         );
+
+    if (!mounted) return;
+
+    final state = ref.read(addTemplateControllerProvider);
+    if (state is AsyncError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error saving template: ${state.error}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Template saved.')),
+    );
   }
 
   // ─── Build ─────────────────────────────────────────────────────────────────
@@ -281,19 +298,20 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   ),
                   const SizedBox(width: 8),
                   // Barcode scan button (always visible, no premium gate)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: IconButton.filledTonal(
-                      tooltip: 'Scan barcode',
-                      onPressed: _onBarcodeScan,
-                      icon: const Icon(Icons.barcode_reader),
+                  if (supportsBarcodeScannerOnCurrentPlatform)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: IconButton.filledTonal(
+                        tooltip: 'Scan barcode',
+                        onPressed: _onBarcodeScan,
+                        icon: const Icon(Icons.barcode_reader),
+                      ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: dropdownValue,
+                initialValue: dropdownValue,
                 decoration: const InputDecoration(
                   labelText: 'Category',
                   border: OutlineInputBorder(),
@@ -388,7 +406,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   SizedBox(
                     width: 130,
                     child: DropdownButtonFormField<UnitType>(
-                      value: units.contains(_selectedUnit)
+                      initialValue: units.contains(_selectedUnit)
                           ? _selectedUnit
                           : UnitType.count,
                       decoration: const InputDecoration(
@@ -426,6 +444,15 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 label: Text(isEditing ? 'Save Changes' : 'Save Manual Entry'),
                 style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50)),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: _saveTemplate,
+                icon: const Icon(Icons.bookmark_add_outlined),
+                label: const Text('Save as Template'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                ),
               ),
               if (!isEditing) ...[
                 const SizedBox(height: 16),

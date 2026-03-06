@@ -31,6 +31,7 @@ class PriceAlertService {
     required String productName,
     required double newPrice,
     required bool isPremium,
+    double? previousPrice,
   }) async {
     if (!isPremium) return false;
 
@@ -38,11 +39,9 @@ class PriceAlertService {
       final alert = await _repo.getPriceAlert(productId);
       if (alert == null || !alert.isEnabled) return false;
 
-      final lastEntry = await _repo.getLatestEntryForProduct(productId);
-      // No prior entry means we have nothing to compare against
-      if (lastEntry == null) return false;
-
-      final oldPrice = lastEntry.price;
+      final oldPrice = previousPrice ??
+          (await _repo.getLatestEntryForProduct(productId))?.price;
+      if (oldPrice == null) return false;
       if (oldPrice == 0) return false;
 
       final percentChange = ((newPrice - oldPrice) / oldPrice) * 100;
