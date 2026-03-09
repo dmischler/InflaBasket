@@ -241,6 +241,9 @@
   "settingsCurrency": "Currency",
   "@settingsCurrency": { "description": "Currency setting label" },
 
+  "settingsLanguage": "Language",
+  "@settingsLanguage": { "description": "Language setting label" },
+
   "settingsMetricSystem": "Use Metric System",
   "@settingsMetricSystem": { "description": "Toggle label for metric/imperial" },
 
@@ -424,5 +427,41 @@
   "@scannerSelectAll": { "description": "Toggle to select all receipt items" },
 
   "scannerDeselectAll": "Deselect All",
-  "@scannerDeselectAll": { "description": "Toggle to deselect all receipt items" }
+  "@scannerDeselectAll": { "description": "Toggle to deselect all receipt items" },
+
+  "categoryFoodGroceries": "Food & Groceries",
+  "@categoryFoodGroceries": { "description": "Default category label for food and groceries" },
+
+  "categoryRestaurantsDiningOut": "Restaurants & Dining Out",
+  "@categoryRestaurantsDiningOut": { "description": "Default category label for restaurants and dining out" },
+
+  "categoryBeverages": "Beverages",
+  "@categoryBeverages": { "description": "Default category label for beverages" },
+
+  "categoryTransportation": "Transportation",
+  "@categoryTransportation": { "description": "Default category label for transportation" },
+
+  "categoryFuelEnergy": "Fuel & Energy",
+  "@categoryFuelEnergy": { "description": "Default category label for fuel and energy" },
+
+  "categoryHousingRent": "Housing & Rent",
+  "@categoryHousingRent": { "description": "Default category label for housing and rent" },
+
+  "categoryUtilities": "Utilities",
+  "@categoryUtilities": { "description": "Default category label for utilities" },
+
+  "categoryHealthcareMedical": "Healthcare & Medical",
+  "@categoryHealthcareMedical": { "description": "Default category label for healthcare and medical" },
+
+  "categoryPersonalCareHygiene": "Personal Care & Hygiene",
+  "@categoryPersonalCareHygiene": { "description": "Default category label for personal care and hygiene" },
+
+  "categoryHouseholdSupplies": "Household Supplies",
+  "@categoryHouseholdSupplies": { "description": "Default category label for household supplies" },
+
+  "categoryClothingApparel": "Clothing & Apparel",
+  "@categoryClothingApparel": { "description": "Default category label for clothing and apparel" },
+
+  "categoryElectronicsTech": "Electronics & Tech",
+  "@categoryElectronicsTech": { "description": "Default category label for electronics and tech" }
 }

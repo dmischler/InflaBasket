@@ -168,7 +168,7 @@ repackaging is correctly reflected in the index without any manual adjustment.
 ```
 You are an expert receipt parser. Analyze the provided receipt image.
 Extract the store name, date, and all individual line items.
-For each item, provide a "suggestedCategory" strictly chosen from this list: [Groceries, Dairy, Meat, Beverages, Household, Personal Care, Electronics, Transportation, Dining Out]. If none fit perfectly, deduce the closest match.
+For each item, provide a "suggestedCategory" strictly chosen from this list: [Food & Groceries, Restaurants & Dining Out, Beverages, Transportation, Fuel & Energy, Housing & Rent, Utilities, Healthcare & Medical, Personal Care & Hygiene, Household Supplies, Clothing & Apparel, Electronics & Tech] plus any user-created custom categories currently stored in the app. If none fit perfectly, deduce the closest match from the provided list.
 Return ONLY a valid JSON object matching this schema, without markdown formatting:
 
 {
@@ -215,7 +215,8 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] Manual entry UI (`/home/add`).
 - [x] Basic list view (`History` tab).
 - [x] SQLite CRUD operations via `EntryRepository`.
-- [x] **Category Seeding:** Default categories (Food & Groceries, Dairy, Meat, Beverages, Household, Personal Care, Electronics, Fuel/Transportation, Dining Out) are automatically created on first launch.
+- [x] **Category Seeding:** Default categories (Food & Groceries, Restaurants & Dining Out, Beverages, Transportation, Fuel & Energy, Housing & Rent, Utilities, Healthcare & Medical, Personal Care & Hygiene, Household Supplies, Clothing & Apparel, Electronics & Tech) are automatically created on first launch.
+- [x] **Localized Category Display:** Default categories remain stored as canonical English keys in Drift, while the UI localizes them for `en`, `de`, `fr`, and `it`. User-created custom categories remain exactly as typed and are never translated.
 
 **Phase 2: Data Visualization & Analytics**
 - [x] **Inflation Calculation Engine:**
@@ -261,6 +262,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] **Per-Item Receipt Review:** Replaced the "Save All or Cancel" scanner dialog with a full stateful `_ReceiptReviewDialog`: per-item checkboxes to deselect, inline product name editing, and category dropdown per item. A "Select All / Deselect All" toggle and item count on the Save button are included.
 - [x] **Dynamic Version:** Settings screen now reads the app version from `pubspec.yaml` via `package_info_plus` instead of using a hardcoded `'1.0.0'` string.
 
+**Sprint 4A: Launch Readiness & Desktop Scanner UX**
+- [x] **Desktop Receipt Drag & Drop:** `ScannerScreen` now supports dragging and dropping receipt images on Linux/macOS/Windows via `desktop_drop`, with a desktop-specific drop zone and file-type validation.
+- [x] **Debug Premium Override:** Premium-gated flows now unlock automatically in `kDebugMode`, enabling local testing of receipt scanning, duplicate detection, and price-alert notifications without an active RevenueCat entitlement.
+- [x] **Polished Empty/Loading States:** Added reusable `StateMessageCard` UX for scanner processing, history empty states, templates, price alerts, and paywall loading/error/unsupported states.
+- [x] **Macro Overlay Source Notes:** Overview now exposes an info sheet describing the current CPI/M2 source by currency and improves overlay loading feedback.
+
 ### 📝 Production Configuration (Not Code)
 - Replace `'appl_apiKey'` / `'goog_apiKey'` placeholders in `subscription_providers.dart` with real RevenueCat keys before store submission.
 - Replace `'YOUR_API_KEY'` in `vision_client.dart`; ideally move to a backend proxy rather than bundling the key in the binary.
@@ -302,7 +309,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### Sprint 1 – Quick Wins ✅ COMPLETE
 
-1. **Edit/Delete History Entries** ✅ — Swipe-to-delete and long-press to edit in the History tab.
+1. **Edit/Delete History Entries** ✅ — Swipe-to-delete and explicit edit button (pencil icon) in the History tab. Long-press to edit was unreliable on Linux desktop due to a known Flutter gesture limitation with Dismissible widgets.
 2. **Autocomplete for Manual Entry** ✅ — TypeAhead dropdown on Product, Store, and Location fields.
 3. **CSV Export** ✅ — Settings → Export Data, implemented via `ExportService` using `CsvEncoder` + `share_plus`.
 4. **Default Currency & Units** ✅ — CHF default with metric/imperial toggle, persisted via `SharedPreferences`.
@@ -326,7 +333,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 6. **Product Normalization** ✅ — Already fully implemented in Sprint 1 via `unit.dart` (`UnitType` enum, `normalizedPricePerUnit`) and `inflation_providers.dart` (`normalizePricePerUnit` helper). No changes required.
 7. **Custom Basket Weighting** ✅ — `WeightEditorScreen` (`/settings/weights`) presents one `Slider` per category. Values validate to 100%. `CategoryWeightsController` persists fractions to the `category_weights` DB table (schema v3). `basketInflation()` uses custom weights when set; otherwise falls back to spend-weighted averaging.
 8. **Official CPI + Money Supply Comparison** ✅ — `CpiClient` now uses Eurostat SDMX 3.0 monthly HICP index feeds with bounded history windows for supported CPI currencies: CHF → Switzerland (`M.I15.CP00.CH`), EUR → EU27 aggregate (`M.I15.CP00.EU27_2020`). `MoneySupplyClient` fetches currency-specific broad-money data with time-range filtering: CHF → SNB M2, EUR → ECB M2 stocks, USD → FRED M2, GBP → Bank of England M2. `OverviewTab` lets users switch the overlay between CPI and M2 when available, rebasing external series to the same 100-index baseline for visual comparison. External macro series are cached in Drift for offline fallback and transient TLS/network/API failures; if refresh fails, the app falls back to the latest cached series before degrading to an empty overlay.
-9. **Localization (i18n)** ✅ — `flutter_localizations` + `gen_l10n` ARB pipeline with 4 locales: `en`, `de`, `fr`, `it`. ~80 keys per locale. `l10n.yaml` uses `synthetic-package: false`; import path is `package:inflabasket/l10n/app_localizations.dart`.
+9. **Localization (i18n)** ✅ — `flutter_localizations` + `gen_l10n` ARB pipeline with 4 locales: `en`, `de`, `fr`, `it`. Unsupported device locales fall back to English. `l10n.yaml` uses `synthetic-package: false`; import path is `package:inflabasket/l10n/app_localizations.dart`. The Settings screen now includes a manual language selector.
 10. **Barcode Scanner** ✅ — `mobile_scanner` (replaces unused `camera`) powers `BarcodeScanDialog` (modal bottom sheet with live preview). `OpenFoodFactsClient` calls the OFF API and maps PNNS categories → InflaBasket categories. Barcode `IconButton.filledTonal` added next to the Product Name field in `AddEntryScreen`.
 11. **Recurring Purchase Templates** ✅ — `TemplatesScreen` (`/settings/templates`) lists `watchTemplatesWithDetails()` stream. Swipe-to-delete with confirmation. "Use" button opens `AddEntryScreen` pre-filled via a synthetic `EntryWithDetails`. `AddEntryScreen` also exposes a direct "Save as Template" action backed by `AddTemplateController.addTemplateFromForm()`.
 12. **Price Change Alerts (Premium)** ✅ — `flutter_local_notifications` wrapper (`NotificationService`) is initialised in `main()`. `PriceAlertService.checkAndNotify()` compares new purchases against the prior logged price and fires a local notification when the configured threshold is crossed (Premium only). Alert config is persisted in the `price_alerts` DB table (schema v3), and users can manage thresholds from `PriceAlertsScreen` (`/settings/price-alerts`).
@@ -356,6 +363,7 @@ A complete visual overhaul to modernize the app with contemporary design pattern
 29. **Custom Bottom Navigation** — Replace standard `NavigationBar` with a custom animated FAB-style nav: floating pill-shaped indicator with smooth slide transitions, micro-animations on icon press, and adaptive icons that morph between outline/filled states.
 
 30. **Skeleton Loaders** — Replace circular progress indicators with skeleton shimmer placeholders throughout the app (History list, Dashboard cards, Scanner loading) for a more polished loading experience.
+    - **Current partial implementation** — key screens now use richer empty/loading/error state cards (`StateMessageCard`) for scanner, paywall, templates, price alerts, and filtered history. Full shimmer/skeleton treatment is still pending.
 
 31. **Swipe Gestures** — Implement swipe-to-reveal actions in History list (swipe left: delete, swipe right: edit) with satisfying spring physics and haptic feedback.
 
@@ -369,6 +377,7 @@ A complete visual overhaul to modernize the app with contemporary design pattern
 
 36. **Expand Macro Comparison Sources** — Build on the shipped CPI/M2 overlay system with additional benchmark series and deeper controls.
     - **Current implementation** — CPI uses Eurostat SDMX 3.0 HICP for CHF/EUR; M2 uses SNB (CHF), ECB (EUR), FRED (USD), and Bank of England (GBP), with request windows sized to the visible basket-history range.
+    - **Current UX enhancement** — the Overview chart now includes source-info messaging so users can inspect which CPI/M2 feed is backing the selected overlay.
     - **Additional Central Bank Inflation Metrics** — Extend beyond current CPI coverage with direct official sources such as US BLS, UK ONS, and Bank of Japan for users with multi-currency tracking.
     - **More Monetary Benchmarks** — Add alternatives such as M3, central-bank balance sheet growth, or policy-rate overlays where available.
     - **Advanced Overlay Controls** — Support multiple simultaneous overlays, rebasing modes, and source notes/tooltips so users can compare their basket against both reported inflation and money-supply expansion.
@@ -382,6 +391,7 @@ A complete visual overhaul to modernize the app with contemporary design pattern
 15. **Home-Screen Widgets** — iOS and Android home-screen widgets showing the current basket inflation index at a glance.
 16. **Family / Multi-User Sharing (Premium)** — Share a basket with household members. Each member logs purchases; data is merged into a single household inflation view. Monetized as a family plan tier.
 17. **Cloud Backup & Sync** — iCloud (iOS) and Google Drive (Android) backup for purchase history. Enables device migration and restores.
+18. **User Authentication & Cross-Device Sync (Premium)** — Sign up / Sign in via email+password or OAuth (Google, Apple) using Firebase Auth or Supabase Auth. Authenticated users get cloud sync: purchase history, categories, templates, and settings automatically sync across all their devices in real-time. Enables seamless migration between devices and household sharing workflows.
 18. **Voice Entry (Premium)** — Dictate a purchase ("Milk, 2.50, Migros") using on-device speech recognition. Parsed and pre-filled into the Add Entry form.
 19. **Loyalty Card Scanner** — Scan Migros Cumulus or Coop Supercard barcodes to auto-populate the store name field and potentially link to loyalty program history via partner APIs.
 20. **Seasonal & Location Insights (Premium)** — Detect seasonal price patterns (e.g., "Tomatoes are typically 30% cheaper in August") and regional price differences across logged store locations.

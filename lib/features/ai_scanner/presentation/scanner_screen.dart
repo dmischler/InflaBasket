@@ -1,11 +1,17 @@
 import 'dart:io';
+
+import 'package:desktop_drop/desktop_drop.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/ai_scanner/data/vision_client.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -20,6 +26,17 @@ class ScannerScreen extends ConsumerStatefulWidget {
 
 class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   bool _isProcessing = false;
+  bool _isDraggingFile = false;
+
+  bool get _supportsDesktopDragAndDrop {
+    if (kIsWeb) return false;
+    return Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+  }
+
+  bool get _supportsCameraCapture {
+    if (kIsWeb) return false;
+    return Platform.isAndroid || Platform.isIOS;
+  }
 
   Future<void> _scanReceipt(ImageSource source) async {
     final picker = ImagePicker();
@@ -27,23 +44,65 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     if (!mounted) return;
 
     if (pickedFile != null) {
-      setState(() => _isProcessing = true);
+      await _processReceiptFile(File(pickedFile.path));
+    }
+  }
 
-      try {
-        final client = ref.read(visionClientProvider);
-        final result = await client.parseReceipt(File(pickedFile.path));
-        if (!mounted) return;
+  Future<void> _processReceiptFile(File imageFile) async {
+    setState(() => _isProcessing = true);
 
-        setState(() => _isProcessing = false);
-        _showReviewDialog(result);
-      } catch (e) {
-        if (!mounted) return;
-        setState(() => _isProcessing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+    try {
+      final client = ref.read(visionClientProvider);
+      final categories =
+          ref.read(categoriesProvider).valueOrNull ?? <Category>[];
+      final customCategoryNames = categories
+          .where((category) => category.isCustom)
+          .map((category) => category.name)
+          .toList(growable: false);
+      final result = await client.parseReceipt(
+        imageFile,
+        defaultCategoryKeys: CategoryLocalization.defaultCategoryKeys,
+        customCategoryNames: customCategoryNames,
+      );
+      if (!mounted) return;
+
+      setState(() => _isProcessing = false);
+      _showReviewDialog(result);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
+  Future<void> _handleDroppedFiles(List<XFile> files) async {
+    if (files.isEmpty || _isProcessing) return;
+
+    XFile? firstImage;
+    for (final file in files) {
+      if (_isSupportedImageFile(file.path)) {
+        firstImage = file;
+        break;
       }
     }
+
+    if (firstImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Drop a JPG, JPEG, PNG, or WEBP receipt image.'),
+        ),
+      );
+      return;
+    }
+
+    await _processReceiptFile(File(firstImage.path));
+  }
+
+  bool _isSupportedImageFile(String filePath) {
+    final extension = path.extension(filePath).toLowerCase();
+    return {'.jpg', '.jpeg', '.png', '.webp'}.contains(extension);
   }
 
   void _showReviewDialog(Map<String, dynamic> result) {
@@ -52,7 +111,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final receiptDate =
         (dateStr != null ? DateTime.tryParse(dateStr) : null) ?? DateTime.now();
     final items = result['items'] as List<dynamic>? ?? [];
-    final categories = ref.read(categoriesProvider).valueOrNull ?? <Category>[];
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final categories = categoriesAsync.valueOrNull ?? <Category>[];
     final settings = ref.read(settingsControllerProvider);
 
     showDialog(
@@ -94,39 +154,127 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final body = _isProcessing
+        ? const StateMessageCard(
+            icon: Icons.auto_awesome,
+            title: 'Analyzing Receipt',
+            message:
+                'The AI is extracting line items, totals, and suggested categories.',
+            isLoading: true,
+          )
+        : _supportsDesktopDragAndDrop
+            ? _buildDesktopDropZone(context)
+            : _buildPickerActions(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Scan Receipt')),
-      body: Center(
-        child: _isProcessing
-            ? const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('AI is analyzing your receipt...'),
-                ],
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.receipt_long, size: 100, color: Colors.grey),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () => _scanReceipt(ImageSource.camera),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text('Take Photo'),
-                    style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12)),
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: () => _scanReceipt(ImageSource.gallery),
-                    icon: const Icon(Icons.photo_library),
-                    label: const Text('Choose from Gallery'),
-                  ),
-                ],
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: body,
+      ),
+    );
+  }
+
+  Widget _buildPickerActions(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.receipt_long, size: 100, color: Colors.grey),
+            const SizedBox(height: 24),
+            if (_supportsCameraCapture)
+              ElevatedButton.icon(
+                onPressed: () => _scanReceipt(ImageSource.camera),
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Take Photo'),
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
               ),
+            if (_supportsCameraCapture) const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () => _scanReceipt(ImageSource.gallery),
+              icon: const Icon(Icons.photo_library),
+              label: Text(
+                _supportsCameraCapture ? 'Choose from Gallery' : 'Choose Image',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDesktopDropZone(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: DropTarget(
+          onDragEntered: (_) => setState(() => _isDraggingFile = true),
+          onDragExited: (_) => setState(() => _isDraggingFile = false),
+          onDragDone: (detail) async {
+            setState(() => _isDraggingFile = false);
+            await _handleDroppedFiles(detail.files);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: _isDraggingFile
+                  ? colorScheme.primaryContainer.withValues(alpha: 0.45)
+                  : colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: _isDraggingFile
+                    ? colorScheme.primary
+                    : colorScheme.outlineVariant,
+                width: _isDraggingFile ? 2.5 : 1.5,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _isDraggingFile
+                      ? Icons.file_download_done
+                      : Icons.upload_file,
+                  size: 56,
+                  color: _isDraggingFile
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _isDraggingFile
+                      ? 'Drop the receipt image here'
+                      : 'Drag and drop a receipt image',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Desktop mode accepts JPG, PNG, or WEBP files. You can also browse for an image if you prefer.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                const SizedBox(height: 20),
+                FilledButton.icon(
+                  onPressed: () => _scanReceipt(ImageSource.gallery),
+                  icon: const Icon(Icons.folder_open),
+                  label: const Text('Choose Image'),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -194,37 +342,20 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
 
   List<String> get _categoryNames {
     if (widget.categories.isNotEmpty) {
-      return widget.categories.map((c) => c.name).toList();
+      return widget.categories.map<String>((c) => c.name).toList();
     }
-    // Fallback list if DB categories not yet loaded
-    return [
-      'Food & Groceries',
-      'Dairy',
-      'Meat',
-      'Beverages',
-      'Household',
-      'Personal Care',
-      'Electronics',
-      'Fuel/Transportation',
-      'Dining Out',
-    ];
+    return CategoryLocalization.defaultCategoryKeys;
   }
 
   String _resolveCategory(String suggested) {
-    final names = _categoryNames;
-    if (names.isEmpty) return suggested.isNotEmpty ? suggested : 'Groceries';
-    // Exact match (case-insensitive)
-    for (final n in names) {
-      if (n.toLowerCase() == suggested.toLowerCase()) return n;
-    }
-    // Partial match
-    for (final n in names) {
-      if (n.toLowerCase().contains(suggested.toLowerCase()) ||
-          suggested.toLowerCase().contains(n.toLowerCase())) {
-        return n;
-      }
-    }
-    return names.first;
+    return CategoryLocalization.resolveCanonicalName(
+      suggested,
+      _categoryNames,
+    );
+  }
+
+  String _displayCategoryName(String categoryName) {
+    return CategoryLocalization.displayNameForContext(context, categoryName);
   }
 
   Future<void> _save() async {
@@ -333,7 +464,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                               items: _categoryNames
                                   .map((n) => DropdownMenuItem(
                                         value: n,
-                                        child: Text(n),
+                                        child: Text(_displayCategoryName(n)),
                                       ))
                                   .toList(),
                             ),

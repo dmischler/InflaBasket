@@ -80,6 +80,7 @@
   "settingsUpgrade": "Passa a Premium",
   "settingsPreferences": "Preferenze",
   "settingsCurrency": "Valuta",
+  "settingsLanguage": "Lingua",
   "settingsMetricSystem": "Usa il sistema metrico",
   "settingsMetricSubtitle": "Per quantità e prezzi unitari",
   "settingsDataManagement": "Gestione dati",
@@ -131,5 +132,17 @@
   "scannerReviewTitle": "Verifica articoli",
   "scannerSaveItems": "Salva {count} articoli",
   "scannerSelectAll": "Seleziona tutto",
-  "scannerDeselectAll": "Deseleziona tutto"
+  "scannerDeselectAll": "Deseleziona tutto",
+  "categoryFoodGroceries": "Alimentari & spesa",
+  "categoryRestaurantsDiningOut": "Ristoranti & asporto",
+  "categoryBeverages": "Bevande",
+  "categoryTransportation": "Trasporti",
+  "categoryFuelEnergy": "Carburanti & energia",
+  "categoryHousingRent": "Casa & affitti",
+  "categoryUtilities": "Utenze",
+  "categoryHealthcareMedical": "Salute & medicina",
+  "categoryPersonalCareHygiene": "Igiene personale",
+  "categoryHouseholdSupplies": "Articoli per la casa",
+  "categoryClothingApparel": "Abbigliamento & moda",
+  "categoryElectronicsTech": "Elettronica & tech"
 }

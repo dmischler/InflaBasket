@@ -1,50 +1,74 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'dart:convert';
 
 part 'vision_client.g.dart';
 
 @riverpod
 VisionClient visionClient(VisionClientRef ref) {
-  return VisionClient(Dio());
+  return VisionClient();
 }
 
 class VisionClient {
-  final Dio _dio;
+  VisionClient();
 
-  VisionClient(this._dio);
-
-  Future<Map<String, dynamic>> parseReceipt(File imageFile) async {
-    // In a real app, this would be your backend server or directly to OpenAI/Grok if safe.
-    // WARNING: Storing API keys in the app is not recommended for production.
-    const apiKey = 'YOUR_API_KEY'; // Replace or inject
-    const endpoint = 'https://api.openai.com/v1/chat/completions';
+  Future<Map<String, dynamic>> parseReceipt(
+    File imageFile, {
+    List<String> defaultCategoryKeys = CategoryLocalization.defaultCategoryKeys,
+    List<String> customCategoryNames = const <String>[],
+  }) async {
+    final apiKey = dotenv.env['GEMINI_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty) {
+      throw Exception('GEMINI_API_KEY not found in .env file');
+    }
 
     try {
       final bytes = await imageFile.readAsBytes();
-      final base64Image = base64Encode(bytes);
+      final availableCategories = <String>{
+        ...defaultCategoryKeys,
+        ...customCategoryNames.where((name) => name.trim().isNotEmpty),
+      }.toList(growable: false);
 
-      final response = await _dio.post(
-        endpoint,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
+      final model = GenerativeModel(
+        model: 'gemini-2.5-flash',
+        apiKey: apiKey,
+        generationConfig: GenerationConfig(
+          responseSchema: Schema.object(
+            properties: {
+              'storeName': Schema.string(),
+              'date': Schema.string(),
+              'items': Schema.array(
+                items: Schema.object(
+                  properties: {
+                    'productName': Schema.string(),
+                    'price': Schema.number(),
+                    'quantity': Schema.number(),
+                    'unit': Schema.string(),
+                    'total': Schema.number(),
+                    'suggestedCategory': Schema.string(),
+                    'confidence': Schema.number(),
+                  },
+                ),
+              ),
+            },
+            requiredProperties: ['storeName', 'date', 'items'],
+          ),
+          responseMimeType: 'application/json',
         ),
-        data: {
-          "model": "gpt-4o",
-          "messages": [
-            {
-              "role": "system",
-              "content":
-                  '''You are an expert receipt parser. Analyze the provided receipt image.
+      );
+
+      final prompt =
+          '''You are an expert receipt parser. Analyze the provided receipt image.
 Extract the store name, date, and all individual line items.
-For each item, provide a "suggestedCategory" strictly chosen from this list: [Groceries, Dairy, Meat, Beverages, Household, Personal Care, Electronics, Transportation, Dining Out]. If none fit perfectly, deduce the closest match.
+For each item, provide a "suggestedCategory" strictly chosen from this list: [${availableCategories.join(', ')}].
+Always return one of those exact category strings with identical spelling, capitalization, and punctuation.
+The default categories are English canonical keys. Custom user categories may also appear in the list; keep them exactly as provided.
 Also extract the package size and unit for each item. Infer the unit from the product name or any weight/volume printed on the receipt (e.g. "Milk 1L" → unit: "liter", quantity: 1; "Chicken 500g" → unit: "gram", quantity: 500; "Eggs 6 pcs" → unit: "count", quantity: 6).
-Return ONLY a valid JSON object matching this schema, without markdown formatting:
+Return a valid JSON object matching this schema:
 {
   "storeName": "string",
   "date": "YYYY-MM-DD",
@@ -59,27 +83,21 @@ Return ONLY a valid JSON object matching this schema, without markdown formattin
       "confidence": number (0.0 to 1.0)
     }
   ]
-}'''
-            },
-            {
-              "role": "user",
-              "content": [
-                {
-                  "type": "image_url",
-                  "image_url": {"url": "data:image/jpeg;base64,$base64Image"}
-                }
-              ]
-            }
-          ],
-          "max_tokens": 1000
-        },
-      );
+}''';
 
-      final responseBody = response.data;
-      final content =
-          responseBody['choices'][0]['message']['content'] as String;
+      final response = await model.generateContent([
+        Content.multi([
+          TextPart(prompt),
+          DataPart('image/jpeg', bytes),
+        ]),
+      ]);
 
-      // Clean up potential markdown formatting from GPT
+      final content = response.text;
+
+      if (content == null || content.isEmpty) {
+        throw Exception('Empty response from Gemini API');
+      }
+
       final cleanContent =
           content.replaceAll('```json', '').replaceAll('```', '').trim();
 

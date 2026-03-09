@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
@@ -21,19 +23,25 @@ class TemplatesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Recurring Purchases')),
       body: templatesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        loading: () => const StateMessageCard(
+          icon: Icons.bookmarks_outlined,
+          title: 'Loading Templates',
+          message: 'Fetching your saved recurring purchases.',
+          isLoading: true,
+        ),
+        error: (e, _) => StateMessageCard(
+          icon: Icons.error_outline,
+          title: 'Could Not Load Templates',
+          message: e.toString(),
+          accentColor: Theme.of(context).colorScheme.error,
+        ),
         data: (templates) {
           if (templates.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Text(
-                  'No templates yet.\n\nSave a recurring purchase as a template '
-                  'to quickly re-enter it later.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
+            return const StateMessageCard(
+              icon: Icons.repeat,
+              title: 'No Templates Yet',
+              message:
+                  'Save a recurring purchase as a template to reuse it in one tap later.',
             );
           }
 
@@ -91,10 +99,9 @@ class _TemplateTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = template.template;
-    final unitLabel =
-        unitTypeFromString(t.unit) == UnitType.count
-            ? ''
-            : ' · ${unitTypeFromString(t.unit).label}';
+    final unitLabel = unitTypeFromString(t.unit) == UnitType.count
+        ? ''
+        : ' · ${unitTypeFromString(t.unit).label}';
     final qtyLabel = t.quantity != 1.0
         ? '${t.quantity.toStringAsFixed(t.quantity % 1 == 0 ? 0 : 1)}$unitLabel'
         : null;
@@ -136,7 +143,10 @@ class _TemplateTile extends StatelessWidget {
         title: Text(template.product.name),
         subtitle: Text(
           [
-            template.category.name,
+            CategoryLocalization.displayNameForContext(
+              context,
+              template.category.name,
+            ),
             t.storeName,
             if (qtyLabel != null) qtyLabel,
           ].join(' · '),

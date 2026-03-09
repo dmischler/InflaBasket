@@ -132,6 +132,16 @@ class OverviewTab extends ConsumerWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (overlayType != null)
+                IconButton(
+                  tooltip: 'Comparison data source details',
+                  onPressed: () => _showOverlaySourceInfo(
+                    context,
+                    overlayType,
+                    ref.read(settingsControllerProvider).currency,
+                  ),
+                  icon: const Icon(Icons.info_outline, size: 20),
+                ),
               Text(l.showComparisonOverlay,
                   style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(width: 8),
@@ -175,9 +185,19 @@ class OverviewTab extends ConsumerWidget {
   Widget _buildOverlayStatus(BuildContext context, AppLocalizations l,
       AsyncValue<List<ComparisonDataPoint>> overlayAsync, bool hasOverlayData) {
     if (overlayAsync.isLoading) {
-      return Text(
-        l.loading,
-        style: Theme.of(context).textTheme.bodySmall,
+      return Row(
+        children: [
+          const SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            l.loading,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
       );
     }
     if (!hasOverlayData) {
@@ -190,6 +210,67 @@ class OverviewTab extends ConsumerWidget {
       );
     }
     return const SizedBox.shrink();
+  }
+
+  void _showOverlaySourceInfo(
+    BuildContext context,
+    ComparisonOverlayType overlayType,
+    String currency,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                overlayType == ComparisonOverlayType.cpi
+                    ? 'CPI Source'
+                    : 'Money Supply Source',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _overlaySourceDescription(overlayType, currency),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _overlaySourceDescription(
+    ComparisonOverlayType overlayType,
+    String currency,
+  ) {
+    return switch (overlayType) {
+      ComparisonOverlayType.cpi => switch (currency) {
+          'CHF' =>
+            'Consumer-price data comes from Eurostat monthly HICP observations for Switzerland. The series is rebased to the same 100-index baseline as your basket history.',
+          'EUR' =>
+            'Consumer-price data comes from Eurostat monthly HICP observations for the EU27 aggregate. The series is rebased to the same 100-index baseline as your basket history.',
+          _ =>
+            'Consumer-price overlays are shown only when a supported CPI source is available for the selected currency.',
+        },
+      ComparisonOverlayType.moneySupply => switch (currency) {
+          'CHF' =>
+            'Money-supply data uses Swiss National Bank M2 observations, filtered to the same visible history window and rebased to match your basket index.',
+          'EUR' =>
+            'Money-supply data uses European Central Bank M2 observations, filtered to the same visible history window and rebased to match your basket index.',
+          'USD' =>
+            'Money-supply data uses FRED M2 observations for the United States, filtered to the same visible history window and rebased to match your basket index.',
+          'GBP' =>
+            'Money-supply data uses Bank of England M2 observations, filtered to the same visible history window and rebased to match your basket index.',
+          _ =>
+            'Money-supply overlays are shown only when a supported source is available for the selected currency.',
+        },
+    };
   }
 
   Widget _buildChartLegend(BuildContext context, AppLocalizations l,

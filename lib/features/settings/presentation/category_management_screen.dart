@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
@@ -29,13 +30,19 @@ class CategoryManagementScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final category = categories[index];
               final isCustom = category.isCustom;
+              final categoryName = CategoryLocalization.displayNameForContext(
+                context,
+                category.name,
+              );
               return ListTile(
                 leading: CircleAvatar(
-                  child: Text(category.name.isNotEmpty
-                      ? category.name[0].toUpperCase()
-                      : '?'),
+                  child: Text(
+                    categoryName.isNotEmpty
+                        ? categoryName[0].toUpperCase()
+                        : '?',
+                  ),
                 ),
-                title: Text(category.name),
+                title: Text(categoryName),
                 subtitle: Text(isCustom ? 'Custom' : 'Default'),
                 trailing: isCustom
                     ? IconButton(
@@ -124,7 +131,9 @@ class CategoryManagementScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Category'),
-        content: Text('Delete "${category.name}"? This cannot be undone.'),
+        content: Text(
+          'Delete "${CategoryLocalization.displayNameForContext(context, category.name)}"? This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

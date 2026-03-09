@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -19,7 +21,15 @@ class HistoryTab extends ConsumerWidget {
     final settings = ref.watch(settingsControllerProvider);
 
     if (entries.isEmpty) {
-      return const Center(child: Text('No entries yet. Tap + to add one.'));
+      final hasActiveFilter =
+          filter.range != HistoryDateRange.allTime || filter.categoryId != null;
+      return StateMessageCard(
+        icon: hasActiveFilter ? Icons.filter_alt_off : Icons.receipt_long,
+        title: hasActiveFilter ? 'No Matching Entries' : 'No Entries Yet',
+        message: hasActiveFilter
+            ? 'Try clearing your history filters or broaden the date range.'
+            : 'Add your first purchase to start tracking your personal inflation rate.',
+      );
     }
 
     // Sort entries by date descending
@@ -58,6 +68,10 @@ class HistoryTab extends ConsumerWidget {
               final dateFormat = DateFormat.yMMMd();
               final currencyFormat =
                   NumberFormat.simpleCurrency(name: settings.currency);
+              final categoryName = CategoryLocalization.displayNameForContext(
+                context,
+                category.name,
+              );
               final locationText =
                   entry.location == null || entry.location!.isEmpty
                       ? ''
@@ -103,9 +117,11 @@ class HistoryTab extends ConsumerWidget {
                 },
                 child: ListTile(
                   leading: CircleAvatar(
-                    child: Text(category.name.isNotEmpty
-                        ? category.name[0].toUpperCase()
-                        : '?'),
+                    child: Text(
+                      categoryName.isNotEmpty
+                          ? categoryName[0].toUpperCase()
+                          : '?',
+                    ),
                   ),
                   title: Text(product.name),
                   subtitle: Column(
@@ -128,21 +144,31 @@ class HistoryTab extends ConsumerWidget {
                     ],
                   ),
                   isThreeLine: entry.notes != null && entry.notes!.isNotEmpty,
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        currencyFormat.format(entry.price),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined),
+                        tooltip: 'Edit entry',
+                        onPressed: () {
+                          context.push('/home/add', extra: entryDetails);
+                        },
                       ),
-                      _buildUnitPriceLabel(entry, settings.currency),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            currencyFormat.format(entry.price),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          _buildUnitPriceLabel(entry, settings.currency),
+                        ],
+                      ),
                     ],
                   ),
-                  onLongPress: () {
-                    context.push('/home/add', extra: entryDetails);
-                  },
+                  onLongPress: null,
                 ),
               );
             },
@@ -232,7 +258,12 @@ class HistoryTab extends ConsumerWidget {
                       ),
                       ...categories.map((c) => DropdownMenuItem<int?>(
                             value: c.id,
-                            child: Text(c.name),
+                            child: Text(
+                              CategoryLocalization.displayNameForContext(
+                                context,
+                                c.name,
+                              ),
+                            ),
                           )),
                     ],
                     onChanged: (value) => ref

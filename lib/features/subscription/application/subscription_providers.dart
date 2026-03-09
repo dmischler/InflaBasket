@@ -20,10 +20,15 @@ bool get supportsSubscriptionsOnCurrentPlatform {
   return Platform.isAndroid || Platform.isIOS;
 }
 
+bool get debugPremiumOverrideEnabled => kDebugMode;
+
 @riverpod
 class SubscriptionController extends _$SubscriptionController {
   @override
   FutureOr<bool> build() async {
+    if (debugPremiumOverrideEnabled) {
+      return true;
+    }
     if (!supportsSubscriptionsOnCurrentPlatform) {
       return false;
     }
@@ -32,6 +37,7 @@ class SubscriptionController extends _$SubscriptionController {
   }
 
   Future<void> _initRevenueCat() async {
+    if (debugPremiumOverrideEnabled) return;
     if (!supportsSubscriptionsOnCurrentPlatform) return;
 
     try {
@@ -45,6 +51,7 @@ class SubscriptionController extends _$SubscriptionController {
   }
 
   Future<bool> _checkPremiumStatus() async {
+    if (debugPremiumOverrideEnabled) return true;
     if (!supportsSubscriptionsOnCurrentPlatform) return false;
 
     try {
@@ -56,6 +63,10 @@ class SubscriptionController extends _$SubscriptionController {
   }
 
   Future<bool> purchasePremium(Package package) async {
+    if (debugPremiumOverrideEnabled) {
+      state = const AsyncData(true);
+      return true;
+    }
     if (!supportsSubscriptionsOnCurrentPlatform) {
       state = const AsyncData(false);
       return false;
@@ -77,6 +88,10 @@ class SubscriptionController extends _$SubscriptionController {
   }
 
   Future<void> restorePurchases() async {
+    if (debugPremiumOverrideEnabled) {
+      state = const AsyncData(true);
+      return;
+    }
     if (!supportsSubscriptionsOnCurrentPlatform) {
       state = const AsyncData(false);
       return;
@@ -95,6 +110,7 @@ class SubscriptionController extends _$SubscriptionController {
 
 @riverpod
 Future<List<Offering>> offerings(OfferingsRef ref) async {
+  if (debugPremiumOverrideEnabled) return [];
   if (!supportsSubscriptionsOnCurrentPlatform) return [];
 
   try {

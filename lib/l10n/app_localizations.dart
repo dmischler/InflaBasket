@@ -576,6 +576,12 @@ abstract class AppLocalizations {
   /// **'Currency'**
   String get settingsCurrency;
 
+  /// Language setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
   /// Toggle label for metric/imperial
   ///
   /// In en, this message translates to:
@@ -888,6 +894,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deselect All'**
   String get scannerDeselectAll;
+
+  /// Default category label for food and groceries
+  ///
+  /// In en, this message translates to:
+  /// **'Food & Groceries'**
+  String get categoryFoodGroceries;
+
+  /// Default category label for restaurants and dining out
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants & Dining Out'**
+  String get categoryRestaurantsDiningOut;
+
+  /// Default category label for beverages
+  ///
+  /// In en, this message translates to:
+  /// **'Beverages'**
+  String get categoryBeverages;
+
+  /// Default category label for transportation
+  ///
+  /// In en, this message translates to:
+  /// **'Transportation'**
+  String get categoryTransportation;
+
+  /// Default category label for fuel and energy
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel & Energy'**
+  String get categoryFuelEnergy;
+
+  /// Default category label for housing and rent
+  ///
+  /// In en, this message translates to:
+  /// **'Housing & Rent'**
+  String get categoryHousingRent;
+
+  /// Default category label for utilities
+  ///
+  /// In en, this message translates to:
+  /// **'Utilities'**
+  String get categoryUtilities;
+
+  /// Default category label for healthcare and medical
+  ///
+  /// In en, this message translates to:
+  /// **'Healthcare & Medical'**
+  String get categoryHealthcareMedical;
+
+  /// Default category label for personal care and hygiene
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Care & Hygiene'**
+  String get categoryPersonalCareHygiene;
+
+  /// Default category label for household supplies
+  ///
+  /// In en, this message translates to:
+  /// **'Household Supplies'**
+  String get categoryHouseholdSupplies;
+
+  /// Default category label for clothing and apparel
+  ///
+  /// In en, this message translates to:
+  /// **'Clothing & Apparel'**
+  String get categoryClothingApparel;
+
+  /// Default category label for electronics and tech
+  ///
+  /// In en, this message translates to:
+  /// **'Electronics & Tech'**
+  String get categoryElectronicsTech;
 }
 
 class _AppLocalizationsDelegate

@@ -102,7 +102,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -122,6 +122,12 @@ class AppDatabase extends _$AppDatabase {
           if (from < 4) {
             await m.createTable(externalSeriesCache);
           }
+          if (from < 5) {
+            final existing = await (select(categories)..limit(1)).get();
+            if (existing.isEmpty) {
+              await _seedDefaultCategories();
+            }
+          }
         },
       );
 
@@ -129,20 +135,28 @@ class AppDatabase extends _$AppDatabase {
     final defaults = <CategoriesCompanion>[
       CategoriesCompanion.insert(
           name: 'Food & Groceries', isCustom: const Value(false)),
-      CategoriesCompanion.insert(name: 'Dairy', isCustom: const Value(false)),
-      CategoriesCompanion.insert(name: 'Meat', isCustom: const Value(false)),
+      CategoriesCompanion.insert(
+          name: 'Restaurants & Dining Out', isCustom: const Value(false)),
       CategoriesCompanion.insert(
           name: 'Beverages', isCustom: const Value(false)),
       CategoriesCompanion.insert(
-          name: 'Household', isCustom: const Value(false)),
+          name: 'Transportation', isCustom: const Value(false)),
       CategoriesCompanion.insert(
-          name: 'Personal Care', isCustom: const Value(false)),
+          name: 'Fuel & Energy', isCustom: const Value(false)),
       CategoriesCompanion.insert(
-          name: 'Electronics', isCustom: const Value(false)),
+          name: 'Housing & Rent', isCustom: const Value(false)),
       CategoriesCompanion.insert(
-          name: 'Fuel/Transportation', isCustom: const Value(false)),
+          name: 'Utilities', isCustom: const Value(false)),
       CategoriesCompanion.insert(
-          name: 'Dining Out', isCustom: const Value(false)),
+          name: 'Healthcare & Medical', isCustom: const Value(false)),
+      CategoriesCompanion.insert(
+          name: 'Personal Care & Hygiene', isCustom: const Value(false)),
+      CategoriesCompanion.insert(
+          name: 'Household Supplies', isCustom: const Value(false)),
+      CategoriesCompanion.insert(
+          name: 'Clothing & Apparel', isCustom: const Value(false)),
+      CategoriesCompanion.insert(
+          name: 'Electronics & Tech', isCustom: const Value(false)),
     ];
 
     await batch((batch) {

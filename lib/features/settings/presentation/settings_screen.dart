@@ -1,28 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
-import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/settings/application/export_service.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
+  static const Map<String, String> _languageLabels = <String, String>{
+    'en': 'English',
+    'de': 'Deutsch',
+    'fr': 'Français',
+    'it': 'Italiano',
+  };
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final subscriptionsSupported = supportsSubscriptionsOnCurrentPlatform;
     final premiumAsync = ref.watch(subscriptionControllerProvider);
     final isPremium = premiumAsync.valueOrNull ?? false;
     final settings = ref.watch(settingsControllerProvider);
     final exportState = ref.watch(exportServiceProvider);
     final versionAsync = ref.watch(appVersionProvider);
+    final debugPremium = debugPremiumOverrideEnabled;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Subscription', style: Theme.of(context).textTheme.titleLarge),
+          Text(l10n.settingsSubscription,
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Card(
             child: ListTile(
@@ -30,36 +41,43 @@ class SettingsScreen extends ConsumerWidget {
                 isPremium ? Icons.verified : Icons.lock_outline,
                 color: isPremium ? Colors.green : Colors.orange,
               ),
-              title: Text(isPremium ? 'Premium Active' : 'Free Tier'),
-              subtitle: Text(!subscriptionsSupported
-                  ? 'Purchases are available on iOS and Android only.'
-                  : isPremium
-                      ? 'Enjoy AI receipt scanning and auto-categorization.'
-                      : 'Upgrade to unlock AI receipt scanning.'),
+              title: Text(
+                isPremium ? l10n.settingsPremiumActive : l10n.settingsFreeTier,
+              ),
+              subtitle: Text(debugPremium
+                  ? 'Debug mode is simulating Premium so receipt scanning and alerts can be tested locally.'
+                  : !subscriptionsSupported
+                      ? 'Purchases are available on iOS and Android only.'
+                      : isPremium
+                          ? l10n.settingsPremiumSubtitle
+                          : l10n.settingsFreeSubtitle),
               trailing: !subscriptionsSupported
                   ? const Chip(label: Text('Mobile only'))
-                  : isPremium
-                      ? TextButton(
-                          onPressed: () => ref
-                              .read(subscriptionControllerProvider.notifier)
-                              .restorePurchases(),
-                          child: const Text('Restore'),
-                        )
-                      : ElevatedButton(
-                          onPressed: () => context.push('/paywall'),
-                          child: const Text('Upgrade'),
-                        ),
+                  : debugPremium
+                      ? const Chip(label: Text('Debug unlock'))
+                      : isPremium
+                          ? TextButton(
+                              onPressed: () => ref
+                                  .read(subscriptionControllerProvider.notifier)
+                                  .restorePurchases(),
+                              child: Text(l10n.settingsRestore),
+                            )
+                          : ElevatedButton(
+                              onPressed: () => context.push('/paywall'),
+                              child: Text(l10n.settingsUpgrade),
+                            ),
             ),
           ),
           const SizedBox(height: 24),
-          Text('Preferences', style: Theme.of(context).textTheme.titleLarge),
+          Text(l10n.settingsPreferences,
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Card(
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.currency_exchange),
-                  title: const Text('Currency'),
+                  title: Text(l10n.settingsCurrency),
                   trailing: DropdownButton<String>(
                     value: settings.currency,
                     underline: const SizedBox(),
@@ -79,10 +97,34 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
                 const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Text(l10n.settingsLanguage),
+                  trailing: DropdownButton<String>(
+                    value: settings.locale,
+                    underline: const SizedBox(),
+                    items: SettingsController.supportedLocales
+                        .map(
+                          (locale) => DropdownMenuItem<String>(
+                            value: locale,
+                            child: Text(_languageLabels[locale] ?? locale),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        ref
+                            .read(settingsControllerProvider.notifier)
+                            .setLocale(val);
+                      }
+                    },
+                  ),
+                ),
+                const Divider(height: 1),
                 SwitchListTile.adaptive(
                   secondary: const Icon(Icons.straighten),
-                  title: const Text('Use Metric System'),
-                  subtitle: const Text('For quantities and unit prices'),
+                  title: Text(l10n.settingsMetricSystem),
+                  subtitle: Text(l10n.settingsMetricSubtitle),
                   value: settings.isMetric,
                   onChanged: (val) => ref
                       .read(settingsControllerProvider.notifier)
@@ -92,7 +134,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Text('Data Management',
+          Text(l10n.settingsDataManagement,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Card(
@@ -100,24 +142,24 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.category_outlined),
-                  title: const Text('Manage Categories'),
-                  subtitle: const Text('Add or remove custom categories'),
+                  title: Text(l10n.settingsManageCategories),
+                  subtitle: Text(l10n.settingsManageCategoriesSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/categories'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.balance_outlined),
-                  title: const Text('Category Weights'),
-                  subtitle: const Text('Customise inflation basket weights'),
+                  title: Text(l10n.settingsCategoryWeights),
+                  subtitle: Text(l10n.settingsCategoryWeightsSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/weights'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.repeat_outlined),
-                  title: const Text('Recurring Purchases'),
-                  subtitle: const Text('Manage saved purchase templates'),
+                  title: Text(l10n.settingsTemplates),
+                  subtitle: Text(l10n.settingsTemplatesSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/templates'),
                 ),
@@ -139,8 +181,8 @@ class SettingsScreen extends ConsumerWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.download_outlined),
-                  title: const Text('Export Data (CSV)'),
-                  subtitle: const Text('Download your purchase history'),
+                  title: Text(l10n.settingsExportData),
+                  subtitle: Text(l10n.settingsExportSubtitle),
                   onTap: () {
                     ref.read(exportServiceProvider.notifier).exportData();
                   },
@@ -149,28 +191,29 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Text('About', style: Theme.of(context).textTheme.titleLarge),
+          Text(l10n.settingsAbout,
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Card(
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.info_outline),
-                  title: const Text('Version'),
+                  title: Text(l10n.settingsVersion),
                   subtitle: Text(versionAsync.valueOrNull ?? '...'),
                 ),
                 const Divider(height: 1),
-                const ListTile(
+                ListTile(
                   leading: Icon(Icons.privacy_tip_outlined),
-                  title: Text('Privacy Policy'),
-                  subtitle: Text('Coming soon'),
+                  title: Text(l10n.settingsPrivacyPolicy),
+                  subtitle: Text(l10n.settingsComingSoon),
                   enabled: false,
                 ),
                 const Divider(height: 1),
-                const ListTile(
+                ListTile(
                   leading: Icon(Icons.description_outlined),
-                  title: Text('Terms of Service'),
-                  subtitle: Text('Coming soon'),
+                  title: Text(l10n.settingsTerms),
+                  subtitle: Text(l10n.settingsComingSoon),
                   enabled: false,
                 ),
               ],

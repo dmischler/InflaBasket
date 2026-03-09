@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -319,7 +320,12 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 items: categories
                     .map((c) => DropdownMenuItem(
                           value: c.name,
-                          child: Text(c.name),
+                          child: Text(
+                            CategoryLocalization.displayNameForContext(
+                              context,
+                              c.name,
+                            ),
+                          ),
                         ))
                     .toList(),
                 onChanged: (val) {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -42,19 +44,26 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Price Alerts')),
       body: entriesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
+        loading: () => const StateMessageCard(
+          icon: Icons.notifications_active_outlined,
+          title: 'Loading Alerts',
+          message: 'Gathering tracked products and existing alert thresholds.',
+          isLoading: true,
+        ),
+        error: (error, _) => StateMessageCard(
+          icon: Icons.error_outline,
+          title: 'Could Not Load Alerts',
+          message: error.toString(),
+          accentColor: Theme.of(context).colorScheme.error,
+        ),
         data: (entries) {
           final products = _buildAlertProducts(entries);
           if (products.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'Add a few purchases first, then enable alerts for the products you want to track.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
+            return const StateMessageCard(
+              icon: Icons.price_change_outlined,
+              title: 'No Products To Track Yet',
+              message:
+                  'Add a few purchases first, then enable alerts for the products you want to watch.',
             );
           }
 
@@ -62,10 +71,20 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
             future: _alertsFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return const StateMessageCard(
+                  icon: Icons.tune,
+                  title: 'Loading Alert Settings',
+                  message: 'Fetching saved thresholds for your tracked items.',
+                  isLoading: true,
+                );
               }
               if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
+                return StateMessageCard(
+                  icon: Icons.error_outline,
+                  title: 'Could Not Load Alert Settings',
+                  message: snapshot.error.toString(),
+                  accentColor: Theme.of(context).colorScheme.error,
+                );
               }
 
               final alertMap = snapshot.data ?? const <int, PriceAlert>{};
@@ -76,8 +95,13 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
                 itemBuilder: (context, index) {
                   final item = products[index];
                   final alert = alertMap[item.product.id];
-                  final subtitleParts = <String>[
+                  final categoryName =
+                      CategoryLocalization.displayNameForContext(
+                    context,
                     item.category.name,
+                  );
+                  final subtitleParts = <String>[
+                    categoryName,
                     'Latest: ${currencyFormat.format(item.latestEntry.price)}',
                     if (alert != null)
                       alert.isEnabled
@@ -153,7 +177,12 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
-                  Text(item.category.name),
+                  Text(
+                    CategoryLocalization.displayNameForContext(
+                      context,
+                      item.category.name,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   SwitchListTile.adaptive(
                     contentPadding: EdgeInsets.zero,

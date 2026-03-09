@@ -20,11 +20,13 @@ dependencies:
   path_provider: ^2.1.3
   path: ^1.9.0
   fl_chart: ^0.68.0
-  google_fonts: ^6.2.1
+  google_generative_ai: ^0.4.7
+  flutter_dotenv: ^5.1.0
   lucide_icons: ^0.257.0
   dio: ^5.4.0
   purchases_flutter: ^9.8.0
   image_picker: ^1.1.2
+  desktop_drop: ^0.7.0
   mobile_scanner: ^5.0.0
   flutter_local_notifications: ^18.0.0
   intl: ^0.20.2
@@ -47,3 +49,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - .env

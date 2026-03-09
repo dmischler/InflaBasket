@@ -229,7 +229,8 @@ class EntryRepository {
   }) async {
     await _db.transaction(() async {
       for (final item in items) {
-        final categoryName = item['categoryName'] as String? ?? 'Groceries';
+        final categoryName =
+            item['categoryName'] as String? ?? 'Food & Groceries';
         final productName = item['productName'] as String? ?? 'Unknown';
         final price = (item['price'] as num?)?.toDouble() ?? 0.0;
         final quantity = (item['quantity'] as num?)?.toDouble() ?? 1.0;

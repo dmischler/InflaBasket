@@ -251,6 +251,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCurrency => 'Currency';
 
   @override
+  String get settingsLanguage => 'Language';
+
+  @override
   String get settingsMetricSystem => 'Use Metric System';
 
   @override
@@ -426,4 +429,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scannerDeselectAll => 'Deselect All';
+
+  @override
+  String get categoryFoodGroceries => 'Food & Groceries';
+
+  @override
+  String get categoryRestaurantsDiningOut => 'Restaurants & Dining Out';
+
+  @override
+  String get categoryBeverages => 'Beverages';
+
+  @override
+  String get categoryTransportation => 'Transportation';
+
+  @override
+  String get categoryFuelEnergy => 'Fuel & Energy';
+
+  @override
+  String get categoryHousingRent => 'Housing & Rent';
+
+  @override
+  String get categoryUtilities => 'Utilities';
+
+  @override
+  String get categoryHealthcareMedical => 'Healthcare & Medical';
+
+  @override
+  String get categoryPersonalCareHygiene => 'Personal Care & Hygiene';
+
+  @override
+  String get categoryHouseholdSupplies => 'Household Supplies';
+
+  @override
+  String get categoryClothingApparel => 'Clothing & Apparel';
+
+  @override
+  String get categoryElectronicsTech => 'Electronics & Tech';
 }

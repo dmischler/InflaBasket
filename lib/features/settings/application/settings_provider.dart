@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'settings_provider.g.dart';
@@ -19,27 +22,39 @@ SharedPreferences sharedPreferences(SharedPreferencesRef ref) {
 class AppSettings {
   final String currency;
   final bool isMetric;
+  final String locale;
 
   const AppSettings({
     this.currency = 'CHF',
     this.isMetric = true,
+    this.locale = 'en',
   });
 
   AppSettings copyWith({
     String? currency,
     bool? isMetric,
+    String? locale,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
       isMetric: isMetric ?? this.isMetric,
+      locale: locale ?? this.locale,
     );
   }
 }
 
+String resolveAppLanguageCode([String? languageCode]) {
+  return CategoryLocalization.normalizeLanguageCode(
+    languageCode ?? PlatformDispatcher.instance.locale.languageCode,
+  );
+}
+
 @Riverpod(keepAlive: true)
 class SettingsController extends _$SettingsController {
+  static const supportedLocales = <String>['en', 'de', 'fr', 'it'];
   static const _currencyKey = 'settings_currency';
   static const _metricKey = 'settings_is_metric';
+  static const _localeKey = 'settings_locale';
 
   @override
   AppSettings build() {
@@ -47,6 +62,7 @@ class SettingsController extends _$SettingsController {
     return AppSettings(
       currency: prefs.getString(_currencyKey) ?? 'CHF',
       isMetric: prefs.getBool(_metricKey) ?? true,
+      locale: resolveAppLanguageCode(prefs.getString(_localeKey)),
     );
   }
 
@@ -60,6 +76,13 @@ class SettingsController extends _$SettingsController {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setBool(_metricKey, isMetric);
     state = state.copyWith(isMetric: isMetric);
+  }
+
+  Future<void> setLocale(String locale) async {
+    final normalizedLocale = resolveAppLanguageCode(locale);
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setString(_localeKey, normalizedLocale);
+    state = state.copyWith(locale: normalizedLocale);
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
@@ -79,8 +80,10 @@ class CategoriesTab extends ConsumerWidget {
                 getTitlesWidget: (double value, TitleMeta meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < chartData.length) {
-                    // Truncate long names
-                    String name = chartData[index].category.name;
+                    String name = CategoryLocalization.displayNameForContext(
+                      context,
+                      chartData[index].category.name,
+                    );
                     if (name.length > 8) name = '${name.substring(0, 7)}...';
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
@@ -151,6 +154,10 @@ class CategoriesTab extends ConsumerWidget {
       itemBuilder: (context, index) {
         final item = data[index];
         final isPositive = item.inflationPercent >= 0;
+        final categoryName = CategoryLocalization.displayNameForContext(
+          context,
+          item.category.name,
+        );
 
         return Card(
           elevation: 0,
@@ -160,11 +167,11 @@ class CategoriesTab extends ConsumerWidget {
             leading: CircleAvatar(
               backgroundColor:
                   Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              child: Text(item.category.name.isNotEmpty
-                  ? item.category.name[0].toUpperCase()
-                  : '?'),
+              child: Text(
+                categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '?',
+              ),
             ),
-            title: Text(item.category.name),
+            title: Text(categoryName),
             subtitle:
                 Text('Weight: ${format.format(item.totalSpend)} total spend'),
             trailing: Row(

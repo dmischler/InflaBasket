@@ -28,31 +28,45 @@ String? _mapOffCategory(String? pnnsGroup) {
   if (pnnsGroup == null) return null;
   final g = pnnsGroup.toLowerCase();
   if (g.contains('dairy') || g.contains('milk') || g.contains('cheese')) {
-    return 'Dairy';
+    return 'Food & Groceries';
   }
-  if (g.contains('meat') || g.contains('fish') || g.contains('seafood') ||
+  if (g.contains('meat') ||
+      g.contains('fish') ||
+      g.contains('seafood') ||
       g.contains('poultry')) {
-    return 'Meat';
+    return 'Food & Groceries';
   }
-  if (g.contains('beverage') || g.contains('drink') || g.contains('water') ||
-      g.contains('juice') || g.contains('soda') || g.contains('coffee') ||
+  if (g.contains('beverage') ||
+      g.contains('drink') ||
+      g.contains('water') ||
+      g.contains('juice') ||
+      g.contains('soda') ||
+      g.contains('coffee') ||
       g.contains('tea')) {
     return 'Beverages';
   }
-  if (g.contains('personal') || g.contains('hygiene') ||
-      g.contains('beauty') || g.contains('cosmetic')) {
-    return 'Personal Care';
+  if (g.contains('personal') ||
+      g.contains('hygiene') ||
+      g.contains('beauty') ||
+      g.contains('cosmetic')) {
+    return 'Personal Care & Hygiene';
   }
   if (g.contains('household') || g.contains('cleaning')) {
-    return 'Household';
+    return 'Household Supplies';
   }
-  if (g.contains('cereal') || g.contains('bread') || g.contains('pasta') ||
-      g.contains('rice') || g.contains('grain') || g.contains('fruit') ||
-      g.contains('vegetable') || g.contains('snack') ||
-      g.contains('condiment') || g.contains('sauce')) {
-    return 'Groceries';
+  if (g.contains('cereal') ||
+      g.contains('bread') ||
+      g.contains('pasta') ||
+      g.contains('rice') ||
+      g.contains('grain') ||
+      g.contains('fruit') ||
+      g.contains('vegetable') ||
+      g.contains('snack') ||
+      g.contains('condiment') ||
+      g.contains('sauce')) {
+    return 'Food & Groceries';
   }
-  return 'Groceries'; // sensible fallback
+  return 'Food & Groceries'; // sensible fallback
 }
 
 class OpenFoodFactsClient {
@@ -69,8 +83,7 @@ class OpenFoodFactsClient {
       final response = await _dio.get(
         '$_baseUrl/$barcode.json',
         queryParameters: {
-          'fields':
-              'product_name,brands,pnns_groups_1,categories_tags',
+          'fields': 'product_name,brands,pnns_groups_1,categories_tags',
         },
         options: Options(
           receiveTimeout: const Duration(seconds: 10),
