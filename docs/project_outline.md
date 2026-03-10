@@ -163,13 +163,28 @@ repackaging is correctly reflected in the index without any manual adjustment.
 
 ## 7. Exact AI Receipt Prompt Template
 
-*Target: xAI Grok Vision / GPT-4o*
+*Target: Google Gemini 3.1 Flash Lite*
 
 ```
 You are an expert receipt parser. Analyze the provided receipt image.
-Extract the store name, date, and all individual line items.
-For each item, provide a "suggestedCategory" strictly chosen from this list: [Food & Groceries, Restaurants & Dining Out, Beverages, Transportation, Fuel & Energy, Housing & Rent, Utilities, Healthcare & Medical, Personal Care & Hygiene, Household Supplies, Clothing & Apparel, Electronics & Tech] plus any user-created custom categories currently stored in the app. If none fit perfectly, deduce the closest match from the provided list.
-Return ONLY a valid JSON object matching this schema, without markdown formatting:
+Extract ONLY actual purchased product items - exclude ALL non-product lines.
+
+STRICTLY EXCLUDE these categories of entries:
+- Tax lines (VAT, sales tax, GST, HST, "tax", "TVA", "MwSt")
+- Summary lines ("subtotal", "sub-total", "total", "grand total", "sum", "amount due")
+- Discount/coupon lines ("discount", "rabatt", "réduction", "sconto", "coupon", "cashback")
+- Payment lines ("cash", "card", "credit", "debit", "payment", "change", "tendered", "rendu")
+- Store metadata (addresses, phone numbers, website, return policies, store numbers)
+- Promotional text (buy one get one, "free", "bonus", "points")
+- Blank or meaningless lines
+
+INCLUDE ONLY:
+- Individual product/line items that have both a product name AND a price
+- Each distinct purchased item should appear only ONCE
+- For quantities > 1, include both unit price and total price
+
+For each valid item, provide a "suggestedCategory" strictly chosen from this list: [Food & Groceries, Dairy, Meat, Beverages, Household, Personal Care, Electronics, Fuel/Transportation, Dining Out] plus any user-created custom categories currently stored in the app. If none fit perfectly, deduce the closest match from the provided list.
+Return a valid JSON object matching this schema, without markdown formatting:
 
 {
   "storeName": "string",
@@ -186,6 +201,12 @@ Return ONLY a valid JSON object matching this schema, without markdown formattin
   ]
 }
 ```
+
+Note: The prompt also includes client-side post-processing validation that:
+- Filters out items with empty/whitespace names
+- Filters out items with zero/negative prices
+- Filters out items matching tax/total/discount/payment patterns
+- Deduplicates by productName (case-insensitive)
 
 ---
 

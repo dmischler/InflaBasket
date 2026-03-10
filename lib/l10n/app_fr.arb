@@ -264,7 +264,7 @@
   "addEntrySaveAsTemplate": "Enregistrer comme modèle",
   "@addEntrySaveAsTemplate": { "description": "Button to save entry as template" },
 
-  "scannerSavedItems": "{count} article{count == 1 ? '' : 's'} enregistré{count == 1 ? '' : 's'} avec succès !",
+  "scannerSavedItems": "{count, plural, =1 {1 article enregistré avec succès !} other {{count} articles enregistrés avec succès !}}",
   "@scannerSavedItems": {
     "description": "Snackbar message when receipt items are saved",
     "placeholders": { "count": { "type": "int" } }

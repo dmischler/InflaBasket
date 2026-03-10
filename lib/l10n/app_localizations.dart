@@ -648,15 +648,6 @@ abstract class AppLocalizations {
   /// **'Quick-add templates for regular purchases'**
   String get settingsTemplatesSubtitle;
 
-  /// Subtitle for price alerts tile
-  String get settingsPriceAlertsSubtitle;
-
-  /// Chip label for mobile-only features
-  String get settingsMobileOnly;
-
-  /// Chip label for debug unlock
-  String get settingsDebugUnlock;
-
   /// Settings section header
   ///
   /// In en, this message translates to:
@@ -771,9 +762,6 @@ abstract class AppLocalizations {
   /// **'No templates yet. Add a template to quickly re-enter regular purchases.'**
   String get templatesEmpty;
 
-  /// Error when saving a template
-  String templateSaveError(String error);
-
   /// FAB label on templates screen
   ///
   /// In en, this message translates to:
@@ -785,9 +773,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete template?'**
   String get templateDelete;
-
-  /// Confirmation message when deleting a template
-  String templateDeleteMessage(String name);
 
   /// Button to apply a template as a new entry
   ///
@@ -910,249 +895,6 @@ abstract class AppLocalizations {
   /// **'Deselect All'**
   String get scannerDeselectAll;
 
-  /// Hint for supported dropped receipt image formats
-  String get scannerDropImage;
-
-  /// Desktop CTA before dragging a receipt image
-  String get scannerDragImage;
-
-  /// Desktop CTA while dragging a receipt image
-  String get scannerDropHere;
-
-  /// Button to choose an image file
-  String get scannerChooseImage;
-
-  /// Button to take a photo
-  String get scannerTakePhoto;
-
-  /// Button to choose from gallery
-  String get scannerChooseFromGallery;
-
-  /// Title while AI analyzes a receipt
-  String get scannerAnalyzingTitle;
-
-  /// Message while AI analyzes a receipt
-  String get scannerAnalyzingMessage;
-
-  /// Instructions shown in the receipt review dialog
-  String get scannerReviewInstructions;
-
-  /// Snackbar after saving scanned receipt items
-  String scannerSavedItems(int count);
-
-  /// Error when saving scanned receipt items fails
-  String scannerSaveError(String error);
-
-  /// Fallback store name when none was detected
-  String get unknownStore;
-
-  /// Fallback item name when none was detected
-  String get unknownItem;
-
-  /// Empty title when history filters hide all entries
-  String get historyNoMatchingTitle;
-
-  /// Empty-state guidance when history filters hide all entries
-  String get historyNoMatchingMessage;
-
-  /// Empty-state guidance when no history exists yet
-  String get historyNoEntriesMessage;
-
-  /// Tooltip for filter controls
-  String get filter;
-
-  /// Tooltip for editing an entry
-  String get historyEditEntryTooltip;
-
-  /// Error label for failed category loads
-  String errorLoadingCategories(String error);
-
-  /// Debug subtitle on the subscription card
-  String get settingsDebugPremiumSubtitle;
-
-  /// Unsupported-platform subtitle on the subscription card
-  String get settingsMobileOnlySubtitle;
-
-  /// Loading title for templates screen
-  String get templatesLoadingTitle;
-
-  /// Loading message for templates screen
-  String get templatesLoadingMessage;
-
-  /// Error title for templates screen
-  String get templatesLoadError;
-
-  /// Loading title for price alerts screen
-  String get priceAlertLoadingAlerts;
-
-  /// Loading message for price alerts screen
-  String get priceAlertLoadingAlertsMessage;
-
-  /// Error title for price alerts screen
-  String get priceAlertLoadError;
-
-  /// Empty title when no products can be tracked for alerts
-  String get priceAlertNoProducts;
-
-  /// Empty message when no products can be tracked for alerts
-  String get priceAlertNoProductsMessage;
-
-  /// Loading title for saved price-alert settings
-  String get priceAlertLoadingSettings;
-
-  /// Loading message for saved price-alert settings
-  String get priceAlertLoadingSettingsMessage;
-
-  /// Error title for saved price-alert settings
-  String get priceAlertLoadSettingsError;
-
-  /// Latest known price label for a product alert
-  String priceAlertLatestPrice(String price);
-
-  /// Label for an enabled alert threshold
-  String priceAlertAlertAt(String percent);
-
-  /// Label when an alert exists but is disabled
-  String get priceAlertDisabledStatus;
-
-  /// Toggle label to enable a price alert
-  String get priceAlertEnableAlert;
-
-  /// Explanation for alert threshold changes
-  String get priceAlertNotifyMe;
-
-  /// Slider label for alert threshold
-  String priceAlertThresholdLabel(String percent);
-
-  /// Button label to save a price alert
-  String get priceAlertSaveAlert;
-
-  /// Snackbar after enabling or saving an alert
-  String priceAlertSaved(String product);
-
-  /// Snackbar after disabling an alert
-  String priceAlertDisabled(String product);
-
-  /// AppBar title for paywall screen
-  String get paywallTitle;
-
-  /// Title for debug paywall state
-  String get paywallDebugTitle;
-
-  /// Message for debug paywall state
-  String get paywallDebugMessage;
-
-  /// Action button to close the paywall
-  String get paywallBackToApp;
-
-  /// Title for unsupported-platform paywall state
-  String get paywallMobileOnlyTitle;
-
-  /// Message for unsupported-platform paywall state
-  String get paywallMobileOnlyMessage;
-
-  /// Title when no subscription offers are available
-  String get paywallNoOffersTitle;
-
-  /// Message when no subscription offers are available
-  String get paywallNoOffersMessage;
-
-  /// Main premium headline
-  String get paywallProductTitle;
-
-  /// Premium features list
-  String get paywallFeatures;
-
-  /// Snackbar after successful premium purchase
-  String get paywallWelcome;
-
-  /// Button to restore purchases
-  String get paywallRestorePurchases;
-
-  /// Loading title for offers
-  String get paywallLoadingOffersTitle;
-
-  /// Loading message for offers
-  String get paywallLoadingOffersMessage;
-
-  /// Error title for offers
-  String get paywallLoadOffersError;
-
-  /// Subtitle line for category spend totals
-  String categoryTotalSpend(String amount);
-
-  /// Tooltip for overlay source info
-  String get comparisonSourceDetails;
-
-  /// Bottom-sheet title for CPI source information
-  String get cpiSourceTitle;
-
-  /// Bottom-sheet title for money-supply source information
-  String get moneySupplySourceTitle;
-
-  /// CPI source description for CHF
-  String get cpiSourceChfDescription;
-
-  /// CPI source description for EUR
-  String get cpiSourceEurDescription;
-
-  /// CPI source description fallback
-  String get cpiSourceUnavailableDescription;
-
-  /// Money-supply source description for CHF
-  String get moneySupplySourceChfDescription;
-
-  /// Money-supply source description for EUR
-  String get moneySupplySourceEurDescription;
-
-  /// Money-supply source description for USD
-  String get moneySupplySourceUsdDescription;
-
-  /// Money-supply source description for GBP
-  String get moneySupplySourceGbpDescription;
-
-  /// Money-supply source description fallback
-  String get moneySupplySourceUnavailableDescription;
-
-  /// Snackbar after category weights are saved
-  String get weightEditorSaved;
-
-  /// Title for reset-weights confirmation dialog
-  String get weightEditorResetWeights;
-
-  /// Message for reset-weights confirmation dialog
-  String get weightEditorResetMessage;
-
-  /// Button to revert to spend-weighted distribution
-  String get weightEditorUseSpendWeighted;
-
-  /// Label for the weights total row
-  String get weightEditorTotalLabel;
-
-  /// Validation hint when weights do not sum to 100%
-  String get weightEditorMustEqual100;
-
-  /// Empty-state title for category management
-  String get categoryManagementEmpty;
-
-  /// Error loading categories in category management
-  String categoryManagementError(String error);
-
-  /// Empty-state label when no price increases are found
-  String get overviewNoPriceIncreases;
-
-  /// Empty-state label when no price decreases are found
-  String get overviewNoPriceDecreases;
-
-  /// Title for inflation-by-category section
-  String get categoryInflationTitle;
-
-  /// Title for category details section
-  String get categoryDetailsTitle;
-
-  /// Empty state when chart data is unavailable
-  String get categoryNoChartData;
-
   /// Default category label for food and groceries
   ///
   /// In en, this message translates to:
@@ -1224,6 +966,576 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Electronics & Tech'**
   String get categoryElectronicsTech;
+
+  /// Hint text for desktop drag and drop
+  ///
+  /// In en, this message translates to:
+  /// **'Drop a JPG, JPEG, PNG, or WEBP receipt image.'**
+  String get scannerDropImage;
+
+  /// Drag label for desktop drop zone
+  ///
+  /// In en, this message translates to:
+  /// **'Drag a receipt image here'**
+  String get scannerDragImage;
+
+  /// Drop label when dragging over drop zone
+  ///
+  /// In en, this message translates to:
+  /// **'Drop here'**
+  String get scannerDropHere;
+
+  /// Button to take photo with camera
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get scannerTakePhoto;
+
+  /// Button to select image from gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Image'**
+  String get scannerChooseImage;
+
+  /// Title while AI processes receipt
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing Receipt'**
+  String get scannerAnalyzingTitle;
+
+  /// Message while AI processes receipt
+  ///
+  /// In en, this message translates to:
+  /// **'The AI is extracting line items, totals, and suggested categories.'**
+  String get scannerAnalyzingMessage;
+
+  /// Instructions on receipt review screen
+  ///
+  /// In en, this message translates to:
+  /// **'Uncheck items you don\'t want to save. Tap names or categories to edit.'**
+  String get scannerReviewInstructions;
+
+  /// Subtitle for price alerts settings tile
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications for product price changes'**
+  String get settingsPriceAlertsSubtitle;
+
+  /// Badge for mobile-only features
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile only'**
+  String get settingsMobileOnly;
+
+  /// Badge for debug premium unlock
+  ///
+  /// In en, this message translates to:
+  /// **'Debug unlock'**
+  String get settingsDebugUnlock;
+
+  /// Title for inflation by category section
+  ///
+  /// In en, this message translates to:
+  /// **'Inflation by Category'**
+  String get categoryInflationTitle;
+
+  /// Title for category details section
+  ///
+  /// In en, this message translates to:
+  /// **'Category Details'**
+  String get categoryDetailsTitle;
+
+  /// Empty state when no price increases found
+  ///
+  /// In en, this message translates to:
+  /// **'No price increases detected yet!'**
+  String get overviewNoPriceIncreases;
+
+  /// Empty state when no price decreases found
+  ///
+  /// In en, this message translates to:
+  /// **'No price decreases detected yet.'**
+  String get overviewNoPriceDecreases;
+
+  /// Error when template save fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving template: {error}'**
+  String templateSaveError(String error);
+
+  /// Dialog title for duplicate product detection
+  ///
+  /// In en, this message translates to:
+  /// **'Similar Product Found'**
+  String get duplicateProductFound;
+
+  /// Dialog body for duplicate product detection
+  ///
+  /// In en, this message translates to:
+  /// **'\"{newName}\" looks similar to an existing product: \"{existing}\". Link to the existing product or create a new one?'**
+  String duplicateProductMessage(String newName, String existing);
+
+  /// Empty state when not enough data for chart
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data to chart.'**
+  String get categoryNoChartData;
+
+  /// Dialog title for deleting an entry
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Entry?'**
+  String get historyDeleteTitle;
+
+  /// Dialog message for deleting an entry
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this purchase entry?'**
+  String get historyDeleteMessage;
+
+  /// Toggle label to enable price alert
+  ///
+  /// In en, this message translates to:
+  /// **'Enable alert'**
+  String get priceAlertEnableAlert;
+
+  /// Subtitle for alert enable toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when the next logged price changes beyond this threshold.'**
+  String get priceAlertNotifyMe;
+
+  /// Label showing current threshold percentage
+  ///
+  /// In en, this message translates to:
+  /// **'Threshold: {percent}%'**
+  String priceAlertThresholdLabel(String percent);
+
+  /// Button to save price alert
+  ///
+  /// In en, this message translates to:
+  /// **'Save Alert'**
+  String get priceAlertSaveAlert;
+
+  /// Loading title while fetching alerts
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Alerts'**
+  String get priceAlertLoadingAlerts;
+
+  /// Loading message while fetching alerts
+  ///
+  /// In en, this message translates to:
+  /// **'Gathering tracked products and existing alert thresholds.'**
+  String get priceAlertLoadingAlertsMessage;
+
+  /// Error title when alerts fail to load
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Load Alerts'**
+  String get priceAlertLoadError;
+
+  /// Empty state when no products to track
+  ///
+  /// In en, this message translates to:
+  /// **'No Products To Track Yet'**
+  String get priceAlertNoProducts;
+
+  /// Empty state message for price alerts
+  ///
+  /// In en, this message translates to:
+  /// **'Add a few purchases first, then enable alerts for the products you want to watch.'**
+  String get priceAlertNoProductsMessage;
+
+  /// Loading title while fetching settings
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Alert Settings'**
+  String get priceAlertLoadingSettings;
+
+  /// Loading message while fetching settings
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching saved thresholds for your tracked items.'**
+  String get priceAlertLoadingSettingsMessage;
+
+  /// Confirmation message when deleting a template
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\" from recurring purchases?'**
+  String templateDeleteMessage(String name);
+
+  /// Button to save entry as template
+  ///
+  /// In en, this message translates to:
+  /// **'Save as Template'**
+  String get addEntrySaveAsTemplate;
+
+  /// Snackbar message when receipt items are saved
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {1 item saved successfully!} other {{count} items saved successfully!}}'**
+  String scannerSavedItems(int count);
+
+  /// Button to reset category weights
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Weights'**
+  String get weightEditorResetWeights;
+
+  /// Button to use spend-weighted distribution
+  ///
+  /// In en, this message translates to:
+  /// **'Use Spend-Weighted'**
+  String get weightEditorUseSpendWeighted;
+
+  /// Empty state on category management screen
+  ///
+  /// In en, this message translates to:
+  /// **'No categories found.'**
+  String get categoryManagementEmpty;
+
+  /// Error message when categories fail to load
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading categories: {error}'**
+  String categoryManagementError(String error);
+
+  /// Default store name when unknown
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Store'**
+  String get unknownStore;
+
+  /// Swiss Franc currency code
+  ///
+  /// In en, this message translates to:
+  /// **'CHF'**
+  String get currencyChf;
+
+  /// Euro currency code
+  ///
+  /// In en, this message translates to:
+  /// **'EUR'**
+  String get currencyEur;
+
+  /// US Dollar currency code
+  ///
+  /// In en, this message translates to:
+  /// **'USD'**
+  String get currencyUsd;
+
+  /// British Pound currency code
+  ///
+  /// In en, this message translates to:
+  /// **'GBP'**
+  String get currencyGbp;
+
+  /// Button to choose image from gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get scannerChooseFromGallery;
+
+  /// Error when saving scanned receipt items fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving items: {error}'**
+  String scannerSaveError(String error);
+
+  /// Fallback item name when none was detected
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Item'**
+  String get unknownItem;
+
+  /// Empty title when history filters hide all entries
+  ///
+  /// In en, this message translates to:
+  /// **'No Matching Entries'**
+  String get historyNoMatchingTitle;
+
+  /// Empty-state guidance when history filters hide all entries
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting or clearing your filters.'**
+  String get historyNoMatchingMessage;
+
+  /// Empty-state guidance when no history exists yet
+  ///
+  /// In en, this message translates to:
+  /// **'Start by adding your first purchase entry.'**
+  String get historyNoEntriesMessage;
+
+  /// Tooltip for filter controls
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter;
+
+  /// Tooltip for editing an entry
+  ///
+  /// In en, this message translates to:
+  /// **'Edit entry'**
+  String get historyEditEntryTooltip;
+
+  /// Error label for failed category loads
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading categories: {error}'**
+  String errorLoadingCategories(String error);
+
+  /// Debug subtitle on the subscription card
+  ///
+  /// In en, this message translates to:
+  /// **'Debug: Premium unlocked for testing.'**
+  String get settingsDebugPremiumSubtitle;
+
+  /// Unsupported-platform subtitle on the subscription card
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions are only available on iOS and Android.'**
+  String get settingsMobileOnlySubtitle;
+
+  /// Loading title for templates screen
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Templates'**
+  String get templatesLoadingTitle;
+
+  /// Loading message for templates screen
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching your recurring purchases.'**
+  String get templatesLoadingMessage;
+
+  /// Error title for templates screen
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Load Templates'**
+  String get templatesLoadError;
+
+  /// AppBar title for paywall screen
+  ///
+  /// In en, this message translates to:
+  /// **'Go Premium'**
+  String get paywallTitle;
+
+  /// Title for debug paywall state
+  ///
+  /// In en, this message translates to:
+  /// **'Debug Mode'**
+  String get paywallDebugTitle;
+
+  /// Message for debug paywall state
+  ///
+  /// In en, this message translates to:
+  /// **'Premium features are unlocked for testing.'**
+  String get paywallDebugMessage;
+
+  /// Action button to close the paywall
+  ///
+  /// In en, this message translates to:
+  /// **'Back to App'**
+  String get paywallBackToApp;
+
+  /// Title for unsupported-platform paywall state
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Only'**
+  String get paywallMobileOnlyTitle;
+
+  /// Message for unsupported-platform paywall state
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions are only available on iOS and Android. All features are unlocked on desktop.'**
+  String get paywallMobileOnlyMessage;
+
+  /// Title when no subscription offers are available
+  ///
+  /// In en, this message translates to:
+  /// **'No Offers Available'**
+  String get paywallNoOffersTitle;
+
+  /// Message when no subscription offers are available
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load subscription offers. Please try again later.'**
+  String get paywallNoOffersMessage;
+
+  /// Main premium headline
+  ///
+  /// In en, this message translates to:
+  /// **'InflaBasket Premium'**
+  String get paywallProductTitle;
+
+  /// Premium features list
+  ///
+  /// In en, this message translates to:
+  /// **'AI receipt scanning • Auto-categorization • Price alerts'**
+  String get paywallFeatures;
+
+  /// Snackbar after successful premium purchase
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Premium!'**
+  String get paywallWelcome;
+
+  /// Button to restore purchases
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Purchases'**
+  String get paywallRestorePurchases;
+
+  /// Loading title for offers
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Offers'**
+  String get paywallLoadingOffersTitle;
+
+  /// Loading message for offers
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching available subscription plans.'**
+  String get paywallLoadingOffersMessage;
+
+  /// Error title for offers
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Load Offers'**
+  String get paywallLoadOffersError;
+
+  /// Subtitle line for category spend totals
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {amount}'**
+  String categoryTotalSpend(String amount);
+
+  /// Tooltip for overlay source info
+  ///
+  /// In en, this message translates to:
+  /// **'Source details'**
+  String get comparisonSourceDetails;
+
+  /// Bottom-sheet title for CPI source information
+  ///
+  /// In en, this message translates to:
+  /// **'CPI Source'**
+  String get cpiSourceTitle;
+
+  /// Bottom-sheet title for money-supply source information
+  ///
+  /// In en, this message translates to:
+  /// **'Money Supply Source'**
+  String get moneySupplySourceTitle;
+
+  /// CPI source description for CHF
+  ///
+  /// In en, this message translates to:
+  /// **'Swiss Federal Statistical Office (FSO) — monthly CPI index for Switzerland.'**
+  String get cpiSourceChfDescription;
+
+  /// CPI source description for EUR
+  ///
+  /// In en, this message translates to:
+  /// **'Eurostat — harmonised index of consumer prices (HICP) for the Euro area.'**
+  String get cpiSourceEurDescription;
+
+  /// CPI source description fallback
+  ///
+  /// In en, this message translates to:
+  /// **'No CPI data source is available for the selected currency.'**
+  String get cpiSourceUnavailableDescription;
+
+  /// Money-supply source description for CHF
+  ///
+  /// In en, this message translates to:
+  /// **'Swiss National Bank (SNB) — M2 money supply for Switzerland.'**
+  String get moneySupplySourceChfDescription;
+
+  /// Money-supply source description for EUR
+  ///
+  /// In en, this message translates to:
+  /// **'European Central Bank (ECB) — M2 money supply for the Euro area.'**
+  String get moneySupplySourceEurDescription;
+
+  /// Money-supply source description for USD
+  ///
+  /// In en, this message translates to:
+  /// **'Federal Reserve (Fed) — M2 money supply for the United States.'**
+  String get moneySupplySourceUsdDescription;
+
+  /// Money-supply source description for GBP
+  ///
+  /// In en, this message translates to:
+  /// **'Bank of England (BoE) — M2 money supply for the United Kingdom.'**
+  String get moneySupplySourceGbpDescription;
+
+  /// Money-supply source description fallback
+  ///
+  /// In en, this message translates to:
+  /// **'No money supply data source is available for the selected currency.'**
+  String get moneySupplySourceUnavailableDescription;
+
+  /// Snackbar after category weights are saved
+  ///
+  /// In en, this message translates to:
+  /// **'Weights saved.'**
+  String get weightEditorSaved;
+
+  /// Message for reset-weights confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all category weights to equal distribution?'**
+  String get weightEditorResetMessage;
+
+  /// Label for the weights total row
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get weightEditorTotalLabel;
+
+  /// Validation hint when weights do not sum to 100%
+  ///
+  /// In en, this message translates to:
+  /// **'Weights must sum to 100%.'**
+  String get weightEditorMustEqual100;
+
+  /// Latest known price label for a product alert
+  ///
+  /// In en, this message translates to:
+  /// **'Latest price: {price}'**
+  String priceAlertLatestPrice(String price);
+
+  /// Label for an enabled alert threshold
+  ///
+  /// In en, this message translates to:
+  /// **'Alert at {percent}% change'**
+  String priceAlertAlertAt(String percent);
+
+  /// Label when an alert exists but is disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Alert disabled'**
+  String get priceAlertDisabledStatus;
+
+  /// Snackbar after enabling or saving an alert
+  ///
+  /// In en, this message translates to:
+  /// **'Alert saved for {product}.'**
+  String priceAlertSaved(String product);
+
+  /// Snackbar after disabling an alert
+  ///
+  /// In en, this message translates to:
+  /// **'Alert disabled for {product}.'**
+  String priceAlertDisabled(String product);
+
+  /// Error title for saved price-alert settings
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Load Alert Settings'**
+  String get priceAlertLoadSettingsError;
 }
 
 class _AppLocalizationsDelegate
