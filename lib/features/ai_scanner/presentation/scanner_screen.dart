@@ -16,6 +16,7 @@ import 'package:inflabasket/features/ai_scanner/data/vision_client.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
@@ -89,10 +90,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     }
 
     if (firstImage == null) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Drop a JPG, JPEG, PNG, or WEBP receipt image.'),
-        ),
+        SnackBar(content: Text(l10n.scannerDropImage)),
       );
       return;
     }
@@ -106,7 +107,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   void _showReviewDialog(Map<String, dynamic> result) {
-    final storeName = result['storeName'] as String? ?? 'Unknown Store';
+    final l10n = AppLocalizations.of(context)!;
+    final storeName = result['storeName'] as String? ?? l10n.unknownStore;
     final dateStr = result['date'] as String?;
     final receiptDate =
         (dateStr != null ? DateTime.tryParse(dateStr) : null) ?? DateTime.now();
@@ -131,18 +133,19 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   items: selectedItems,
                 );
             if (!context.mounted) return;
+            final sl10n = AppLocalizations.of(context)!;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                    '${selectedItems.length} item${selectedItems.length == 1 ? '' : 's'} saved successfully!'),
+                content: Text(sl10n.scannerSavedItems(selectedItems.length)),
               ),
             );
             context.pop();
           } catch (e) {
             if (!context.mounted) return;
+            final el10n = AppLocalizations.of(context)!;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Error saving receipt: $e'),
+                content: Text(el10n.scannerSaveError(e.toString())),
                 backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
@@ -154,12 +157,12 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final body = _isProcessing
-        ? const StateMessageCard(
+        ? StateMessageCard(
             icon: Icons.auto_awesome,
-            title: 'Analyzing Receipt',
-            message:
-                'The AI is extracting line items, totals, and suggested categories.',
+            title: l10n.scannerAnalyzingTitle,
+            message: l10n.scannerAnalyzingMessage,
             isLoading: true,
           )
         : _supportsDesktopDragAndDrop
@@ -167,7 +170,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             : _buildPickerActions(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan Receipt')),
+      appBar: AppBar(title: Text(l10n.scannerTitle)),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: body,
@@ -176,6 +179,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   Widget _buildPickerActions(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
@@ -188,7 +192,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
               ElevatedButton.icon(
                 onPressed: () => _scanReceipt(ImageSource.camera),
                 icon: const Icon(Icons.camera_alt),
-                label: const Text('Take Photo'),
+                label: Text(l10n.scannerTakePhoto),
                 style: ElevatedButton.styleFrom(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -199,7 +203,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
               onPressed: () => _scanReceipt(ImageSource.gallery),
               icon: const Icon(Icons.photo_library),
               label: Text(
-                _supportsCameraCapture ? 'Choose from Gallery' : 'Choose Image',
+                _supportsCameraCapture
+                    ? l10n.scannerChooseFromGallery
+                    : l10n.scannerChooseImage,
               ),
             ),
           ],
@@ -209,6 +215,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   Widget _buildDesktopDropZone(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Center(
@@ -252,14 +259,14 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                 const SizedBox(height: 16),
                 Text(
                   _isDraggingFile
-                      ? 'Drop the receipt image here'
-                      : 'Drag and drop a receipt image',
+                      ? l10n.scannerDropHere
+                      : l10n.scannerDragImage,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Desktop mode accepts JPG, PNG, or WEBP files. You can also browse for an image if you prefer.',
+                  l10n.scannerDropImage,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
@@ -269,7 +276,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                 FilledButton.icon(
                   onPressed: () => _scanReceipt(ImageSource.gallery),
                   icon: const Icon(Icons.folder_open),
-                  label: const Text('Choose Image'),
+                  label: Text(l10n.scannerChooseImage),
                 ),
               ],
             ),
@@ -359,6 +366,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
   }
 
   Future<void> _save() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isSaving = true);
     final selectedItems = <Map<String, dynamic>>[];
     for (int i = 0; i < widget.items.length; i++) {
@@ -366,7 +374,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
         final item =
             Map<String, dynamic>.from(widget.items[i] as Map<String, dynamic>);
         item['productName'] = _nameControllers[i].text.trim().isEmpty
-            ? 'Unknown'
+            ? l10n.unknownItem
             : _nameControllers[i].text.trim();
         item['categoryName'] = _categorySelections[i];
         item['unit'] = _unitSelections[i].name;
@@ -379,6 +387,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final selectedCount = _selected.where((s) => s).length;
     final dateLabel = DateFormat.yMMMd().format(widget.receiptDate);
 
@@ -397,7 +406,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Review Receipt',
+                  Text(l10n.scannerReviewTitle,
                       style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 2),
                   Text(
@@ -407,7 +416,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Uncheck items you don\'t want to save. Tap names or categories to edit.',
+                    l10n.scannerReviewInstructions,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -525,14 +534,14 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                             });
                           },
                     child: Text(_selected.every((s) => s)
-                        ? 'Deselect All'
-                        : 'Select All'),
+                        ? l10n.scannerDeselectAll
+                        : l10n.scannerSelectAll),
                   ),
                   const Spacer(),
                   TextButton(
                     onPressed:
                         _isSaving ? null : () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.cancel),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -543,8 +552,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(
-                            'Save $selectedCount Item${selectedCount == 1 ? '' : 's'}'),
+                        : Text(l10n.scannerSaveItems(selectedCount)),
                   ),
                 ],
               ),

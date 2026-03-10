@@ -648,6 +648,15 @@ abstract class AppLocalizations {
   /// **'Quick-add templates for regular purchases'**
   String get settingsTemplatesSubtitle;
 
+  /// Subtitle for price alerts tile
+  String get settingsPriceAlertsSubtitle;
+
+  /// Chip label for mobile-only features
+  String get settingsMobileOnly;
+
+  /// Chip label for debug unlock
+  String get settingsDebugUnlock;
+
   /// Settings section header
   ///
   /// In en, this message translates to:
@@ -762,6 +771,9 @@ abstract class AppLocalizations {
   /// **'No templates yet. Add a template to quickly re-enter regular purchases.'**
   String get templatesEmpty;
 
+  /// Error when saving a template
+  String templateSaveError(String error);
+
   /// FAB label on templates screen
   ///
   /// In en, this message translates to:
@@ -773,6 +785,9 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete template?'**
   String get templateDelete;
+
+  /// Confirmation message when deleting a template
+  String templateDeleteMessage(String name);
 
   /// Button to apply a template as a new entry
   ///
@@ -894,6 +909,249 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deselect All'**
   String get scannerDeselectAll;
+
+  /// Hint for supported dropped receipt image formats
+  String get scannerDropImage;
+
+  /// Desktop CTA before dragging a receipt image
+  String get scannerDragImage;
+
+  /// Desktop CTA while dragging a receipt image
+  String get scannerDropHere;
+
+  /// Button to choose an image file
+  String get scannerChooseImage;
+
+  /// Button to take a photo
+  String get scannerTakePhoto;
+
+  /// Button to choose from gallery
+  String get scannerChooseFromGallery;
+
+  /// Title while AI analyzes a receipt
+  String get scannerAnalyzingTitle;
+
+  /// Message while AI analyzes a receipt
+  String get scannerAnalyzingMessage;
+
+  /// Instructions shown in the receipt review dialog
+  String get scannerReviewInstructions;
+
+  /// Snackbar after saving scanned receipt items
+  String scannerSavedItems(int count);
+
+  /// Error when saving scanned receipt items fails
+  String scannerSaveError(String error);
+
+  /// Fallback store name when none was detected
+  String get unknownStore;
+
+  /// Fallback item name when none was detected
+  String get unknownItem;
+
+  /// Empty title when history filters hide all entries
+  String get historyNoMatchingTitle;
+
+  /// Empty-state guidance when history filters hide all entries
+  String get historyNoMatchingMessage;
+
+  /// Empty-state guidance when no history exists yet
+  String get historyNoEntriesMessage;
+
+  /// Tooltip for filter controls
+  String get filter;
+
+  /// Tooltip for editing an entry
+  String get historyEditEntryTooltip;
+
+  /// Error label for failed category loads
+  String errorLoadingCategories(String error);
+
+  /// Debug subtitle on the subscription card
+  String get settingsDebugPremiumSubtitle;
+
+  /// Unsupported-platform subtitle on the subscription card
+  String get settingsMobileOnlySubtitle;
+
+  /// Loading title for templates screen
+  String get templatesLoadingTitle;
+
+  /// Loading message for templates screen
+  String get templatesLoadingMessage;
+
+  /// Error title for templates screen
+  String get templatesLoadError;
+
+  /// Loading title for price alerts screen
+  String get priceAlertLoadingAlerts;
+
+  /// Loading message for price alerts screen
+  String get priceAlertLoadingAlertsMessage;
+
+  /// Error title for price alerts screen
+  String get priceAlertLoadError;
+
+  /// Empty title when no products can be tracked for alerts
+  String get priceAlertNoProducts;
+
+  /// Empty message when no products can be tracked for alerts
+  String get priceAlertNoProductsMessage;
+
+  /// Loading title for saved price-alert settings
+  String get priceAlertLoadingSettings;
+
+  /// Loading message for saved price-alert settings
+  String get priceAlertLoadingSettingsMessage;
+
+  /// Error title for saved price-alert settings
+  String get priceAlertLoadSettingsError;
+
+  /// Latest known price label for a product alert
+  String priceAlertLatestPrice(String price);
+
+  /// Label for an enabled alert threshold
+  String priceAlertAlertAt(String percent);
+
+  /// Label when an alert exists but is disabled
+  String get priceAlertDisabledStatus;
+
+  /// Toggle label to enable a price alert
+  String get priceAlertEnableAlert;
+
+  /// Explanation for alert threshold changes
+  String get priceAlertNotifyMe;
+
+  /// Slider label for alert threshold
+  String priceAlertThresholdLabel(String percent);
+
+  /// Button label to save a price alert
+  String get priceAlertSaveAlert;
+
+  /// Snackbar after enabling or saving an alert
+  String priceAlertSaved(String product);
+
+  /// Snackbar after disabling an alert
+  String priceAlertDisabled(String product);
+
+  /// AppBar title for paywall screen
+  String get paywallTitle;
+
+  /// Title for debug paywall state
+  String get paywallDebugTitle;
+
+  /// Message for debug paywall state
+  String get paywallDebugMessage;
+
+  /// Action button to close the paywall
+  String get paywallBackToApp;
+
+  /// Title for unsupported-platform paywall state
+  String get paywallMobileOnlyTitle;
+
+  /// Message for unsupported-platform paywall state
+  String get paywallMobileOnlyMessage;
+
+  /// Title when no subscription offers are available
+  String get paywallNoOffersTitle;
+
+  /// Message when no subscription offers are available
+  String get paywallNoOffersMessage;
+
+  /// Main premium headline
+  String get paywallProductTitle;
+
+  /// Premium features list
+  String get paywallFeatures;
+
+  /// Snackbar after successful premium purchase
+  String get paywallWelcome;
+
+  /// Button to restore purchases
+  String get paywallRestorePurchases;
+
+  /// Loading title for offers
+  String get paywallLoadingOffersTitle;
+
+  /// Loading message for offers
+  String get paywallLoadingOffersMessage;
+
+  /// Error title for offers
+  String get paywallLoadOffersError;
+
+  /// Subtitle line for category spend totals
+  String categoryTotalSpend(String amount);
+
+  /// Tooltip for overlay source info
+  String get comparisonSourceDetails;
+
+  /// Bottom-sheet title for CPI source information
+  String get cpiSourceTitle;
+
+  /// Bottom-sheet title for money-supply source information
+  String get moneySupplySourceTitle;
+
+  /// CPI source description for CHF
+  String get cpiSourceChfDescription;
+
+  /// CPI source description for EUR
+  String get cpiSourceEurDescription;
+
+  /// CPI source description fallback
+  String get cpiSourceUnavailableDescription;
+
+  /// Money-supply source description for CHF
+  String get moneySupplySourceChfDescription;
+
+  /// Money-supply source description for EUR
+  String get moneySupplySourceEurDescription;
+
+  /// Money-supply source description for USD
+  String get moneySupplySourceUsdDescription;
+
+  /// Money-supply source description for GBP
+  String get moneySupplySourceGbpDescription;
+
+  /// Money-supply source description fallback
+  String get moneySupplySourceUnavailableDescription;
+
+  /// Snackbar after category weights are saved
+  String get weightEditorSaved;
+
+  /// Title for reset-weights confirmation dialog
+  String get weightEditorResetWeights;
+
+  /// Message for reset-weights confirmation dialog
+  String get weightEditorResetMessage;
+
+  /// Button to revert to spend-weighted distribution
+  String get weightEditorUseSpendWeighted;
+
+  /// Label for the weights total row
+  String get weightEditorTotalLabel;
+
+  /// Validation hint when weights do not sum to 100%
+  String get weightEditorMustEqual100;
+
+  /// Empty-state title for category management
+  String get categoryManagementEmpty;
+
+  /// Error loading categories in category management
+  String categoryManagementError(String error);
+
+  /// Empty-state label when no price increases are found
+  String get overviewNoPriceIncreases;
+
+  /// Empty-state label when no price decreases are found
+  String get overviewNoPriceDecreases;
+
+  /// Title for inflation-by-category section
+  String get categoryInflationTitle;
+
+  /// Title for category details section
+  String get categoryDetailsTitle;
+
+  /// Empty state when chart data is unavailable
+  String get categoryNoChartData;
 
   /// Default category label for food and groceries
   ///

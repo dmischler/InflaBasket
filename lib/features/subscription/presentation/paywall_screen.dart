@@ -3,19 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class PaywallScreen extends ConsumerWidget {
   const PaywallScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final subscriptionsSupported = supportsSubscriptionsOnCurrentPlatform;
     final offeringsAsync = ref.watch(offeringsProvider);
     final debugPremium = debugPremiumOverrideEnabled;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Unlock Premium'),
+        title: Text(l10n.paywallTitle),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -24,27 +26,25 @@ class PaywallScreen extends ConsumerWidget {
       body: debugPremium
           ? StateMessageCard(
               icon: Icons.bug_report_outlined,
-              title: 'Premium Enabled In Debug',
-              message:
-                  'Debug mode unlocks premium flows so you can test receipt scanning and alerts without an active subscription.',
-              actionLabel: 'Back To App',
+              title: l10n.paywallDebugTitle,
+              message: l10n.paywallDebugMessage,
+              actionLabel: l10n.paywallBackToApp,
               onAction: () => context.pop(),
               accentColor: Theme.of(context).colorScheme.tertiary,
             )
           : !subscriptionsSupported
-              ? const StateMessageCard(
+              ? StateMessageCard(
                   icon: Icons.phone_iphone,
-                  title: 'Mobile Purchases Only',
-                  message:
-                      'Subscriptions are currently available on iOS and Android only.',
+                  title: l10n.paywallMobileOnlyTitle,
+                  message: l10n.paywallMobileOnlyMessage,
                 )
               : offeringsAsync.when(
                   data: (offerings) {
                     if (offerings.isEmpty) {
-                      return const StateMessageCard(
+                      return StateMessageCard(
                         icon: Icons.inventory_2_outlined,
-                        title: 'No Offers Available',
-                        message: 'No subscriptions are available right now.',
+                        title: l10n.paywallNoOffersTitle,
+                        message: l10n.paywallNoOffersMessage,
                       );
                     }
 
@@ -59,7 +59,7 @@ class PaywallScreen extends ConsumerWidget {
                               size: 64, color: Colors.purple),
                           const SizedBox(height: 24),
                           Text(
-                            'InflaBasket Premium',
+                            l10n.paywallProductTitle,
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineMedium
@@ -67,9 +67,9 @@ class PaywallScreen extends ConsumerWidget {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            '• AI Receipt Scanning\n• Auto Categorization\n• Unlimited History',
-                            style: TextStyle(fontSize: 18, height: 1.5),
+                          Text(
+                            l10n.paywallFeatures,
+                            style: const TextStyle(fontSize: 18, height: 1.5),
                             textAlign: TextAlign.center,
                           ),
                           const Spacer(),
@@ -91,9 +91,8 @@ class PaywallScreen extends ConsumerWidget {
                                       context.pop();
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        const SnackBar(
-                                            content:
-                                                Text('Welcome to Premium!')),
+                                        SnackBar(
+                                            content: Text(l10n.paywallWelcome)),
                                       );
                                     }
                                   },
@@ -107,22 +106,22 @@ class PaywallScreen extends ConsumerWidget {
                             onPressed: () => ref
                                 .read(subscriptionControllerProvider.notifier)
                                 .restorePurchases(),
-                            child: const Text('Restore Purchases'),
+                            child: Text(l10n.paywallRestorePurchases),
                           ),
                           const SizedBox(height: 24),
                         ],
                       ),
                     );
                   },
-                  loading: () => const StateMessageCard(
+                  loading: () => StateMessageCard(
                     icon: Icons.hourglass_top,
-                    title: 'Loading Offers',
-                    message: 'Fetching the latest premium packages.',
+                    title: l10n.paywallLoadingOffersTitle,
+                    message: l10n.paywallLoadingOffersMessage,
                     isLoading: true,
                   ),
                   error: (e, st) => StateMessageCard(
                     icon: Icons.error_outline,
-                    title: 'Could Not Load Offers',
+                    title: l10n.paywallLoadOffersError,
                     message: e.toString(),
                     accentColor: Theme.of(context).colorScheme.error,
                   ),

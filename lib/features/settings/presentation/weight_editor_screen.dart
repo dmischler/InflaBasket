@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 /// Screen that lets the user assign a fixed percentage weight to each category
 /// for the inflation basket calculation.
@@ -65,11 +67,10 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
 
   Future<void> _save(List<Category> categories) async {
     if (!_isValid) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Weights must sum to 100% (currently ${_totalPercent.toStringAsFixed(1)}%)',
-          ),
+          content: Text(l10n.weightEditorSaveError),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -87,8 +88,9 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
         .saveWeights(fractions);
 
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Category weights saved.')),
+        SnackBar(content: Text(l10n.weightEditorSaved)),
       );
       Navigator.of(context).pop();
     }
@@ -97,23 +99,23 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
   Future<void> _clearWeights() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Reset Weights'),
-        content: const Text(
-          'Remove all custom weights? The basket will revert to '
-          'spend-weighted averaging.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Reset'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(l10n.weightEditorResetWeights),
+          content: Text(l10n.weightEditorResetMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.reset),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed == true) {
       await ref
@@ -125,11 +127,12 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Category Weights'),
+        title: Text(l10n.weightEditorTitle),
         actions: [
           TextButton(
             onPressed: () {
@@ -137,16 +140,16 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
                   categoriesAsync.valueOrNull ?? <Category>[];
               _resetEqual(cats);
             },
-            child: const Text('Reset Equal'),
+            child: Text(l10n.weightEditorResetEqual),
           ),
         ],
       ),
       body: categoriesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(l10n.errorGeneric)),
         data: (categories) {
           if (categories.isEmpty) {
-            return const Center(child: Text('No categories found.'));
+            return Center(child: Text(l10n.categoryManagementEmpty));
           }
 
           // Ensure _percentages has an entry for every category
@@ -167,8 +170,13 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
                   itemBuilder: (context, index) {
                     final cat = categories[index];
                     final pct = _percentages[cat.id] ?? 0.0;
+                    final displayName =
+                        CategoryLocalization.displayNameForContext(
+                      context,
+                      cat.name,
+                    );
                     return _WeightSliderTile(
-                      categoryName: cat.name,
+                      categoryName: displayName,
                       value: pct,
                       onChanged: (v) {
                         setState(() {
@@ -193,9 +201,9 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Total',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          l10n.weightEditorTotalLabel,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '${total.toStringAsFixed(1)}%',
@@ -212,7 +220,7 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          'Must equal 100%',
+                          l10n.weightEditorMustEqual100,
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).colorScheme.error,
@@ -225,7 +233,7 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: _clearWeights,
-                            child: const Text('Use Spend-Weighted'),
+                            child: Text(l10n.weightEditorUseSpendWeighted),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -234,7 +242,7 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
                             onPressed: isValid
                                 ? () => _save(categories)
                                 : null,
-                            child: const Text('Save'),
+                            child: Text(l10n.save),
                           ),
                         ),
                       ],

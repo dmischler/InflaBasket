@@ -45,16 +45,16 @@ class SettingsScreen extends ConsumerWidget {
                 isPremium ? l10n.settingsPremiumActive : l10n.settingsFreeTier,
               ),
               subtitle: Text(debugPremium
-                  ? 'Debug mode is simulating Premium so receipt scanning and alerts can be tested locally.'
+                  ? l10n.settingsDebugPremiumSubtitle
                   : !subscriptionsSupported
-                      ? 'Purchases are available on iOS and Android only.'
+                      ? l10n.settingsMobileOnlySubtitle
                       : isPremium
                           ? l10n.settingsPremiumSubtitle
                           : l10n.settingsFreeSubtitle),
               trailing: !subscriptionsSupported
-                  ? const Chip(label: Text('Mobile only'))
+                  ? Chip(label: Text(l10n.settingsMobileOnly))
                   : debugPremium
-                      ? const Chip(label: Text('Debug unlock'))
+                      ? Chip(label: Text(l10n.settingsDebugUnlock))
                       : isPremium
                           ? TextButton(
                               onPressed: () => ref
@@ -163,12 +163,11 @@ class SettingsScreen extends ConsumerWidget {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/templates'),
                 ),
-                const Divider(height: 1),
+                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.notifications_active_outlined),
-                  title: const Text('Price Alerts'),
-                  subtitle: const Text(
-                      'Enable notifications for product price changes'),
+                  title: Text(l10n.priceAlerts),
+                  subtitle: Text(l10n.settingsPriceAlertsSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/price-alerts'),
                 ),

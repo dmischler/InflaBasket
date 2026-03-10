@@ -5,17 +5,19 @@ import 'package:intl/intl.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class CategoriesTab extends ConsumerWidget {
   const CategoriesTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final categoriesInflation = ref.watch(categoryInflationListProvider);
     final settings = ref.watch(settingsControllerProvider);
 
     if (categoriesInflation.isEmpty) {
-      return const Center(child: Text('Not enough data to show categories.'));
+      return Center(child: Text(l10n.categoryNoCategoryData));
     }
 
     return SingleChildScrollView(
@@ -23,29 +25,29 @@ class CategoriesTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Inflation by Category',
+          Text(l10n.categoryInflationTitle,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 24),
-          _buildBarChart(context, categoriesInflation),
+          _buildBarChart(context, l10n, categoriesInflation),
           const SizedBox(height: 24),
-          Text('Category Details',
+          Text(l10n.categoryDetailsTitle,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildCategoryList(context, categoriesInflation, settings),
+          _buildCategoryList(context, l10n, categoriesInflation, settings),
         ],
       ),
     );
   }
 
-  Widget _buildBarChart(BuildContext context, List<CategoryInflation> data) {
+  Widget _buildBarChart(BuildContext context, AppLocalizations l10n, List<CategoryInflation> data) {
     // Filter out any non-finite values before any computation to prevent
     // TransformLayer invalid matrix errors in fl_chart.
     final validData = data.where((e) => e.inflationPercent.isFinite).toList();
 
     if (validData.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 300,
-        child: Center(child: Text('Not enough data to chart.')),
+        child: Center(child: Text(l10n.categoryNoChartData)),
       );
     }
 
@@ -144,8 +146,8 @@ class CategoriesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategoryList(BuildContext context, List<CategoryInflation> data,
-      AppSettings settings) {
+  Widget _buildCategoryList(BuildContext context, AppLocalizations l10n,
+      List<CategoryInflation> data, AppSettings settings) {
     final format = NumberFormat.simpleCurrency(name: settings.currency);
     return ListView.builder(
       shrinkWrap: true,
@@ -172,8 +174,7 @@ class CategoriesTab extends ConsumerWidget {
               ),
             ),
             title: Text(categoryName),
-            subtitle:
-                Text('Weight: ${format.format(item.totalSpend)} total spend'),
+            subtitle: Text(l10n.categoryTotalSpend(format.format(item.totalSpend))),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

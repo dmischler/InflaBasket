@@ -9,12 +9,14 @@ import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final entries = ref.watch(filteredEntriesProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final filter = ref.watch(historyFilterControllerProvider);
@@ -25,10 +27,10 @@ class HistoryTab extends ConsumerWidget {
           filter.range != HistoryDateRange.allTime || filter.categoryId != null;
       return StateMessageCard(
         icon: hasActiveFilter ? Icons.filter_alt_off : Icons.receipt_long,
-        title: hasActiveFilter ? 'No Matching Entries' : 'No Entries Yet',
+        title: hasActiveFilter ? l10n.historyNoMatchingTitle : l10n.noEntriesYet,
         message: hasActiveFilter
-            ? 'Try clearing your history filters or broaden the date range.'
-            : 'Add your first purchase to start tracking your personal inflation rate.',
+            ? l10n.historyNoMatchingMessage
+            : l10n.historyNoEntriesMessage,
       );
     }
 
@@ -43,15 +45,15 @@ class HistoryTab extends ConsumerWidget {
           child: Row(
             children: [
               Text(
-                'History',
+                l10n.navHistory,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const Spacer(),
               IconButton(
-                tooltip: 'Filter',
+                tooltip: l10n.filter,
                 icon: const Icon(Icons.filter_list),
                 onPressed: () =>
-                    _showFilterSheet(context, ref, categoriesAsync, filter),
+                    _showFilterSheet(context, l10n, ref, categoriesAsync, filter),
               ),
             ],
           ),
@@ -89,22 +91,24 @@ class HistoryTab extends ConsumerWidget {
                 confirmDismiss: (direction) async {
                   return await showDialog(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Delete Entry?'),
-                      content: const Text(
-                          'Are you sure you want to delete this purchase entry?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Delete',
-                              style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
-                    ),
+                    builder: (ctx) {
+                      final dl10n = AppLocalizations.of(ctx)!;
+                      return AlertDialog(
+                        title: Text(dl10n.deleteEntryConfirm),
+                        content: Text(dl10n.deleteEntryMessage),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(false),
+                            child: Text(dl10n.cancel),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(true),
+                            child: Text(dl10n.delete,
+                                style: const TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
                 onDismissed: (direction) {
@@ -112,7 +116,7 @@ class HistoryTab extends ConsumerWidget {
                       .read(entryRepositoryProvider)
                       .deletePurchaseEntry(entry.id);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Entry deleted')),
+                    SnackBar(content: Text(l10n.entryDeleted)),
                   );
                 },
                 child: ListTile(
@@ -149,7 +153,7 @@ class HistoryTab extends ConsumerWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit_outlined),
-                        tooltip: 'Edit entry',
+                        tooltip: l10n.historyEditEntryTooltip,
                         onPressed: () {
                           context.push('/home/add', extra: entryDetails);
                         },
@@ -196,6 +200,7 @@ class HistoryTab extends ConsumerWidget {
 
   void _showFilterSheet(
     BuildContext context,
+    AppLocalizations l10n,
     WidgetRef ref,
     AsyncValue<List<Category>> categoriesAsync,
     HistoryFilter filter,
@@ -204,37 +209,38 @@ class HistoryTab extends ConsumerWidget {
       context: context,
       showDragHandle: true,
       builder: (context) {
+        final sheetL10n = AppLocalizations.of(context)!;
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Filter History',
+              Text(sheetL10n.filterTitle,
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
-              Text('Date Range',
+              Text(sheetL10n.filterDateRange,
                   style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: [
                   ChoiceChip(
-                    label: const Text('Last 30 days'),
+                    label: Text(sheetL10n.filterLast30Days),
                     selected: filter.range == HistoryDateRange.last30Days,
                     onSelected: (_) => ref
                         .read(historyFilterControllerProvider.notifier)
                         .setRange(HistoryDateRange.last30Days),
                   ),
                   ChoiceChip(
-                    label: const Text('Last 6 months'),
+                    label: Text(sheetL10n.filterLast6Months),
                     selected: filter.range == HistoryDateRange.last6Months,
                     onSelected: (_) => ref
                         .read(historyFilterControllerProvider.notifier)
                         .setRange(HistoryDateRange.last6Months),
                   ),
                   ChoiceChip(
-                    label: const Text('All time'),
+                    label: Text(sheetL10n.filterAllTime),
                     selected: filter.range == HistoryDateRange.allTime,
                     onSelected: (_) => ref
                         .read(historyFilterControllerProvider.notifier)
@@ -243,7 +249,8 @@ class HistoryTab extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Text('Category', style: Theme.of(context).textTheme.titleMedium),
+              Text(sheetL10n.filterCategory,
+                  style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               categoriesAsync.when(
                 data: (categories) {
@@ -252,9 +259,9 @@ class HistoryTab extends ConsumerWidget {
                     decoration:
                         const InputDecoration(border: OutlineInputBorder()),
                     items: [
-                      const DropdownMenuItem<int?>(
+                      DropdownMenuItem<int?>(
                         value: null,
-                        child: Text('All Categories'),
+                        child: Text(sheetL10n.filterAllCategories),
                       ),
                       ...categories.map((c) => DropdownMenuItem<int?>(
                             value: c.id,
@@ -272,14 +279,15 @@ class HistoryTab extends ConsumerWidget {
                   );
                 },
                 loading: () => const CircularProgressIndicator(),
-                error: (e, st) => Text('Error loading categories: $e'),
+                error: (e, st) =>
+                    Text(sheetL10n.errorLoadingCategories(e.toString())),
               ),
               const SizedBox(height: 16),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
+                  child: Text(sheetL10n.close),
                 ),
               )
             ],

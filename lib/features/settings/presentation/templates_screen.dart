@@ -7,6 +7,7 @@ import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 /// Screen that lists saved recurring-purchase templates.
 ///
@@ -18,30 +19,30 @@ class TemplatesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final templatesAsync = ref.watch(templatesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Recurring Purchases')),
+      appBar: AppBar(title: Text(l10n.templatesTitle)),
       body: templatesAsync.when(
-        loading: () => const StateMessageCard(
+        loading: () => StateMessageCard(
           icon: Icons.bookmarks_outlined,
-          title: 'Loading Templates',
-          message: 'Fetching your saved recurring purchases.',
+          title: l10n.templatesLoadingTitle,
+          message: l10n.templatesLoadingMessage,
           isLoading: true,
         ),
         error: (e, _) => StateMessageCard(
           icon: Icons.error_outline,
-          title: 'Could Not Load Templates',
+          title: l10n.templatesLoadError,
           message: e.toString(),
           accentColor: Theme.of(context).colorScheme.error,
         ),
         data: (templates) {
           if (templates.isEmpty) {
-            return const StateMessageCard(
+            return StateMessageCard(
               icon: Icons.repeat,
-              title: 'No Templates Yet',
-              message:
-                  'Save a recurring purchase as a template to reuse it in one tap later.',
+              title: l10n.templatesTitle,
+              message: l10n.templatesEmpty,
             );
           }
 
@@ -118,22 +119,25 @@ class _TemplateTile extends StatelessWidget {
       confirmDismiss: (_) async {
         final ok = await showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Delete Template'),
-            content: Text(
-              'Remove "${template.product.name}" from recurring purchases?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: const Text('Cancel'),
+          builder: (ctx) {
+            final l10n = AppLocalizations.of(ctx)!;
+            return AlertDialog(
+              title: Text(l10n.templateDelete),
+              content: Text(
+                l10n.templateDeleteMessage(template.product.name),
               ),
-              FilledButton(
-                onPressed: () => Navigator.of(ctx).pop(true),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: Text(l10n.cancel),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: Text(l10n.delete),
+                ),
+              ],
+            );
+          },
         );
         return ok ?? false;
       },
@@ -153,7 +157,12 @@ class _TemplateTile extends StatelessWidget {
         ),
         trailing: FilledButton.tonal(
           onPressed: onUse,
-          child: const Text('Use'),
+          child: Builder(
+            builder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              return Text(l10n.templateUseButton);
+            },
+          ),
         ),
       ),
     );

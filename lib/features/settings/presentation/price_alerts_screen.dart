@@ -7,6 +7,7 @@ import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class PriceAlertsScreen extends ConsumerStatefulWidget {
   const PriceAlertsScreen({super.key});
@@ -37,33 +38,33 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(settingsControllerProvider);
     final entriesAsync = ref.watch(entriesWithDetailsProvider);
     final currencyFormat = NumberFormat.simpleCurrency(name: settings.currency);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Price Alerts')),
+      appBar: AppBar(title: Text(l10n.priceAlerts)),
       body: entriesAsync.when(
-        loading: () => const StateMessageCard(
+        loading: () => StateMessageCard(
           icon: Icons.notifications_active_outlined,
-          title: 'Loading Alerts',
-          message: 'Gathering tracked products and existing alert thresholds.',
+          title: l10n.priceAlertLoadingAlerts,
+          message: l10n.priceAlertLoadingAlertsMessage,
           isLoading: true,
         ),
         error: (error, _) => StateMessageCard(
           icon: Icons.error_outline,
-          title: 'Could Not Load Alerts',
+          title: l10n.priceAlertLoadError,
           message: error.toString(),
           accentColor: Theme.of(context).colorScheme.error,
         ),
         data: (entries) {
           final products = _buildAlertProducts(entries);
           if (products.isEmpty) {
-            return const StateMessageCard(
+            return StateMessageCard(
               icon: Icons.price_change_outlined,
-              title: 'No Products To Track Yet',
-              message:
-                  'Add a few purchases first, then enable alerts for the products you want to watch.',
+              title: l10n.priceAlertNoProducts,
+              message: l10n.priceAlertNoProductsMessage,
             );
           }
 
@@ -71,17 +72,17 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
             future: _alertsFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const StateMessageCard(
+                return StateMessageCard(
                   icon: Icons.tune,
-                  title: 'Loading Alert Settings',
-                  message: 'Fetching saved thresholds for your tracked items.',
+                  title: l10n.priceAlertLoadingSettings,
+                  message: l10n.priceAlertLoadingSettingsMessage,
                   isLoading: true,
                 );
               }
               if (snapshot.hasError) {
                 return StateMessageCard(
                   icon: Icons.error_outline,
-                  title: 'Could Not Load Alert Settings',
+                  title: l10n.priceAlertLoadSettingsError,
                   message: snapshot.error.toString(),
                   accentColor: Theme.of(context).colorScheme.error,
                 );
@@ -102,11 +103,13 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
                   );
                   final subtitleParts = <String>[
                     categoryName,
-                    'Latest: ${currencyFormat.format(item.latestEntry.price)}',
+                    l10n.priceAlertLatestPrice(
+                        currencyFormat.format(item.latestEntry.price)),
                     if (alert != null)
                       alert.isEnabled
-                          ? 'Alert at ${alert.thresholdPercent.toStringAsFixed(0)}%'
-                          : 'Alert saved but disabled',
+                          ? l10n.priceAlertAlertAt(
+                              alert.thresholdPercent.toStringAsFixed(0))
+                          : l10n.priceAlertDisabledStatus,
                   ];
 
                   return Card(
@@ -164,6 +167,7 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
       context: context,
       showDragHandle: true,
       builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
@@ -186,10 +190,8 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
                   const SizedBox(height: 16),
                   SwitchListTile.adaptive(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Enable alert'),
-                    subtitle: const Text(
-                      'Notify me when the next logged price changes beyond this threshold.',
-                    ),
+                    title: Text(l10n.priceAlertEnableAlert),
+                    subtitle: Text(l10n.priceAlertNotifyMe),
                     value: isEnabled,
                     onChanged: (value) {
                       setModalState(() {
@@ -199,7 +201,8 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Threshold: ${threshold.toStringAsFixed(0)}%',
+                    l10n.priceAlertThresholdLabel(
+                        threshold.toStringAsFixed(0)),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Slider(
@@ -219,7 +222,7 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Save Alert'),
+                      child: Text(l10n.priceAlertSaveAlert),
                     ),
                   ),
                 ],
@@ -241,12 +244,13 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
     if (!mounted) return;
 
     _refreshAlerts();
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           isEnabled
-              ? 'Alert saved for ${item.product.name}.'
-              : 'Alert disabled for ${item.product.name}.',
+              ? l10n.priceAlertSaved(item.product.name)
+              : l10n.priceAlertDisabled(item.product.name),
         ),
       ),
     );

@@ -4,16 +4,18 @@ import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class CategoryManagementScreen extends ConsumerWidget {
   const CategoryManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Manage Categories')),
+      appBar: AppBar(title: Text(l10n.settingsManageCategories)),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddCategoryDialog(context, ref),
         child: const Icon(Icons.add),
@@ -21,7 +23,7 @@ class CategoryManagementScreen extends ConsumerWidget {
       body: categoriesAsync.when(
         data: (categories) {
           if (categories.isEmpty) {
-            return const Center(child: Text('No categories found.'));
+            return Center(child: Text(l10n.categoryManagementEmpty));
           }
 
           return ListView.separated(
@@ -43,10 +45,12 @@ class CategoryManagementScreen extends ConsumerWidget {
                   ),
                 ),
                 title: Text(categoryName),
-                subtitle: Text(isCustom ? 'Custom' : 'Default'),
+                subtitle: Text(isCustom
+                    ? l10n.categoryManagementCustomBadge
+                    : l10n.categoryManagementDefaultBadge),
                 trailing: isCustom
                     ? IconButton(
-                        tooltip: 'Delete',
+                        tooltip: l10n.delete,
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () => _confirmDeleteCategory(
                           context,
@@ -60,7 +64,14 @@ class CategoryManagementScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error loading categories: $e')),
+        error: (e, st) => Center(
+          child: Builder(
+            builder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              return Text(l10n.categoryManagementError(e.toString()));
+            },
+          ),
+        ),
       ),
     );
   }
@@ -72,38 +83,41 @@ class CategoryManagementScreen extends ConsumerWidget {
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Category'),
-        content: Form(
-          key: formKey,
-          child: TextFormField(
-            controller: controller,
-            decoration: const InputDecoration(
-              labelText: 'Category name',
-              border: OutlineInputBorder(),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return AlertDialog(
+          title: Text(l10n.addCategoryTitle),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: l10n.addCategoryHint,
+                border: const OutlineInputBorder(),
+              ),
+              validator: (value) =>
+                  value == null || value.trim().isEmpty ? l10n.fieldRequired : null,
             ),
-            validator: (value) =>
-                value == null || value.trim().isEmpty ? 'Required' : null,
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState!.validate()) {
-                await ref
-                    .read(entryRepositoryProvider)
-                    .addCategory(controller.text.trim());
-                if (context.mounted) Navigator.pop(context);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  await ref
+                      .read(entryRepositoryProvider)
+                      .addCategory(controller.text.trim());
+                  if (context.mounted) Navigator.pop(context);
+                }
+              },
+              child: Text(l10n.save),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -117,9 +131,10 @@ class CategoryManagementScreen extends ConsumerWidget {
 
     if (hasProducts) {
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cannot delete category with existing products.'),
+          SnackBar(
+            content: Text(l10n.deleteCategoryHasProducts),
           ),
         );
       }
@@ -129,23 +144,28 @@ class CategoryManagementScreen extends ConsumerWidget {
     if (!context.mounted) return;
     final shouldDelete = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: Text(
-          'Delete "${CategoryLocalization.displayNameForContext(context, category.name)}"? This cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+      builder: (context) {
+        final dl10n = AppLocalizations.of(context)!;
+        return AlertDialog(
+          title: Text(dl10n.deleteCategoryConfirm(
+            CategoryLocalization.displayNameForContext(context, category.name),
+          )),
+          content: Text(
+            CategoryLocalization.displayNameForContext(context, category.name),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(dl10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text(dl10n.delete),
+            ),
+          ],
+        );
+      },
     );
 
     if (shouldDelete == true) {

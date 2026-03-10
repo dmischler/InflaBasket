@@ -11,6 +11,7 @@ import 'package:inflabasket/features/entry_management/presentation/barcode_scan_
 import 'package:inflabasket/features/entry_management/presentation/duplicate_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class AddEntryScreen extends ConsumerStatefulWidget {
   final EntryWithDetails? entryToEdit;
@@ -199,9 +200,10 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
       if (!mounted) return;
       final state = ref.read(addEntryControllerProvider);
       if (state is AsyncError) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving entry: ${state.error}'),
+            content: Text(l10n.entrySaveError(state.error.toString())),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -232,17 +234,19 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
 
     final state = ref.read(addTemplateControllerProvider);
     if (state is AsyncError) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error saving template: ${state.error}'),
+          content: Text(l10n.templateSaveError(state.error.toString())),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
     }
 
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Template saved.')),
+      SnackBar(content: Text(l10n.templateSaved)),
     );
   }
 
@@ -250,6 +254,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(settingsControllerProvider);
     final repo = ref.read(entryRepositoryProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
@@ -278,7 +283,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     return Scaffold(
       appBar: AppBar(
           title:
-              Text(isEditing ? 'Edit Purchase Entry' : 'Add Purchase Entry')),
+              Text(isEditing ? l10n.editEntry : l10n.addEntry)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -290,11 +295,11 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 children: [
                   Expanded(
                     child: AsyncAutocompleteField(
-                      labelText: 'Product Name',
+                      labelText: l10n.product,
                       controller: _productController,
                       optionsBuilder: repo.searchProductNames,
                       validator: (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
+                          value == null || value.isEmpty ? l10n.fieldRequired : null,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -303,7 +308,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: IconButton.filledTonal(
-                        tooltip: 'Scan barcode',
+                        tooltip: l10n.scanBarcode,
                         onPressed: _onBarcodeScan,
                         icon: const Icon(Icons.barcode_reader),
                       ),
@@ -313,9 +318,9 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: dropdownValue,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.category,
+                  border: const OutlineInputBorder(),
                 ),
                 items: categories
                     .map((c) => DropdownMenuItem(
@@ -332,19 +337,19 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   if (val != null) setState(() => _selectedCategoryName = val);
                 },
                 validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
+                    value == null || value.isEmpty ? l10n.fieldRequired : null,
               ),
               const SizedBox(height: 16),
               AsyncAutocompleteField(
-                labelText: 'Store Name',
+                labelText: l10n.store,
                 controller: _storeController,
                 optionsBuilder: repo.searchStoreNames,
                 validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
+                    value == null || value.isEmpty ? l10n.fieldRequired : null,
               ),
               const SizedBox(height: 16),
               AsyncAutocompleteField(
-                labelText: 'Location (City/Branch)',
+                labelText: l10n.location,
                 controller: _locationController,
                 optionsBuilder: repo.searchLocations,
               ),
@@ -355,7 +360,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 tileColor:
                     Theme.of(context).colorScheme.surfaceContainerHighest,
                 leading: const Icon(Icons.calendar_month),
-                title: const Text('Date'),
+                title: Text(l10n.date),
                 subtitle: Text(
                     '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}'),
                 trailing: const Icon(Icons.chevron_right),
@@ -377,7 +382,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               TextFormField(
                 controller: _priceController,
                 decoration: InputDecoration(
-                    labelText: 'Price',
+                    labelText: l10n.price,
                     border: const OutlineInputBorder(),
                     prefixText: '${settings.currency} '),
                 keyboardType:
@@ -385,7 +390,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 validator: (value) => value == null ||
                         value.isEmpty ||
                         double.tryParse(value) == null
-                    ? 'Invalid Price'
+                    ? l10n.fieldInvalidNumber
                     : null,
               ),
               const SizedBox(height: 16),
@@ -394,17 +399,17 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _quantityController,
-                      decoration: const InputDecoration(
-                        labelText: 'Amount',
-                        border: OutlineInputBorder(),
-                        hintText: 'e.g. 500',
+                      decoration: InputDecoration(
+                        labelText: l10n.quantity,
+                        border: const OutlineInputBorder(),
+                        hintText: l10n.productHint,
                       ),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       validator: (value) => value == null ||
                               value.isEmpty ||
                               double.tryParse(value) == null
-                          ? 'Invalid'
+                          ? l10n.fieldInvalidNumber
                           : null,
                     ),
                   ),
@@ -415,9 +420,9 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                       initialValue: units.contains(_selectedUnit)
                           ? _selectedUnit
                           : UnitType.count,
-                      decoration: const InputDecoration(
-                        labelText: 'Unit',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.unit,
+                        border: const OutlineInputBorder(),
                       ),
                       items: units
                           .map((u) => DropdownMenuItem(
@@ -435,10 +440,10 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (optional)',
-                  border: OutlineInputBorder(),
-                  hintText: 'e.g. on sale, organic, bulk pack',
+                decoration: InputDecoration(
+                  labelText: l10n.notes,
+                  border: const OutlineInputBorder(),
+                  hintText: l10n.notesHint,
                 ),
                 maxLines: 2,
                 textCapitalization: TextCapitalization.sentences,
@@ -447,7 +452,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               ElevatedButton.icon(
                 onPressed: _submit,
                 icon: const Icon(Icons.save),
-                label: Text(isEditing ? 'Save Changes' : 'Save Manual Entry'),
+                label: Text(isEditing ? l10n.save : l10n.addEntry),
                 style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50)),
               ),
@@ -455,7 +460,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               OutlinedButton.icon(
                 onPressed: _saveTemplate,
                 icon: const Icon(Icons.bookmark_add_outlined),
-                label: const Text('Save as Template'),
+                label: Text(l10n.templateAdd),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),
@@ -472,7 +477,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   },
                   icon:
                       const Icon(Icons.document_scanner, color: Colors.purple),
-                  label: const Text('Scan Receipt (Premium)'),
+                  label: Text(l10n.scanReceipt),
                   style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50)),
                 )

@@ -463,5 +463,332 @@
   "@categoryClothingApparel": { "description": "Default category label for clothing and apparel" },
 
   "categoryElectronicsTech": "Electronics & Tech",
-  "@categoryElectronicsTech": { "description": "Default category label for electronics and tech" }
+  "@categoryElectronicsTech": { "description": "Default category label for electronics and tech" },
+
+  "scannerDropImage": "Drop a JPG, JPEG, PNG, or WEBP receipt image.",
+  "@scannerDropImage": { "description": "Hint text for desktop drag and drop" },
+
+  "scannerDragImage": "Drag a receipt image here",
+  "@scannerDragImage": { "description": "Drag label for desktop drop zone" },
+
+  "scannerDropHere": "Drop here",
+  "@scannerDropHere": { "description": "Drop label when dragging over drop zone" },
+
+  "scannerTakePhoto": "Take Photo",
+  "@scannerTakePhoto": { "description": "Button to take photo with camera" },
+
+  "scannerChooseImage": "Choose Image",
+  "@scannerChooseImage": { "description": "Button to select image from gallery" },
+
+  "scannerAnalyzingTitle": "Analyzing Receipt",
+  "@scannerAnalyzingTitle": { "description": "Title while AI processes receipt" },
+
+  "scannerAnalyzingMessage": "The AI is extracting line items, totals, and suggested categories.",
+  "@scannerAnalyzingMessage": { "description": "Message while AI processes receipt" },
+
+  "scannerReviewInstructions": "Uncheck items you don't want to save. Tap names or categories to edit.",
+  "@scannerReviewInstructions": { "description": "Instructions on receipt review screen" },
+
+  "settingsPriceAlertsSubtitle": "Enable notifications for product price changes",
+  "@settingsPriceAlertsSubtitle": { "description": "Subtitle for price alerts settings tile" },
+
+  "settingsMobileOnly": "Mobile only",
+  "@settingsMobileOnly": { "description": "Badge for mobile-only features" },
+
+  "settingsDebugUnlock": "Debug unlock",
+  "@settingsDebugUnlock": { "description": "Badge for debug premium unlock" },
+
+  "categoryInflationTitle": "Inflation by Category",
+  "@categoryInflationTitle": { "description": "Title for inflation by category section" },
+
+  "categoryDetailsTitle": "Category Details",
+  "@categoryDetailsTitle": { "description": "Title for category details section" },
+
+  "overviewNoPriceIncreases": "No price increases detected yet!",
+  "@overviewNoPriceIncreases": { "description": "Empty state when no price increases found" },
+
+  "overviewNoPriceDecreases": "No price decreases detected yet.",
+  "@overviewNoPriceDecreases": { "description": "Empty state when no price decreases found" },
+
+  "templateSaveError": "Error saving template: {error}",
+  "@templateSaveError": {
+    "description": "Error when template save fails",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "duplicateProductFound": "Similar Product Found",
+  "@duplicateProductFound": { "description": "Dialog title for duplicate product detection" },
+
+  "duplicateProductMessage": "\"{newName}\" looks similar to an existing product: \"{existing}\". Link to the existing product or create a new one?",
+  "@duplicateProductMessage": {
+    "description": "Dialog body for duplicate product detection",
+    "placeholders": {
+      "newName": { "type": "String" },
+      "existing": { "type": "String" }
+    }
+  },
+
+  "categoryNoChartData": "Not enough data to chart.",
+  "@categoryNoChartData": { "description": "Empty state when not enough data for chart" },
+
+  "historyDeleteTitle": "Delete Entry?",
+  "@historyDeleteTitle": { "description": "Dialog title for deleting an entry" },
+
+  "historyDeleteMessage": "Are you sure you want to delete this purchase entry?",
+  "@historyDeleteMessage": { "description": "Dialog message for deleting an entry" },
+
+  "priceAlertEnableAlert": "Enable alert",
+  "@priceAlertEnableAlert": { "description": "Toggle label to enable price alert" },
+
+  "priceAlertNotifyMe": "Notify me when the next logged price changes beyond this threshold.",
+  "@priceAlertNotifyMe": { "description": "Subtitle for alert enable toggle" },
+
+  "priceAlertThresholdLabel": "Threshold: {percent}%",
+  "@priceAlertThresholdLabel": {
+    "description": "Label showing current threshold percentage",
+    "placeholders": { "percent": { "type": "String" } }
+  },
+
+  "priceAlertSaveAlert": "Save Alert",
+  "@priceAlertSaveAlert": { "description": "Button to save price alert" },
+
+  "priceAlertLoadingAlerts": "Loading Alerts",
+  "@priceAlertLoadingAlerts": { "description": "Loading title while fetching alerts" },
+
+  "priceAlertLoadingAlertsMessage": "Gathering tracked products and existing alert thresholds.",
+  "@priceAlertLoadingAlertsMessage": { "description": "Loading message while fetching alerts" },
+
+  "priceAlertLoadError": "Could Not Load Alerts",
+  "@priceAlertLoadError": { "description": "Error title when alerts fail to load" },
+
+  "priceAlertNoProducts": "No Products To Track Yet",
+  "@priceAlertNoProducts": { "description": "Empty state when no products to track" },
+
+  "priceAlertNoProductsMessage": "Add a few purchases first, then enable alerts for the products you want to watch.",
+  "@priceAlertNoProductsMessage": { "description": "Empty state message for price alerts" },
+
+  "priceAlertLoadingSettings": "Loading Alert Settings",
+  "@priceAlertLoadingSettings": { "description": "Loading title while fetching settings" },
+
+  "priceAlertLoadingSettingsMessage": "Fetching saved thresholds for your tracked items.",
+  "@priceAlertLoadingSettingsMessage": { "description": "Loading message while fetching settings" },
+
+  "templateDeleteMessage": "Remove \"{name}\" from recurring purchases?",
+  "@templateDeleteMessage": {
+    "description": "Confirmation message when deleting a template",
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "addEntrySaveAsTemplate": "Save as Template",
+  "@addEntrySaveAsTemplate": { "description": "Button to save entry as template" },
+
+  "scannerSavedItems": "{count} item{count == 1 ? '' : 's'} saved successfully!",
+  "@scannerSavedItems": {
+    "description": "Snackbar message when receipt items are saved",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "weightEditorResetWeights": "Reset Weights",
+  "@weightEditorResetWeights": { "description": "Button to reset category weights" },
+
+  "weightEditorUseSpendWeighted": "Use Spend-Weighted",
+  "@weightEditorUseSpendWeighted": { "description": "Button to use spend-weighted distribution" },
+
+  "categoryManagementEmpty": "No categories found.",
+  "@categoryManagementEmpty": { "description": "Empty state on category management screen" },
+
+  "categoryManagementError": "Error loading categories: {error}",
+  "@categoryManagementError": {
+    "description": "Error message when categories fail to load",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "unknownStore": "Unknown Store",
+  "@unknownStore": { "description": "Default store name when unknown" },
+
+  "currencyChf": "CHF",
+  "@currencyChf": { "description": "Swiss Franc currency code" },
+
+  "currencyEur": "EUR",
+  "@currencyEur": { "description": "Euro currency code" },
+
+  "currencyUsd": "USD",
+  "@currencyUsd": { "description": "US Dollar currency code" },
+
+  "currencyGbp": "GBP",
+  "@currencyGbp": { "description": "British Pound currency code" },
+
+  "scannerChooseFromGallery": "Choose from Gallery",
+  "@scannerChooseFromGallery": { "description": "Button to choose image from gallery" },
+
+  "scannerSaveError": "Error saving items: {error}",
+  "@scannerSaveError": {
+    "description": "Error when saving scanned receipt items fails",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "unknownItem": "Unknown Item",
+  "@unknownItem": { "description": "Fallback item name when none was detected" },
+
+  "historyNoMatchingTitle": "No Matching Entries",
+  "@historyNoMatchingTitle": { "description": "Empty title when history filters hide all entries" },
+
+  "historyNoMatchingMessage": "Try adjusting or clearing your filters.",
+  "@historyNoMatchingMessage": { "description": "Empty-state guidance when history filters hide all entries" },
+
+  "historyNoEntriesMessage": "Start by adding your first purchase entry.",
+  "@historyNoEntriesMessage": { "description": "Empty-state guidance when no history exists yet" },
+
+  "filter": "Filter",
+  "@filter": { "description": "Tooltip for filter controls" },
+
+  "historyEditEntryTooltip": "Edit entry",
+  "@historyEditEntryTooltip": { "description": "Tooltip for editing an entry" },
+
+  "errorLoadingCategories": "Error loading categories: {error}",
+  "@errorLoadingCategories": {
+    "description": "Error label for failed category loads",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "settingsDebugPremiumSubtitle": "Debug: Premium unlocked for testing.",
+  "@settingsDebugPremiumSubtitle": { "description": "Debug subtitle on the subscription card" },
+
+  "settingsMobileOnlySubtitle": "Subscriptions are only available on iOS and Android.",
+  "@settingsMobileOnlySubtitle": { "description": "Unsupported-platform subtitle on the subscription card" },
+
+  "templatesLoadingTitle": "Loading Templates",
+  "@templatesLoadingTitle": { "description": "Loading title for templates screen" },
+
+  "templatesLoadingMessage": "Fetching your recurring purchases.",
+  "@templatesLoadingMessage": { "description": "Loading message for templates screen" },
+
+  "templatesLoadError": "Could Not Load Templates",
+  "@templatesLoadError": { "description": "Error title for templates screen" },
+
+  "paywallTitle": "Go Premium",
+  "@paywallTitle": { "description": "AppBar title for paywall screen" },
+
+  "paywallDebugTitle": "Debug Mode",
+  "@paywallDebugTitle": { "description": "Title for debug paywall state" },
+
+  "paywallDebugMessage": "Premium features are unlocked for testing.",
+  "@paywallDebugMessage": { "description": "Message for debug paywall state" },
+
+  "paywallBackToApp": "Back to App",
+  "@paywallBackToApp": { "description": "Action button to close the paywall" },
+
+  "paywallMobileOnlyTitle": "Mobile Only",
+  "@paywallMobileOnlyTitle": { "description": "Title for unsupported-platform paywall state" },
+
+  "paywallMobileOnlyMessage": "Subscriptions are only available on iOS and Android. All features are unlocked on desktop.",
+  "@paywallMobileOnlyMessage": { "description": "Message for unsupported-platform paywall state" },
+
+  "paywallNoOffersTitle": "No Offers Available",
+  "@paywallNoOffersTitle": { "description": "Title when no subscription offers are available" },
+
+  "paywallNoOffersMessage": "Could not load subscription offers. Please try again later.",
+  "@paywallNoOffersMessage": { "description": "Message when no subscription offers are available" },
+
+  "paywallProductTitle": "InflaBasket Premium",
+  "@paywallProductTitle": { "description": "Main premium headline" },
+
+  "paywallFeatures": "AI receipt scanning • Auto-categorization • Price alerts",
+  "@paywallFeatures": { "description": "Premium features list" },
+
+  "paywallWelcome": "Welcome to Premium!",
+  "@paywallWelcome": { "description": "Snackbar after successful premium purchase" },
+
+  "paywallRestorePurchases": "Restore Purchases",
+  "@paywallRestorePurchases": { "description": "Button to restore purchases" },
+
+  "paywallLoadingOffersTitle": "Loading Offers",
+  "@paywallLoadingOffersTitle": { "description": "Loading title for offers" },
+
+  "paywallLoadingOffersMessage": "Fetching available subscription plans.",
+  "@paywallLoadingOffersMessage": { "description": "Loading message for offers" },
+
+  "paywallLoadOffersError": "Could Not Load Offers",
+  "@paywallLoadOffersError": { "description": "Error title for offers" },
+
+  "categoryTotalSpend": "Total: {amount}",
+  "@categoryTotalSpend": {
+    "description": "Subtitle line for category spend totals",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+
+  "comparisonSourceDetails": "Source details",
+  "@comparisonSourceDetails": { "description": "Tooltip for overlay source info" },
+
+  "cpiSourceTitle": "CPI Source",
+  "@cpiSourceTitle": { "description": "Bottom-sheet title for CPI source information" },
+
+  "moneySupplySourceTitle": "Money Supply Source",
+  "@moneySupplySourceTitle": { "description": "Bottom-sheet title for money-supply source information" },
+
+  "cpiSourceChfDescription": "Swiss Federal Statistical Office (FSO) — monthly CPI index for Switzerland.",
+  "@cpiSourceChfDescription": { "description": "CPI source description for CHF" },
+
+  "cpiSourceEurDescription": "Eurostat — harmonised index of consumer prices (HICP) for the Euro area.",
+  "@cpiSourceEurDescription": { "description": "CPI source description for EUR" },
+
+  "cpiSourceUnavailableDescription": "No CPI data source is available for the selected currency.",
+  "@cpiSourceUnavailableDescription": { "description": "CPI source description fallback" },
+
+  "moneySupplySourceChfDescription": "Swiss National Bank (SNB) — M2 money supply for Switzerland.",
+  "@moneySupplySourceChfDescription": { "description": "Money-supply source description for CHF" },
+
+  "moneySupplySourceEurDescription": "European Central Bank (ECB) — M2 money supply for the Euro area.",
+  "@moneySupplySourceEurDescription": { "description": "Money-supply source description for EUR" },
+
+  "moneySupplySourceUsdDescription": "Federal Reserve (Fed) — M2 money supply for the United States.",
+  "@moneySupplySourceUsdDescription": { "description": "Money-supply source description for USD" },
+
+  "moneySupplySourceGbpDescription": "Bank of England (BoE) — M2 money supply for the United Kingdom.",
+  "@moneySupplySourceGbpDescription": { "description": "Money-supply source description for GBP" },
+
+  "moneySupplySourceUnavailableDescription": "No money supply data source is available for the selected currency.",
+  "@moneySupplySourceUnavailableDescription": { "description": "Money-supply source description fallback" },
+
+  "weightEditorSaved": "Weights saved.",
+  "@weightEditorSaved": { "description": "Snackbar after category weights are saved" },
+
+  "weightEditorResetMessage": "Reset all category weights to equal distribution?",
+  "@weightEditorResetMessage": { "description": "Message for reset-weights confirmation dialog" },
+
+  "weightEditorTotalLabel": "Total",
+  "@weightEditorTotalLabel": { "description": "Label for the weights total row" },
+
+  "weightEditorMustEqual100": "Weights must sum to 100%.",
+  "@weightEditorMustEqual100": { "description": "Validation hint when weights do not sum to 100%" },
+
+  "priceAlertLatestPrice": "Latest price: {price}",
+  "@priceAlertLatestPrice": {
+    "description": "Latest known price label for a product alert",
+    "placeholders": { "price": { "type": "String" } }
+  },
+
+  "priceAlertAlertAt": "Alert at {percent}% change",
+  "@priceAlertAlertAt": {
+    "description": "Label for an enabled alert threshold",
+    "placeholders": { "percent": { "type": "String" } }
+  },
+
+  "priceAlertDisabledStatus": "Alert disabled",
+  "@priceAlertDisabledStatus": { "description": "Label when an alert exists but is disabled" },
+
+  "priceAlertSaved": "Alert saved for {product}.",
+  "@priceAlertSaved": {
+    "description": "Snackbar after enabling or saving an alert",
+    "placeholders": { "product": { "type": "String" } }
+  },
+
+  "priceAlertDisabled": "Alert disabled for {product}.",
+  "@priceAlertDisabled": {
+    "description": "Snackbar after disabling an alert",
+    "placeholders": { "product": { "type": "String" } }
+  },
+
+  "priceAlertLoadSettingsError": "Could Not Load Alert Settings",
+  "@priceAlertLoadSettingsError": { "description": "Error title for saved price-alert settings" }
 }

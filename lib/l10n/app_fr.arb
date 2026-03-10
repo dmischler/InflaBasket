@@ -144,5 +144,333 @@
   "categoryPersonalCareHygiene": "Hygiène personnelle",
   "categoryHouseholdSupplies": "Articles ménagers",
   "categoryClothingApparel": "Vêtements & mode",
-  "categoryElectronicsTech": "Électronique & tech"
+  "categoryElectronicsTech": "Électronique & tech",
+  "@categoryElectronicsTech": { "description": "Default category label for electronics and tech" },
+
+  "scannerDropImage": "Déposez une image JPG, JPEG, PNG ou WEBP.",
+  "@scannerDropImage": { "description": "Hint text for desktop drag and drop" },
+
+  "scannerDragImage": "Faites glisser une image de reçu ici",
+  "@scannerDragImage": { "description": "Drag label for desktop drop zone" },
+
+  "scannerDropHere": "Déposez ici",
+  "@scannerDropHere": { "description": "Drop label when dragging over drop zone" },
+
+  "scannerTakePhoto": "Prendre une photo",
+  "@scannerTakePhoto": { "description": "Button to take photo with camera" },
+
+  "scannerChooseImage": "Choisir une image",
+  "@scannerChooseImage": { "description": "Button to select image from gallery" },
+
+  "scannerAnalyzingTitle": "Analyse du reçu",
+  "@scannerAnalyzingTitle": { "description": "Title while AI processes receipt" },
+
+  "scannerAnalyzingMessage": "L'IA extrait les articles, les totaux et les catégories suggérées.",
+  "@scannerAnalyzingMessage": { "description": "Message while AI processes receipt" },
+
+  "scannerReviewInstructions": "Décochez les articles à exclure. Appuyez sur les noms ou catégories pour modifier.",
+  "@scannerReviewInstructions": { "description": "Instructions on receipt review screen" },
+
+  "settingsPriceAlertsSubtitle": "Activer les notifications pour les changements de prix",
+  "@settingsPriceAlertsSubtitle": { "description": "Subtitle for price alerts settings tile" },
+
+  "settingsMobileOnly": "Mobile uniquement",
+  "@settingsMobileOnly": { "description": "Badge for mobile-only features" },
+
+  "settingsDebugUnlock": "Débogage déverrouillé",
+  "@settingsDebugUnlock": { "description": "Badge for debug premium unlock" },
+
+  "categoryInflationTitle": "Inflation par catégorie",
+  "@categoryInflationTitle": { "description": "Title for inflation by category section" },
+
+  "categoryDetailsTitle": "Détails des catégories",
+  "@categoryDetailsTitle": { "description": "Title for category details section" },
+
+  "overviewNoPriceIncreases": "Aucune hausse de prix détectée !",
+  "@overviewNoPriceIncreases": { "description": "Empty state when no price increases found" },
+
+  "overviewNoPriceDecreases": "Aucune baisse de prix détectée.",
+  "@overviewNoPriceDecreases": { "description": "Empty state when no price decreases found" },
+
+  "templateSaveError": "Erreur lors de l'enregistrement du modèle : {error}",
+  "@templateSaveError": {
+    "description": "Error when template save fails",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "duplicateProductFound": "Produit similaire trouvé",
+  "@duplicateProductFound": { "description": "Dialog title for duplicate product detection" },
+
+  "duplicateProductMessage": "\"{newName}\" ressemble à un produit existant : \"{existing}\". Lier au produit existant ou en créer un nouveau ?",
+  "@duplicateProductMessage": {
+    "description": "Dialog body for duplicate product detection",
+    "placeholders": {
+      "newName": { "type": "String" },
+      "existing": { "type": "String" }
+    }
+  },
+
+  "categoryNoChartData": "Pas assez de données pour le graphique.",
+  "@categoryNoChartData": { "description": "Empty state when not enough data for chart" },
+
+  "historyDeleteTitle": "Supprimer l'entrée ?",
+  "@historyDeleteTitle": { "description": "Dialog title for deleting an entry" },
+
+  "historyDeleteMessage": "Êtes-vous sûr de vouloir supprimer cet achat ?",
+  "@historyDeleteMessage": { "description": "Dialog message for deleting an entry" },
+
+  "priceAlertEnableAlert": "Activer l'alerte",
+  "@priceAlertEnableAlert": { "description": "Toggle label to enable price alert" },
+
+  "priceAlertNotifyMe": "Me prévenir lorsque le prochain prix enregistré dépasse ce seuil.",
+  "@priceAlertNotifyMe": { "description": "Subtitle for alert enable toggle" },
+
+  "priceAlertThresholdLabel": "Seuil : {percent}%",
+  "@priceAlertThresholdLabel": {
+    "description": "Label showing current threshold percentage",
+    "placeholders": { "percent": { "type": "String" } }
+  },
+
+  "priceAlertSaveAlert": "Enregistrer l'alerte",
+  "@priceAlertSaveAlert": { "description": "Button to save price alert" },
+
+  "priceAlertLoadingAlerts": "Chargement des alertes",
+  "@priceAlertLoadingAlerts": { "description": "Loading title while fetching alerts" },
+
+  "priceAlertLoadingAlertsMessage": "Récupération des produits suivis et des seuils d'alerte existants.",
+  "@priceAlertLoadingAlertsMessage": { "description": "Loading message while fetching alerts" },
+
+  "priceAlertLoadError": "Impossible de charger les alertes",
+  "@priceAlertLoadError": { "description": "Error title when alerts fail to load" },
+
+  "priceAlertNoProducts": "Aucun produit à suivre",
+  "@priceAlertNoProducts": { "description": "Empty state when no products to track" },
+
+  "priceAlertNoProductsMessage": "Ajoutez d'abord quelques achats, puis activez les alertes pour les produits souhaités.",
+  "@priceAlertNoProductsMessage": { "description": "Empty state message for price alerts" },
+
+  "priceAlertLoadingSettings": "Chargement des paramètres",
+  "@priceAlertLoadingSettings": { "description": "Loading title while fetching settings" },
+
+  "priceAlertLoadingSettingsMessage": "Récupération des seuils enregistrés pour vos produits suivis.",
+  "@priceAlertLoadingSettingsMessage": { "description": "Loading message while fetching settings" },
+
+  "templateDeleteMessage": "Retirer \"{name}\" des achats récurrents ?",
+  "@templateDeleteMessage": {
+    "description": "Confirmation message when deleting a template",
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "addEntrySaveAsTemplate": "Enregistrer comme modèle",
+  "@addEntrySaveAsTemplate": { "description": "Button to save entry as template" },
+
+  "scannerSavedItems": "{count} article{count == 1 ? '' : 's'} enregistré{count == 1 ? '' : 's'} avec succès !",
+  "@scannerSavedItems": {
+    "description": "Snackbar message when receipt items are saved",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "weightEditorResetWeights": "Réinitialiser les poids",
+  "@weightEditorResetWeights": { "description": "Button to reset category weights" },
+
+  "weightEditorUseSpendWeighted": "Utiliser pondéré par dépenses",
+  "@weightEditorUseSpendWeighted": { "description": "Button to use spend-weighted distribution" },
+
+  "categoryManagementEmpty": "Aucune catégorie trouvée.",
+  "@categoryManagementEmpty": { "description": "Empty state on category management screen" },
+
+  "categoryManagementError": "Erreur lors du chargement des catégories : {error}",
+  "@categoryManagementError": {
+    "description": "Error message when categories fail to load",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "unknownStore": "Magasin inconnu",
+  "@unknownStore": { "description": "Default store name when unknown" },
+
+  "currencyChf": "CHF",
+  "@currencyChf": { "description": "Swiss Franc currency code" },
+
+  "currencyEur": "EUR",
+  "@currencyEur": { "description": "Euro currency code" },
+
+  "currencyUsd": "USD",
+  "@currencyUsd": { "description": "US Dollar currency code" },
+
+  "currencyGbp": "GBP",
+  "@currencyGbp": { "description": "British Pound currency code" },
+
+  "scannerChooseFromGallery": "Choisir depuis la galerie",
+  "@scannerChooseFromGallery": { "description": "Button to choose image from gallery" },
+
+  "scannerSaveError": "Erreur lors de l'enregistrement des articles : {error}",
+  "@scannerSaveError": {
+    "description": "Error when saving scanned receipt items fails",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "unknownItem": "Article inconnu",
+  "@unknownItem": { "description": "Fallback item name when none was detected" },
+
+  "historyNoMatchingTitle": "Aucune entrée correspondante",
+  "@historyNoMatchingTitle": { "description": "Empty title when history filters hide all entries" },
+
+  "historyNoMatchingMessage": "Essayez d'ajuster ou d'effacer vos filtres.",
+  "@historyNoMatchingMessage": { "description": "Empty-state guidance when history filters hide all entries" },
+
+  "historyNoEntriesMessage": "Commencez par ajouter votre premier achat.",
+  "@historyNoEntriesMessage": { "description": "Empty-state guidance when no history exists yet" },
+
+  "filter": "Filtrer",
+  "@filter": { "description": "Tooltip for filter controls" },
+
+  "historyEditEntryTooltip": "Modifier l'entrée",
+  "@historyEditEntryTooltip": { "description": "Tooltip for editing an entry" },
+
+  "errorLoadingCategories": "Erreur lors du chargement des catégories : {error}",
+  "@errorLoadingCategories": {
+    "description": "Error label for failed category loads",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "settingsDebugPremiumSubtitle": "Débogage : Premium déverrouillé pour les tests.",
+  "@settingsDebugPremiumSubtitle": { "description": "Debug subtitle on the subscription card" },
+
+  "settingsMobileOnlySubtitle": "Les abonnements ne sont disponibles que sur iOS et Android.",
+  "@settingsMobileOnlySubtitle": { "description": "Unsupported-platform subtitle on the subscription card" },
+
+  "templatesLoadingTitle": "Chargement des modèles",
+  "@templatesLoadingTitle": { "description": "Loading title for templates screen" },
+
+  "templatesLoadingMessage": "Récupération de vos achats récurrents.",
+  "@templatesLoadingMessage": { "description": "Loading message for templates screen" },
+
+  "templatesLoadError": "Impossible de charger les modèles",
+  "@templatesLoadError": { "description": "Error title for templates screen" },
+
+  "paywallTitle": "Passer Premium",
+  "@paywallTitle": { "description": "AppBar title for paywall screen" },
+
+  "paywallDebugTitle": "Mode débogage",
+  "@paywallDebugTitle": { "description": "Title for debug paywall state" },
+
+  "paywallDebugMessage": "Les fonctionnalités Premium sont déverrouillées pour les tests.",
+  "@paywallDebugMessage": { "description": "Message for debug paywall state" },
+
+  "paywallBackToApp": "Retour à l'application",
+  "@paywallBackToApp": { "description": "Action button to close the paywall" },
+
+  "paywallMobileOnlyTitle": "Mobile uniquement",
+  "@paywallMobileOnlyTitle": { "description": "Title for unsupported-platform paywall state" },
+
+  "paywallMobileOnlyMessage": "Les abonnements ne sont disponibles que sur iOS et Android. Toutes les fonctionnalités sont déverrouillées sur ordinateur.",
+  "@paywallMobileOnlyMessage": { "description": "Message for unsupported-platform paywall state" },
+
+  "paywallNoOffersTitle": "Aucune offre disponible",
+  "@paywallNoOffersTitle": { "description": "Title when no subscription offers are available" },
+
+  "paywallNoOffersMessage": "Impossible de charger les offres d'abonnement. Veuillez réessayer plus tard.",
+  "@paywallNoOffersMessage": { "description": "Message when no subscription offers are available" },
+
+  "paywallProductTitle": "InflaBasket Premium",
+  "@paywallProductTitle": { "description": "Main premium headline" },
+
+  "paywallFeatures": "Scan de reçus par IA • Catégorisation automatique • Alertes de prix",
+  "@paywallFeatures": { "description": "Premium features list" },
+
+  "paywallWelcome": "Bienvenue dans Premium !",
+  "@paywallWelcome": { "description": "Snackbar after successful premium purchase" },
+
+  "paywallRestorePurchases": "Restaurer les achats",
+  "@paywallRestorePurchases": { "description": "Button to restore purchases" },
+
+  "paywallLoadingOffersTitle": "Chargement des offres",
+  "@paywallLoadingOffersTitle": { "description": "Loading title for offers" },
+
+  "paywallLoadingOffersMessage": "Récupération des abonnements disponibles.",
+  "@paywallLoadingOffersMessage": { "description": "Loading message for offers" },
+
+  "paywallLoadOffersError": "Impossible de charger les offres",
+  "@paywallLoadOffersError": { "description": "Error title for offers" },
+
+  "categoryTotalSpend": "Total : {amount}",
+  "@categoryTotalSpend": {
+    "description": "Subtitle line for category spend totals",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+
+  "comparisonSourceDetails": "Détails de la source",
+  "@comparisonSourceDetails": { "description": "Tooltip for overlay source info" },
+
+  "cpiSourceTitle": "Source IPC",
+  "@cpiSourceTitle": { "description": "Bottom-sheet title for CPI source information" },
+
+  "moneySupplySourceTitle": "Source masse monétaire",
+  "@moneySupplySourceTitle": { "description": "Bottom-sheet title for money-supply source information" },
+
+  "cpiSourceChfDescription": "Office fédéral de la statistique (OFS) — indice mensuel des prix à la consommation (IPC) pour la Suisse.",
+  "@cpiSourceChfDescription": { "description": "CPI source description for CHF" },
+
+  "cpiSourceEurDescription": "Eurostat — indice des prix à la consommation harmonisé (IPCH) pour la zone euro.",
+  "@cpiSourceEurDescription": { "description": "CPI source description for EUR" },
+
+  "cpiSourceUnavailableDescription": "Aucune source de données IPC n'est disponible pour la devise sélectionnée.",
+  "@cpiSourceUnavailableDescription": { "description": "CPI source description fallback" },
+
+  "moneySupplySourceChfDescription": "Banque nationale suisse (BNS) — masse monétaire M2 pour la Suisse.",
+  "@moneySupplySourceChfDescription": { "description": "Money-supply source description for CHF" },
+
+  "moneySupplySourceEurDescription": "Banque centrale européenne (BCE) — masse monétaire M2 pour la zone euro.",
+  "@moneySupplySourceEurDescription": { "description": "Money-supply source description for EUR" },
+
+  "moneySupplySourceUsdDescription": "Réserve fédérale (Fed) — masse monétaire M2 pour les États-Unis.",
+  "@moneySupplySourceUsdDescription": { "description": "Money-supply source description for USD" },
+
+  "moneySupplySourceGbpDescription": "Banque d'Angleterre (BoE) — masse monétaire M2 pour le Royaume-Uni.",
+  "@moneySupplySourceGbpDescription": { "description": "Money-supply source description for GBP" },
+
+  "moneySupplySourceUnavailableDescription": "Aucune source de données sur la masse monétaire n'est disponible pour la devise sélectionnée.",
+  "@moneySupplySourceUnavailableDescription": { "description": "Money-supply source description fallback" },
+
+  "weightEditorSaved": "Pondérations enregistrées.",
+  "@weightEditorSaved": { "description": "Snackbar after category weights are saved" },
+
+  "weightEditorResetMessage": "Réinitialiser toutes les pondérations à une répartition égale ?",
+  "@weightEditorResetMessage": { "description": "Message for reset-weights confirmation dialog" },
+
+  "weightEditorTotalLabel": "Total",
+  "@weightEditorTotalLabel": { "description": "Label for the weights total row" },
+
+  "weightEditorMustEqual100": "Les pondérations doivent totaliser 100 %.",
+  "@weightEditorMustEqual100": { "description": "Validation hint when weights do not sum to 100%" },
+
+  "priceAlertLatestPrice": "Dernier prix : {price}",
+  "@priceAlertLatestPrice": {
+    "description": "Latest known price label for a product alert",
+    "placeholders": { "price": { "type": "String" } }
+  },
+
+  "priceAlertAlertAt": "Alerte à {percent}% de variation",
+  "@priceAlertAlertAt": {
+    "description": "Label for an enabled alert threshold",
+    "placeholders": { "percent": { "type": "String" } }
+  },
+
+  "priceAlertDisabledStatus": "Alerte désactivée",
+  "@priceAlertDisabledStatus": { "description": "Label when an alert exists but is disabled" },
+
+  "priceAlertSaved": "Alerte enregistrée pour {product}.",
+  "@priceAlertSaved": {
+    "description": "Snackbar after enabling or saving an alert",
+    "placeholders": { "product": { "type": "String" } }
+  },
+
+  "priceAlertDisabled": "Alerte désactivée pour {product}.",
+  "@priceAlertDisabled": {
+    "description": "Snackbar after disabling an alert",
+    "placeholders": { "product": { "type": "String" } }
+  },
+
+  "priceAlertLoadSettingsError": "Impossible de charger les paramètres d'alerte",
+  "@priceAlertLoadSettingsError": { "description": "Error title for saved price-alert settings" }
 }

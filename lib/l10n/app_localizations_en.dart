@@ -431,6 +431,288 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scannerDeselectAll => 'Deselect All';
 
   @override
+  String get scannerDropImage => 'Drop a JPG, JPEG, PNG, or WEBP receipt image.';
+
+  @override
+  String get scannerDragImage => 'Drag a receipt image here';
+
+  @override
+  String get scannerDropHere => 'Drop here';
+
+  @override
+  String get scannerChooseImage => 'Choose Image';
+
+  @override
+  String get scannerTakePhoto => 'Take Photo';
+
+  @override
+  String get scannerChooseFromGallery => 'Choose from Gallery';
+
+  @override
+  String get scannerAnalyzingTitle => 'Analyzing Receipt';
+
+  @override
+  String get scannerAnalyzingMessage => 'The AI is extracting line items, totals, and suggested categories.';
+
+  @override
+  String get scannerReviewInstructions => 'Uncheck items you don\'t want to save. Tap names or categories to edit.';
+
+  @override
+  String scannerSavedItems(int count) {
+    return '$count ${count == 1 ? 'item' : 'items'} saved successfully!';
+  }
+
+  @override
+  String scannerSaveError(String error) {
+    return 'Error saving items: $error';
+  }
+
+  @override
+  String get unknownStore => 'Unknown Store';
+
+  @override
+  String get unknownItem => 'Unknown Item';
+
+  @override
+  String get historyNoMatchingTitle => 'No Matching Entries';
+
+  @override
+  String get historyNoMatchingMessage => 'Try adjusting or clearing your filters.';
+
+  @override
+  String get historyNoEntriesMessage => 'Start by adding your first purchase entry.';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get historyEditEntryTooltip => 'Edit entry';
+
+  @override
+  String errorLoadingCategories(String error) {
+    return 'Error loading categories: $error';
+  }
+
+  @override
+  String get settingsDebugPremiumSubtitle => 'Debug: Premium unlocked for testing.';
+
+  @override
+  String get settingsMobileOnlySubtitle => 'Subscriptions are only available on iOS and Android.';
+
+  @override
+  String get templatesLoadingTitle => 'Loading Templates';
+
+  @override
+  String get templatesLoadingMessage => 'Fetching your recurring purchases.';
+
+  @override
+  String get templatesLoadError => 'Could Not Load Templates';
+
+  @override
+  String get priceAlertLoadingAlerts => 'Loading Alerts';
+
+  @override
+  String get priceAlertLoadingAlertsMessage => 'Gathering tracked products and existing alert thresholds.';
+
+  @override
+  String get priceAlertLoadError => 'Could Not Load Alerts';
+
+  @override
+  String get priceAlertNoProducts => 'No Products To Track Yet';
+
+  @override
+  String get priceAlertNoProductsMessage => 'Add a few purchases first, then enable alerts for the products you want to watch.';
+
+  @override
+  String get priceAlertLoadingSettings => 'Loading Alert Settings';
+
+  @override
+  String get priceAlertLoadingSettingsMessage => 'Fetching saved thresholds for your tracked items.';
+
+  @override
+  String get priceAlertLoadSettingsError => 'Could Not Load Alert Settings';
+
+  @override
+  String priceAlertLatestPrice(String price) {
+    return 'Latest price: $price';
+  }
+
+  @override
+  String priceAlertAlertAt(String percent) {
+    return 'Alert at $percent% change';
+  }
+
+  @override
+  String get priceAlertDisabledStatus => 'Alert disabled';
+
+  @override
+  String get priceAlertEnableAlert => 'Enable alert';
+
+  @override
+  String get priceAlertNotifyMe => 'Notify me when the next logged price changes beyond this threshold.';
+
+  @override
+  String priceAlertThresholdLabel(String percent) {
+    return 'Threshold: $percent%';
+  }
+
+  @override
+  String get priceAlertSaveAlert => 'Save Alert';
+
+  @override
+  String priceAlertSaved(String product) {
+    return 'Alert saved for $product.';
+  }
+
+  @override
+  String priceAlertDisabled(String product) {
+    return 'Alert disabled for $product.';
+  }
+
+  @override
+  String get paywallTitle => 'Go Premium';
+
+  @override
+  String get paywallDebugTitle => 'Debug Mode';
+
+  @override
+  String get paywallDebugMessage => 'Premium features are unlocked for testing.';
+
+  @override
+  String get paywallBackToApp => 'Back to App';
+
+  @override
+  String get paywallMobileOnlyTitle => 'Mobile Only';
+
+  @override
+  String get paywallMobileOnlyMessage => 'Subscriptions are only available on iOS and Android. All features are unlocked on desktop.';
+
+  @override
+  String get paywallNoOffersTitle => 'No Offers Available';
+
+  @override
+  String get paywallNoOffersMessage => 'Could not load subscription offers. Please try again later.';
+
+  @override
+  String get paywallProductTitle => 'InflaBasket Premium';
+
+  @override
+  String get paywallFeatures => 'AI receipt scanning \u2022 Auto-categorization \u2022 Price alerts';
+
+  @override
+  String get paywallWelcome => 'Welcome to Premium!';
+
+  @override
+  String get paywallRestorePurchases => 'Restore Purchases';
+
+  @override
+  String get paywallLoadingOffersTitle => 'Loading Offers';
+
+  @override
+  String get paywallLoadingOffersMessage => 'Fetching available subscription plans.';
+
+  @override
+  String get paywallLoadOffersError => 'Could Not Load Offers';
+
+  @override
+  String categoryTotalSpend(String amount) {
+    return 'Total: $amount';
+  }
+
+  @override
+  String get comparisonSourceDetails => 'Source details';
+
+  @override
+  String get cpiSourceTitle => 'CPI Source';
+
+  @override
+  String get moneySupplySourceTitle => 'Money Supply Source';
+
+  @override
+  String get cpiSourceChfDescription => 'Swiss Federal Statistical Office (FSO) \u2014 monthly CPI index for Switzerland.';
+
+  @override
+  String get cpiSourceEurDescription => 'Eurostat \u2014 harmonised index of consumer prices (HICP) for the Euro area.';
+
+  @override
+  String get cpiSourceUnavailableDescription => 'No CPI data source is available for the selected currency.';
+
+  @override
+  String get moneySupplySourceChfDescription => 'Swiss National Bank (SNB) \u2014 M2 money supply for Switzerland.';
+
+  @override
+  String get moneySupplySourceEurDescription => 'European Central Bank (ECB) \u2014 M2 money supply for the Euro area.';
+
+  @override
+  String get moneySupplySourceUsdDescription => 'Federal Reserve (Fed) \u2014 M2 money supply for the United States.';
+
+  @override
+  String get moneySupplySourceGbpDescription => 'Bank of England (BoE) \u2014 M2 money supply for the United Kingdom.';
+
+  @override
+  String get moneySupplySourceUnavailableDescription => 'No money supply data source is available for the selected currency.';
+
+  @override
+  String get weightEditorSaved => 'Weights saved.';
+
+  @override
+  String get weightEditorResetWeights => 'Reset Weights';
+
+  @override
+  String get weightEditorResetMessage => 'Reset all category weights to equal distribution?';
+
+  @override
+  String get weightEditorUseSpendWeighted => 'Use Spend-Weighted';
+
+  @override
+  String get weightEditorTotalLabel => 'Total';
+
+  @override
+  String get weightEditorMustEqual100 => 'Weights must sum to 100%.';
+
+  @override
+  String get categoryManagementEmpty => 'No categories found.';
+
+  @override
+  String categoryManagementError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get overviewNoPriceIncreases => 'No price increases detected yet!';
+
+  @override
+  String get overviewNoPriceDecreases => 'No price decreases detected yet.';
+
+  @override
+  String get categoryInflationTitle => 'Inflation by Category';
+
+  @override
+  String get categoryDetailsTitle => 'Category Details';
+
+  @override
+  String get categoryNoChartData => 'Not enough data to chart.';
+
+  @override
+  String get settingsMobileOnly => 'Mobile only';
+
+  @override
+  String get settingsDebugUnlock => 'Debug unlock';
+
+  @override
+  String get settingsPriceAlertsSubtitle => 'Enable notifications for product price changes';
+
+  @override
+  String templateSaveError(String error) {
+    return 'Error saving template: $error';
+  }
+
+  @override
+  String templateDeleteMessage(String name) {
+    return 'Remove "$name" from recurring purchases?';
+  }
+
+  @override
   String get categoryFoodGroceries => 'Food & Groceries';
 
   @override

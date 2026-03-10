@@ -438,6 +438,288 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scannerDeselectAll => 'Tout désélectionner';
 
   @override
+  String get scannerDropImage => 'Déposez une image JPG, JPEG, PNG ou WEBP.';
+
+  @override
+  String get scannerDragImage => 'Faites glisser une image de reçu ici';
+
+  @override
+  String get scannerDropHere => 'Déposez ici';
+
+  @override
+  String get scannerChooseImage => 'Choisir une image';
+
+  @override
+  String get scannerTakePhoto => 'Prendre une photo';
+
+  @override
+  String get scannerChooseFromGallery => 'Choisir depuis la galerie';
+
+  @override
+  String get scannerAnalyzingTitle => 'Analyse du reçu';
+
+  @override
+  String get scannerAnalyzingMessage => "L'IA extrait les articles, les totaux et les catégories suggérées.";
+
+  @override
+  String get scannerReviewInstructions => 'Décochez les articles à exclure. Appuyez sur les noms ou catégories pour modifier.';
+
+  @override
+  String scannerSavedItems(int count) {
+    return '$count ${count == 1 ? 'article' : 'articles'} ${count == 1 ? 'enregistré' : 'enregistrés'} avec succès !';
+  }
+
+  @override
+  String scannerSaveError(String error) {
+    return "Erreur lors de l'enregistrement des articles : $error";
+  }
+
+  @override
+  String get unknownStore => 'Magasin inconnu';
+
+  @override
+  String get unknownItem => 'Article inconnu';
+
+  @override
+  String get historyNoMatchingTitle => 'Aucune entrée correspondante';
+
+  @override
+  String get historyNoMatchingMessage => "Essayez d'ajuster ou d'effacer vos filtres.";
+
+  @override
+  String get historyNoEntriesMessage => 'Commencez par ajouter votre premier achat.';
+
+  @override
+  String get filter => 'Filtrer';
+
+  @override
+  String get historyEditEntryTooltip => "Modifier l'entrée";
+
+  @override
+  String errorLoadingCategories(String error) {
+    return 'Erreur lors du chargement des catégories : $error';
+  }
+
+  @override
+  String get settingsDebugPremiumSubtitle => 'Débogage : Premium déverrouillé pour les tests.';
+
+  @override
+  String get settingsMobileOnlySubtitle => 'Les abonnements ne sont disponibles que sur iOS et Android.';
+
+  @override
+  String get settingsMobileOnly => 'Mobile uniquement';
+
+  @override
+  String get settingsDebugUnlock => 'Débogage déverrouillé';
+
+  @override
+  String get settingsPriceAlertsSubtitle => 'Activer les notifications pour les changements de prix';
+
+  @override
+  String get templatesLoadingTitle => 'Chargement des modèles';
+
+  @override
+  String get templatesLoadingMessage => 'Récupération de vos achats récurrents.';
+
+  @override
+  String get templatesLoadError => 'Impossible de charger les modèles';
+
+  @override
+  String templateSaveError(String error) {
+    return "Erreur lors de l'enregistrement du modèle : $error";
+  }
+
+  @override
+  String templateDeleteMessage(String name) {
+    return 'Retirer "$name" des achats récurrents ?';
+  }
+
+  @override
+  String get priceAlertLoadingAlerts => 'Chargement des alertes';
+
+  @override
+  String get priceAlertLoadingAlertsMessage => "Récupération des produits suivis et des seuils d'alerte existants.";
+
+  @override
+  String get priceAlertLoadError => 'Impossible de charger les alertes';
+
+  @override
+  String get priceAlertNoProducts => 'Aucun produit à suivre';
+
+  @override
+  String get priceAlertNoProductsMessage => "Ajoutez d'abord quelques achats, puis activez les alertes pour les produits souhaités.";
+
+  @override
+  String get priceAlertLoadingSettings => 'Chargement des paramètres';
+
+  @override
+  String get priceAlertLoadingSettingsMessage => 'Récupération des seuils enregistrés pour vos produits suivis.';
+
+  @override
+  String get priceAlertLoadSettingsError => "Impossible de charger les paramètres d'alerte";
+
+  @override
+  String priceAlertLatestPrice(String price) {
+    return 'Dernier prix : $price';
+  }
+
+  @override
+  String priceAlertAlertAt(String percent) {
+    return 'Alerte à $percent% de variation';
+  }
+
+  @override
+  String get priceAlertDisabledStatus => 'Alerte désactivée';
+
+  @override
+  String get priceAlertEnableAlert => "Activer l'alerte";
+
+  @override
+  String get priceAlertNotifyMe => 'Me prévenir lorsque le prochain prix enregistré dépasse ce seuil.';
+
+  @override
+  String priceAlertThresholdLabel(String percent) {
+    return 'Seuil : $percent%';
+  }
+
+  @override
+  String get priceAlertSaveAlert => "Enregistrer l'alerte";
+
+  @override
+  String priceAlertSaved(String product) {
+    return 'Alerte enregistrée pour $product.';
+  }
+
+  @override
+  String priceAlertDisabled(String product) {
+    return 'Alerte désactivée pour $product.';
+  }
+
+  @override
+  String get paywallTitle => 'Passer Premium';
+
+  @override
+  String get paywallDebugTitle => 'Mode débogage';
+
+  @override
+  String get paywallDebugMessage => 'Les fonctionnalités Premium sont déverrouillées pour les tests.';
+
+  @override
+  String get paywallBackToApp => "Retour à l'application";
+
+  @override
+  String get paywallMobileOnlyTitle => 'Mobile uniquement';
+
+  @override
+  String get paywallMobileOnlyMessage => 'Les abonnements ne sont disponibles que sur iOS et Android. Toutes les fonctionnalités sont déverrouillées sur ordinateur.';
+
+  @override
+  String get paywallNoOffersTitle => 'Aucune offre disponible';
+
+  @override
+  String get paywallNoOffersMessage => "Impossible de charger les offres d'abonnement. Veuillez réessayer plus tard.";
+
+  @override
+  String get paywallProductTitle => 'InflaBasket Premium';
+
+  @override
+  String get paywallFeatures => 'Scan de reçus par IA \u2022 Catégorisation automatique \u2022 Alertes de prix';
+
+  @override
+  String get paywallWelcome => 'Bienvenue dans Premium !';
+
+  @override
+  String get paywallRestorePurchases => 'Restaurer les achats';
+
+  @override
+  String get paywallLoadingOffersTitle => 'Chargement des offres';
+
+  @override
+  String get paywallLoadingOffersMessage => 'Récupération des abonnements disponibles.';
+
+  @override
+  String get paywallLoadOffersError => 'Impossible de charger les offres';
+
+  @override
+  String categoryTotalSpend(String amount) {
+    return 'Total : $amount';
+  }
+
+  @override
+  String get comparisonSourceDetails => 'Détails de la source';
+
+  @override
+  String get cpiSourceTitle => 'Source IPC';
+
+  @override
+  String get moneySupplySourceTitle => 'Source masse monétaire';
+
+  @override
+  String get cpiSourceChfDescription => 'Office fédéral de la statistique (OFS) \u2014 indice mensuel des prix à la consommation (IPC) pour la Suisse.';
+
+  @override
+  String get cpiSourceEurDescription => 'Eurostat \u2014 indice des prix à la consommation harmonisé (IPCH) pour la zone euro.';
+
+  @override
+  String get cpiSourceUnavailableDescription => "Aucune source de données IPC n'est disponible pour la devise sélectionnée.";
+
+  @override
+  String get moneySupplySourceChfDescription => 'Banque nationale suisse (BNS) \u2014 masse monétaire M2 pour la Suisse.';
+
+  @override
+  String get moneySupplySourceEurDescription => 'Banque centrale européenne (BCE) \u2014 masse monétaire M2 pour la zone euro.';
+
+  @override
+  String get moneySupplySourceUsdDescription => 'Réserve fédérale (Fed) \u2014 masse monétaire M2 pour les États-Unis.';
+
+  @override
+  String get moneySupplySourceGbpDescription => "Banque d'Angleterre (BoE) \u2014 masse monétaire M2 pour le Royaume-Uni.";
+
+  @override
+  String get moneySupplySourceUnavailableDescription => "Aucune source de données sur la masse monétaire n'est disponible pour la devise sélectionnée.";
+
+  @override
+  String get weightEditorSaved => 'Pondérations enregistrées.';
+
+  @override
+  String get weightEditorResetWeights => 'Réinitialiser les poids';
+
+  @override
+  String get weightEditorResetMessage => 'Réinitialiser toutes les pondérations à une répartition égale ?';
+
+  @override
+  String get weightEditorUseSpendWeighted => 'Utiliser pondéré par dépenses';
+
+  @override
+  String get weightEditorTotalLabel => 'Total';
+
+  @override
+  String get weightEditorMustEqual100 => 'Les pondérations doivent totaliser 100 %.';
+
+  @override
+  String get categoryManagementEmpty => 'Aucune catégorie trouvée.';
+
+  @override
+  String categoryManagementError(String error) {
+    return 'Erreur lors du chargement des catégories : $error';
+  }
+
+  @override
+  String get overviewNoPriceIncreases => 'Aucune hausse de prix détectée !';
+
+  @override
+  String get overviewNoPriceDecreases => 'Aucune baisse de prix détectée.';
+
+  @override
+  String get categoryInflationTitle => 'Inflation par catégorie';
+
+  @override
+  String get categoryDetailsTitle => 'Détails des catégories';
+
+  @override
+  String get categoryNoChartData => 'Pas assez de données pour le graphique.';
+
+  @override
   String get categoryFoodGroceries => 'Alimentation & courses';
 
   @override

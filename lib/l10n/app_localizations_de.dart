@@ -439,6 +439,288 @@ class AppLocalizationsDe extends AppLocalizations {
   String get scannerDeselectAll => 'Alle abwählen';
 
   @override
+  String get scannerDropImage => 'JPG, JPEG, PNG oder WEBP Bild hierher ziehen.';
+
+  @override
+  String get scannerDragImage => 'Belegbild hier ablegen';
+
+  @override
+  String get scannerDropHere => 'Hier ablegen';
+
+  @override
+  String get scannerChooseImage => 'Bild auswählen';
+
+  @override
+  String get scannerTakePhoto => 'Foto aufnehmen';
+
+  @override
+  String get scannerChooseFromGallery => 'Aus Galerie wählen';
+
+  @override
+  String get scannerAnalyzingTitle => 'Quittung wird analysiert';
+
+  @override
+  String get scannerAnalyzingMessage => 'Die KI extrahiert Artikel, Summen und vorgeschlagene Kategorien.';
+
+  @override
+  String get scannerReviewInstructions => 'Abwählen was nicht gespeichert werden soll. Namen oder Kategorien antippen zum Bearbeiten.';
+
+  @override
+  String scannerSavedItems(int count) {
+    return '$count Artikel erfolgreich gespeichert!';
+  }
+
+  @override
+  String scannerSaveError(String error) {
+    return 'Fehler beim Speichern der Artikel: $error';
+  }
+
+  @override
+  String get unknownStore => 'Unbekanntes Geschäft';
+
+  @override
+  String get unknownItem => 'Unbekannter Artikel';
+
+  @override
+  String get historyNoMatchingTitle => 'Keine passenden Einträge';
+
+  @override
+  String get historyNoMatchingMessage => 'Versuche, deine Filter anzupassen oder zu löschen.';
+
+  @override
+  String get historyNoEntriesMessage => 'Füge deinen ersten Kauf hinzu, um zu beginnen.';
+
+  @override
+  String get filter => 'Filtern';
+
+  @override
+  String get historyEditEntryTooltip => 'Eintrag bearbeiten';
+
+  @override
+  String errorLoadingCategories(String error) {
+    return 'Fehler beim Laden der Kategorien: $error';
+  }
+
+  @override
+  String get settingsDebugPremiumSubtitle => 'Debug: Premium für Tests freigeschaltet.';
+
+  @override
+  String get settingsMobileOnlySubtitle => 'Abonnements sind nur unter iOS und Android verfügbar.';
+
+  @override
+  String get settingsMobileOnly => 'Nur Mobile';
+
+  @override
+  String get settingsDebugUnlock => 'Debug Entsperrung';
+
+  @override
+  String get settingsPriceAlertsSubtitle => 'Benachrichtigungen für Preisänderungen aktivieren';
+
+  @override
+  String get templatesLoadingTitle => 'Vorlagen werden geladen';
+
+  @override
+  String get templatesLoadingMessage => 'Deine wiederkehrenden Einkäufe werden abgerufen.';
+
+  @override
+  String get templatesLoadError => 'Vorlagen konnten nicht geladen werden';
+
+  @override
+  String templateSaveError(String error) {
+    return 'Fehler beim Speichern der Vorlage: $error';
+  }
+
+  @override
+  String templateDeleteMessage(String name) {
+    return '"$name" aus wiederkehrenden Einkäufen entfernen?';
+  }
+
+  @override
+  String get priceAlertLoadingAlerts => 'Alarme werden geladen';
+
+  @override
+  String get priceAlertLoadingAlertsMessage => 'Verfolgte Produkte und bestehende Alarmschwellen werden erfasst.';
+
+  @override
+  String get priceAlertLoadError => 'Alarme konnten nicht geladen werden';
+
+  @override
+  String get priceAlertNoProducts => 'Noch keine Produkte zum Verfolgen';
+
+  @override
+  String get priceAlertNoProductsMessage => 'Füge zuerst einige Käufe hinzu, dann kannst du Alarme für Produkte aktivieren.';
+
+  @override
+  String get priceAlertLoadingSettings => 'Alarm-Einstellungen werden geladen';
+
+  @override
+  String get priceAlertLoadingSettingsMessage => 'Gespeicherte Schwellenwerte für deine verfolgten Produkte werden abgerufen.';
+
+  @override
+  String get priceAlertLoadSettingsError => 'Alarm-Einstellungen konnten nicht geladen werden';
+
+  @override
+  String priceAlertLatestPrice(String price) {
+    return 'Aktueller Preis: $price';
+  }
+
+  @override
+  String priceAlertAlertAt(String percent) {
+    return 'Alarm ab $percent% Änderung';
+  }
+
+  @override
+  String get priceAlertDisabledStatus => 'Alarm deaktiviert';
+
+  @override
+  String get priceAlertEnableAlert => 'Alarm aktivieren';
+
+  @override
+  String get priceAlertNotifyMe => 'Benachrichtige mich, wenn sich der nächste erfasste Preis über diesem Schwellenwert ändert.';
+
+  @override
+  String priceAlertThresholdLabel(String percent) {
+    return 'Schwelle: $percent%';
+  }
+
+  @override
+  String get priceAlertSaveAlert => 'Alarm speichern';
+
+  @override
+  String priceAlertSaved(String product) {
+    return 'Alarm für $product gespeichert.';
+  }
+
+  @override
+  String priceAlertDisabled(String product) {
+    return 'Alarm für $product deaktiviert.';
+  }
+
+  @override
+  String get paywallTitle => 'Premium werden';
+
+  @override
+  String get paywallDebugTitle => 'Debug-Modus';
+
+  @override
+  String get paywallDebugMessage => 'Premium-Funktionen sind für Tests freigeschaltet.';
+
+  @override
+  String get paywallBackToApp => 'Zurück zur App';
+
+  @override
+  String get paywallMobileOnlyTitle => 'Nur Mobile';
+
+  @override
+  String get paywallMobileOnlyMessage => 'Abonnements sind nur unter iOS und Android verfügbar. Auf dem Desktop sind alle Funktionen freigeschaltet.';
+
+  @override
+  String get paywallNoOffersTitle => 'Keine Angebote verfügbar';
+
+  @override
+  String get paywallNoOffersMessage => 'Abonnement-Angebote konnten nicht geladen werden. Bitte später erneut versuchen.';
+
+  @override
+  String get paywallProductTitle => 'InflaBasket Premium';
+
+  @override
+  String get paywallFeatures => 'KI-Belegscannen \u2022 Automatische Kategorisierung \u2022 Preisalarme';
+
+  @override
+  String get paywallWelcome => 'Willkommen bei Premium!';
+
+  @override
+  String get paywallRestorePurchases => 'Käufe wiederherstellen';
+
+  @override
+  String get paywallLoadingOffersTitle => 'Angebote werden geladen';
+
+  @override
+  String get paywallLoadingOffersMessage => 'Verfügbare Abonnements werden abgerufen.';
+
+  @override
+  String get paywallLoadOffersError => 'Angebote konnten nicht geladen werden';
+
+  @override
+  String categoryTotalSpend(String amount) {
+    return 'Gesamt: $amount';
+  }
+
+  @override
+  String get comparisonSourceDetails => 'Quellendetails';
+
+  @override
+  String get cpiSourceTitle => 'KPI-Quelle';
+
+  @override
+  String get moneySupplySourceTitle => 'Geldmengen-Quelle';
+
+  @override
+  String get cpiSourceChfDescription => 'Bundesamt für Statistik (BFS) \u2014 monatlicher Landesindex der Konsumentenpreise (LIK).';
+
+  @override
+  String get cpiSourceEurDescription => 'Eurostat \u2014 Harmonisierter Verbraucherpreisindex (HVPI) für das Euro-Gebiet.';
+
+  @override
+  String get cpiSourceUnavailableDescription => 'Für die gewählte Währung ist keine KPI-Datenquelle verfügbar.';
+
+  @override
+  String get moneySupplySourceChfDescription => 'Schweizerische Nationalbank (SNB) \u2014 M2-Geldmenge für die Schweiz.';
+
+  @override
+  String get moneySupplySourceEurDescription => 'Europäische Zentralbank (EZB) \u2014 M2-Geldmenge für das Euro-Gebiet.';
+
+  @override
+  String get moneySupplySourceUsdDescription => 'Federal Reserve (Fed) \u2014 M2-Geldmenge für die Vereinigten Staaten.';
+
+  @override
+  String get moneySupplySourceGbpDescription => 'Bank of England (BoE) \u2014 M2-Geldmenge für das Vereinigte Königreich.';
+
+  @override
+  String get moneySupplySourceUnavailableDescription => 'Für die gewählte Währung ist keine Geldmengendatenquelle verfügbar.';
+
+  @override
+  String get weightEditorSaved => 'Gewichtungen gespeichert.';
+
+  @override
+  String get weightEditorResetWeights => 'Gewichte zurücksetzen';
+
+  @override
+  String get weightEditorResetMessage => 'Alle Kategoriegewichtungen auf gleiche Verteilung zurücksetzen?';
+
+  @override
+  String get weightEditorUseSpendWeighted => 'Ausgaben-basiert verwenden';
+
+  @override
+  String get weightEditorTotalLabel => 'Gesamt';
+
+  @override
+  String get weightEditorMustEqual100 => 'Gewichtungen müssen 100 % ergeben.';
+
+  @override
+  String get categoryManagementEmpty => 'Keine Kategorien gefunden.';
+
+  @override
+  String categoryManagementError(String error) {
+    return 'Fehler beim Laden der Kategorien: $error';
+  }
+
+  @override
+  String get overviewNoPriceIncreases => 'Noch keine Preiserhöhungen erkannt!';
+
+  @override
+  String get overviewNoPriceDecreases => 'Noch keine Preisreduktionen erkannt.';
+
+  @override
+  String get categoryInflationTitle => 'Inflation nach Kategorie';
+
+  @override
+  String get categoryDetailsTitle => 'Kategoriedetails';
+
+  @override
+  String get categoryNoChartData => 'Nicht genügend Daten für Diagramm.';
+
+  @override
   String get categoryFoodGroceries => 'Lebensmittel & Einkäufe';
 
   @override

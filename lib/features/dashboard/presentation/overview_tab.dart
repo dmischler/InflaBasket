@@ -132,16 +132,17 @@ class OverviewTab extends ConsumerWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (overlayType != null)
-                IconButton(
-                  tooltip: 'Comparison data source details',
-                  onPressed: () => _showOverlaySourceInfo(
-                    context,
-                    overlayType,
-                    ref.read(settingsControllerProvider).currency,
+                if (overlayType != null)
+                  IconButton(
+                    tooltip: l.comparisonSourceDetails,
+                    onPressed: () => _showOverlaySourceInfo(
+                      context,
+                      l,
+                      overlayType,
+                      ref.read(settingsControllerProvider).currency,
+                    ),
+                    icon: const Icon(Icons.info_outline, size: 20),
                   ),
-                  icon: const Icon(Icons.info_outline, size: 20),
-                ),
               Text(l.showComparisonOverlay,
                   style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(width: 8),
@@ -214,6 +215,7 @@ class OverviewTab extends ConsumerWidget {
 
   void _showOverlaySourceInfo(
     BuildContext context,
+    AppLocalizations l,
     ComparisonOverlayType overlayType,
     String currency,
   ) {
@@ -229,13 +231,13 @@ class OverviewTab extends ConsumerWidget {
             children: [
               Text(
                 overlayType == ComparisonOverlayType.cpi
-                    ? 'CPI Source'
-                    : 'Money Supply Source',
+                    ? l.cpiSourceTitle
+                    : l.moneySupplySourceTitle,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
               Text(
-                _overlaySourceDescription(overlayType, currency),
+                _overlaySourceDescription(l, overlayType, currency),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -246,29 +248,22 @@ class OverviewTab extends ConsumerWidget {
   }
 
   String _overlaySourceDescription(
+    AppLocalizations l,
     ComparisonOverlayType overlayType,
     String currency,
   ) {
     return switch (overlayType) {
       ComparisonOverlayType.cpi => switch (currency) {
-          'CHF' =>
-            'Consumer-price data comes from Eurostat monthly HICP observations for Switzerland. The series is rebased to the same 100-index baseline as your basket history.',
-          'EUR' =>
-            'Consumer-price data comes from Eurostat monthly HICP observations for the EU27 aggregate. The series is rebased to the same 100-index baseline as your basket history.',
-          _ =>
-            'Consumer-price overlays are shown only when a supported CPI source is available for the selected currency.',
+          'CHF' => l.cpiSourceChfDescription,
+          'EUR' => l.cpiSourceEurDescription,
+          _ => l.cpiSourceUnavailableDescription,
         },
       ComparisonOverlayType.moneySupply => switch (currency) {
-          'CHF' =>
-            'Money-supply data uses Swiss National Bank M2 observations, filtered to the same visible history window and rebased to match your basket index.',
-          'EUR' =>
-            'Money-supply data uses European Central Bank M2 observations, filtered to the same visible history window and rebased to match your basket index.',
-          'USD' =>
-            'Money-supply data uses FRED M2 observations for the United States, filtered to the same visible history window and rebased to match your basket index.',
-          'GBP' =>
-            'Money-supply data uses Bank of England M2 observations, filtered to the same visible history window and rebased to match your basket index.',
-          _ =>
-            'Money-supply overlays are shown only when a supported source is available for the selected currency.',
+          'CHF' => l.moneySupplySourceChfDescription,
+          'EUR' => l.moneySupplySourceEurDescription,
+          'USD' => l.moneySupplySourceUsdDescription,
+          'GBP' => l.moneySupplySourceGbpDescription,
+          _ => l.moneySupplySourceUnavailableDescription,
         },
     };
   }
@@ -436,7 +431,7 @@ class OverviewTab extends ConsumerWidget {
         items.where((i) => i.inflationPercent > 0).take(5).toList();
 
     if (inflators.isEmpty) {
-      return const Text('No price increases detected yet!');
+      return Text(l.overviewNoPriceIncreases);
     }
 
     return ListView.builder(
@@ -471,7 +466,7 @@ class OverviewTab extends ConsumerWidget {
 
     final top = deflators.take(5).toList();
     if (top.isEmpty) {
-      return const Text('No price decreases detected yet.');
+      return Text(l.overviewNoPriceDecreases);
     }
 
     return ListView.builder(

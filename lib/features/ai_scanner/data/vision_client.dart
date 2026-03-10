@@ -34,7 +34,7 @@ class VisionClient {
       }.toList(growable: false);
 
       final model = GenerativeModel(
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.1-flash-preview',
         apiKey: apiKey,
         generationConfig: GenerationConfig(
           responseSchema: Schema.object(

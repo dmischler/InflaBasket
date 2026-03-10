@@ -268,6 +268,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] **Polished Empty/Loading States:** Added reusable `StateMessageCard` UX for scanner processing, history empty states, templates, price alerts, and paywall loading/error/unsupported states.
 - [x] **Macro Overlay Source Notes:** Overview now exposes an info sheet describing the current CPI/M2 source by currency and improves overlay loading feedback.
 
+**Sprint 4B: Full UI Localization**
+- [x] **Zero hardcoded English strings in UI:** All 13 screens now route every user-facing string through `AppLocalizations`. No literal English text remains in any presentation layer file.
+- [x] **Screens fully localized:** `DashboardScreen`, `HistoryTab`, `CategoriesTab`, `OverviewTab`, `AddEntryScreen`, `DuplicateDialog`, `ScannerScreen`, `SettingsScreen`, `TemplatesScreen`, `PriceAlertsScreen`, `CategoryManagementScreen`, `WeightEditorScreen`, `PaywallScreen`.
+- [x] **Category display fix in WeightEditorScreen:** `_WeightSliderTile` now receives the localized display name via `CategoryLocalization.displayNameForContext()` rather than the raw canonical DB key.
+- [x] **DuplicateDialog simplified:** Removed `_NameRow` helper widget; duplicate prompt now uses the `duplicateDetectionMessage(newName, existingName)` interpolated ARB key for clean localized output.
+- [x] **Helper method refactors for l10n:** `_showFilterSheet` (HistoryTab), `_buildBarChart`/`_buildCategoryList` (CategoriesTab), `_showOverlaySourceInfo`/`_overlaySourceDescription` (OverviewTab), and `_save` (ScannerScreen) were updated to accept `AppLocalizations` as a parameter where needed.
+
 ### 📝 Production Configuration (Not Code)
 - Replace `'appl_apiKey'` / `'goog_apiKey'` placeholders in `subscription_providers.dart` with real RevenueCat keys before store submission.
 - Replace `'YOUR_API_KEY'` in `vision_client.dart`; ideally move to a backend proxy rather than bundling the key in the binary.

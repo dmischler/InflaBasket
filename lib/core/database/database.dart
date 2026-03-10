@@ -123,9 +123,31 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(externalSeriesCache);
           }
           if (from < 5) {
-            final existing = await (select(categories)..limit(1)).get();
-            if (existing.isEmpty) {
-              await _seedDefaultCategories();
+            await m.createTable(categories);
+
+            final defaultCategoryNames = [
+              'Food & Groceries',
+              'Restaurants & Dining Out',
+              'Beverages',
+              'Transportation',
+              'Fuel & Energy',
+              'Housing & Rent',
+              'Utilities',
+              'Healthcare & Medical',
+              'Personal Care & Hygiene',
+              'Household Supplies',
+              'Clothing & Apparel',
+              'Electronics & Tech',
+            ];
+
+            for (final name in defaultCategoryNames) {
+              final exists = await (select(categories)
+                    ..where((t) => t.name.equals(name)))
+                  .getSingleOrNull();
+              if (exists == null) {
+                await into(categories)
+                    .insert(CategoriesCompanion.insert(name: name));
+              }
             }
           }
         },

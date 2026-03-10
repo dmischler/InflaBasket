@@ -4,6 +4,7 @@ import 'package:inflabasket/features/dashboard/presentation/overview_tab.dart';
 import 'package:inflabasket/features/dashboard/presentation/history_tab.dart';
 import 'package:inflabasket/features/dashboard/presentation/categories_tab.dart';
 import 'package:inflabasket/features/settings/presentation/settings_screen.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -17,8 +18,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('InflaBasket')),
+      appBar: AppBar(title: Text(l10n.appTitle)),
       body: IndexedStack(
         index: _currentIndex,
         children: const [
@@ -39,26 +41,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _currentIndex = index;
           });
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Overview',
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard),
+            label: l10n.navOverview,
           ),
           NavigationDestination(
-            icon: Icon(Icons.history_outlined),
-            selectedIcon: Icon(Icons.history),
-            label: 'History',
+            icon: const Icon(Icons.history_outlined),
+            selectedIcon: const Icon(Icons.history),
+            label: l10n.navHistory,
           ),
           NavigationDestination(
-            icon: Icon(Icons.category_outlined),
-            selectedIcon: Icon(Icons.category),
-            label: 'Categories',
+            icon: const Icon(Icons.category_outlined),
+            selectedIcon: const Icon(Icons.category),
+            label: l10n.navCategories,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: l10n.navSettings,
           ),
         ],
       ),
