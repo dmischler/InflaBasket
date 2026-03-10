@@ -280,7 +280,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] **Notes Field:** Added optional `notes` field to Add Entry form and the database column is now surfaced in the History list tile (italic, muted, collapsed to 1 line).
 - [x] **Receipt Date Parsing:** AI Scanner now parses the `date` field returned by the Vision API and uses it for all saved entries, instead of always using `DateTime.now()`.
 - [x] **Scanner Bulk Transaction:** Items from receipt scanning are now saved in a single `database.transaction()` with full rollback if any item fails.
-- [x] **Per-Item Receipt Review:** Replaced the "Save All or Cancel" scanner dialog with a full stateful `_ReceiptReviewDialog`: per-item checkboxes to deselect, inline product name editing, and category dropdown per item. A "Select All / Deselect All" toggle and item count on the Save button are included.
+- [x] **Per-Item Receipt Review:** Replaced the "Save All or Cancel" scanner dialog with a full stateful `_ReceiptReviewDialog`: per-item checkboxes to deselect, inline product name editing, category dropdown, unit selector, and price field (for correcting AI-extraction errors or unit mismatches) per item. A "Select All / Deselect All" toggle and item count on the Save button are included.
 - [x] **Dynamic Version:** Settings screen now reads the app version from `pubspec.yaml` via `package_info_plus` instead of using a hardcoded `'1.0.0'` string.
 
 **Sprint 4A: Launch Readiness & Desktop Scanner UX**
@@ -350,7 +350,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 8. **Notes Field** ✅ — Optional notes in Add Entry form; displayed in History tile.
 9. **Receipt Date Parsing** ✅ — AI scanner uses the date from the receipt JSON response, not `DateTime.now()`.
 10. **Scanner Bulk Transaction** ✅ — `bulkAddFromReceipt()` wraps all inserts in a single `database.transaction()`.
-11. **Per-Item Receipt Review** ✅ — Stateful review dialog with per-item checkboxes, editable names, category dropdowns, and Select All toggle.
+11. **Per-Item Receipt Review** ✅ — Stateful review dialog with per-item checkboxes, editable names, category dropdowns, unit selectors, price fields, and Select All toggle.
 12. **Dynamic App Version** ✅ — Version read from `pubspec.yaml` via `package_info_plus`.
 
 ---
@@ -358,11 +358,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 ### Sprint 3 – v2.0 Core Intelligence ✅ COMPLETE
 
 5. **LLM Duplicate Detection (Premium)** ✅ — On product name submission, a normalised LCS-similarity heuristic checks the category's existing product names. If a close match (>70%) is found, a `DuplicateDialog` prompts "Link to Existing" or "Create New". Full semantic LLM call deferred (VisionClient is image-only; a dedicated chat endpoint is a future iteration).
+6. **Price Anomaly Detection (Premium)** ✅ — When saving a new entry, compare the submitted unit price against the existing product's historical average. If the new price deviates significantly (>3x or <0.33x the historical average), prompt the user with a `PriceAnomalyDialog`: "This price seems different from your last entry of [Product] at [Price] ([Date]). Is the unit correct?" Options: "Save Anyway", "Edit Price", "Edit Unit". This catches common errors like confusing kg vs g, l vs ml, or 6-pack vs single unit.
 6. **Product Normalization** ✅ — Already fully implemented in Sprint 1 via `unit.dart` (`UnitType` enum, `normalizedPricePerUnit`) and `inflation_providers.dart` (`normalizePricePerUnit` helper). No changes required.
 7. **Custom Basket Weighting** ✅ — `WeightEditorScreen` (`/settings/weights`) presents one `Slider` per category. Values validate to 100%. `CategoryWeightsController` persists fractions to the `category_weights` DB table (schema v3). `basketInflation()` uses custom weights when set; otherwise falls back to spend-weighted averaging.
 8. **Official CPI + Money Supply Comparison** ✅ — `CpiClient` now uses Eurostat SDMX 3.0 monthly HICP index feeds with bounded history windows for supported CPI currencies: CHF → Switzerland (`M.I15.CP00.CH`), EUR → EU27 aggregate (`M.I15.CP00.EU27_2020`). `MoneySupplyClient` fetches currency-specific broad-money data with time-range filtering: CHF → SNB M2, EUR → ECB M2 stocks, USD → FRED M2, GBP → Bank of England M2. `OverviewTab` lets users switch the overlay between CPI and M2 when available, rebasing external series to the same 100-index baseline for visual comparison. External macro series are cached in Drift for offline fallback and transient TLS/network/API failures; if refresh fails, the app falls back to the latest cached series before degrading to an empty overlay.
 9. **Localization (i18n)** ✅ — `flutter_localizations` + `gen_l10n` ARB pipeline with 4 locales: `en`, `de`, `fr`, `it`. Unsupported device locales fall back to English. `l10n.yaml` uses `synthetic-package: false`; import path is `package:inflabasket/l10n/app_localizations.dart`. The Settings screen now includes a manual language selector.
 10. **Barcode Scanner** ✅ — `mobile_scanner` (replaces unused `camera`) powers `BarcodeScanDialog` (modal bottom sheet with live preview). `OpenFoodFactsClient` calls the OFF API and maps PNNS categories → InflaBasket categories. Barcode `IconButton.filledTonal` added next to the Product Name field in `AddEntryScreen`.
+    - **Premium default** — When adding a new entry, premium users are taken directly to the receipt scanner from the FAB; non-premium users continue to the manual entry form.
 11. **Recurring Purchase Templates** ✅ — `TemplatesScreen` (`/settings/templates`) lists `watchTemplatesWithDetails()` stream. Swipe-to-delete with confirmation. "Use" button opens `AddEntryScreen` pre-filled via a synthetic `EntryWithDetails`. `AddEntryScreen` also exposes a direct "Save as Template" action backed by `AddTemplateController.addTemplateFromForm()`.
 12. **Price Change Alerts (Premium)** ✅ — `flutter_local_notifications` wrapper (`NotificationService`) is initialised in `main()`. `PriceAlertService.checkAndNotify()` compares new purchases against the prior logged price and fires a local notification when the configured threshold is crossed (Premium only). Alert config is persisted in the `price_alerts` DB table (schema v3), and users can manage thresholds from `PriceAlertsScreen` (`/settings/price-alerts`).
 
@@ -385,6 +387,8 @@ final isPremiumProvider = Provider<bool>((ref) {
 A complete visual overhaul to modernize the app with contemporary design patterns, smoother animations, and improved usability. **The overarching design theme should draw inspiration from the Fiat vs. Bitcoin Standard dichotomy** — the UI should visually contrast traditional finance (gold/blue tones, classic typography, established iconography) with the Bitcoin ecosystem (orange accents, modern geometric shapes, futuristic elements), creating a cohesive visual language that reinforces the app's core purpose of comparing fiat inflation against Bitcoin purchasing power.
 
 27. **Glassmorphism & Neumorphism Updates** — Replace flat Material 3 surfaces with subtle glassmorphism effects (frosted glass cards, blur overlays) in key areas like the dashboard header, scanner modal, and paywall. Use soft shadows and rounded corners (20-24px radius) for a tactile feel.
+
+28. **Receipt Review Price Editing** — Extend the Per-Item Receipt Review dialog to include editable price and quantity fields, not just product name, category, and unit. This allows users to correct AI-extraction errors (e.g., misread prices, missing quantities) before saving receipt items.
 
 28. **Animated Charts** — Enhance `fl_chart` visualizations with entry animations (chart draws in on load), touch-responsive highlights, and smooth data transitions when filters change. Add haptic feedback on category bar taps.
 

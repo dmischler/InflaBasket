@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/features/dashboard/presentation/overview_tab.dart';
 import 'package:inflabasket/features/dashboard/presentation/history_tab.dart';
 import 'package:inflabasket/features/dashboard/presentation/categories_tab.dart';
 import 'package:inflabasket/features/settings/presentation/settings_screen.dart';
+import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   int _currentIndex = 0;
 
   @override
@@ -31,7 +33,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go('/home/add'),
+        onPressed: () {
+          final isPremium =
+              ref.watch(subscriptionControllerProvider).valueOrNull ?? false;
+          if (isPremium) {
+            context.push('/scanner');
+          } else {
+            context.go('/home/add');
+          }
+        },
         child: const Icon(Icons.add),
       ),
       bottomNavigationBar: NavigationBar(
