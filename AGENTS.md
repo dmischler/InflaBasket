@@ -196,6 +196,27 @@ Context is your most important resource. Proactively use subagents to keep explo
   - Updating the AI prompt template if receipt parsing changes
   - Adding new roadmap items to the Future Roadmap section
 
+## 9. Version Management
+
+This project uses semantic versioning. After every code change, bump the version appropriately:
+
+- **Patch** (x.y.**Z**): Bug fixes, small improvements
+- **Minor** (x.**Y**.0): New features, backward-compatible changes
+- **Major** (**X**.0.0): Breaking changes
+
+### How to Bump Version
+```bash
+flutter pub version           # Check current version
+flutter pub version --patch   # Bump patch (1.0.0 → 1.0.1)
+flutter pub version --minor    # Bump minor (1.0.0 → 1.1.0)
+flutter pub version --major    # Bump major (1.0.0 → 2.0.0)
+```
+
+### When to Bump
+- **Always** bump after any meaningful code change
+- Include version bump in the same commit as the code changes
+- Run `flutter analyze` and `dart run build_runner build -d` after version bump to ensure everything still works
+
 ---
 
 Last updated: March 2026

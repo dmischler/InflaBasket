@@ -117,9 +117,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final categories = categoriesAsync.valueOrNull ?? <Category>[];
     final settings = ref.read(settingsControllerProvider);
 
-    showDialog(
+    showDialog<bool>(
       context: context,
-      builder: (context) => _ReceiptReviewDialog(
+      builder: (dialogContext) => _ReceiptReviewDialog(
         storeName: storeName,
         receiptDate: receiptDate,
         items: items,
@@ -132,27 +132,31 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   receiptDate: receiptDate,
                   items: selectedItems,
                 );
-            if (!context.mounted) return;
-            final sl10n = AppLocalizations.of(context)!;
-            ScaffoldMessenger.of(context).showSnackBar(
+            if (!dialogContext.mounted) return;
+            final sl10n = AppLocalizations.of(dialogContext)!;
+            ScaffoldMessenger.of(dialogContext).showSnackBar(
               SnackBar(
                 content: Text(sl10n.scannerSavedItems(selectedItems.length)),
               ),
             );
-            context.pop();
+            Navigator.of(dialogContext).pop(true);
           } catch (e) {
-            if (!context.mounted) return;
-            final el10n = AppLocalizations.of(context)!;
-            ScaffoldMessenger.of(context).showSnackBar(
+            if (!dialogContext.mounted) return;
+            final el10n = AppLocalizations.of(dialogContext)!;
+            ScaffoldMessenger.of(dialogContext).showSnackBar(
               SnackBar(
                 content: Text(el10n.scannerSaveError(e.toString())),
-                backgroundColor: Theme.of(context).colorScheme.error,
+                backgroundColor: Theme.of(dialogContext).colorScheme.error,
               ),
             );
           }
         },
       ),
-    );
+    ).then((saved) {
+      if (saved == true && mounted) {
+        context.go('/home');
+      }
+    });
   }
 
   @override
@@ -381,7 +385,6 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
         selectedItems.add(item);
       }
     }
-    Navigator.of(context).pop();
     await widget.onSave(selectedItems);
   }
 
