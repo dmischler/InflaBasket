@@ -145,8 +145,10 @@ class AppDatabase extends _$AppDatabase {
                     ..where((t) => t.name.equals(name)))
                   .getSingleOrNull();
               if (exists == null) {
-                await into(categories)
-                    .insert(CategoriesCompanion.insert(name: name));
+                await into(categories).insert(CategoriesCompanion.insert(
+                  name: name,
+                  isCustom: const Value(false),
+                ));
               }
             }
           }
