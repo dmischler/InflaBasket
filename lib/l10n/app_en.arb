@@ -486,7 +486,7 @@
   "scannerAnalyzingMessage": "The AI is extracting line items, totals, and suggested categories.",
   "@scannerAnalyzingMessage": { "description": "Message while AI processes receipt" },
 
-  "scannerReviewInstructions": "Uncheck items you don't want to save. Tap names or categories to edit.",
+  "scannerReviewInstructions": "Uncheck items you don't want to save. Tap names, prices, quantities, or categories to edit.",
   "@scannerReviewInstructions": { "description": "Instructions on receipt review screen" },
 
   "settingsPriceAlertsSubtitle": "Enable notifications for product price changes",

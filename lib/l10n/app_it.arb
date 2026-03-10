@@ -168,7 +168,7 @@
   "scannerAnalyzingMessage": "L'IA sta estraendo articoli, totali e categorie suggerite.",
   "@scannerAnalyzingMessage": { "description": "Message while AI processes receipt" },
 
-  "scannerReviewInstructions": "Deseleziona gli articoli da non salvare. Tocca nomi o categorie per modificare.",
+  "scannerReviewInstructions": "Deseleziona gli articoli da non salvare. Tocca nomi, prezzi, quantità o categorie per modificare.",
   "@scannerReviewInstructions": { "description": "Instructions on receipt review screen" },
 
   "settingsPriceAlertsSubtitle": "Attiva notifiche per cambiamenti di prezzo",

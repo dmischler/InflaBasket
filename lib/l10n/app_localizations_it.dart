@@ -494,7 +494,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get scannerReviewInstructions =>
-      'Deseleziona gli articoli da non salvare. Tocca nomi o categorie per modificare.';
+      'Deseleziona gli articoli da non salvare. Tocca nomi, prezzi, quantità o categorie per modificare.';
 
   @override
   String get settingsPriceAlertsSubtitle =>

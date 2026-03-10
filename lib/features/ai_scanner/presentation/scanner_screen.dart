@@ -317,6 +317,8 @@ class _ReceiptReviewDialog extends StatefulWidget {
 class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
   late final List<bool> _selected;
   late final List<TextEditingController> _nameControllers;
+  late final List<TextEditingController> _priceControllers;
+  late final List<TextEditingController> _quantityControllers;
   late final List<String> _categorySelections;
   late final List<UnitType> _unitSelections;
   bool _isSaving = false;
@@ -329,6 +331,18 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
         .map((item) =>
             TextEditingController(text: item['productName'] as String? ?? ''))
         .toList();
+    _priceControllers = widget.items.map((item) {
+      final price = (item['price'] as num?)?.toDouble() ?? 0.0;
+      return TextEditingController(
+        text: price > 0 ? price.toStringAsFixed(2) : '0.00',
+      );
+    }).toList();
+    _quantityControllers = widget.items.map((item) {
+      final qty = (item['quantity'] as num?)?.toDouble() ?? 1.0;
+      return TextEditingController(
+        text: qty % 1 == 0 ? qty.toInt().toString() : qty.toString(),
+      );
+    }).toList();
     _categorySelections = widget.items
         .map((item) =>
             _resolveCategory(item['suggestedCategory'] as String? ?? ''))
@@ -346,6 +360,12 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
   @override
   void dispose() {
     for (final c in _nameControllers) {
+      c.dispose();
+    }
+    for (final c in _priceControllers) {
+      c.dispose();
+    }
+    for (final c in _quantityControllers) {
       c.dispose();
     }
     super.dispose();
@@ -382,6 +402,13 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
             : _nameControllers[i].text.trim();
         item['categoryName'] = _categorySelections[i];
         item['unit'] = _unitSelections[i].name;
+        // Parse price and quantity from editable fields
+        final priceText = _priceControllers[i].text.trim();
+        final price = double.tryParse(priceText.replaceAll(',', '.'));
+        item['price'] = price ?? 0.0;
+        final qtyText = _quantityControllers[i].text.trim();
+        final qty = double.tryParse(qtyText.replaceAll(',', '.'));
+        item['quantity'] = qty ?? 1.0;
         selectedItems.add(item);
       }
     }
@@ -434,10 +461,6 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                 itemCount: widget.items.length,
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (context, index) {
-                  final item = widget.items[index] as Map<String, dynamic>;
-                  final price = (item['price'] as num?)?.toDouble() ?? 0.0;
-                  final qty = (item['quantity'] as num?)?.toDouble() ?? 1.0;
-
                   return CheckboxListTile(
                     value: _selected[index],
                     onChanged: (val) =>
@@ -504,10 +527,50 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                                 .toList(),
                           ),
                           const SizedBox(width: 8),
+                          // Quantity field
+                          SizedBox(
+                            width: 50,
+                            child: TextField(
+                              controller: _quantityControllers[index],
+                              enabled: _selected[index],
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                border: UnderlineInputBorder(),
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 4),
+                              ),
+                            ),
+                          ),
                           Text(
-                            '${qty % 1 == 0 ? qty.toInt() : qty} × '
-                            '${price.toStringAsFixed(2)}',
+                            ' × ',
                             style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          // Price field
+                          SizedBox(
+                            width: 70,
+                            child: TextField(
+                              controller: _priceControllers[index],
+                              enabled: _selected[index],
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              textAlign: TextAlign.end,
+                              style: Theme.of(context).textTheme.bodySmall,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                border: UnderlineInputBorder(),
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 4),
+                                hintText: '0.00',
+                              ),
+                            ),
                           ),
                         ],
                       ),

@@ -1012,7 +1012,7 @@ abstract class AppLocalizations {
   /// Instructions on receipt review screen
   ///
   /// In en, this message translates to:
-  /// **'Uncheck items you don\'t want to save. Tap names or categories to edit.'**
+  /// **'Uncheck items you don\'t want to save. Tap names, prices, quantities, or categories to edit.'**
   String get scannerReviewInstructions;
 
   /// Subtitle for price alerts settings tile

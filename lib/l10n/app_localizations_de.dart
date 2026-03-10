@@ -499,7 +499,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get scannerReviewInstructions =>
-      'Abwählen was nicht gespeichert werden soll. Namen oder Kategorien antippen zum Bearbeiten.';
+      'Abwählen was nicht gespeichert werden soll. Namen, Preise, Mengen oder Kategorien antippen zum Bearbeiten.';
 
   @override
   String get settingsPriceAlertsSubtitle =>

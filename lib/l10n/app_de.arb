@@ -168,7 +168,7 @@
   "scannerAnalyzingMessage": "Die KI extrahiert Artikel, Summen und vorgeschlagene Kategorien.",
   "@scannerAnalyzingMessage": { "description": "Message while AI processes receipt" },
 
-  "scannerReviewInstructions": "Abwählen was nicht gespeichert werden soll. Namen oder Kategorien antippen zum Bearbeiten.",
+  "scannerReviewInstructions": "Abwählen was nicht gespeichert werden soll. Namen, Preise, Mengen oder Kategorien antippen zum Bearbeiten.",
   "@scannerReviewInstructions": { "description": "Instructions on receipt review screen" },
 
   "settingsPriceAlertsSubtitle": "Benachrichtigungen für Preisänderungen aktivieren",

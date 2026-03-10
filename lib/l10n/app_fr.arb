@@ -168,7 +168,7 @@
   "scannerAnalyzingMessage": "L'IA extrait les articles, les totaux et les catégories suggérées.",
   "@scannerAnalyzingMessage": { "description": "Message while AI processes receipt" },
 
-  "scannerReviewInstructions": "Décochez les articles à exclure. Appuyez sur les noms ou catégories pour modifier.",
+  "scannerReviewInstructions": "Décochez les articles à exclure. Appuyez sur les noms, prix, quantités ou catégories pour modifier.",
   "@scannerReviewInstructions": { "description": "Instructions on receipt review screen" },
 
   "settingsPriceAlertsSubtitle": "Activer les notifications pour les changements de prix",

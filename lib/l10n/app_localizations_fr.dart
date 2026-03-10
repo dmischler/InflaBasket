@@ -497,7 +497,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get scannerReviewInstructions =>
-      'Décochez les articles à exclure. Appuyez sur les noms ou catégories pour modifier.';
+      'Décochez les articles à exclure. Appuyez sur les noms, prix, quantités ou catégories pour modifier.';
 
   @override
   String get settingsPriceAlertsSubtitle =>

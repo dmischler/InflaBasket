@@ -491,7 +491,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scannerReviewInstructions =>
-      'Uncheck items you don\'t want to save. Tap names or categories to edit.';
+      'Uncheck items you don\'t want to save. Tap names, prices, quantities, or categories to edit.';
 
   @override
   String get settingsPriceAlertsSubtitle =>

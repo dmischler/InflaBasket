@@ -296,6 +296,10 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] **DuplicateDialog simplified:** Removed `_NameRow` helper widget; duplicate prompt now uses the `duplicateDetectionMessage(newName, existingName)` interpolated ARB key for clean localized output.
 - [x] **Helper method refactors for l10n:** `_showFilterSheet` (HistoryTab), `_buildBarChart`/`_buildCategoryList` (CategoriesTab), `_showOverlaySourceInfo`/`_overlaySourceDescription` (OverviewTab), and `_save` (ScannerScreen) were updated to accept `AppLocalizations` as a parameter where needed.
 
+**Sprint 5: Reliability & Polish**
+- [x] **AI Scanner Fallback Model:** VisionClient now catches `GenerativeAIException` with 503/UNAVAILABLE errors and automatically retries with `gemini-3-flash-preview` fallback model. Logs fallback attempts for debugging.
+- [x] **JSON Truncation Recovery:** VisionClient now handles truncated/incomplete JSON responses from the AI by attempting to recover valid JSON. Uses bracket-balancing algorithm to find the last complete object and parse it. Falls back to extracting just the items array if needed. If recovery fails, throws the original error.
+
 ### 📝 Production Configuration (Not Code)
 - Replace `'appl_apiKey'` / `'goog_apiKey'` placeholders in `subscription_providers.dart` with real RevenueCat keys before store submission.
 - Replace `'YOUR_API_KEY'` in `vision_client.dart`; ideally move to a backend proxy rather than bundling the key in the binary.

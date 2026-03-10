@@ -8,6 +8,9 @@ import 'dart:convert';
 
 part 'vision_client.g.dart';
 
+const _defaultModel = 'gemini-2.5-flash';
+const _fallbackModel = 'gemini-3-flash-preview';
+
 @riverpod
 VisionClient visionClient(VisionClientRef ref) {
   return VisionClient();
@@ -15,6 +18,87 @@ VisionClient visionClient(VisionClientRef ref) {
 
 class VisionClient {
   VisionClient();
+
+  GenerativeModel _createModel(String modelName, String apiKey) {
+    return GenerativeModel(
+      model: modelName,
+      apiKey: apiKey,
+      generationConfig: GenerationConfig(
+        temperature: 0.0,
+        topP: 0.95,
+        maxOutputTokens: 8192,
+        responseMimeType: 'application/json',
+        responseSchema: Schema.object(
+          properties: {
+            'storeName': Schema.string(
+                description: 'Store name or empty string if unknown'),
+            'date': Schema.string(
+                description:
+                    'Date in YYYY-MM-DD format or empty string if unknown'),
+            'items': Schema.array(
+              items: Schema.object(
+                properties: {
+                  'productName': Schema.string(),
+                  'price': Schema.number(),
+                  'quantity': Schema.number(),
+                  'unit': Schema.string(
+                    description:
+                        'Unit of measurement. Must be one of: count, gram, kilogram, ounce, pound, milliliter, liter, fluidOunce, pack, piece, bottle, can. Use exactly one of these values.',
+                  ),
+                  'total': Schema.number(),
+                  'suggestedCategory': Schema.string(),
+                  'confidence': Schema.number(),
+                },
+                requiredProperties: [
+                  'productName',
+                  'price',
+                  'quantity',
+                  'unit',
+                  'total',
+                  'suggestedCategory',
+                  'confidence',
+                ],
+              ),
+            ),
+          },
+          requiredProperties: ['storeName', 'date', 'items'],
+        ),
+      ),
+    );
+  }
+
+  Future<GenerateContentResponse> _generateWithFallback({
+    required GenerativeModel model,
+    required String apiKey,
+    required String prompt,
+    required Uint8List bytes,
+    bool isFallback = false,
+  }) async {
+    try {
+      return await model.generateContent([
+        Content.multi([
+          TextPart(prompt),
+          DataPart('image/jpeg', bytes),
+        ]),
+      ]);
+    } on GenerativeAIException catch (e) {
+      final message = e.toString();
+      if (!isFallback &&
+          (message.contains('503') || message.contains('UNAVAILABLE'))) {
+        debugPrint('Vision parseReceipt failed: $e');
+        debugPrint('Retrying with fallback model: $_fallbackModel');
+        final fallbackModel = _createModel(_fallbackModel, apiKey);
+        return _generateWithFallback(
+          model: fallbackModel,
+          apiKey: apiKey,
+          prompt: prompt,
+          bytes: bytes,
+          isFallback: true,
+        );
+      }
+      rethrow;
+    }
+  }
 
   Future<Map<String, dynamic>> parseReceipt(
     File imageFile, {
@@ -33,53 +117,7 @@ class VisionClient {
         ...customCategoryNames.where((name) => name.trim().isNotEmpty),
       }.toList(growable: false);
 
-      final model = GenerativeModel(
-        model:
-            'gemini-2.5-flash', // or 'gemini-1.5-flash-8b' / latest stable flash variant
-        apiKey: apiKey,
-        generationConfig: GenerationConfig(
-          temperature: 0.0,
-          topP: 0.95,
-          maxOutputTokens: 8192,
-          responseMimeType: 'application/json',
-          responseSchema: Schema.object(
-            properties: {
-              'storeName': Schema.string(
-                  description: 'Store name or empty string if unknown'),
-              'date': Schema.string(
-                  description:
-                      'Date in YYYY-MM-DD format or empty string if unknown'),
-              'items': Schema.array(
-                items: Schema.object(
-                  properties: {
-                    'productName': Schema.string(),
-                    'price': Schema.number(),
-                    'quantity': Schema.number(),
-                    'unit': Schema.string(
-                      // ← changed: just string, no enumString(values: …)
-                      description:
-                          'Unit of measurement. Must be one of: count, gram, kilogram, ounce, pound, milliliter, liter, fluidOunce, pack, piece, bottle, can. Use exactly one of these values.',
-                    ),
-                    'total': Schema.number(),
-                    'suggestedCategory': Schema.string(),
-                    'confidence': Schema.number(),
-                  },
-                  requiredProperties: [
-                    'productName',
-                    'price',
-                    'quantity',
-                    'unit',
-                    'total',
-                    'suggestedCategory',
-                    'confidence',
-                  ],
-                ),
-              ),
-            },
-            requiredProperties: ['storeName', 'date', 'items'],
-          ),
-        ),
-      );
+      final model = _createModel(_defaultModel, apiKey);
 
       final prompt = '''
 You are a precise receipt OCR and structured data extraction specialist.
@@ -156,12 +194,12 @@ Example correct output:
 }
 ''';
 
-      final response = await model.generateContent([
-        Content.multi([
-          TextPart(prompt),
-          DataPart('image/jpeg', bytes),
-        ]),
-      ]);
+      final response = await _generateWithFallback(
+        model: model,
+        apiKey: apiKey,
+        prompt: prompt,
+        bytes: bytes,
+      );
 
       final content = response.text;
 
@@ -185,7 +223,16 @@ Example correct output:
         cleanContent = jsonMatch.group(0)!;
       }
 
-      final parsed = jsonDecode(cleanContent) as Map<String, dynamic>;
+      Map<String, dynamic>? parsed;
+      try {
+        parsed = jsonDecode(cleanContent) as Map<String, dynamic>;
+      } on FormatException catch (e) {
+        debugPrint('JSON parse failed, attempting recovery: $e');
+        parsed = _tryRecoverTruncatedJson(cleanContent);
+        if (parsed == null) {
+          rethrow;
+        }
+      }
 
       final items = _filterValidItems(
         (parsed['items'] as List<dynamic>?) ?? [],
@@ -231,6 +278,75 @@ Example correct output:
     RegExp(r'^rendu$', caseSensitive: false),
     RegExp(r'^rest$', caseSensitive: false),
   ];
+
+  Map<String, dynamic>? _tryRecoverTruncatedJson(String input) {
+    int braceCount = 0;
+    int bracketCount = 0;
+    int lastBalancedPos = -1;
+
+    for (int i = 0; i < input.length; i++) {
+      final char = input[i];
+      if (char == '{') braceCount++;
+      if (char == '}') braceCount--;
+      if (char == '[') bracketCount++;
+      if (char == ']') bracketCount--;
+
+      if (braceCount == 0 && bracketCount == 0) {
+        lastBalancedPos = i;
+      }
+    }
+
+    if (lastBalancedPos > 0) {
+      final truncated = input.substring(0, lastBalancedPos + 1);
+      try {
+        final parsed = jsonDecode(truncated) as Map<String, dynamic>;
+        debugPrint(
+            'Successfully recovered truncated JSON with ${(parsed['items'] as List?)?.length ?? 0} items');
+        return parsed;
+      } catch (e) {
+        debugPrint('Recovery parse failed: $e');
+      }
+    }
+
+    final itemsMatch = RegExp(r'"items"\s*:\s*\[[\s\S]*').firstMatch(input);
+    if (itemsMatch != null) {
+      int itemBraceCount = 0;
+      int itemBracketCount = 0;
+      int lastItemBalanced = -1;
+
+      for (int i = 0; i < itemsMatch.end && i < input.length; i++) {
+        final char = input[i];
+        if (char == '{') itemBraceCount++;
+        if (char == '}') itemBraceCount--;
+        if (char == '[') itemBracketCount++;
+        if (char == ']') itemBracketCount--;
+
+        if (itemBraceCount == 0 && itemBracketCount == 0 && input[i] == ']') {
+          lastItemBalanced = i;
+        }
+      }
+
+      if (lastItemBalanced > itemsMatch.start) {
+        final itemsJson =
+            input.substring(itemsMatch.start, lastItemBalanced + 1);
+        try {
+          final items =
+              jsonDecode('{"items": $itemsJson}') as Map<String, dynamic>;
+          debugPrint(
+              'Recovered items array only: ${(items['items'] as List).length} items');
+          return {
+            'storeName': '',
+            'date': '',
+            'items': items['items'],
+          };
+        } catch (e) {
+          debugPrint('Items-only recovery failed: $e');
+        }
+      }
+    }
+
+    return null;
+  }
 
   List<Map<String, dynamic>> _filterValidItems(List<dynamic> items) {
     debugPrint('Raw items received from model: ${items.length}');
