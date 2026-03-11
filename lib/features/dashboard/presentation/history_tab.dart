@@ -10,6 +10,9 @@ import 'package:inflabasket/features/entry_management/application/entry_provider
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
+import 'package:inflabasket/core/theme/app_colors.dart';
+import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
+import 'package:inflabasket/core/widgets/vault_card.dart';
 
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});
@@ -27,7 +30,8 @@ class HistoryTab extends ConsumerWidget {
           filter.range != HistoryDateRange.allTime || filter.categoryId != null;
       return StateMessageCard(
         icon: hasActiveFilter ? Icons.filter_alt_off : Icons.receipt_long,
-        title: hasActiveFilter ? l10n.historyNoMatchingTitle : l10n.noEntriesYet,
+        title:
+            hasActiveFilter ? l10n.historyNoMatchingTitle : l10n.noEntriesYet,
         message: hasActiveFilter
             ? l10n.historyNoMatchingMessage
             : l10n.historyNoEntriesMessage,
@@ -52,8 +56,8 @@ class HistoryTab extends ConsumerWidget {
               IconButton(
                 tooltip: l10n.filter,
                 icon: const Icon(Icons.filter_list),
-                onPressed: () =>
-                    _showFilterSheet(context, l10n, ref, categoriesAsync, filter),
+                onPressed: () => _showFilterSheet(
+                    context, l10n, ref, categoriesAsync, filter),
               ),
             ],
           ),
@@ -64,7 +68,6 @@ class HistoryTab extends ConsumerWidget {
             itemBuilder: (context, index) {
               final entryDetails = sortedEntries[index];
               final entry = entryDetails.entry;
-              final product = entryDetails.product;
               final category = entryDetails.category;
 
               final dateFormat = DateFormat.yMMMd();
@@ -119,60 +122,15 @@ class HistoryTab extends ConsumerWidget {
                     SnackBar(content: Text(l10n.entryDeleted)),
                   );
                 },
-                child: ListTile(
-                  leading: CircleAvatar(
-                    child: Text(
-                      categoryName.isNotEmpty
-                          ? categoryName[0].toUpperCase()
-                          : '?',
-                    ),
-                  ),
-                  title: Text(product.name),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                          '${entry.storeName}$locationText • ${dateFormat.format(entry.purchaseDate)}'),
-                      if (entry.notes != null && entry.notes!.isNotEmpty)
-                        Text(
-                          entry.notes!,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontStyle: FontStyle.italic,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                    ],
-                  ),
-                  isThreeLine: entry.notes != null && entry.notes!.isNotEmpty,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined),
-                        tooltip: l10n.historyEditEntryTooltip,
-                        onPressed: () {
-                          context.push('/home/add', extra: entryDetails);
-                        },
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            currencyFormat.format(entry.price),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          _buildUnitPriceLabel(entry, settings.currency),
-                        ],
-                      ),
-                    ],
-                  ),
-                  onLongPress: null,
+                child: _buildReceiptStrip(
+                  context: context,
+                  entryDetails: entryDetails,
+                  l10n: l10n,
+                  settings: settings,
+                  dateFormat: dateFormat,
+                  currencyFormat: currencyFormat,
+                  categoryName: categoryName,
+                  locationText: locationText,
                 ),
               );
             },
@@ -180,6 +138,97 @@ class HistoryTab extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildReceiptStrip({
+    required BuildContext context,
+    required EntryWithDetails entryDetails,
+    required AppLocalizations l10n,
+    required AppSettings settings,
+    required DateFormat dateFormat,
+    required NumberFormat currencyFormat,
+    required String categoryName,
+    required String locationText,
+  }) {
+    final entry = entryDetails.entry;
+    final product = entryDetails.product;
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+
+    final content = ListTile(
+      leading: CircleAvatar(
+        backgroundColor: isLuxeMode ? AppColors.bgElevated : null,
+        foregroundColor: isLuxeMode ? AppColors.textPrimary : null,
+        child: Text(
+          categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '?',
+        ),
+      ),
+      title: Text(product.name,
+          style:
+              isLuxeMode ? const TextStyle(fontWeight: FontWeight.w600) : null),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+              '${entry.storeName}$locationText • ${dateFormat.format(entry.purchaseDate)}'),
+          if (entry.notes != null && entry.notes!.isNotEmpty)
+            Text(
+              entry.notes!,
+              style: TextStyle(
+                fontSize: 11,
+                fontStyle: FontStyle.italic,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+        ],
+      ),
+      isThreeLine: entry.notes != null && entry.notes!.isNotEmpty,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: l10n.historyEditEntryTooltip,
+            onPressed: () {
+              context.push('/home/add', extra: entryDetails);
+            },
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (isLuxeMode)
+                TabularAmountText(
+                  currencyFormat.format(entry.price),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                )
+              else
+                Text(
+                  currencyFormat.format(entry.price),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              _buildUnitPriceLabel(entry, settings.currency),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    if (isLuxeMode) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: VaultCard(
+          padding: EdgeInsets.zero,
+          child: content,
+        ),
+      );
+    }
+
+    return content;
   }
 
   /// Shows a small per-unit price label below the total price.

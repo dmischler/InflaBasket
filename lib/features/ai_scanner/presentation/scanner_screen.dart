@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -117,41 +118,69 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final categories = categoriesAsync.valueOrNull ?? <Category>[];
     final settings = ref.read(settingsControllerProvider);
 
-    showDialog<bool>(
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == const Color(0xFF050505);
+
+    showModalBottomSheet<bool>(
       context: context,
-      builder: (dialogContext) => _ReceiptReviewDialog(
-        storeName: storeName,
-        receiptDate: receiptDate,
-        items: items,
-        categories: categories,
-        isMetric: settings.isMetric,
-        onSave: (selectedItems) async {
-          try {
-            await ref.read(entryRepositoryProvider).bulkAddFromReceipt(
-                  storeName: storeName,
-                  receiptDate: receiptDate,
-                  items: selectedItems,
-                );
-            if (!dialogContext.mounted) return;
-            final sl10n = AppLocalizations.of(dialogContext)!;
-            ScaffoldMessenger.of(dialogContext).showSnackBar(
-              SnackBar(
-                content: Text(sl10n.scannerSavedItems(selectedItems.length)),
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: isLuxeMode ? Colors.transparent : null,
+      barrierColor: isLuxeMode ? Colors.black.withValues(alpha: 0.5) : null,
+      builder: (dialogContext) {
+        Widget child = _ReceiptReviewDialog(
+          storeName: storeName,
+          receiptDate: receiptDate,
+          items: items,
+          categories: categories,
+          isMetric: settings.isMetric,
+          onSave: (selectedItems) async {
+            try {
+              await ref.read(entryRepositoryProvider).bulkAddFromReceipt(
+                    storeName: storeName,
+                    receiptDate: receiptDate,
+                    items: selectedItems,
+                  );
+              if (!dialogContext.mounted) return;
+              final sl10n = AppLocalizations.of(dialogContext)!;
+              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                SnackBar(
+                  content: Text(sl10n.scannerSavedItems(selectedItems.length)),
+                ),
+              );
+              Navigator.of(dialogContext).pop(true);
+            } catch (e) {
+              if (!dialogContext.mounted) return;
+              final el10n = AppLocalizations.of(dialogContext)!;
+              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                SnackBar(
+                  content: Text(el10n.scannerSaveError(e.toString())),
+                  backgroundColor: Theme.of(dialogContext).colorScheme.error,
+                ),
+              );
+            }
+          },
+        );
+
+        if (isLuxeMode) {
+          child = BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF121212).withValues(alpha: 0.9),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
+                border: const Border(
+                  top: BorderSide(color: Color(0x14FFFFFF), width: 1),
+                ),
               ),
-            );
-            Navigator.of(dialogContext).pop(true);
-          } catch (e) {
-            if (!dialogContext.mounted) return;
-            final el10n = AppLocalizations.of(dialogContext)!;
-            ScaffoldMessenger.of(dialogContext).showSnackBar(
-              SnackBar(
-                content: Text(el10n.scannerSaveError(e.toString())),
-                backgroundColor: Theme.of(dialogContext).colorScheme.error,
-              ),
-            );
-          }
-        },
-      ),
+              child: child,
+            ),
+          );
+        }
+
+        return child;
+      },
     ).then((saved) {
       if (saved == true && mounted) {
         context.go('/home');
@@ -421,15 +450,29 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
     final selectedCount = _selected.where((s) => s).length;
     final dateLabel = DateFormat.yMMMd().format(widget.receiptDate);
 
-    return Dialog(
+    return SafeArea(
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
-          maxWidth: 560,
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
+          maxWidth: 600,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Drag Handle for bottom sheet
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurfaceVariant
+                    .withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

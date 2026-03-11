@@ -386,32 +386,34 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ---
 
-### Sprint 4 – UI Design Iteration (Not High Priority)
+### Sprint 4 – UI Design Iteration
 
 A complete visual overhaul to modernize the app with contemporary design patterns, smoother animations, and improved usability. **The overarching design theme should draw inspiration from the Fiat vs. Bitcoin Standard dichotomy** — the UI should visually contrast traditional finance (gold/blue tones, classic typography, established iconography) with the Bitcoin ecosystem (orange accents, modern geometric shapes, futuristic elements), creating a cohesive visual language that reinforces the app's core purpose of comparing fiat inflation against Bitcoin purchasing power.
 
-27. **Glassmorphism & Neumorphism Updates** — Replace flat Material 3 surfaces with subtle glassmorphism effects (frosted glass cards, blur overlays) in key areas like the dashboard header, scanner modal, and paywall. Use soft shadows and rounded corners (20-24px radius) for a tactile feel.
+27. **Dark Mode Support** ✅ — Complete. Implemented via Material 3 `ThemeMode` (light/dark/system). Theme preference persisted via `SharedPreferences`. Toggle available in Settings.
 
-28. **Receipt Review Price Editing** ✅ — Complete. The Per-Item Receipt Review dialog (`_ReceiptReviewDialog`) already includes editable product name, category, unit, quantity, and price fields, plus checkboxes for selecting/deselecting items.
+28. **Glassmorphism & Neumorphism Updates** — Replace flat Material 3 surfaces with subtle glassmorphism effects (frosted glass cards, blur overlays) in key areas like the dashboard header, scanner modal, and paywall. Use soft shadows and rounded corners (20-24px radius) for a tactile feel.
 
-29. **Animated Charts** — Enhance `fl_chart` visualizations with entry animations (chart draws in on load), touch-responsive highlights, and smooth data transitions when filters change. Add haptic feedback on category bar taps.
+29. **Receipt Review Price Editing** ✅ — Complete. The Per-Item Receipt Review dialog (`_ReceiptReviewDialog`) already includes editable product name, category, unit, quantity, and price fields, plus checkboxes for selecting/deselecting items.
 
-30. **Custom Bottom Navigation** — Replace standard `NavigationBar` with a custom animated FAB-style nav: floating pill-shaped indicator with smooth slide transitions, micro-animations on icon press, and adaptive icons that morph between outline/filled states.
+30. **Animated Charts** — Enhance `fl_chart` visualizations with entry animations (chart draws in on load), touch-responsive highlights, and smooth data transitions when filters change. Add haptic feedback on category bar taps.
 
-31. **Skeleton Loaders** — Replace circular progress indicators with skeleton shimmer placeholders throughout the app (History list, Dashboard cards, Scanner loading) for a more polished loading experience.
+31. **Custom Bottom Navigation** — Replace standard `NavigationBar` with a custom animated FAB-style nav: floating pill-shaped indicator with smooth slide transitions, micro-animations on icon press, and adaptive icons that morph between outline/filled states.
+
+32. **Skeleton Loaders** — Replace circular progress indicators with skeleton shimmer placeholders throughout the app (History list, Dashboard cards, Scanner loading) for a more polished loading experience.
     - **Current partial implementation** — key screens now use richer empty/loading/error state cards (`StateMessageCard`) for scanner, paywall, templates, price alerts, and filtered history. Full shimmer/skeleton treatment is still pending.
 
-32. **Swipe Gestures** — Implement swipe-to-reveal actions in History list (swipe left: delete, swipe right: edit) with satisfying spring physics and haptic feedback.
+33. **Swipe Gestures** — Implement swipe-to-reveal actions in History list (swipe left: delete, swipe right: edit) with satisfying spring physics and haptic feedback.
 
-33. **Contextual Floating Action Button** — Add an expandable Speed Dial FAB on the Dashboard that expands into multiple actions (Add Entry, Scan Receipt, Add Template) with staggered animations.
+34. **Contextual Floating Action Button** — Add an expandable Speed Dial FAB on the Dashboard that expands into multiple actions (Add Entry, Scan Receipt, Add Template) with staggered animations.
 
-34. **Theme Customization** — Expand beyond Dark/Light mode with a full theme builder: accent color picker, rounded/sharp corner toggle, font size scaling (accessibility), and compact/comfortable density options. Persist via `SharedPreferences`.
+35. **Theme Customization** — Expand beyond Dark/Light mode with a full theme builder: accent color picker, rounded/sharp corner toggle, font size scaling (accessibility), and compact/comfortable density options. Persist via `SharedPreferences`.
 
-35. **Empty State Illustrations** — Add friendly, animated empty state illustrations (using Lottie or Rive) for: No entries yet, No categories, No templates, No price alerts configured. Replace generic "No data" text.
+36. **Empty State Illustrations** — Add friendly, animated empty state illustrations (using Lottie or Rive) for: No entries yet, No categories, No templates, No price alerts configured. Replace generic "No data" text.
 
-36. **Onboarding Redesign** — New 3-screen onboarding flow with animated illustrations explaining: (1) Track purchases, (2) See your inflation, (3) Scan receipts (Premium). Skip/Next with smooth page transitions and progress indicator.
+37. **Onboarding Flow** — New 3-screen onboarding flow with animated illustrations explaining: (1) Track purchases, (2) See your inflation, (3) Scan receipts (Premium). Skip/Next with smooth page transitions and progress indicator. Onboarding shown on first launch after fresh install; persisted flag in `SharedPreferences` controls visibility. Routes to Dashboard on completion.
 
-37. **Expand Macro Comparison Sources** — Build on the shipped CPI/M2 overlay system with additional benchmark series and deeper controls.
+38. **Expand Macro Comparison Sources** — Build on the shipped CPI/M2 overlay system with additional benchmark series and deeper controls.
     - **Current implementation** — CPI uses Eurostat SDMX 3.0 HICP for CHF/EUR; M2 uses SNB (CHF), ECB (EUR), FRED (USD), and Bank of England (GBP), with request windows sized to the visible basket-history range.
     - **Current UX enhancement** — the Overview chart now includes source-info messaging so users can inspect which CPI/M2 feed is backing the selected overlay.
     - **Additional Central Bank Inflation Metrics** — Extend beyond current CPI coverage with direct official sources such as US BLS, UK ONS, and Bank of Japan for users with multi-currency tracking.

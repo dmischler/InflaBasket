@@ -29,8 +29,7 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
     super.didChangeDependencies();
     if (_initialized) return;
 
-    final categories =
-        ref.read(categoriesProvider).valueOrNull ?? <Category>[];
+    final categories = ref.read(categoriesProvider).valueOrNull ?? <Category>[];
     final savedWeights =
         ref.read(categoryWeightsControllerProvider).valueOrNull ?? {};
 
@@ -51,15 +50,13 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
     }
   }
 
-  double get _totalPercent =>
-      _percentages.values.fold(0.0, (a, b) => a + b);
+  double get _totalPercent => _percentages.values.fold(0.0, (a, b) => a + b);
 
   bool get _isValid => (_totalPercent - 100.0).abs() < 0.5;
 
   void _resetEqual(List<Category> categories) {
     if (categories.isEmpty) return;
-    final equal =
-        double.parse((100.0 / categories.length).toStringAsFixed(1));
+    final equal = double.parse((100.0 / categories.length).toStringAsFixed(1));
     setState(() {
       _percentages = {for (final c in categories) c.id: equal};
     });
@@ -118,9 +115,7 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
       },
     );
     if (confirmed == true) {
-      await ref
-          .read(categoryWeightsControllerProvider.notifier)
-          .clearWeights();
+      await ref.read(categoryWeightsControllerProvider.notifier).clearWeights();
       if (mounted) Navigator.of(context).pop();
     }
   }
@@ -136,8 +131,7 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              final cats =
-                  categoriesAsync.valueOrNull ?? <Category>[];
+              final cats = categoriesAsync.valueOrNull ?? <Category>[];
               _resetEqual(cats);
             },
             child: Text(l10n.weightEditorResetEqual),
@@ -164,8 +158,8 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
             children: [
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemCount: categories.length,
                   itemBuilder: (context, index) {
                     final cat = categories[index];
@@ -192,8 +186,8 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -239,9 +233,7 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: FilledButton(
-                            onPressed: isValid
-                                ? () => _save(categories)
-                                : null,
+                            onPressed: isValid ? () => _save(categories) : null,
                             child: Text(l10n.save),
                           ),
                         ),

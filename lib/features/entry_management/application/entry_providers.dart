@@ -205,7 +205,6 @@ class AddEntryController extends _$AddEntryController {
     String? notes,
     int? existingEntryId,
   }) async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
       final isPremium =

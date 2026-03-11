@@ -10,6 +10,9 @@ import 'package:inflabasket/core/api/cpi_provider.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
+import 'package:inflabasket/core/widgets/vault_card.dart';
+import 'package:inflabasket/core/theme/app_colors.dart';
 
 class OverviewTab extends ConsumerWidget {
   const OverviewTab({super.key});
@@ -80,38 +83,75 @@ class OverviewTab extends ConsumerWidget {
         ? Icons.trending_up
         : (inflation < 0 ? Icons.trending_down : Icons.trending_flat);
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+
+    return isLuxeMode
+        ? VaultCard(
+            isActive: true,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l.overviewTitle,
-                    style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Text(
-                  '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.bold,
-                      ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.overviewTitle,
+                        style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TabularAmountText(
+                      '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: color,
+                                fontWeight: FontWeight.bold,
+                              ),
+                    ),
+                  ],
                 ),
+                CircleAvatar(
+                  radius: 32,
+                  backgroundColor: color.withValues(alpha: 0.1),
+                  child: Icon(icon, size: 32, color: color),
+                )
               ],
             ),
-            CircleAvatar(
-              radius: 32,
-              backgroundColor: color.withValues(alpha: 0.1),
-              child: Icon(icon, size: 32, color: color),
-            )
-          ],
-        ),
-      ),
-    );
+          )
+        : Card(
+            elevation: 4,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l.overviewTitle,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              color: color,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ],
+                  ),
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: color.withValues(alpha: 0.1),
+                    child: Icon(icon, size: 32, color: color),
+                  )
+                ],
+              ),
+            ),
+          );
   }
 
   Widget _buildChartHeader(
@@ -132,17 +172,17 @@ class OverviewTab extends ConsumerWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-                if (overlayType != null)
-                  IconButton(
-                    tooltip: l.comparisonSourceDetails,
-                    onPressed: () => _showOverlaySourceInfo(
-                      context,
-                      l,
-                      overlayType,
-                      ref.read(settingsControllerProvider).currency,
-                    ),
-                    icon: const Icon(Icons.info_outline, size: 20),
+              if (overlayType != null)
+                IconButton(
+                  tooltip: l.comparisonSourceDetails,
+                  onPressed: () => _showOverlaySourceInfo(
+                    context,
+                    l,
+                    overlayType,
+                    ref.read(settingsControllerProvider).currency,
                   ),
+                  icon: const Icon(Icons.info_outline, size: 20),
+                ),
               Text(l.showComparisonOverlay,
                   style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(width: 8),
@@ -356,24 +396,41 @@ class OverviewTab extends ConsumerWidget {
     final chartMinY = dataMinY == dataMaxY ? dataMinY - 10.0 : dataMinY;
     final chartMaxY = dataMinY == dataMaxY ? dataMaxY + 10.0 : dataMaxY;
 
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+
     final barData = <LineChartBarData>[
       LineChartBarData(
         spots: spots,
         isCurved: true,
-        color: Theme.of(context).colorScheme.primary,
-        barWidth: 4,
+        color: primaryColor,
+        barWidth: isLuxeMode ? 3 : 4,
         isStrokeCapRound: true,
+        shadow: isLuxeMode
+            ? Shadow(color: primaryColor.withValues(alpha: 0.8), blurRadius: 8)
+            : const Shadow(color: Colors.transparent),
         dotData: const FlDotData(show: true),
         belowBarData: BarAreaData(
           show: true,
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+          gradient: isLuxeMode
+              ? LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    primaryColor.withValues(alpha: 0.3),
+                    AppColors.bgVoid.withValues(alpha: 0.0),
+                  ],
+                )
+              : null,
+          color: isLuxeMode ? null : primaryColor.withValues(alpha: 0.2),
         ),
       ),
       if (showCpi && comparisonSpots.isNotEmpty)
         LineChartBarData(
           spots: comparisonSpots,
           isCurved: true,
-          color: Colors.orange,
+          color: isLuxeMode ? AppColors.textSecondary : Colors.orange,
           barWidth: 2,
           isStrokeCapRound: true,
           dashArray: [6, 4],
@@ -434,6 +491,9 @@ class OverviewTab extends ConsumerWidget {
       return Text(l.overviewNoPriceIncreases);
     }
 
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -441,16 +501,44 @@ class OverviewTab extends ConsumerWidget {
       itemBuilder: (context, index) {
         final item = inflators[index];
         final unitLabel = _unitPriceLabel(item, settings.currency);
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(item.product.name),
+
+        final listTile = ListTile(
+          contentPadding: isLuxeMode
+              ? const EdgeInsets.symmetric(horizontal: 16)
+              : EdgeInsets.zero,
+          title: Text(item.product.name,
+              style: isLuxeMode
+                  ? const TextStyle(fontWeight: FontWeight.w600)
+                  : null),
           subtitle: Text(unitLabel),
-          trailing: Text(
-            '+${item.inflationPercent.toStringAsFixed(1)}%',
-            style: const TextStyle(
-                color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
-          ),
+          trailing: isLuxeMode
+              ? TabularAmountText(
+                  '+${item.inflationPercent.toStringAsFixed(1)}%',
+                  style: TextStyle(
+                      color: AppColors.accentBtcMain,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                )
+              : Text(
+                  '+${item.inflationPercent.toStringAsFixed(1)}%',
+                  style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
         );
+
+        if (isLuxeMode) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: VaultCard(
+              padding: EdgeInsets.zero,
+              child: listTile,
+            ),
+          );
+        }
+
+        return listTile;
       },
     );
   }
@@ -469,6 +557,9 @@ class OverviewTab extends ConsumerWidget {
       return Text(l.overviewNoPriceDecreases);
     }
 
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -476,16 +567,44 @@ class OverviewTab extends ConsumerWidget {
       itemBuilder: (context, index) {
         final item = top[index];
         final unitLabel = _unitPriceLabel(item, settings.currency);
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(item.product.name),
+
+        final listTile = ListTile(
+          contentPadding: isLuxeMode
+              ? const EdgeInsets.symmetric(horizontal: 16)
+              : EdgeInsets.zero,
+          title: Text(item.product.name,
+              style: isLuxeMode
+                  ? const TextStyle(fontWeight: FontWeight.w600)
+                  : null),
           subtitle: Text(unitLabel),
-          trailing: Text(
-            '${item.inflationPercent.toStringAsFixed(1)}%',
-            style: const TextStyle(
-                color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16),
-          ),
+          trailing: isLuxeMode
+              ? TabularAmountText(
+                  '${item.inflationPercent.toStringAsFixed(1)}%',
+                  style: TextStyle(
+                      color: AppColors.accentFiatMain,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                )
+              : Text(
+                  '${item.inflationPercent.toStringAsFixed(1)}%',
+                  style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
         );
+
+        if (isLuxeMode) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: VaultCard(
+              padding: EdgeInsets.zero,
+              child: listTile,
+            ),
+          );
+        }
+
+        return listTile;
       },
     );
   }

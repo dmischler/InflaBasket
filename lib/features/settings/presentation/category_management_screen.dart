@@ -95,8 +95,9 @@ class CategoryManagementScreen extends ConsumerWidget {
                 labelText: l10n.addCategoryHint,
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) =>
-                  value == null || value.trim().isEmpty ? l10n.fieldRequired : null,
+              validator: (value) => value == null || value.trim().isEmpty
+                  ? l10n.fieldRequired
+                  : null,
             ),
           ),
           actions: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inflabasket/core/widgets/fiat_bitcoin_toggle.dart';
 import 'package:inflabasket/features/dashboard/presentation/overview_tab.dart';
 import 'package:inflabasket/features/dashboard/presentation/history_tab.dart';
 import 'package:inflabasket/features/dashboard/presentation/categories_tab.dart';
@@ -22,7 +23,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.appTitle)),
+      appBar: AppBar(
+        title: Text(l10n.appTitle),
+        actions: const [
+          FiatBitcoinToggle(),
+          SizedBox(width: 8),
+        ],
+      ),
       body: IndexedStack(
         index: _currentIndex,
         children: const [

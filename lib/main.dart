@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/router/app_router.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
+import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
@@ -34,15 +35,8 @@ class InflaBasketApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'InflaBasket',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple, brightness: Brightness.dark),
-      ),
-      themeMode: ThemeMode.system,
+      theme: AppTheme.getTheme(settings.themeType),
+      themeMode: ThemeMode.light, // Let AppTheme control everything
       locale: Locale(settings.locale),
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -5,6 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/core/theme/app_colors.dart';
+import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
+import 'package:inflabasket/core/widgets/vault_card.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
 class CategoriesTab extends ConsumerWidget {
@@ -39,7 +42,8 @@ class CategoriesTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildBarChart(BuildContext context, AppLocalizations l10n, List<CategoryInflation> data) {
+  Widget _buildBarChart(BuildContext context, AppLocalizations l10n,
+      List<CategoryInflation> data) {
     // Filter out any non-finite values before any computation to prevent
     // TransformLayer invalid matrix errors in fl_chart.
     final validData = data.where((e) => e.inflationPercent.isFinite).toList();
@@ -66,6 +70,9 @@ class CategoriesTab extends ConsumerWidget {
     final minY = (clampedMin < 0 ? clampedMin * 1.2 : 0.0);
     // Guarantee a non-zero range
     final safeMaxY = (maxY <= minY) ? minY + 10.0 : maxY;
+
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
 
     return SizedBox(
       height: 300,
@@ -112,14 +119,17 @@ class CategoriesTab extends ConsumerWidget {
             rightTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            getDrawingHorizontalLine: (value) => FlLine(
-              color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
-              strokeWidth: 1,
-            ),
-          ),
+          gridData: isLuxeMode
+              ? const FlGridData(show: false)
+              : FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color:
+                        Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                    strokeWidth: 1,
+                  ),
+                ),
           borderData: FlBorderData(show: false),
           barGroups: chartData.asMap().entries.map((e) {
             final index = e.key;
@@ -128,15 +138,28 @@ class CategoriesTab extends ConsumerWidget {
             // Clamp individual bar values as a secondary defence against
             // out-of-range values slipping through to fl_chart's painter.
             final toY = item.inflationPercent.clamp(-100.0, 1000.0).toDouble();
+
+            final color = isLuxeMode
+                ? (isPositive
+                    ? AppColors.accentBtcMain
+                    : AppColors.accentFiatMain)
+                : (isPositive ? Colors.red.shade400 : Colors.green.shade400);
+
             return BarChartGroupData(
               x: index,
               barRods: [
                 BarChartRodData(
                   toY: toY,
-                  color:
-                      isPositive ? Colors.red.shade400 : Colors.green.shade400,
-                  width: 20,
+                  color: color,
+                  width: isLuxeMode ? 16 : 20,
                   borderRadius: BorderRadius.circular(4),
+                  backDrawRodData: isLuxeMode
+                      ? BackgroundBarChartRodData(
+                          show: true,
+                          toY: safeMaxY,
+                          color: AppColors.bgElevated.withValues(alpha: 0.3),
+                        )
+                      : null,
                 )
               ],
             );
@@ -149,6 +172,9 @@ class CategoriesTab extends ConsumerWidget {
   Widget _buildCategoryList(BuildContext context, AppLocalizations l10n,
       List<CategoryInflation> data, AppSettings settings) {
     final format = NumberFormat.simpleCurrency(name: settings.currency);
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -161,29 +187,44 @@ class CategoriesTab extends ConsumerWidget {
           item.category.name,
         );
 
-        return Card(
-          elevation: 0,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor:
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              child: Text(
-                categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '?',
-              ),
+        final listTile = ListTile(
+          leading: CircleAvatar(
+            backgroundColor: isLuxeMode
+                ? AppColors.bgElevated
+                : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            foregroundColor: isLuxeMode ? AppColors.textPrimary : null,
+            child: Text(
+              categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '?',
             ),
-            title: Text(categoryName),
-            subtitle: Text(l10n.categoryTotalSpend(format.format(item.totalSpend))),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-                  color: isPositive ? Colors.red : Colors.green,
-                  size: 16,
-                ),
-                const SizedBox(width: 4),
+          ),
+          title: Text(categoryName),
+          subtitle:
+              Text(l10n.categoryTotalSpend(format.format(item.totalSpend))),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isPositive ? Icons.arrow_upward : Icons.arrow_downward,
+                color: isLuxeMode
+                    ? (isPositive
+                        ? AppColors.accentBtcMain
+                        : AppColors.accentFiatMain)
+                    : (isPositive ? Colors.red : Colors.green),
+                size: 16,
+              ),
+              const SizedBox(width: 4),
+              if (isLuxeMode)
+                TabularAmountText(
+                  '${item.inflationPercent.toStringAsFixed(1)}%',
+                  style: TextStyle(
+                    color: isPositive
+                        ? AppColors.accentBtcMain
+                        : AppColors.accentFiatMain,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                )
+              else
                 Text(
                   '${item.inflationPercent.toStringAsFixed(1)}%',
                   style: TextStyle(
@@ -192,9 +233,25 @@ class CategoriesTab extends ConsumerWidget {
                     fontSize: 16,
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
+        );
+
+        if (isLuxeMode) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: VaultCard(
+              padding: EdgeInsets.zero,
+              child: listTile,
+            ),
+          );
+        }
+
+        return Card(
+          elevation: 0,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          margin: const EdgeInsets.only(bottom: 8),
+          child: listTile,
         );
       },
     );

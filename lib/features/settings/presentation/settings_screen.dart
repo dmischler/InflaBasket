@@ -5,6 +5,7 @@ import 'package:inflabasket/features/settings/application/export_service.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
+import 'package:inflabasket/core/theme/app_theme.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -130,6 +131,30 @@ class SettingsScreen extends ConsumerWidget {
                       .read(settingsControllerProvider.notifier)
                       .setMetric(val),
                 ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.color_lens_outlined),
+                  title: const Text('App Theme'),
+                  trailing: DropdownButton<AppThemeType>(
+                    value: settings.themeType,
+                    underline: const SizedBox(),
+                    items: AppThemeType.values
+                        .map(
+                          (theme) => DropdownMenuItem<AppThemeType>(
+                            value: theme,
+                            child: Text(theme.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        ref
+                            .read(settingsControllerProvider.notifier)
+                            .setThemeType(val);
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -163,7 +188,7 @@ class SettingsScreen extends ConsumerWidget {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/templates'),
                 ),
-                 const Divider(height: 1),
+                const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.notifications_active_outlined),
                   title: Text(l10n.priceAlerts),

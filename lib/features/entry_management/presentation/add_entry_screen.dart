@@ -281,9 +281,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
         : null;
 
     return Scaffold(
-      appBar: AppBar(
-          title:
-              Text(isEditing ? l10n.editEntry : l10n.addEntry)),
+      appBar: AppBar(title: Text(isEditing ? l10n.editEntry : l10n.addEntry)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -298,8 +296,9 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                       labelText: l10n.product,
                       controller: _productController,
                       optionsBuilder: repo.searchProductNames,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? l10n.fieldRequired : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 8),

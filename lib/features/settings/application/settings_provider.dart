@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'settings_provider.g.dart';
@@ -23,22 +24,26 @@ class AppSettings {
   final String currency;
   final bool isMetric;
   final String locale;
+  final AppThemeType themeType;
 
   const AppSettings({
     this.currency = 'CHF',
     this.isMetric = true,
     this.locale = 'en',
+    this.themeType = AppThemeType.luxeDarkFiat,
   });
 
   AppSettings copyWith({
     String? currency,
     bool? isMetric,
     String? locale,
+    AppThemeType? themeType,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
       isMetric: isMetric ?? this.isMetric,
       locale: locale ?? this.locale,
+      themeType: themeType ?? this.themeType,
     );
   }
 }
@@ -55,14 +60,22 @@ class SettingsController extends _$SettingsController {
   static const _currencyKey = 'settings_currency';
   static const _metricKey = 'settings_is_metric';
   static const _localeKey = 'settings_locale';
+  static const _themeKey = 'settings_theme_type';
 
   @override
   AppSettings build() {
     final prefs = ref.watch(sharedPreferencesProvider);
+    final savedThemeIndex = prefs.getInt(_themeKey);
+    final themeType =
+        savedThemeIndex != null && savedThemeIndex < AppThemeType.values.length
+            ? AppThemeType.values[savedThemeIndex]
+            : AppThemeType.luxeDarkFiat;
+
     return AppSettings(
       currency: prefs.getString(_currencyKey) ?? 'CHF',
       isMetric: prefs.getBool(_metricKey) ?? true,
       locale: resolveAppLanguageCode(prefs.getString(_localeKey)),
+      themeType: themeType,
     );
   }
 
@@ -83,6 +96,12 @@ class SettingsController extends _$SettingsController {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setString(_localeKey, normalizedLocale);
     state = state.copyWith(locale: normalizedLocale);
+  }
+
+  Future<void> setThemeType(AppThemeType type) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setInt(_themeKey, type.index);
+    state = state.copyWith(themeType: type);
   }
 }
 

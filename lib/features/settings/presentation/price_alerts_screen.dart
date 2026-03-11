@@ -201,8 +201,7 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    l10n.priceAlertThresholdLabel(
-                        threshold.toStringAsFixed(0)),
+                    l10n.priceAlertThresholdLabel(threshold.toStringAsFixed(0)),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Slider(
