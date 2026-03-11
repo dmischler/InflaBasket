@@ -220,6 +220,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get moneySupplyM2 => 'M2-Geldmenge';
 
   @override
+  String get coreInflationSnb => 'Kerninflation 1';
+
+  @override
   String get categoriesTitle => 'Kategorienübersicht';
 
   @override

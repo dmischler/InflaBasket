@@ -214,6 +214,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moneySupplyM2 => 'M2 Money Supply';
 
   @override
+  String get coreInflationSnb => 'Core Inflation 1';
+
+  @override
   String get categoriesTitle => 'Category Breakdown';
 
   @override

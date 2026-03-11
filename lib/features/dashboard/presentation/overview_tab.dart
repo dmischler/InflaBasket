@@ -305,6 +305,7 @@ class OverviewTab extends ConsumerWidget {
           'GBP' => l.moneySupplySourceGbpDescription,
           _ => l.moneySupplySourceUnavailableDescription,
         },
+      ComparisonOverlayType.snbCoreInflation => l.cpiSourceChfDescription,
     };
   }
 
@@ -328,6 +329,7 @@ class OverviewTab extends ConsumerWidget {
     return switch (overlayType) {
       ComparisonOverlayType.cpi => l.nationalCpi,
       ComparisonOverlayType.moneySupply => l.moneySupplyM2,
+      ComparisonOverlayType.snbCoreInflation => l.coreInflationSnb,
     };
   }
 
@@ -354,8 +356,10 @@ class OverviewTab extends ConsumerWidget {
       );
     }
 
+    // Rebase basket spots to start at 100
+    final basketBaseIndex = validHistory.first.index;
     final spots = validHistory.asMap().entries.map((e) {
-      return FlSpot(e.key.toDouble(), e.value.index);
+      return FlSpot(e.key.toDouble(), (e.value.index / basketBaseIndex) * 100);
     }).toList();
 
     // Build CPI spots aligned to the same x-axis if overlay is active
@@ -369,20 +373,36 @@ class OverviewTab extends ConsumerWidget {
             !p.month.isBefore(basketStart) && !p.month.isAfter(basketEnd));
 
         for (final cp in relevantCpi) {
-          // Find the closest basket month index for this CPI month
+          // Find the closest basket month index for this CPI month.
+          // Initialise bestDiff from the first element so it is always a
+          // valid date-range comparison (not an arbitrary small constant).
           int bestIdx = 0;
-          int bestDiff = 999999;
-          for (int i = 0; i < validHistory.length; i++) {
+          int bestDiff = (validHistory.first.month.millisecondsSinceEpoch -
+                  cp.month.millisecondsSinceEpoch)
+              .abs();
+          for (int i = 1; i < validHistory.length; i++) {
             final diff = (validHistory[i].month.millisecondsSinceEpoch -
                     cp.month.millisecondsSinceEpoch)
                 .abs();
-            if (diff < bestDiff) {
+            if (diff <= bestDiff) {
               bestDiff = diff;
               bestIdx = i;
             }
           }
           comparisonSpots.add(FlSpot(bestIdx.toDouble(), cp.index));
         }
+        // Sort by x to guarantee a monotonic line.  If multiple overlay
+        // months map to the same basket slot, keep the most recent one.
+        comparisonSpots.sort((a, b) => a.x.compareTo(b.x));
+        final deduped = <FlSpot>[];
+        for (final spot in comparisonSpots) {
+          if (deduped.isNotEmpty && deduped.last.x == spot.x) {
+            deduped[deduped.length - 1] = spot;
+          } else {
+            deduped.add(spot);
+          }
+        }
+        comparisonSpots = deduped;
       }
     }
 
@@ -473,6 +493,24 @@ class OverviewTab extends ConsumerWidget {
           ),
           borderData: FlBorderData(show: false),
           lineBarsData: barData,
+          lineTouchData: LineTouchData(
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipItems: (touchedSpots) {
+                return touchedSpots.map((spot) {
+                  final delta = spot.y - 100;
+                  final label =
+                      '${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%';
+                  return LineTooltipItem(
+                    label,
+                    TextStyle(
+                      color: spot.bar.color,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ),
         ),
       ),
     );

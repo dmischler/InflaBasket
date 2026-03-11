@@ -218,6 +218,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get moneySupplyM2 => 'Masse monétaire M2';
 
   @override
+  String get coreInflationSnb => 'Inflation sous-jacente 1';
+
+  @override
   String get categoriesTitle => 'Répartition par catégorie';
 
   @override

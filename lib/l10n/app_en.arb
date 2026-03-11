@@ -205,6 +205,9 @@
   "moneySupplyM2": "M2 Money Supply",
   "@moneySupplyM2": { "description": "Legend label for M2 money supply overlay" },
 
+  "coreInflationSnb": "Core Inflation 1",
+  "@coreInflationSnb": { "description": "Legend label for SNB Core Inflation 1 overlay" },
+
   "categoriesTitle": "Category Breakdown",
   "@categoriesTitle": { "description": "Section title for categories tab" },
 

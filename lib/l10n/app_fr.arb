@@ -68,6 +68,7 @@
   "yourInflation": "Votre inflation",
   "nationalCpi": "IPC national",
   "moneySupplyM2": "Masse monétaire M2",
+  "coreInflationSnb": "Inflation sous-jacente 1",
   "categoriesTitle": "Répartition par catégorie",
   "categoryNoCategoryData": "Aucune donnée de catégorie disponible.",
   "settingsTitle": "Paramètres",
