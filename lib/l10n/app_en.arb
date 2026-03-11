@@ -22,6 +22,12 @@
   "editEntry": "Edit Entry",
   "@editEntry": { "description": "AppBar title when editing an existing entry" },
 
+  "swipeToEdit": "Swipe to edit",
+  "@swipeToEdit": { "description": "Hint shown next to history entries" },
+
+  "swipeToDelete": "Swipe to delete",
+  "@swipeToDelete": { "description": "Hint shown next to history entries" },
+
   "save": "Save",
   "@save": { "description": "Generic save button" },
 

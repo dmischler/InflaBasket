@@ -30,6 +30,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get editEntry => 'Modifica voce';
 
   @override
+  String get swipeToEdit => 'Scorri per modificare';
+
+  @override
+  String get swipeToDelete => 'Scorri per eliminare';
+
+  @override
   String get save => 'Salva';
 
   @override

@@ -84,35 +84,47 @@ class HistoryTab extends ConsumerWidget {
 
               return Dismissible(
                 key: ValueKey(entry.id),
-                direction: DismissDirection.endToStart,
+                direction: DismissDirection.horizontal,
                 background: Container(
+                  color: Theme.of(context).colorScheme.primary,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Icon(Icons.edit,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                ),
+                secondaryBackground: Container(
                   color: Colors.red,
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 20.0),
                   child: const Icon(Icons.delete, color: Colors.white),
                 ),
                 confirmDismiss: (direction) async {
-                  return await showDialog(
-                    context: context,
-                    builder: (ctx) {
-                      final dl10n = AppLocalizations.of(ctx)!;
-                      return AlertDialog(
-                        title: Text(dl10n.deleteEntryConfirm),
-                        content: Text(dl10n.deleteEntryMessage),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(false),
-                            child: Text(dl10n.cancel),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(true),
-                            child: Text(dl10n.delete,
-                                style: const TextStyle(color: Colors.red)),
-                          ),
-                        ],
-                      );
-                    },
-                  );
+                  if (direction == DismissDirection.startToEnd) {
+                    context.push('/home/add', extra: entryDetails);
+                    return false;
+                  } else {
+                    return await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) {
+                        final dl10n = AppLocalizations.of(ctx)!;
+                        return AlertDialog(
+                          title: Text(dl10n.deleteEntryConfirm),
+                          content: Text(dl10n.deleteEntryMessage),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: Text(dl10n.cancel),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              child: Text(dl10n.delete,
+                                  style: const TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
                 onDismissed: (direction) {
                   ref

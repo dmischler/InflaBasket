@@ -403,7 +403,7 @@ A complete visual overhaul to modernize the app with contemporary design pattern
 32. **Skeleton Loaders** — Replace circular progress indicators with skeleton shimmer placeholders throughout the app (History list, Dashboard cards, Scanner loading) for a more polished loading experience.
     - **Current partial implementation** — key screens now use richer empty/loading/error state cards (`StateMessageCard`) for scanner, paywall, templates, price alerts, and filtered history. Full shimmer/skeleton treatment is still pending.
 
-33. **Swipe Gestures** — Implement swipe-to-reveal actions in History list (swipe left: delete, swipe right: edit) with satisfying spring physics and haptic feedback.
+33. **Swipe Gestures** ✅ — Implemented swipe-to-reveal actions in History list (swipe left: delete with confirmation, swipe right: edit). Spring physics and haptic feedback deferred for future enhancement.
 
 34. **Contextual Floating Action Button** — Add an expandable Speed Dial FAB on the Dashboard that expands into multiple actions (Add Entry, Scan Receipt, Add Template) with staggered animations.
 

@@ -8,6 +8,8 @@
   "navSettings": "Impostazioni",
   "addEntry": "Aggiungi voce",
   "editEntry": "Modifica voce",
+  "swipeToEdit": "Scorri per modificare",
+  "swipeToDelete": "Scorri per eliminare",
   "save": "Salva",
   "cancel": "Annulla",
   "delete": "Elimina",

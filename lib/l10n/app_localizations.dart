@@ -144,6 +144,18 @@ abstract class AppLocalizations {
   /// **'Edit Entry'**
   String get editEntry;
 
+  /// Hint shown next to history entries
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe to edit'**
+  String get swipeToEdit;
+
+  /// Hint shown next to history entries
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe to delete'**
+  String get swipeToDelete;
+
   /// Generic save button
   ///
   /// In en, this message translates to:

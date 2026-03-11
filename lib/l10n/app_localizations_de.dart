@@ -30,6 +30,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get editEntry => 'Eintrag bearbeiten';
 
   @override
+  String get swipeToEdit => 'Wischen zum Bearbeiten';
+
+  @override
+  String get swipeToDelete => 'Wischen zum Löschen';
+
+  @override
   String get save => 'Speichern';
 
   @override

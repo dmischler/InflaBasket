@@ -30,6 +30,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editEntry => 'Modifier l\'entrée';
 
   @override
+  String get swipeToEdit => 'Glisser pour modifier';
+
+  @override
+  String get swipeToDelete => 'Glisser pour supprimer';
+
+  @override
   String get save => 'Enregistrer';
 
   @override

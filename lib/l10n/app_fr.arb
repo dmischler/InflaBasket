@@ -8,6 +8,8 @@
   "navSettings": "Paramètres",
   "addEntry": "Ajouter une entrée",
   "editEntry": "Modifier l'entrée",
+  "swipeToEdit": "Glisser pour modifier",
+  "swipeToDelete": "Glisser pour supprimer",
   "save": "Enregistrer",
   "cancel": "Annuler",
   "delete": "Supprimer",
