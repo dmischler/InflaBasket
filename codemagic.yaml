@@ -6,11 +6,45 @@ workflows:
     environment:
       flutter: stable
     scripts:
-      - flutter pub get
-      - flutter config --enable-ios  # Ensure iOS enabled
-      - rm -rf ios/ || true          # Remove broken ios folder (safe)
-      - flutter create .             # Regenerate iOS runner
-      - cd ios && pod install && cd ..  # Re-install pods
-      - flutter build ipa --debug --no-codesign
+      - name: Get dependencies
+        script: flutter pub get
+
+      - name: Enable iOS
+        script: flutter config --enable-ios
+
+      - name: Regenerate iOS project
+        script: |
+          rm -rf ios/
+          flutter create --platforms=ios .
+
+      - name: Install pods
+        script: |
+          cd ios
+          pod install
+
+      - name: Build unsigned iOS app
+        script: |
+          cd ios
+          xcodebuild \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Debug \
+            -sdk iphoneos \
+            -derivedDataPath ../build/ios/derivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            clean build
+
+      - name: Package .ipa
+        script: |
+          APP_PATH=$(find build/ios/derivedData -name "Runner.app" -path "*/Debug-iphoneos/*" | head -1)
+          mkdir -p build/ios/ipa/Payload
+          cp -r "$APP_PATH" build/ios/ipa/Payload/Runner.app
+          cd build/ios/ipa
+          zip -r InflaBasket.ipa Payload
+          rm -rf Payload
+
     artifacts:
-      - build/ios/ipa/*.ipa
+      - build/ios/ipa/InflaBasket.ipa
