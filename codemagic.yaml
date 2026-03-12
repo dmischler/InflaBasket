@@ -11,6 +11,6 @@ workflows:
       - rm -rf ios/ || true          # Remove broken ios folder (safe)
       - flutter create .             # Regenerate iOS runner
       - cd ios && pod install && cd ..  # Re-install pods
-      - flutter build ipa --debug
+      - flutter build ipa --debug --no-codesign
     artifacts:
       - build/ios/ipa/*.ipa
