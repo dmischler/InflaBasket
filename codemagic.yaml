@@ -5,7 +5,16 @@ workflows:
     max_build_duration: 60
     environment:
       flutter: stable
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
     scripts:
+      - name: Check Flutter setup
+        script: |
+          flutter --version
+          flutter doctor
+
       - name: Get dependencies
         script: flutter pub get
 
@@ -32,9 +41,11 @@ workflows:
       - name: Build unsigned iOS app
         script: |
           set -e
+          export CODE_SIGNING_ALLOWED=NO
+          export CODE_SIGNING_REQUIRED=NO
           flutter build ipa --release --no-codesign 2>&1 | tee build.log
           echo "=== Build completed, checking output ==="
-          ls -la build/ios/ipa/ 2>/dev/null || echo "build/ios/ipa not found"
+          ls -la build/ios/ipa/ 2>/dev/null || ls -la build/ios/ 2>/dev/null || true
           find build -name "*.ipa" 2>/dev/null || echo "No .ipa found in build/"
 
       - name: Locate and rename artifact
