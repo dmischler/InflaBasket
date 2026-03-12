@@ -19,7 +19,6 @@ workflows:
 
       - name: Patch Podfile deployment target
         script: |
-          # Ensure platform is set to 12.0 before pod install
           if [ -f ios/Podfile ]; then
             sed -i '' "s/platform :ios, '[0-9.]*'/platform :ios, '12.0'/" ios/Podfile || true
             sed -i '' 's/platform :ios, "[0-9.]*"/platform :ios, "12.0"/' ios/Podfile || true
@@ -32,15 +31,25 @@ workflows:
 
       - name: Build unsigned iOS app
         script: |
-          flutter build ipa \
-            --release \
-            --no-codesign
+          set -e
+          flutter build ipa --release --no-codesign 2>&1 | tee build.log
+          echo "=== Build completed, checking output ==="
+          ls -la build/ios/ipa/ 2>/dev/null || echo "build/ios/ipa not found"
+          find build -name "*.ipa" 2>/dev/null || echo "No .ipa found in build/"
 
       - name: Locate and rename artifact
         script: |
-          IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -1)
+          IPA_PATH=$(find build -name "*.ipa" -type f | head -1)
+          if [ -z "$IPA_PATH" ]; then
+            echo "ERROR: No .ipa file found in build/"
+            ls -la build/ 2>/dev/null || echo "build/ directory not found"
+            exit 1
+          fi
+          echo "Found IPA at: $IPA_PATH"
           mkdir -p build/ios/output
           cp "$IPA_PATH" build/ios/output/InflaBasket.ipa
+          echo "Copied to build/ios/output/InflaBasket.ipa"
 
     artifacts:
       - build/ios/output/InflaBasket.ipa
+      - build.log
