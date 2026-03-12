@@ -5,6 +5,7 @@ workflows:
     max_build_duration: 60
     environment:
       flutter: stable
+      xcode: latest
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -12,54 +13,84 @@ workflows:
     scripts:
       - name: Check Flutter setup
         script: |
+          set -e
           flutter --version
-          flutter doctor
+          flutter doctor -v
 
       - name: Get dependencies
-        script: flutter pub get
+        script: |
+          set -e
+          flutter pub get
 
       - name: Run code generation
-        script: dart run build_runner build -d
+        script: |
+          set -e
+          dart run build_runner build -d
 
       - name: Generate iOS project
         script: |
+          set -e
           rm -rf ios/
-          flutter create --platforms=ios .
+          flutter create --platforms=ios --org com.inflabasket .
+          
+          # Verify and fix bundle ID in project.pbxproj
+          if [ -f ios/Runner.xcodeproj/project.pbxproj ]; then
+            sed -i '' 's/com\.example\.inflabasket/com.inflabasket.inflabasket/g' ios/Runner.xcodeproj/project.pbxproj
+            echo "Bundle ID set to com.inflabasket.inflabasket"
+          fi
 
       - name: Patch Podfile deployment target
         script: |
+          set -e
           if [ -f ios/Podfile ]; then
-            sed -i '' "s/platform :ios, '[0-9.]*'/platform :ios, '12.0'/" ios/Podfile || true
-            sed -i '' 's/platform :ios, "[0-9.]*"/platform :ios, "12.0"/' ios/Podfile || true
+            # Ensure platform line exists with correct target
+            if grep -q "platform :ios" ios/Podfile; then
+              sed -i '' "s/platform :ios, '[^']*'/platform :ios, '12.0'/" ios/Podfile
+              sed -i '' 's/platform :ios, "[^"]*"/platform :ios, "12.0"/' ios/Podfile
+            else
+              # Add platform line if missing
+              sed -i '' "1s/^/platform :ios, '12.0'\\n/" ios/Podfile
+            fi
           fi
 
       - name: Install pods
         script: |
+          set -e
           cd ios
-          pod install --repo-update
+          pod install --no-repo-update
 
       - name: Build unsigned iOS app
         script: |
           set -e
           export CODE_SIGNING_ALLOWED=NO
           export CODE_SIGNING_REQUIRED=NO
-          flutter build ipa --release --no-codesign 2>&1 | tee build.log
-          echo "=== Build completed, checking output ==="
-          ls -la build/ios/ipa/ 2>/dev/null || ls -la build/ios/ 2>/dev/null || true
-          find build -name "*.ipa" 2>/dev/null || echo "No .ipa found in build/"
-
-      - name: Locate and rename artifact
-        script: |
-          IPA_PATH=$(find build -name "*.ipa" -type f | head -1)
-          if [ -z "$IPA_PATH" ]; then
-            echo "ERROR: No .ipa file found in build/"
-            ls -la build/ 2>/dev/null || echo "build/ directory not found"
+          
+          # Build for iOS device (creates .app, not .ipa)
+          flutter build ios --release --no-codesign 2>&1 | tee build.log
+          
+          echo "=== Build completed, creating unsigned IPA ==="
+          
+          # The .app is in build/ios/iphoneos/Runner.app
+          APP_PATH="build/ios/iphoneos/Runner.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "ERROR: .app not found at $APP_PATH"
+            find build -name "*.app" -type d 2>/dev/null || true
             exit 1
           fi
-          echo "Found IPA at: $IPA_PATH"
+          
+          echo "Found app at: $APP_PATH"
+          
+          # Create unsigned IPA manually
           mkdir -p build/ios/output
-          cp "$IPA_PATH" build/ios/output/InflaBasket.ipa
-          echo "Copied to build/ios/output/InflaBasket.ipa"
+          mkdir -p /tmp/payload
+          cp -R "$APP_PATH" /tmp/payload/Runner.app
+          cd /tmp
+          zip -r "$OLDPWD/build/ios/output/InflaBasket.ipa" payload
+          cd "$OLDPWD"
+          rm -rf /tmp/payload
+          
+          echo "=== IPA created ==="
+          ls -la build/ios/output/InflaBasket.ipa
 
     artifacts:
       - build/ios/output/InflaBasket.ipa
