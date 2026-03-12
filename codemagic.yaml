@@ -9,42 +9,38 @@ workflows:
       - name: Get dependencies
         script: flutter pub get
 
-      - name: Enable iOS
-        script: flutter config --enable-ios
+      - name: Run code generation
+        script: dart run build_runner build -d
 
-      - name: Regenerate iOS project
+      - name: Generate iOS project
         script: |
           rm -rf ios/
           flutter create --platforms=ios .
 
+      - name: Patch Podfile deployment target
+        script: |
+          # Ensure platform is set to 12.0 before pod install
+          if [ -f ios/Podfile ]; then
+            sed -i '' "s/platform :ios, '[0-9.]*'/platform :ios, '12.0'/" ios/Podfile || true
+            sed -i '' 's/platform :ios, "[0-9.]*"/platform :ios, "12.0"/' ios/Podfile || true
+          fi
+
       - name: Install pods
         script: |
           cd ios
-          pod install
+          pod install --repo-update
 
       - name: Build unsigned iOS app
         script: |
-          cd ios
-          xcodebuild \
-            -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Debug \
-            -sdk iphoneos \
-            -derivedDataPath ../build/ios/derivedData \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            DEVELOPMENT_TEAM="" \
-            clean build
+          flutter build ipa \
+            --release \
+            --no-codesign
 
-      - name: Package .ipa
+      - name: Locate and rename artifact
         script: |
-          APP_PATH=$(find build/ios/derivedData -name "Runner.app" -path "*/Debug-iphoneos/*" | head -1)
-          mkdir -p build/ios/ipa/Payload
-          cp -r "$APP_PATH" build/ios/ipa/Payload/Runner.app
-          cd build/ios/ipa
-          zip -r InflaBasket.ipa Payload
-          rm -rf Payload
+          IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -1)
+          mkdir -p build/ios/output
+          cp "$IPA_PATH" build/ios/output/InflaBasket.ipa
 
     artifacts:
-      - build/ios/ipa/InflaBasket.ipa
+      - build/ios/output/InflaBasket.ipa
