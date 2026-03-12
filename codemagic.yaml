@@ -2,11 +2,15 @@ workflows:
   ios-dev:
     name: iOS Development Build
     instance_type: mac_mini_m2
-    max_build_duration: 45
+    max_build_duration: 60
     environment:
-      flutter: stable          # ← changed here
+      flutter: stable
     scripts:
       - flutter pub get
+      - flutter config --enable-ios  # Ensure iOS enabled
+      - rm -rf ios/ || true          # Remove broken ios folder (safe)
+      - flutter create .             # Regenerate iOS runner
+      - cd ios && pod install && cd ..  # Re-install pods
       - flutter build ipa --debug
     artifacts:
       - build/ios/ipa/*.ipa
