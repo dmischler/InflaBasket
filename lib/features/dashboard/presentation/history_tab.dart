@@ -255,7 +255,7 @@ class HistoryTab extends ConsumerWidget {
 
   String _formatPrice(PurchaseEntry entry, AppSettings settings) {
     if (settings.isBitcoinMode && entry.priceSats != null) {
-      return SatsConverter.formatSats(entry.priceSats!.toInt());
+      return SatsConverter.formatSats(entry.priceSats!);
     }
     final currencyFormat = NumberFormat.simpleCurrency(name: settings.currency);
     return currencyFormat.format(entry.price);
