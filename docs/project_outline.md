@@ -317,7 +317,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 4. **Dark Mode SNB Curve Color** — In dark mode, the SNB curve color does not match the legend color; fix color theming.
 5. **Curve Baseline Alignment** — Both inflation curves should start at 100%, but currently only "own inflation" starts there; align both curves to start at 100%.
 8. **BasketIndex Vertical Layout** — "BasketIndex" is currently completely vertical (likely due to not landscape mode); optimize layout for phone screens.
-9. **Compact Taskbar** — Taskbar is quite large; shift it to the bottom and only show icons to save screen real estate.
+9. **Compact Taskbar** ✅ — Taskbar height reduced from 80 to 60 pixels; removed labels to show icons only; fixed pill indicator alignment to correctly animate to Categories/Settings icons (was misaligned due to FAB gap in row layout).
 10. **Category Tab Time Filters** — In category tab, add ability to filter by ytd, 1y, 2y, 3y, 5y, 10y.
 11. **Reduce Text in Settings** — Less text especially in settings to avoid screen overload.
 12. **Overview Time Frame Adjustment** — Add ability to adjust time frame on overview screen.
