@@ -6,7 +6,7 @@ import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
-class CustomBottomNav extends ConsumerStatefulWidget {
+class CustomBottomNav extends ConsumerWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
   final VoidCallback onFabPressed;
@@ -18,15 +18,14 @@ class CustomBottomNav extends ConsumerStatefulWidget {
     required this.onFabPressed,
   });
 
-  @override
-  ConsumerState<CustomBottomNav> createState() => _CustomBottomNavState();
-}
+  static const _barHeight = 60.0;
+  static const _outerMargin = 12.0;
+  static const _pillSize = 46.0;
+  static const _fabSize = 46.0;
+  static const _slotCount = 5;
 
-class _CustomBottomNavState extends ConsumerState<CustomBottomNav> {
-  final List<GlobalKey> _navKeys = List.generate(4, (_) => GlobalKey());
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsControllerProvider);
     final isBitcoin = settings.themeType == AppThemeType.luxeDarkBitcoin;
     final accentColor =
@@ -34,145 +33,151 @@ class _CustomBottomNavState extends ConsumerState<CustomBottomNav> {
     final glowColor =
         isBitcoin ? AppColors.accentBtcGlow : AppColors.accentFiatGlow;
 
-    return Container(
-      height: 60,
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.bgVault.withValues(alpha: 0.85),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: AppColors.borderMetallic, width: 1),
-            ),
-            child: Stack(
-              children: [
-                _PillIndicator(
-                  navKeys: _navKeys,
-                  currentIndex: widget.currentIndex,
-                  accentColor: accentColor,
-                  glowColor: glowColor,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _NavItem(
-                      key: _navKeys[0],
-                      isSelected: widget.currentIndex == 0,
-                      icon: Icons.dashboard_outlined,
-                      selectedIcon: Icons.dashboard,
-                      accentColor: accentColor,
-                      onTap: () => widget.onTap(0),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          _outerMargin,
+          0,
+          _outerMargin,
+          4,
+        ),
+        child: SizedBox(
+          height: _barHeight,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final slotWidth = constraints.maxWidth / _slotCount;
+              final pillLeft = _slotLeftForIndex(currentIndex, slotWidth) +
+                  (slotWidth - _pillSize) / 2;
+
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.bgVault.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: AppColors.borderMetallic,
+                        width: 1,
+                      ),
                     ),
-                    _NavItem(
-                      key: _navKeys[1],
-                      isSelected: widget.currentIndex == 1,
-                      icon: Icons.history_outlined,
-                      selectedIcon: Icons.history,
-                      accentColor: accentColor,
-                      onTap: () => widget.onTap(1),
-                    ),
-                    _NavItem(
-                      key: _navKeys[2],
-                      isSelected: widget.currentIndex == 2,
-                      icon: Icons.category_outlined,
-                      selectedIcon: Icons.category,
-                      accentColor: accentColor,
-                      onTap: () => widget.onTap(2),
-                    ),
-                    _NavItem(
-                      key: _navKeys[3],
-                      isSelected: widget.currentIndex == 3,
-                      icon: Icons.settings_outlined,
-                      selectedIcon: Icons.settings,
-                      accentColor: accentColor,
-                      onTap: () => widget.onTap(3),
-                    ),
-                  ],
-                ),
-                Positioned.fill(
-                  child: Center(
-                    child: FloatingActionButton(
-                      onPressed: widget.onFabPressed,
-                      backgroundColor: accentColor,
-                      mini: true,
-                      elevation: 4,
-                      child: const Icon(Icons.add, color: AppColors.bgVoid),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedPositioned(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          left: pillLeft,
+                          top: (_barHeight - _pillSize) / 2,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: accentColor,
+                              borderRadius: BorderRadius.circular(23),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: glowColor,
+                                  blurRadius: 12,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: const SizedBox(
+                              width: _pillSize,
+                              height: _pillSize,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            _NavSlot(
+                              width: slotWidth,
+                              child: _NavItem(
+                                isSelected: currentIndex == 0,
+                                icon: Icons.dashboard_outlined,
+                                selectedIcon: Icons.dashboard,
+                                onTap: () => onTap(0),
+                              ),
+                            ),
+                            _NavSlot(
+                              width: slotWidth,
+                              child: _NavItem(
+                                isSelected: currentIndex == 1,
+                                icon: Icons.history_outlined,
+                                selectedIcon: Icons.history,
+                                onTap: () => onTap(1),
+                              ),
+                            ),
+                            SizedBox(
+                              width: slotWidth,
+                              child: Center(
+                                child: SizedBox(
+                                  width: _fabSize,
+                                  height: _fabSize,
+                                  child: FloatingActionButton(
+                                    heroTag: 'custom_bottom_nav_fab',
+                                    onPressed: onFabPressed,
+                                    backgroundColor: accentColor,
+                                    elevation: 4,
+                                    shape: const CircleBorder(),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: AppColors.bgVoid,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            _NavSlot(
+                              width: slotWidth,
+                              child: _NavItem(
+                                isSelected: currentIndex == 2,
+                                icon: Icons.category_outlined,
+                                selectedIcon: Icons.category,
+                                onTap: () => onTap(2),
+                              ),
+                            ),
+                            _NavSlot(
+                              width: slotWidth,
+                              child: _NavItem(
+                                isSelected: currentIndex == 3,
+                                icon: Icons.settings_outlined,
+                                selectedIcon: Icons.settings,
+                                onTap: () => onTap(3),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
     );
   }
+
+  double _slotLeftForIndex(int index, double slotWidth) {
+    final visualIndex = index >= 2 ? index + 1 : index;
+    return visualIndex * slotWidth;
+  }
 }
 
-class _PillIndicator extends StatelessWidget {
-  final List<GlobalKey> navKeys;
-  final int currentIndex;
-  final Color accentColor;
-  final Color glowColor;
+class _NavSlot extends StatelessWidget {
+  final double width;
+  final Widget child;
 
-  const _PillIndicator({
-    required this.navKeys,
-    required this.currentIndex,
-    required this.accentColor,
-    required this.glowColor,
-  });
-
-  Offset? _getIconCenter(GlobalKey key) {
-    final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return null;
-    final position = renderBox.localToGlobal(Offset.zero);
-    final size = renderBox.size;
-    return Offset(
-      position.dx + size.width / 2,
-      position.dy + size.height / 2,
-    );
-  }
+  const _NavSlot({required this.width, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    final targetKey = navKeys[currentIndex];
-    final iconCenter = _getIconCenter(targetKey);
-
-    if (iconCenter == null) {
-      return const SizedBox.shrink();
-    }
-
-    final RenderBox? navBox = context.findRenderObject() as RenderBox?;
-    if (navBox == null) return const SizedBox.shrink();
-
-    final localPosition = navBox.globalToLocal(iconCenter);
-    final pillSize = 48.0;
-
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-      left: localPosition.dx - pillSize / 2,
-      top: (60 - pillSize) / 2,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        width: pillSize,
-        height: pillSize,
-        decoration: BoxDecoration(
-          color: accentColor,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: glowColor,
-              blurRadius: 12,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-      ),
+    return SizedBox(
+      width: width,
+      child: Center(child: child),
     );
   }
 }
@@ -181,43 +186,43 @@ class _NavItem extends StatelessWidget {
   final bool isSelected;
   final IconData icon;
   final IconData selectedIcon;
-  final Color accentColor;
   final VoidCallback onTap;
 
   const _NavItem({
-    super.key,
     required this.isSelected,
     required this.icon,
     required this.selectedIcon,
-    required this.accentColor,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 56,
-        height: 56,
-        child: Center(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(
-                  scale: animation,
-                  child: child,
-                ),
-              );
-            },
-            child: Icon(
-              isSelected ? selectedIcon : icon,
-              key: ValueKey(isSelected),
-              color: isSelected ? AppColors.bgVoid : AppColors.textSecondary,
-              size: 24,
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(
+                    scale: animation,
+                    child: child,
+                  ),
+                );
+              },
+              child: Icon(
+                isSelected ? selectedIcon : icon,
+                key: ValueKey('${isSelected}_$icon'),
+                color: isSelected ? AppColors.bgVoid : AppColors.textSecondary,
+                size: 24,
+              ),
             ),
           ),
         ),
