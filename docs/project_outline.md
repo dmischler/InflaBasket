@@ -316,14 +316,20 @@ final isPremiumProvider = Provider<bool>((ref) {
 7. **Overview Chart X-Ticks Clipping** ✅ — Increased chart height from 250 to 280 and added `reservedSize: 32` to bottom axis titles in overview_tab.dart to prevent xticks from being cut off when there are large price increases.
 
 **Bugs to Fix:**
-7. **Reduce Text in Settings** ✅ — Removed section headers and subtitles; shortened premium/free subtitles; reduced spacing from 24px to 12px.
-8. **App Icon** — Add app icon.
-9. **Dynamic X-Axis Time Ticks** ✅ — Overview graph x-axis ticks currently only show month (e.g., "Mar") without year. Make ticks dynamic depending on date range:
-    - Short ranges (≤6 months): Show month + day (e.g., "Mar 15")
-    - Medium ranges (6mo - 2y): Show month + year (e.g., "Mar '24")
-    - Long ranges (>2y): Show year only or year + month (e.g., "2024")
-    - Implementation in `overview_tab.dart`: Modify `_buildLineChart` to calculate tick count based on available width and apply date format based on `ChartTimeRange` selection.
-10. **Remove Location Field** ✅ — Removed location (City/Branch) field from items as it's not important for inflation tracking. Removed from database schema (v6), Add Entry form, History display, CSV export, and localization strings.
+ 7. **Reduce Text in Settings** ✅ — Removed section headers and subtitles; shortened premium/free subtitles; reduced spacing from 24px to 12px.
+ 8. **App Icon** — Add app icon.
+ 9. **Dynamic X-Axis Time Ticks** ✅ — Overview graph x-axis ticks currently only show month (e.g., "Mar") without year. Make ticks dynamic depending on date range:
+     - Short ranges (≤6 months): Show month + day (e.g., "Mar 15")
+     - Medium ranges (6mo - 2y): Show month + year (e.g., "Mar '24")
+     - Long ranges (>2y): Show year only or year + month (e.g., "2024")
+     - Implementation in `overview_tab.dart`: Modify `_buildLineChart` to calculate tick count based on available width and apply date format based on `ChartTimeRange` selection.
+ 10. **Remove Location Field** ✅ — Removed location (City/Branch) field from items as it's not important for inflation tracking. Removed from database schema (v6), Add Entry form, History display, CSV export, and localization strings.
+
+**Barcode Scanner Bug Fixes (v1.4.1):**
+ 1. **Entry Not Prefilled** ✅ — Fixed `AsyncAutocompleteField` using wrong controller: Changed from TypeAheadField's internal `textController` to the passed `controller` parameter so pre-filled product names from barcode lookup display correctly.
+ 2. **Store Not Prefilled** ✅ — Fixed store field to use `barcodeInfo.stores.first.name` (e.g., "Coop") instead of brand (e.g., "naturaplan") when pre-filling from barcode data.
+ 3. **Category Not Prefilled** ✅ — Fixed category TypeAheadField to use a dedicated `_categoryController` initialized with `barcodeInfo.suggestedCategory` so the category pre-fills correctly.
+ 4. **Stuck on Barcode Processing** ✅ — Fixed "Barcode processing" loading state appearing when returning from AddEntryScreen: Reset `_isLooking` and `_hasScanned` state before navigating away from BarcodeScreen.
 
 **New Features:**
 14. **FAB Swipe-Up Selection** ✅ — When clicking the FAB, show a swipe-up modal bottom sheet with 3 options: "Manual", "Barcode", and "Scanner". 

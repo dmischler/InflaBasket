@@ -21,7 +21,7 @@ class AsyncAutocompleteField extends StatelessWidget {
       suggestionsCallback: suggestionsCallback,
       builder: (context, textController, focusNode) {
         return TextFormField(
-          controller: textController,
+          controller: controller,
           focusNode: focusNode,
           decoration: InputDecoration(
             labelText: labelText,

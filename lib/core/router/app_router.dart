@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:inflabasket/core/api/openfoodfacts_client.dart';
 import 'package:inflabasket/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
@@ -27,8 +28,14 @@ GoRouter appRouter(AppRouterRef ref) {
             path: 'add',
             builder: (context, state) {
               final extra = state.extra;
+              print(
+                  '🔍 Router /home/add: extra=$extra, type=${extra?.runtimeType}');
               if (extra is EntryWithDetails) {
                 return AddEntryScreen(entryToEdit: extra);
+              }
+              if (extra is ProductInfo) {
+                print('🔍 Router: passing ProductInfo with name=${extra.name}');
+                return AddEntryScreen(productInfoFromBarcode: extra);
               }
               return const AddEntryScreen();
             },

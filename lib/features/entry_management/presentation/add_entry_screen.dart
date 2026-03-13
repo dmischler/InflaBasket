@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inflabasket/core/api/openfoodfacts_client.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
@@ -16,8 +17,13 @@ import 'package:inflabasket/l10n/app_localizations.dart';
 
 class AddEntryScreen extends ConsumerStatefulWidget {
   final EntryWithDetails? entryToEdit;
+  final ProductInfo? productInfoFromBarcode;
 
-  const AddEntryScreen({super.key, this.entryToEdit});
+  const AddEntryScreen({
+    super.key,
+    this.entryToEdit,
+    this.productInfoFromBarcode,
+  });
 
   @override
   ConsumerState<AddEntryScreen> createState() => _AddEntryScreenState();
@@ -26,6 +32,7 @@ class AddEntryScreen extends ConsumerStatefulWidget {
 class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _productController;
+  late final TextEditingController _categoryController;
   late final TextEditingController _storeController;
   late final TextEditingController _priceController;
   late final TextEditingController _quantityController;
@@ -42,9 +49,27 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   void initState() {
     super.initState();
     final edit = widget.entryToEdit;
-    _productController = TextEditingController(text: edit?.product.name ?? '');
-    _selectedCategoryName = edit?.category.name ?? 'Food & Groceries';
-    _storeController = TextEditingController(text: edit?.entry.storeName ?? '');
+    final barcodeInfo = widget.productInfoFromBarcode;
+
+    print('🔍 AddEntryScreen initState: barcodeInfo=$barcodeInfo');
+    print('🔍 AddEntryScreen: barcodeInfo.name=${barcodeInfo?.name}');
+
+    _productController = TextEditingController(
+      text: edit?.product.name ?? barcodeInfo?.name ?? '',
+    );
+    _selectedCategoryName = edit?.category.name ??
+        barcodeInfo?.suggestedCategory ??
+        'Food & Groceries';
+    _categoryController = TextEditingController(
+      text: _selectedCategoryName,
+    );
+    _storeController = TextEditingController(
+      text: edit?.entry.storeName ??
+          (barcodeInfo?.stores.isNotEmpty == true
+              ? barcodeInfo!.stores.first.name
+              : barcodeInfo?.brand) ??
+          '',
+    );
     _priceController =
         TextEditingController(text: edit?.entry.price.toString() ?? '');
     _quantityController =
@@ -57,6 +82,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   @override
   void dispose() {
     _productController.dispose();
+    _categoryController.dispose();
     _storeController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
@@ -70,13 +96,22 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     final info = await showBarcodeScanDialog(context);
     if (info == null || !mounted) return;
 
+    if (info.name.isEmpty && info.barcode != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Barcode ${info.barcode} not found in database. You can add it manually.'),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _productController.text = info.name;
       if (info.suggestedCategory != null) {
         _selectedCategoryName = info.suggestedCategory;
       }
       if (info.brand != null && _storeController.text.trim().isEmpty) {
-        // Fill brand as a store hint if the store field is still blank
         _storeController.text = info.brand!;
       }
     });
@@ -301,7 +336,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     repo.searchCategoryNames(search),
                 builder: (context, textController, focusNode) {
                   return TextFormField(
-                    controller: textController,
+                    controller: _categoryController,
                     focusNode: focusNode,
                     decoration: InputDecoration(
                       labelText: l10n.category,
@@ -320,6 +355,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   );
                 },
                 onSelected: (selection) {
+                  _categoryController.text = selection;
                   setState(() => _selectedCategoryName = selection);
                 },
                 debounceDuration: const Duration(milliseconds: 300),

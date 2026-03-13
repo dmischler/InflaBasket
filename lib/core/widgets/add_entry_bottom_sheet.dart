@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -24,8 +23,6 @@ class AddEntryBottomSheet extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isDesktop =
-        !Platform.isAndroid && !Platform.isIOS && !Platform.isFuchsia;
 
     return Container(
       decoration: BoxDecoration(
@@ -67,14 +64,11 @@ class AddEntryBottomSheet extends StatelessWidget {
               iconBackgroundColor: colorScheme.secondaryContainer,
               iconColor: colorScheme.onSecondaryContainer,
               title: l10n.barcode,
-              isDisabled: isDesktop,
-              onTap: isDesktop
-                  ? null
-                  : () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                      GoRouter.of(context).push('/barcode');
-                    },
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Navigator.pop(context);
+                GoRouter.of(context).push('/barcode');
+              },
             ),
             Divider(height: 1, indent: 72),
             _OptionRow(

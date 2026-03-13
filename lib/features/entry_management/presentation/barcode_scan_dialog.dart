@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
 bool get supportsBarcodeScannerOnCurrentPlatform {
   if (kIsWeb) return true;
@@ -45,8 +48,10 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
   MobileScannerController? _controller;
   bool _isLooking = false;
   bool _hasError = false;
+  bool _productNotFound = false;
   String? _errorMessage;
   String? _statusMessage;
+  String? _lastBarcode;
 
   @override
   void initState() {
@@ -82,15 +87,16 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
   }
 
   Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_isLooking || _hasError) return;
+    if (_isLooking || _hasError || _productNotFound) return;
 
     final barcode = capture.barcodes.firstOrNull;
     if (barcode == null || barcode.rawValue == null) return;
 
     final code = barcode.rawValue!;
+    _lastBarcode = code;
     setState(() {
       _isLooking = true;
-      _statusMessage = 'Looking up "$code"…';
+      _statusMessage = 'Looking up "$code"...';
     });
 
     try {
@@ -98,44 +104,64 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
     } catch (_) {}
 
     try {
+      final settings = ref.read(settingsControllerProvider);
       final client = ref.read(openFoodFactsClientProvider);
-      final info = await client.lookupBarcode(code);
+      final info = await client.lookupBarcode(code, locale: settings.locale);
 
       if (!mounted) return;
 
       if (info != null) {
+        HapticFeedback.mediumImpact();
         Navigator.of(context).pop(info);
       } else {
         setState(() {
           _isLooking = false;
-          _statusMessage = 'Product not found in database. Try again.';
+          _productNotFound = true;
+          _statusMessage = 'Product not found. You can add it manually.';
         });
-        try {
-          await _controller?.start();
-        } catch (_) {}
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isLooking = false;
-        _statusMessage = 'Error looking up product. Please try again.';
+        _productNotFound = true;
+        _statusMessage = 'Error looking up product. You can add it manually.';
       });
-      try {
-        await _controller?.start();
-      } catch (_) {}
     }
+  }
+
+  void _addManually() {
+    final productInfo = ProductInfo(
+      name: '',
+      barcode: _lastBarcode,
+    );
+    Navigator.of(context).pop(productInfo);
+  }
+
+  Future<void> _retryScan() async {
+    setState(() {
+      _productNotFound = false;
+      _statusMessage = null;
+    });
+    try {
+      await _controller?.start();
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     if (!supportsBarcodeScannerOnCurrentPlatform) {
       return SizedBox(
         height: MediaQuery.of(context).size.height * 0.35,
-        child: const Center(
+        child: Center(
           child: Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Text(
               'Barcode scanning is currently available on mobile only.',
+              style: TextStyle(color: colorScheme.onSurface),
               textAlign: TextAlign.center,
             ),
           ),
@@ -152,19 +178,19 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                Icon(Icons.error_outline, color: colorScheme.error, size: 48),
                 const SizedBox(height: 16),
                 Text(
                   _errorMessage ?? 'Camera error',
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: colorScheme.onSurface),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(null),
-                  child: const Text(
+                  child: Text(
                     'Close',
-                    style: TextStyle(color: Colors.white70),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
                   ),
                 ),
               ],
@@ -177,8 +203,10 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
     if (_controller == null) {
       return SizedBox(
         height: MediaQuery.of(context).size.height * 0.35,
-        child: const Center(
-          child: CircularProgressIndicator(color: Colors.white),
+        child: Center(
+          child: Platform.isIOS
+              ? const CupertinoActivityIndicator()
+              : CircularProgressIndicator(color: colorScheme.primary),
         ),
       );
     }
@@ -217,23 +245,47 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
                   ),
                   if (_isLooking) ...[
                     const SizedBox(height: 8),
-                    const SizedBox(
+                    SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
+                      child: Platform.isIOS
+                          ? const CupertinoActivityIndicator(
+                              color: Colors.white)
+                          : const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  if (_productNotFound) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        OutlinedButton(
+                          onPressed: _retryScan,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.white70),
+                          ),
+                          child: const Text('Retry'),
+                        ),
+                        const SizedBox(width: 12),
+                        FilledButton(
+                          onPressed: _addManually,
+                          child: const Text('Add Anyway'),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(null),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.white70),
                       ),
                     ),
                   ],
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(null),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ),
                 ],
               ),
             ),
