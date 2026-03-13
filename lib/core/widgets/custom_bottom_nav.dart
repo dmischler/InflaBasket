@@ -6,7 +6,7 @@ import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
-class CustomBottomNav extends ConsumerWidget {
+class CustomBottomNav extends ConsumerStatefulWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
   final VoidCallback onFabPressed;
@@ -19,7 +19,14 @@ class CustomBottomNav extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CustomBottomNav> createState() => _CustomBottomNavState();
+}
+
+class _CustomBottomNavState extends ConsumerState<CustomBottomNav> {
+  final List<GlobalKey> _navKeys = List.generate(4, (_) => GlobalKey());
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsControllerProvider);
     final isBitcoin = settings.themeType == AppThemeType.luxeDarkBitcoin;
     final accentColor =
@@ -29,69 +36,71 @@ class CustomBottomNav extends ConsumerWidget {
 
     return Container(
       height: 60,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(30),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.bgVault.withValues(alpha: 0.85),
-              borderRadius: BorderRadius.circular(40),
+              borderRadius: BorderRadius.circular(30),
               border: Border.all(color: AppColors.borderMetallic, width: 1),
             ),
             child: Stack(
-              alignment: Alignment.center,
               children: [
                 _PillIndicator(
-                  currentIndex: currentIndex,
+                  navKeys: _navKeys,
+                  currentIndex: widget.currentIndex,
                   accentColor: accentColor,
                   glowColor: glowColor,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _NavItem(
-                      index: 0,
-                      currentIndex: currentIndex,
+                      key: _navKeys[0],
+                      isSelected: widget.currentIndex == 0,
                       icon: Icons.dashboard_outlined,
                       selectedIcon: Icons.dashboard,
                       accentColor: accentColor,
-                      onTap: () => onTap(0),
+                      onTap: () => widget.onTap(0),
                     ),
                     _NavItem(
-                      index: 1,
-                      currentIndex: currentIndex,
+                      key: _navKeys[1],
+                      isSelected: widget.currentIndex == 1,
                       icon: Icons.history_outlined,
                       selectedIcon: Icons.history,
                       accentColor: accentColor,
-                      onTap: () => onTap(1),
+                      onTap: () => widget.onTap(1),
                     ),
-                    const SizedBox(width: 64),
                     _NavItem(
-                      index: 3,
-                      currentIndex: currentIndex,
+                      key: _navKeys[2],
+                      isSelected: widget.currentIndex == 2,
                       icon: Icons.category_outlined,
                       selectedIcon: Icons.category,
                       accentColor: accentColor,
-                      onTap: () => onTap(2),
+                      onTap: () => widget.onTap(2),
                     ),
                     _NavItem(
-                      index: 4,
-                      currentIndex: currentIndex,
+                      key: _navKeys[3],
+                      isSelected: widget.currentIndex == 3,
                       icon: Icons.settings_outlined,
                       selectedIcon: Icons.settings,
                       accentColor: accentColor,
-                      onTap: () => onTap(3),
+                      onTap: () => widget.onTap(3),
                     ),
                   ],
                 ),
-                Positioned(
-                  child: FloatingActionButton(
-                    onPressed: onFabPressed,
-                    backgroundColor: accentColor,
-                    elevation: 4,
-                    child: const Icon(Icons.add, color: AppColors.bgVoid),
+                Positioned.fill(
+                  child: Center(
+                    child: FloatingActionButton(
+                      onPressed: widget.onFabPressed,
+                      backgroundColor: accentColor,
+                      mini: true,
+                      elevation: 4,
+                      child: const Icon(Icons.add, color: AppColors.bgVoid),
+                    ),
                   ),
                 ),
               ],
@@ -104,38 +113,57 @@ class CustomBottomNav extends ConsumerWidget {
 }
 
 class _PillIndicator extends StatelessWidget {
+  final List<GlobalKey> navKeys;
   final int currentIndex;
   final Color accentColor;
   final Color glowColor;
 
   const _PillIndicator({
+    required this.navKeys,
     required this.currentIndex,
     required this.accentColor,
     required this.glowColor,
   });
 
+  Offset? _getIconCenter(GlobalKey key) {
+    final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return null;
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+    return Offset(
+      position.dx + size.width / 2,
+      position.dy + size.height / 2,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = screenWidth / 5;
-    final pillWidth = 48.0;
-    final pillHeight = 48.0;
-    final leftOffset = (itemWidth - pillWidth) / 2;
-    final visualIndex = currentIndex < 2 ? currentIndex : currentIndex + 1;
+    final targetKey = navKeys[currentIndex];
+    final iconCenter = _getIconCenter(targetKey);
+
+    if (iconCenter == null) {
+      return const SizedBox.shrink();
+    }
+
+    final RenderBox? navBox = context.findRenderObject() as RenderBox?;
+    if (navBox == null) return const SizedBox.shrink();
+
+    final localPosition = navBox.globalToLocal(iconCenter);
+    final pillSize = 48.0;
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
-      left: itemWidth * visualIndex + leftOffset,
-      top: (60 - pillHeight) / 2,
+      left: localPosition.dx - pillSize / 2,
+      top: (60 - pillSize) / 2,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
-        width: pillWidth,
-        height: pillHeight,
+        width: pillSize,
+        height: pillSize,
         decoration: BoxDecoration(
           color: accentColor,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
               color: glowColor,
@@ -150,16 +178,15 @@ class _PillIndicator extends StatelessWidget {
 }
 
 class _NavItem extends StatelessWidget {
-  final int index;
-  final int currentIndex;
+  final bool isSelected;
   final IconData icon;
   final IconData selectedIcon;
   final Color accentColor;
   final VoidCallback onTap;
 
   const _NavItem({
-    required this.index,
-    required this.currentIndex,
+    super.key,
+    required this.isSelected,
     required this.icon,
     required this.selectedIcon,
     required this.accentColor,
@@ -168,14 +195,12 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = index == currentIndex;
-
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 64,
-        height: 48,
+        width: 56,
+        height: 56,
         child: Center(
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
