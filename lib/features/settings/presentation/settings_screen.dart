@@ -33,9 +33,6 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(l10n.settingsSubscription,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
           Card(
             child: ListTile(
               leading: Icon(
@@ -69,10 +66,7 @@ class SettingsScreen extends ConsumerWidget {
                             ),
             ),
           ),
-          const SizedBox(height: 24),
-          Text(l10n.settingsPreferences,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Card(
             child: Column(
               children: [
@@ -125,7 +119,6 @@ class SettingsScreen extends ConsumerWidget {
                 SwitchListTile.adaptive(
                   secondary: const Icon(Icons.straighten),
                   title: Text(l10n.settingsMetricSystem),
-                  subtitle: Text(l10n.settingsMetricSubtitle),
                   value: settings.isMetric,
                   onChanged: (val) => ref
                       .read(settingsControllerProvider.notifier)
@@ -158,17 +151,13 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          Text(l10n.settingsDataManagement,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Card(
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.category_outlined),
                   title: Text(l10n.settingsManageCategories),
-                  subtitle: Text(l10n.settingsManageCategoriesSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/categories'),
                 ),
@@ -176,7 +165,6 @@ class SettingsScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.balance_outlined),
                   title: Text(l10n.settingsCategoryWeights),
-                  subtitle: Text(l10n.settingsCategoryWeightsSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/weights'),
                 ),
@@ -184,7 +172,6 @@ class SettingsScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.repeat_outlined),
                   title: Text(l10n.settingsTemplates),
-                  subtitle: Text(l10n.settingsTemplatesSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/templates'),
                 ),
@@ -192,7 +179,6 @@ class SettingsScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.notifications_active_outlined),
                   title: Text(l10n.priceAlerts),
-                  subtitle: Text(l10n.settingsPriceAlertsSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/price-alerts'),
                 ),
@@ -206,7 +192,6 @@ class SettingsScreen extends ConsumerWidget {
                         )
                       : const Icon(Icons.download_outlined),
                   title: Text(l10n.settingsExportData),
-                  subtitle: Text(l10n.settingsExportSubtitle),
                   onTap: () {
                     ref.read(exportServiceProvider.notifier).exportData();
                   },
@@ -214,10 +199,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          Text(l10n.settingsAbout,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Card(
             child: Column(
               children: [

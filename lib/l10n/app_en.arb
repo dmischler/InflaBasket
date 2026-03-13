@@ -232,10 +232,10 @@
   "settingsFreeTier": "Free Tier",
   "@settingsFreeTier": { "description": "Status for free tier" },
 
-  "settingsPremiumSubtitle": "Enjoy AI receipt scanning and auto-categorization.",
+  "settingsPremiumSubtitle": "AI receipt scanning",
   "@settingsPremiumSubtitle": { "description": "Subtitle for premium status" },
 
-  "settingsFreeSubtitle": "Upgrade to unlock AI receipt scanning.",
+  "settingsFreeSubtitle": "Unlock AI scanning",
   "@settingsFreeSubtitle": { "description": "Subtitle for free tier status" },
 
   "settingsRestore": "Restore",
@@ -256,35 +256,20 @@
   "settingsMetricSystem": "Use Metric System",
   "@settingsMetricSystem": { "description": "Toggle label for metric/imperial" },
 
-  "settingsMetricSubtitle": "For quantities and unit prices",
-  "@settingsMetricSubtitle": { "description": "Subtitle for metric toggle" },
-
   "settingsDataManagement": "Data Management",
   "@settingsDataManagement": { "description": "Settings section header" },
 
   "settingsManageCategories": "Manage Categories",
   "@settingsManageCategories": { "description": "List tile label" },
 
-  "settingsManageCategoriesSubtitle": "Add or remove custom categories",
-  "@settingsManageCategoriesSubtitle": { "description": "Subtitle for manage categories tile" },
-
   "settingsExportData": "Export Data (CSV)",
   "@settingsExportData": { "description": "List tile label for CSV export" },
-
-  "settingsExportSubtitle": "Download your purchase history",
-  "@settingsExportSubtitle": { "description": "Subtitle for export tile" },
 
   "settingsCategoryWeights": "Category Weights",
   "@settingsCategoryWeights": { "description": "List tile label for custom basket weights" },
 
-  "settingsCategoryWeightsSubtitle": "Customize how categories are weighted in your basket",
-  "@settingsCategoryWeightsSubtitle": { "description": "Subtitle for category weights tile" },
-
   "settingsTemplates": "Recurring Purchases",
   "@settingsTemplates": { "description": "List tile label for purchase templates" },
-
-  "settingsTemplatesSubtitle": "Quick-add templates for regular purchases",
-  "@settingsTemplatesSubtitle": { "description": "Subtitle for templates tile" },
 
   "settingsAbout": "About",
   "@settingsAbout": { "description": "Settings section header" },
@@ -497,9 +482,6 @@
 
   "scannerReviewInstructions": "Uncheck items you don't want to save. Tap names, prices, quantities, or categories to edit.",
   "@scannerReviewInstructions": { "description": "Instructions on receipt review screen" },
-
-  "settingsPriceAlertsSubtitle": "Enable notifications for product price changes",
-  "@settingsPriceAlertsSubtitle": { "description": "Subtitle for price alerts settings tile" },
 
   "settingsMobileOnly": "Mobile only",
   "@settingsMobileOnly": { "description": "Badge for mobile-only features" },

@@ -245,12 +245,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsFreeTier => 'Gratuit';
 
   @override
-  String get settingsPremiumSubtitle =>
-      'Profitez du scan de reçus par IA et de la catégorisation automatique.';
+  String get settingsPremiumSubtitle => 'Scan de reçus par IA';
 
   @override
-  String get settingsFreeSubtitle =>
-      'Passez au Premium pour débloquer le scan de reçus par IA.';
+  String get settingsFreeSubtitle => 'Débloquer le scan IA';
 
   @override
   String get settingsRestore => 'Restaurer';
@@ -271,38 +269,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsMetricSystem => 'Utiliser le système métrique';
 
   @override
-  String get settingsMetricSubtitle =>
-      'Pour les quantités et les prix unitaires';
-
-  @override
   String get settingsDataManagement => 'Gestion des données';
 
   @override
   String get settingsManageCategories => 'Gérer les catégories';
 
   @override
-  String get settingsManageCategoriesSubtitle =>
-      'Ajouter ou supprimer des catégories personnalisées';
-
-  @override
   String get settingsExportData => 'Exporter les données (CSV)';
-
-  @override
-  String get settingsExportSubtitle => 'Télécharger votre historique d\'achats';
 
   @override
   String get settingsCategoryWeights => 'Pondérations des catégories';
 
   @override
-  String get settingsCategoryWeightsSubtitle =>
-      'Personnalisez la contribution de chaque catégorie à votre panier';
-
-  @override
   String get settingsTemplates => 'Achats récurrents';
-
-  @override
-  String get settingsTemplatesSubtitle =>
-      'Modèles pour ajouter rapidement des achats réguliers';
 
   @override
   String get settingsAbout => 'À propos';
@@ -507,10 +486,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get scannerReviewInstructions =>
       'Décochez les articles à exclure. Appuyez sur les noms, prix, quantités ou catégories pour modifier.';
-
-  @override
-  String get settingsPriceAlertsSubtitle =>
-      'Activer les notifications pour les changements de prix';
 
   @override
   String get settingsMobileOnly => 'Mobile uniquement';

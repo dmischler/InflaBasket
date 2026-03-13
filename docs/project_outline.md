@@ -310,37 +310,37 @@ final isPremiumProvider = Provider<bool>((ref) {
    - Added iOS permissions template (`ios_config/Info.plist.template`) with `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription`.
    - Updated `codemagic.yaml` to copy Info.plist template after iOS project generation.
 4. **Dark Mode SNB Curve Color** ✅ — Fixed legend color to match chart: updated `_buildChartLegend` to accept `isLuxeMode` parameter and use `isLuxeMode ? AppColors.textSecondary : Colors.orange` for the overlay curve dot, matching the chart's color logic.
-5. **Linux Window Size** ✅ — Changed Linux app window dimensions from 1280×720 to 393×852 (iPhone 15 portrait) for accurate mobile-like testing on desktop.
+5. **Curve Baseline Alignment** ✅ — Both inflation curves now start at 100% baseline: overlay data is rebased to the first data point of the filtered basket history.
 6. **Chart Hover Tooltip Positioning** ✅ — Added `fitInsideHorizontally: true` to `LineTouchTooltipData` in overview_tab.dart to prevent tooltips from extending beyond chart edges.
 
 **Bugs to Fix:**
-4. **Dark Mode SNB Curve Color** — In dark mode, the SNB curve color does not match the legend color; fix color theming.
-5. **Curve Baseline Alignment** — Both inflation curves should start at 100%, but currently only "own inflation" starts there; align both curves to start at 100%.
-8. **BasketIndex Vertical Layout** ✅ — Optimized layout for phone screens.
-9. **Compact Taskbar** ✅ — Taskbar height reduced from 80 to 60 pixels; removed labels to show icons only; fixed pill indicator alignment to correctly animate to Categories/Settings icons (was misaligned due to FAB gap in row layout).
-10. **Category Tab Date Range Filter** — In category tab, changing the date range does not update the displayed inflation per category. Fix to filter and display category inflation for the selected date range (ytd, 1y, 2y, 3y, 5y, 10y).
-11. **Reduce Text in Settings** — Less text especially in settings to avoid screen overload.
-12. **Overview Time Frame Adjustment** ✅ — Timeline selector added to Overview screen with YTD, 1y, 2y, 5y options (depending on available data range).
-13. **App Icon** — Add app icon.
+7. **Reduce Text in Settings** ✅ — Removed section headers and subtitles; shortened premium/free subtitles; reduced spacing from 24px to 12px.
+8. **App Icon** — Add app icon.
+9. **Dynamic X-Axis Time Ticks** ✅ — Overview graph x-axis ticks currently only show month (e.g., "Mar") without year. Make ticks dynamic depending on date range:
+    - Short ranges (≤6 months): Show month + day (e.g., "Mar 15")
+    - Medium ranges (6mo - 2y): Show month + year (e.g., "Mar '24")
+    - Long ranges (>2y): Show year only or year + month (e.g., "2024")
+    - Implementation in `overview_tab.dart`: Modify `_buildLineChart` to calculate tick count based on available width and apply date format based on `ChartTimeRange` selection.
 
 **New Features:**
 14. **FAB Swipe-Up Selection** — When clicking the FAB, show a swipe-up modal bottom sheet with options to "Scan Receipt" (camera) or "Add Manually" instead of directly opening scanner. This allows non-premium users to access manual entry without hitting the paywall.
 15. **Monthly Aggregated Comparison Data** — Instead of discrete item data points, sample and compare inflation data at monthly intervals. Store items with month+year granularity and sample the inflation curve accordingly for smoother comparisons.
 16. **Core Inflation Comparison Bars** — In the Categories tab, if categorized core inflation data is available (e.g., from CPI sources), display a comparison bar next to each category's actual inflation bar. Show the difference between user's category inflation and official core inflation for that category.
+17. **Factory Reset** — Add option in Settings to revert to factory settings (delete database and all data to start fresh). Shows confirmation dialog with warning before deletion. Clears all SQLite tables, SharedPreferences keys (except onboarding flag), and resets app to initial state.
 
 ### Timeline Selector Feature (Overview & Categories)
 
-**Goal:** Allow users to filter chart data by time range (YTD, 1y, 2y, 3y, 5y, 10y, All) or custom date range. Both Overview and Categories tabs should share the same filter state.
+**Goal:** Allow users to filter chart data by time range (YTD, 1y, 2y, 3y, 5y, 10y, All) or custom date range. Both Overview and Categories tabs share the same filter state.
 
 **UI Implementation:**
-1. Add a `SegmentedButton` or `DropdownButton` in the Overview tab header (next to the overlay selector)
+1. `SegmentedButton` in the Overview tab header (next to the overlay selector)
 2. Options: `YTD`, `1y`, `2y`, `3y`, `5y`, `10y`, `All` (or custom date picker)
-3. Dynamically show only options where data exists (e.g., if only 8 months of data, show YTD, 1y, All)
-4. Style consistently with existing overlay selector
-5. **Categories Tab** must also apply the selected time filter to category inflation calculations - currently the filter does not update the displayed category inflation
+3. Dynamically shows only options where data exists (e.g., if only 8 months of data, shows YTD, 1y, All)
+4. Styled consistently with existing overlay selector
+5. **Categories Tab** applies the selected time filter to category inflation calculations via `filteredEntriesWithDetailsProvider`
 
 **Data Model:**
-1. Create a new `ChartTimeRange` enum in `entry_providers.dart`:
+1. `ChartTimeRange` enum in `entry_providers.dart`:
    ```dart
    enum ChartTimeRange {
      ytd,      // Year to Date
@@ -353,36 +353,26 @@ final isPremiumProvider = Provider<bool>((ref) {
      custom,   // User-selected date range
    }
    ```
-2. Add `customStartDate` and `customEndDate` fields for custom range
+2. `customStartDate` and `customEndDate` fields for custom range
 
 **Monthly Aggregation:**
-- Inflation calculations should aggregate data by month (year-month) rather than individual item entries
-- When calculating category and basket inflation, group entries by year-month and compute average prices per product for that period
-- Chart data points should represent monthly samples for smoother curve visualization
-- Store dates with day-of-month normalized (e.g., always 1st of month) for consistent grouping
+- Inflation calculations aggregate data by month (year-month) rather than individual item entries
+- When calculating category and basket inflation, entries are grouped by year-month and compute average prices per product for that period
+- Chart data points represent monthly samples for smoother curve visualization
+- Dates stored with day-of-month normalized (e.g., always 1st of month) for consistent grouping
 
 **State Management:**
-1. Create `ChartTimeFilterController` Riverpod provider (persisted in SharedPreferences)
-2. Create `filteredBasketIndexHistoryProvider` that wraps `basketIndexHistoryProvider` and filters by selected time range
-3. **Create `filteredCategoryInflationProvider`** that calculates category-level inflation for the selected time range - this is currently missing and causing the Categories tab filter bug
-4. Update `comparisonOverlayDataProvider` to also respect the time filter
+1. `ChartTimeFilterController` Riverpod provider (persisted in SharedPreferences)
+2. `filteredBasketIndexHistoryProvider` wraps `basketIndexHistoryProvider` and filters by selected time range
+3. `filteredEntriesWithDetailsProvider` filters entry data for category inflation calculations
+4. `comparisonOverlayDataProvider` respects the time filter
 
-**Key Files to Modify:**
-- `lib/features/entry_management/application/entry_providers.dart` — Add `ChartTimeRange` enum and `ChartTimeFilterController`
-- `lib/features/dashboard/presentation/overview_tab.dart` — Add timeline selector UI
-- `lib/features/dashboard/presentation/categories_tab.dart` — Add timeline selector and fix filter to actually apply to category inflation calculations
-- `lib/core/api/cpi_provider.dart` — Update overlay data fetching to respect time filter
-- `lib/core/utils/inflation_calculator.dart` — Add monthly aggregation logic
-
-**Implementation Steps:**
-1. Add `ChartTimeRange` enum and `ChartTimeFilterController` provider with SharedPreferences persistence
-2. Create `filteredBasketIndexHistoryProvider` that applies date filtering
-3. Add timeline selector UI to Overview tab (SegmentedButton with YTD/1y/2y/3y/5y/10y/All)
-4. Update chart rendering to use filtered data
-5. Add timeline selector to Categories tab (same controller for consistency)
-6. **Fix Categories tab filter bug**: Ensure `filteredCategoryInflationProvider` is used and recalculates category inflation based on the selected date range
-7. Ensure overlay data respects selected time range
-8. Implement monthly aggregation in inflation calculations
+**Key Files Modified:**
+- `lib/features/entry_management/application/entry_providers.dart` — `ChartTimeRange` enum and `ChartTimeFilterController`
+- `lib/features/dashboard/presentation/overview_tab.dart` — Timeline selector UI
+- `lib/features/dashboard/presentation/categories_tab.dart` — Timeline selector with time filter applied to category inflation
+- `lib/features/dashboard/application/inflation_providers.dart` — Added `filteredEntriesWithDetailsProvider` and `filteredBasketIndexHistoryProvider`
+- `lib/core/api/cpi_provider.dart` — Overlay data fetching respects time filter
 
 ### 📝 Production Configuration (Not Code)
 - Replace `'appl_apiKey'` / `'goog_apiKey'` placeholders in `subscription_providers.dart` with real RevenueCat keys before store submission.
@@ -503,6 +493,47 @@ A complete visual overhaul to modernize the app with contemporary design pattern
     - **Additional Central Bank Inflation Metrics** — Extend beyond current CPI coverage with direct official sources such as US BLS, UK ONS, and Bank of Japan for users with multi-currency tracking.
     - **More Monetary Benchmarks** — Add alternatives such as M3, central-bank balance sheet growth, or policy-rate overlays where available.
     - **Advanced Overlay Controls** — Support multiple simultaneous overlays, rebasing modes, and source notes/tooltips so users can compare their basket against both reported inflation and money-supply expansion.
+
+---
+
+### Sprint 5 – Code Refactor & Cleanup
+
+A focused effort to improve code maintainability, reduce technical debt, and prepare the codebase for future growth.
+
+1. **Modular File Splitting** — Split any file exceeding 250 lines into smaller, focused modules:
+    - Extract reusable UI widgets into separate files in `lib/core/widgets/`
+    - Extract helper functions and utilities into `lib/core/utils/`
+    - Extract formatters and validators into dedicated files
+    - Keep screens focused on orchestration; delegate logic to providers/controllers
+
+2. **Remove Unused Code** — Run static analysis to identify and remove:
+    - Unused imports (run `flutter analyze` and address `unused_import` warnings)
+    - Unused variables and parameters
+    - Dead code branches (if statements that always evaluate the same)
+    - Unused private methods and constants
+
+3. **Eliminate Redundancies** — Identify and consolidate:
+    - Duplicate logic across screens (e.g., date pickers, category dropdowns, form validation)
+    - Repeated widget trees that could be extracted into reusable components
+    - Similar data transformation code that could be unified in providers
+    - Conflicting or overlapping state management patterns
+
+4. **Clean Up Technical Debt** — Address:
+    - TODO/FIXME comments older than 30 days
+    - Magic numbers/strings → extract to named constants
+    - Hardcoded values that should be configurable
+    - Deprecated API usage (check analyzer for deprecation warnings)
+    - Inconsistent naming conventions
+
+5. **Documentation Cleanup** — Remove or update:
+    - Outdated comments that no longer match the code
+    - Commented-out code blocks that are no longer needed
+    - Missing or incomplete doc comments on public APIs
+
+6. **Dependency Audit** — Review `pubspec.yaml` for:
+    - Unused packages that can be removed
+    - Outdated package versions with potential security/bug issues
+    - Overlapping functionality between packages
 
 ---
 

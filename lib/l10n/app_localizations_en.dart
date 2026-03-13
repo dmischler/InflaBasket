@@ -241,11 +241,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsFreeTier => 'Free Tier';
 
   @override
-  String get settingsPremiumSubtitle =>
-      'Enjoy AI receipt scanning and auto-categorization.';
+  String get settingsPremiumSubtitle => 'AI receipt scanning';
 
   @override
-  String get settingsFreeSubtitle => 'Upgrade to unlock AI receipt scanning.';
+  String get settingsFreeSubtitle => 'Unlock AI scanning';
 
   @override
   String get settingsRestore => 'Restore';
@@ -266,37 +265,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMetricSystem => 'Use Metric System';
 
   @override
-  String get settingsMetricSubtitle => 'For quantities and unit prices';
-
-  @override
   String get settingsDataManagement => 'Data Management';
 
   @override
   String get settingsManageCategories => 'Manage Categories';
 
   @override
-  String get settingsManageCategoriesSubtitle =>
-      'Add or remove custom categories';
-
-  @override
   String get settingsExportData => 'Export Data (CSV)';
-
-  @override
-  String get settingsExportSubtitle => 'Download your purchase history';
 
   @override
   String get settingsCategoryWeights => 'Category Weights';
 
   @override
-  String get settingsCategoryWeightsSubtitle =>
-      'Customize how categories are weighted in your basket';
-
-  @override
   String get settingsTemplates => 'Recurring Purchases';
-
-  @override
-  String get settingsTemplatesSubtitle =>
-      'Quick-add templates for regular purchases';
 
   @override
   String get settingsAbout => 'About';
@@ -501,10 +482,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get scannerReviewInstructions =>
       'Uncheck items you don\'t want to save. Tap names, prices, quantities, or categories to edit.';
-
-  @override
-  String get settingsPriceAlertsSubtitle =>
-      'Enable notifications for product price changes';
 
   @override
   String get settingsMobileOnly => 'Mobile only';

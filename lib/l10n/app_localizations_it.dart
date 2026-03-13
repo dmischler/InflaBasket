@@ -243,12 +243,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsFreeTier => 'Piano gratuito';
 
   @override
-  String get settingsPremiumSubtitle =>
-      'Goditi la scansione AI degli scontrini e la categorizzazione automatica.';
+  String get settingsPremiumSubtitle => 'Scansione AI scontrini';
 
   @override
-  String get settingsFreeSubtitle =>
-      'Passa a Premium per sbloccare la scansione AI degli scontrini.';
+  String get settingsFreeSubtitle => 'Sblocca scansione AI';
 
   @override
   String get settingsRestore => 'Ripristina';
@@ -269,37 +267,19 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsMetricSystem => 'Usa il sistema metrico';
 
   @override
-  String get settingsMetricSubtitle => 'Per quantità e prezzi unitari';
-
-  @override
   String get settingsDataManagement => 'Gestione dati';
 
   @override
   String get settingsManageCategories => 'Gestisci categorie';
 
   @override
-  String get settingsManageCategoriesSubtitle =>
-      'Aggiungi o rimuovi categorie personalizzate';
-
-  @override
   String get settingsExportData => 'Esporta dati (CSV)';
-
-  @override
-  String get settingsExportSubtitle => 'Scarica la cronologia acquisti';
 
   @override
   String get settingsCategoryWeights => 'Pesi delle categorie';
 
   @override
-  String get settingsCategoryWeightsSubtitle =>
-      'Personalizza il contributo di ogni categoria al tuo paniere';
-
-  @override
   String get settingsTemplates => 'Acquisti ricorrenti';
-
-  @override
-  String get settingsTemplatesSubtitle =>
-      'Modelli per aggiungere rapidamente acquisti regolari';
 
   @override
   String get settingsAbout => 'Informazioni';
@@ -504,10 +484,6 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get scannerReviewInstructions =>
       'Deseleziona gli articoli da non salvare. Tocca nomi, prezzi, quantità o categorie per modificare.';
-
-  @override
-  String get settingsPriceAlertsSubtitle =>
-      'Attiva notifiche per cambiamenti di prezzo';
 
   @override
   String get settingsMobileOnly => 'Solo mobile';

@@ -561,13 +561,13 @@ abstract class AppLocalizations {
   /// Subtitle for premium status
   ///
   /// In en, this message translates to:
-  /// **'Enjoy AI receipt scanning and auto-categorization.'**
+  /// **'AI receipt scanning'**
   String get settingsPremiumSubtitle;
 
   /// Subtitle for free tier status
   ///
   /// In en, this message translates to:
-  /// **'Upgrade to unlock AI receipt scanning.'**
+  /// **'Unlock AI scanning'**
   String get settingsFreeSubtitle;
 
   /// Button to restore purchases
@@ -606,12 +606,6 @@ abstract class AppLocalizations {
   /// **'Use Metric System'**
   String get settingsMetricSystem;
 
-  /// Subtitle for metric toggle
-  ///
-  /// In en, this message translates to:
-  /// **'For quantities and unit prices'**
-  String get settingsMetricSubtitle;
-
   /// Settings section header
   ///
   /// In en, this message translates to:
@@ -624,23 +618,11 @@ abstract class AppLocalizations {
   /// **'Manage Categories'**
   String get settingsManageCategories;
 
-  /// Subtitle for manage categories tile
-  ///
-  /// In en, this message translates to:
-  /// **'Add or remove custom categories'**
-  String get settingsManageCategoriesSubtitle;
-
   /// List tile label for CSV export
   ///
   /// In en, this message translates to:
   /// **'Export Data (CSV)'**
   String get settingsExportData;
-
-  /// Subtitle for export tile
-  ///
-  /// In en, this message translates to:
-  /// **'Download your purchase history'**
-  String get settingsExportSubtitle;
 
   /// List tile label for custom basket weights
   ///
@@ -648,23 +630,11 @@ abstract class AppLocalizations {
   /// **'Category Weights'**
   String get settingsCategoryWeights;
 
-  /// Subtitle for category weights tile
-  ///
-  /// In en, this message translates to:
-  /// **'Customize how categories are weighted in your basket'**
-  String get settingsCategoryWeightsSubtitle;
-
   /// List tile label for purchase templates
   ///
   /// In en, this message translates to:
   /// **'Recurring Purchases'**
   String get settingsTemplates;
-
-  /// Subtitle for templates tile
-  ///
-  /// In en, this message translates to:
-  /// **'Quick-add templates for regular purchases'**
-  String get settingsTemplatesSubtitle;
 
   /// Settings section header
   ///
@@ -1032,12 +1002,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uncheck items you don\'t want to save. Tap names, prices, quantities, or categories to edit.'**
   String get scannerReviewInstructions;
-
-  /// Subtitle for price alerts settings tile
-  ///
-  /// In en, this message translates to:
-  /// **'Enable notifications for product price changes'**
-  String get settingsPriceAlertsSubtitle;
 
   /// Badge for mobile-only features
   ///

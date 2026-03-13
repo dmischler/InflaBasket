@@ -247,11 +247,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsFreeTier => 'Kostenlos';
 
   @override
-  String get settingsPremiumSubtitle =>
-      'Geniesse KI-Belegscannen und automatische Kategorisierung.';
+  String get settingsPremiumSubtitle => 'KI-Belegscannen';
 
   @override
-  String get settingsFreeSubtitle => 'Upgrade für KI-Belegscannen.';
+  String get settingsFreeSubtitle => 'KI-Scannen freischalten';
 
   @override
   String get settingsRestore => 'Wiederherstellen';
@@ -272,37 +271,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsMetricSystem => 'Metrisches System verwenden';
 
   @override
-  String get settingsMetricSubtitle => 'Für Mengen und Stückpreise';
-
-  @override
   String get settingsDataManagement => 'Datenverwaltung';
 
   @override
   String get settingsManageCategories => 'Kategorien verwalten';
 
   @override
-  String get settingsManageCategoriesSubtitle =>
-      'Benutzerdefinierte Kategorien hinzufügen oder entfernen';
-
-  @override
   String get settingsExportData => 'Daten exportieren (CSV)';
-
-  @override
-  String get settingsExportSubtitle => 'Kaufhistorie herunterladen';
 
   @override
   String get settingsCategoryWeights => 'Kategoriegewichtungen';
 
   @override
-  String get settingsCategoryWeightsSubtitle =>
-      'Gewichtung der Kategorien im Warenkorb anpassen';
-
-  @override
   String get settingsTemplates => 'Wiederkehrende Einkäufe';
-
-  @override
-  String get settingsTemplatesSubtitle =>
-      'Vorlagen für schnelle Einträge bei regelmässigen Einkäufen';
 
   @override
   String get settingsAbout => 'Über die App';
@@ -509,10 +490,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get scannerReviewInstructions =>
       'Abwählen was nicht gespeichert werden soll. Namen, Preise, Mengen oder Kategorien antippen zum Bearbeiten.';
-
-  @override
-  String get settingsPriceAlertsSubtitle =>
-      'Benachrichtigungen für Preisänderungen aktivieren';
 
   @override
   String get settingsMobileOnly => 'Nur Mobile';
