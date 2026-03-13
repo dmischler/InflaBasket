@@ -302,10 +302,15 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### Sprint 6: iOS Launch Bug Fixes
 
+**Bugs Fixed:**
+1. **Manual Entry Date Restriction** ✅ — Limit manual item adding to maximum 5 years back from current date.
+2. **Premium Testing Bypass** ✅ — Extended beyond `kDebugMode` to support `--dart-define=FORCE_PREMIUM=true` for TestFlight/App Store testing. Updated `codemagic.yaml` to include this flag in iOS builds.
+3. **Barcode Scanner Crash** ✅ — Fixed crash when clicking barcode scanner on iOS:
+   - Added error handling in `barcode_scan_dialog.dart`: try/catch around controller initialization, `_onDetect` callback, and controller start/stop operations.
+   - Added iOS permissions template (`ios_config/Info.plist.template`) with `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription`.
+   - Updated `codemagic.yaml` to copy Info.plist template after iOS project generation.
+
 **Bugs to Fix:**
-1. **Manual Entry Date Restriction** — Limit manual item adding to maximum 5 years back from current date.
-2. **Premium Testing Bypass** — Deactivate premium requirement for local testing (already done via `kDebugMode` in Sprint 4A, verify and document if needed).
-3. **Barcode Scanner Crash** — Investigate and fix crash when clicking barcode scanner on iOS.
 4. **Dark Mode SNB Curve Color** — In dark mode, the SNB curve color does not match the legend color; fix color theming.
 5. **Curve Baseline Alignment** — Both inflation curves should start at 100%, but currently only "own inflation" starts there; align both curves to start at 100%.
 6. **Chart Hover Tooltip Positioning** — When hovering over the curve, the first and last points cannot be read because the hover box is only half on screen; fix tooltip positioning.

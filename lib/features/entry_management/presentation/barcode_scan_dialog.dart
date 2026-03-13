@@ -42,22 +42,48 @@ class _BarcodeScanSheet extends ConsumerStatefulWidget {
 }
 
 class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
-  final MobileScannerController _controller = MobileScannerController(
-    detectionSpeed: DetectionSpeed.noDuplicates,
-    facing: CameraFacing.back,
-  );
-
+  MobileScannerController? _controller;
   bool _isLooking = false;
+  bool _hasError = false;
+  String? _errorMessage;
   String? _statusMessage;
 
   @override
+  void initState() {
+    super.initState();
+    _initController();
+  }
+
+  Future<void> _initController() async {
+    try {
+      _controller = MobileScannerController(
+        detectionSpeed: DetectionSpeed.noDuplicates,
+        facing: CameraFacing.back,
+      );
+      if (mounted) setState(() {});
+    } catch (e) {
+      _setError('Failed to initialize camera: $e');
+    }
+  }
+
+  void _setError(String message) {
+    if (mounted) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = message;
+      });
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_isLooking) return;
+    if (_isLooking || _hasError) return;
+
     final barcode = capture.barcodes.firstOrNull;
     if (barcode == null || barcode.rawValue == null) return;
 
@@ -67,22 +93,36 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
       _statusMessage = 'Looking up "$code"…';
     });
 
-    await _controller.stop();
+    try {
+      await _controller?.stop();
+    } catch (_) {}
 
-    final client = ref.read(openFoodFactsClientProvider);
-    final info = await client.lookupBarcode(code);
+    try {
+      final client = ref.read(openFoodFactsClientProvider);
+      final info = await client.lookupBarcode(code);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (info != null) {
-      Navigator.of(context).pop(info);
-    } else {
-      // Product not found — show a message and allow re-scan
+      if (info != null) {
+        Navigator.of(context).pop(info);
+      } else {
+        setState(() {
+          _isLooking = false;
+          _statusMessage = 'Product not found in database. Try again.';
+        });
+        try {
+          await _controller?.start();
+        } catch (_) {}
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLooking = false;
-        _statusMessage = 'Product not found in database. Try again.';
+        _statusMessage = 'Error looking up product. Please try again.';
       });
-      await _controller.start();
+      try {
+        await _controller?.start();
+      } catch (_) {}
     }
   }
 
@@ -103,15 +143,54 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
       );
     }
 
+    if (_hasError) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.35,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  _errorMessage ?? 'Camera error',
+                  style: const TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(null),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (_controller == null) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.35,
+        child: const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      );
+    }
+
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.6,
       child: Stack(
         children: [
           MobileScanner(
-            controller: _controller,
+            controller: _controller!,
             onDetect: _onDetect,
           ),
-          // Scanning frame overlay
           Center(
             child: Container(
               width: 260,
@@ -122,7 +201,6 @@ class _BarcodeScanSheetState extends ConsumerState<_BarcodeScanSheet> {
               ),
             ),
           ),
-          // Status / instructions bar at the bottom
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(

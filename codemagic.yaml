@@ -39,6 +39,16 @@ workflows:
             echo "Bundle ID set to com.inflabasket.inflabasket"
           fi
 
+      - name: Copy iOS Info.plist template
+        script: |
+          set -e
+          if [ -f ios_config/Info.plist.template ]; then
+            cp ios_config/Info.plist.template ios/Runner/Info.plist
+            echo "Copied Info.plist template with camera and photo library permissions"
+          else
+            echo "WARNING: ios_config/Info.plist.template not found"
+          fi
+
       - name: Patch Podfile deployment target
         script: |
           set -e
