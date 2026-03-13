@@ -593,7 +593,7 @@ class OverviewTab extends ConsumerWidget {
     ];
 
     return SizedBox(
-      height: 250,
+      height: 280,
       child: LineChart(
         LineChartData(
           minY: chartMinY,
@@ -603,6 +603,7 @@ class OverviewTab extends ConsumerWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
+                reservedSize: 32,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < validHistory.length) {

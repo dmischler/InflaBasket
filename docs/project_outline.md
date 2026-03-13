@@ -313,6 +313,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 4. **Dark Mode SNB Curve Color** ✅ — Fixed legend color to match chart: updated `_buildChartLegend` to accept `isLuxeMode` parameter and use `isLuxeMode ? AppColors.textSecondary : Colors.orange` for the overlay curve dot, matching the chart's color logic.
 5. **Curve Baseline Alignment** ✅ — Both inflation curves now start at 100% baseline: overlay data is rebased to the first data point of the filtered basket history.
 6. **Chart Hover Tooltip Positioning** ✅ — Added `fitInsideHorizontally: true` to `LineTouchTooltipData` in overview_tab.dart to prevent tooltips from extending beyond chart edges.
+7. **Overview Chart X-Ticks Clipping** ✅ — Increased chart height from 250 to 280 and added `reservedSize: 32` to bottom axis titles in overview_tab.dart to prevent xticks from being cut off when there are large price increases.
 
 **Bugs to Fix:**
 7. **Reduce Text in Settings** ✅ — Removed section headers and subtitles; shortened premium/free subtitles; reduced spacing from 24px to 12px.
