@@ -1,95 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-class AsyncAutocompleteField extends StatefulWidget {
+class AsyncAutocompleteField extends StatelessWidget {
   final String labelText;
   final TextEditingController controller;
-  final Future<Iterable<String>> Function(String) optionsBuilder;
+  final Future<List<String>> Function(String) suggestionsCallback;
   final String? Function(String?)? validator;
 
   const AsyncAutocompleteField({
     super.key,
     required this.labelText,
     required this.controller,
-    required this.optionsBuilder,
+    required this.suggestionsCallback,
     this.validator,
   });
 
   @override
-  State<AsyncAutocompleteField> createState() => _AsyncAutocompleteFieldState();
-}
-
-class _AsyncAutocompleteFieldState extends State<AsyncAutocompleteField> {
-  late final FocusNode _focusNode;
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) => RawAutocomplete<String>(
-        textEditingController: widget.controller,
-        focusNode: _focusNode,
-        optionsBuilder: (TextEditingValue textEditingValue) async {
-          if (textEditingValue.text == '') {
-            return const Iterable<String>.empty();
-          }
-          return await widget.optionsBuilder(textEditingValue.text);
-        },
-        fieldViewBuilder:
-            (context, textEditingController, focusNode, onFieldSubmitted) {
-          return TextFormField(
-            controller: textEditingController,
-            focusNode: focusNode,
-            decoration: InputDecoration(
-              labelText: widget.labelText,
-              border: const OutlineInputBorder(),
-            ),
-            validator: widget.validator,
-            onFieldSubmitted: (String value) {
-              onFieldSubmitted();
-            },
-          );
-        },
-        optionsViewBuilder: (context, onSelected, options) {
-          return Align(
-            alignment: Alignment.topLeft,
-            child: Material(
-              elevation: 4.0,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                    maxHeight: 200, maxWidth: constraints.biggest.width),
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  itemCount: options.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final String option = options.elementAt(index);
-                    return InkWell(
-                      onTap: () {
-                        onSelected(option);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(option),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+    return TypeAheadField<String>(
+      suggestionsCallback: suggestionsCallback,
+      builder: (context, textController, focusNode) {
+        return TextFormField(
+          controller: textController,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: labelText,
+            border: const OutlineInputBorder(),
+          ),
+          validator: validator,
+        );
+      },
+      itemBuilder: (context, itemData) {
+        return ListTile(
+          title: Text(itemData),
+          dense: true,
+        );
+      },
+      onSelected: (selection) {
+        controller.text = selection;
+        controller.selection = TextSelection.collapsed(
+          offset: selection.length,
+        );
+      },
+      debounceDuration: const Duration(milliseconds: 300),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
@@ -42,7 +43,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     super.initState();
     final edit = widget.entryToEdit;
     _productController = TextEditingController(text: edit?.product.name ?? '');
-    _selectedCategoryName = edit?.category.name;
+    _selectedCategoryName = edit?.category.name ?? 'Food & Groceries';
     _storeController = TextEditingController(text: edit?.entry.storeName ?? '');
     _priceController =
         TextEditingController(text: edit?.entry.price.toString() ?? '');
@@ -255,20 +256,10 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
 
     final categories = categoriesAsync.valueOrNull ?? <Category>[];
 
-    // Auto-select the first category once the list loads, if nothing is chosen
+    // Set default category if none selected and categories are available
     if (_selectedCategoryName == null && categories.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() => _selectedCategoryName = categories.first.name);
-        }
-      });
+      _selectedCategoryName = categories.first.name;
     }
-
-    // Safe dropdown value: only use _selectedCategoryName if it's in the list
-    final dropdownValue = (_selectedCategoryName != null &&
-            categories.any((c) => c.name == _selectedCategoryName))
-        ? _selectedCategoryName
-        : null;
 
     return Scaffold(
       appBar: AppBar(title: Text(isEditing ? l10n.editEntry : l10n.addEntry)),
@@ -285,7 +276,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     child: AsyncAutocompleteField(
                       labelText: l10n.product,
                       controller: _productController,
-                      optionsBuilder: repo.searchProductNames,
+                      suggestionsCallback: repo.searchProductNames,
                       validator: (value) => value == null || value.isEmpty
                           ? l10n.fieldRequired
                           : null,
@@ -305,34 +296,40 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: dropdownValue,
-                decoration: InputDecoration(
-                  labelText: l10n.category,
-                  border: const OutlineInputBorder(),
-                ),
-                items: categories
-                    .map((c) => DropdownMenuItem(
-                          value: c.name,
-                          child: Text(
-                            CategoryLocalization.displayNameForContext(
-                              context,
-                              c.name,
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedCategoryName = val);
+              TypeAheadField<String>(
+                suggestionsCallback: (search) =>
+                    repo.searchCategoryNames(search),
+                builder: (context, textController, focusNode) {
+                  return TextFormField(
+                    controller: textController,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      labelText: l10n.category,
+                      border: const OutlineInputBorder(),
+                    ),
+                    validator: (value) => value == null || value.isEmpty
+                        ? l10n.fieldRequired
+                        : null,
+                  );
                 },
-                validator: (value) =>
-                    value == null || value.isEmpty ? l10n.fieldRequired : null,
+                itemBuilder: (context, itemData) {
+                  return ListTile(
+                    title: Text(CategoryLocalization.displayNameForContext(
+                        context, itemData)),
+                    dense: true,
+                  );
+                },
+                onSelected: (selection) {
+                  setState(() => _selectedCategoryName = selection);
+                },
+                debounceDuration: const Duration(milliseconds: 300),
+                hideOnEmpty: false,
               ),
               const SizedBox(height: 16),
               AsyncAutocompleteField(
                 labelText: l10n.store,
                 controller: _storeController,
-                optionsBuilder: repo.searchStoreNames,
+                suggestionsCallback: repo.searchStoreNames,
                 validator: (value) =>
                     value == null || value.isEmpty ? l10n.fieldRequired : null,
               ),
@@ -400,7 +397,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   SizedBox(
                     width: 130,
                     child: DropdownButtonFormField<UnitType>(
-                      initialValue: units.contains(_selectedUnit)
+                      value: units.contains(_selectedUnit)
                           ? _selectedUnit
                           : UnitType.count,
                       decoration: InputDecoration(

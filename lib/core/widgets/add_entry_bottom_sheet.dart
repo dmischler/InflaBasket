@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
@@ -99,7 +100,12 @@ class AddEntryBottomSheet extends ConsumerWidget {
                       isDesktopDisabled: false,
                       onTap: () {
                         Navigator.pop(context);
-                        context.go('/home/add');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AddEntryScreen(),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 16),

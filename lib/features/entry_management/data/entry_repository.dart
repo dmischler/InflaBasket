@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/api/bitcoin_price_client.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
@@ -210,6 +211,26 @@ class EntryRepository {
       ..limit(10);
     final res = await queryExp.get();
     return res.map((row) => row.read(_db.purchaseEntries.storeName)!).toList();
+  }
+
+  Future<List<String>> searchCategoryNames(String query) async {
+    final all = await _db.select(_db.categories).get();
+    final names = all.map((c) => c.name).toList();
+
+    if (query.isEmpty) return names;
+
+    final queryLower = query.toLowerCase();
+    return names.where((englishName) {
+      if (englishName.toLowerCase().contains(queryLower)) return true;
+
+      final germanName = CategoryLocalization.displayName(
+        englishName,
+        languageCode: 'de',
+      );
+      if (germanName.toLowerCase().contains(queryLower)) return true;
+
+      return false;
+    }).toList();
   }
 
   Future<bool> updatePurchaseEntry(PurchaseEntry entry) {

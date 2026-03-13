@@ -331,6 +331,20 @@ final isPremiumProvider = Provider<bool>((ref) {
     - Scanner options auto-open camera or gallery when navigating to `/scanner` with `initialSource` parameter
     - Premium-gated items show "Premium feature" badge for non-premium users
     - Desktop shows "Not available on desktop" message for scan receipt option
+
+15. **Smart Category Autocomplete** ✅ — Replaced static category dropdown with TypeAhead smart autocomplete:
+    - Empty field on start (no default category pre-selected)
+    - Click/focus shows all categories (dropdown-like behavior)
+    - Type to filter categories in real-time
+    - Localization-aware filtering: searches match both English names ("Food & Groceries") and German localized names ("Lebensmittel & groceries")
+    - Uses `flutter_typeahead` package for the autocomplete UI
+    - Category search via `EntryRepository.searchCategoryNames()` with in-memory localization filtering
+    - Falls back to native Navigator.push for desktop navigation from bottom sheet
+
+16. **Database Reset Bug Fix** ✅ — Fixed duplicate column migration error in SQLite:
+    - Removed corrupted `price_sats` column that caused categories to fail loading
+    - Fresh database now works correctly with all default categories
+    - Categories screen and Add Entry form now work properly
 15. **Monthly Aggregated Comparison Data** — Instead of discrete item data points, sample and compare inflation data at monthly intervals. Store items with month+year granularity and sample the inflation curve accordingly for smoother comparisons.
 16. **Core Inflation Comparison Bars** — In the Categories tab, if categorized core inflation data is available (e.g., from CPI sources), display a comparison bar next to each category's actual inflation bar. Show the difference between user's category inflation and official core inflation for that category.
 17. **Factory Reset** ✅ — Added option in Settings to revert to factory settings. Shows confirmation dialog with warning before deletion. Clears all SQLite tables (purchase entries, products, templates, alerts, weights, external series cache, categories), re-seeds default categories, and clears all SharedPreferences. Sets `hasCompletedOnboardingKey` to `false` to support future onboarding feature. Navigates to home screen after reset.
