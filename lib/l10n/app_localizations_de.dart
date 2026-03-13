@@ -629,6 +629,23 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get manual => 'Manuell';
+
+  @override
+  String get barcode => 'Barcode';
+
+  @override
+  String get scannerOption => 'Scanner';
+
+  @override
+  String barcodeScanned(String barcode) {
+    return 'Barcode: $barcode';
+  }
+
+  @override
+  String get scannerPointAtBarcode => 'Kamera auf Barcode richten';
+
+  @override
   String get unknownItem => 'Unbekannter Artikel';
 
   @override

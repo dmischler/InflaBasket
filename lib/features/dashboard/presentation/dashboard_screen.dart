@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/core/widgets/add_entry_bottom_sheet.dart';
 import 'package:inflabasket/core/widgets/custom_bottom_nav.dart';
@@ -47,12 +48,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           });
         },
         onFabPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => const AddEntryBottomSheet(),
-          );
+          HapticFeedback.lightImpact();
+          AddEntryBottomSheet.show(context);
         },
       ),
     );

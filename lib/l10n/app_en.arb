@@ -624,6 +624,24 @@
     "placeholders": { "error": { "type": "String" } }
   },
 
+  "manual": "Manual",
+  "@manual": { "description": "Manual entry option in bottom sheet" },
+
+  "barcode": "Barcode",
+  "@barcode": { "description": "Barcode scanner option in bottom sheet" },
+
+  "scannerOption": "Scanner",
+  "@scannerOption": { "description": "Receipt scanner option in bottom sheet" },
+
+  "barcodeScanned": "Barcode: {barcode}",
+  "@barcodeScanned": {
+    "description": "Message shown when barcode is scanned",
+    "placeholders": { "barcode": { "type": "String" } }
+  },
+
+  "scannerPointAtBarcode": "Point camera at barcode",
+  "@scannerPointAtBarcode": { "description": "Hint text shown in barcode scanner" },
+
   "unknownItem": "Unknown Item",
   "@unknownItem": { "description": "Fallback item name when none was detected" },
 

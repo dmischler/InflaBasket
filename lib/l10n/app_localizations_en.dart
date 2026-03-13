@@ -627,6 +627,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get manual => 'Manual';
+
+  @override
+  String get barcode => 'Barcode';
+
+  @override
+  String get scannerOption => 'Scanner';
+
+  @override
+  String barcodeScanned(String barcode) {
+    return 'Barcode: $barcode';
+  }
+
+  @override
+  String get scannerPointAtBarcode => 'Point camera at barcode';
+
+  @override
   String get unknownItem => 'Unknown Item';
 
   @override

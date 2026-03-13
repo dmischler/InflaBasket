@@ -326,11 +326,17 @@ final isPremiumProvider = Provider<bool>((ref) {
 10. **Remove Location Field** ✅ — Removed location (City/Branch) field from items as it's not important for inflation tracking. Removed from database schema (v6), Add Entry form, History display, CSV export, and localization strings.
 
 **New Features:**
-14. **FAB Swipe-Up Selection** ✅ — When clicking the FAB, show a swipe-up modal bottom sheet with options to "Scan Receipt" (camera), "Select from Photos", or "Add Manually". These three choices should be named/labeled consistently as "scanning", "selecting from photos", and "manual" throughout the app. This allows non-premium users to access manual entry without hitting the paywall.
+14. **FAB Swipe-Up Selection** ✅ — When clicking the FAB, show a swipe-up modal bottom sheet with 3 options: "Manual", "Barcode", and "Scanner". 
+    - **Manual** → navigates to `/home/add` (AddEntryScreen)
+    - **Barcode** → navigates to `/barcode` (BarcodeScreen with MobileScanner)
+    - **Scanner** → shows CupertinoActionSheet with "Camera" or "Photo Library" options, then navigates to `/scanner`
     - Implemented via `AddEntryBottomSheet` widget in `lib/core/widgets/add_entry_bottom_sheet.dart`
-    - Scanner options auto-open camera or gallery when navigating to `/scanner` with `initialSource` parameter
-    - Premium-gated items show "Premium feature" badge for non-premium users
-    - Desktop shows "Not available on desktop" message for scan receipt option
+    - Uses `CupertinoActionSheet` for native iOS scanner choice dialog
+    - Haptic feedback on all interactions
+    - Full theme integration using `Theme.of(context)` colorScheme and textTheme
+    - iOS Info.plist created with camera and photo library permissions
+    - Barcode screen uses `mobile_scanner` package for live barcode detection
+    - Desktop: Manual always enabled, Barcode disabled with computer icon
 
 15. **Smart Category Autocomplete** ✅ — Replaced static category dropdown with TypeAhead smart autocomplete:
     - Empty field on start (no default category pre-selected)

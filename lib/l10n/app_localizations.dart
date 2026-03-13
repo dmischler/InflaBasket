@@ -1233,6 +1233,36 @@ abstract class AppLocalizations {
   /// **'Error saving items: {error}'**
   String scannerSaveError(String error);
 
+  /// Manual entry option in bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get manual;
+
+  /// Barcode scanner option in bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode'**
+  String get barcode;
+
+  /// Receipt scanner option in bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner'**
+  String get scannerOption;
+
+  /// Message shown when barcode is scanned
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode: {barcode}'**
+  String barcodeScanned(String barcode);
+
+  /// Hint text shown in barcode scanner
+  ///
+  /// In en, this message translates to:
+  /// **'Point camera at barcode'**
+  String get scannerPointAtBarcode;
+
   /// Fallback item name when none was detected
   ///
   /// In en, this message translates to:

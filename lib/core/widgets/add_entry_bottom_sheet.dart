@@ -1,211 +1,210 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
-import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
-class AddEntryBottomSheet extends ConsumerWidget {
+class AddEntryBottomSheet extends StatelessWidget {
   const AddEntryBottomSheet({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    final isPremiumAsync = ref.watch(subscriptionControllerProvider);
-    final isPremium = isPremiumAsync.valueOrNull ?? false;
-
-    final isDesktop =
-        !Platform.isAndroid && !Platform.isIOS && !Platform.isFuchsia;
-
-    return DraggableScrollableSheet(
-      initialChildSize: 0.4,
-      minChildSize: 0.25,
-      maxChildSize: 0.6,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurfaceVariant
-                      .withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                l10n.addEntryTitle,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 16),
-              Flexible(
-                child: ListView(
-                  controller: scrollController,
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    _ActionTile(
-                      icon: Icons.receipt_long,
-                      title: l10n.scanReceipt,
-                      isPremium: true,
-                      showPremiumBadge: !isPremium,
-                      isDesktop: isDesktop,
-                      isDesktopDisabled: isDesktop,
-                      onTap: () {
-                        Navigator.pop(context);
-                        if (isPremium) {
-                          context.push('/scanner', extra: ImageSource.camera);
-                        } else {
-                          context.push('/paywall');
-                        }
-                      },
-                    ),
-                    _ActionTile(
-                      icon: Icons.photo_library,
-                      title: l10n.selectFromPhotos,
-                      isPremium: true,
-                      showPremiumBadge: !isPremium,
-                      isDesktop: isDesktop,
-                      isDesktopDisabled: false,
-                      onTap: () {
-                        Navigator.pop(context);
-                        if (isPremium) {
-                          context.push('/scanner', extra: ImageSource.gallery);
-                        } else {
-                          context.push('/paywall');
-                        }
-                      },
-                    ),
-                    const Divider(height: 32),
-                    _ActionTile(
-                      icon: Icons.edit,
-                      title: l10n.addManually,
-                      isPremium: false,
-                      showPremiumBadge: false,
-                      isDesktop: isDesktop,
-                      isDesktopDisabled: false,
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AddEntryScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+  static void show(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (context) => const AddEntryBottomSheet(),
     );
   }
-}
-
-class _ActionTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final bool isPremium;
-  final bool showPremiumBadge;
-  final bool isDesktop;
-  final bool isDesktopDisabled;
-  final VoidCallback onTap;
-
-  const _ActionTile({
-    required this.icon,
-    required this.title,
-    required this.isPremium,
-    required this.showPremiumBadge,
-    required this.isDesktop,
-    required this.isDesktopDisabled,
-    required this.onTap,
-  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isDisabled = isDesktopDisabled || (isPremium && showPremiumBadge);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDesktop =
+        !Platform.isAndroid && !Platform.isIOS && !Platform.isFuchsia;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _OptionRow(
+              icon: Icons.edit,
+              iconBackgroundColor: colorScheme.primaryContainer,
+              iconColor: colorScheme.onPrimaryContainer,
+              title: l10n.manual,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Navigator.pop(context);
+                Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AddEntryScreen(),
+                  ),
+                );
+              },
+            ),
+            Divider(height: 1, indent: 72),
+            _OptionRow(
+              icon: Icons.qr_code,
+              iconBackgroundColor: colorScheme.secondaryContainer,
+              iconColor: colorScheme.onSecondaryContainer,
+              title: l10n.barcode,
+              isDisabled: isDesktop,
+              onTap: isDesktop
+                  ? null
+                  : () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                      GoRouter.of(context).push('/barcode');
+                    },
+            ),
+            Divider(height: 1, indent: 72),
+            _OptionRow(
+              icon: Icons.qr_code_scanner,
+              iconBackgroundColor: colorScheme.tertiaryContainer,
+              iconColor: colorScheme.onTertiaryContainer,
+              title: l10n.scannerOption,
+              trailing: Icon(
+                Icons.chevron_right,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Navigator.pop(context);
+                _showScannerChoice(context);
+              },
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.pop(context);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colorScheme.surfaceContainerHighest,
+                    foregroundColor: colorScheme.onSurface,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Text(l10n.cancel.toUpperCase()),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showScannerChoice(BuildContext context) {
+    HapticFeedback.lightImpact();
+    showCupertinoModalPopup(
+      context: context,
+      builder: (popupContext) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(popupContext);
+              context.push('/scanner', extra: ImageSource.camera);
+            },
+            child: const Text('Camera'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(popupContext);
+              context.push('/scanner', extra: ImageSource.gallery);
+            },
+            child: const Text('Photo Library'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          isDestructiveAction: true,
+          onPressed: () => Navigator.pop(popupContext),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+  }
+}
+
+class _OptionRow extends StatelessWidget {
+  final IconData icon;
+  final Color iconBackgroundColor;
+  final Color iconColor;
+  final String title;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final bool isDisabled;
+
+  const _OptionRow({
+    required this.icon,
+    required this.iconBackgroundColor,
+    required this.iconColor,
+    required this.title,
+    this.trailing,
+    this.onTap,
+    this.isDisabled = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return ListTile(
       leading: Container(
-        width: 48,
-        height: 48,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(12),
+          color: iconBackgroundColor,
+          shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
+        child: Icon(icon, color: iconColor, size: 20),
       ),
       title: Text(
         title,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: isDisabled
-                  ? Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.5)
-                  : null,
-            ),
+        style: theme.textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.w500,
+          color:
+              isDisabled ? colorScheme.onSurface.withValues(alpha: 0.5) : null,
+        ),
       ),
-      trailing: showPremiumBadge
-          ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.tertiaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                l10n.premiumFeature,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                    ),
-              ),
-            )
-          : isDesktopDisabled
+      trailing: trailing ??
+          (isDisabled
               ? Icon(
                   Icons.computer,
                   size: 20,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.5),
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
                 )
               : Icon(
                   Icons.chevron_right,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                  color: colorScheme.onSurfaceVariant,
+                )),
       enabled: !isDisabled,
-      onTap: isDisabled
-          ? () {
-              if (isDesktopDisabled && isPremium) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.notAvailableDesktop)),
-                );
-              }
-            }
-          : onTap,
+      onTap: onTap,
     );
   }
 }

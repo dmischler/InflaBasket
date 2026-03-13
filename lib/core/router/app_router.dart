@@ -5,6 +5,7 @@ import 'package:inflabasket/features/dashboard/presentation/dashboard_screen.dar
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
 import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart';
+import 'package:inflabasket/features/barcode/presentation/barcode_screen.dart';
 import 'package:inflabasket/features/settings/presentation/category_management_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_alerts_screen.dart';
 import 'package:inflabasket/features/settings/presentation/weight_editor_screen.dart';
@@ -48,6 +49,10 @@ GoRouter appRouter(AppRouterRef ref) {
           }
           return ScannerScreen(initialSource: initialSource);
         },
+      ),
+      GoRoute(
+        path: '/barcode',
+        builder: (context, state) => const BarcodeScreen(),
       ),
       GoRoute(
         path: '/settings/categories',
