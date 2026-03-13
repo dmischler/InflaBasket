@@ -300,6 +300,23 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] **AI Scanner Fallback Model:** VisionClient now catches `GenerativeAIException` with 503/UNAVAILABLE errors and automatically retries with `gemini-3-flash-preview` fallback model. Logs fallback attempts for debugging.
 - [x] **JSON Truncation Recovery:** VisionClient now handles truncated/incomplete JSON responses from the AI by attempting to recover valid JSON. Uses bracket-balancing algorithm to find the last complete object and parse it. Falls back to extracting just the items array if needed. If recovery fails, throws the original error.
 
+### Sprint 6: iOS Launch Bug Fixes
+
+**Bugs to Fix:**
+1. **Manual Entry Date Restriction** — Limit manual item adding to maximum 5 years back from current date.
+2. **Premium Testing Bypass** — Deactivate premium requirement for local testing (already done via `kDebugMode` in Sprint 4A, verify and document if needed).
+3. **Barcode Scanner Crash** — Investigate and fix crash when clicking barcode scanner on iOS.
+4. **Dark Mode SNB Curve Color** — In dark mode, the SNB curve color does not match the legend color; fix color theming.
+5. **Curve Baseline Alignment** — Both inflation curves should start at 100%, but currently only "own inflation" starts there; align both curves to start at 100%.
+6. **Chart Hover Tooltip Positioning** — When hovering over the curve, the first and last points cannot be read because the hover box is only half on screen; fix tooltip positioning.
+7. **Chart Curve Interpolation** — Interpolate curve so that hovering feels more natural (smooth curve vs. straight lines).
+8. **BasketIndex Vertical Layout** — "BasketIndex" is currently completely vertical (likely due to not landscape mode); optimize layout for phone screens.
+9. **Compact Taskbar** — Taskbar is quite large; shift it to the bottom and only show icons to save screen real estate.
+10. **Category Tab Time Filters** — In category tab, add ability to filter by ytd, 1y, 2y, 3y, 5y, 10y.
+11. **Reduce Text in Settings** — Less text especially in settings to avoid screen overload.
+12. **Overview Time Frame Adjustment** — Add ability to adjust time frame on overview screen.
+13. **App Icon** — Add app icon.
+
 ### 📝 Production Configuration (Not Code)
 - Replace `'appl_apiKey'` / `'goog_apiKey'` placeholders in `subscription_providers.dart` with real RevenueCat keys before store submission.
 - Replace `'YOUR_API_KEY'` in `vision_client.dart`; ideally move to a backend proxy rather than bundling the key in the binary.
@@ -398,7 +415,7 @@ A complete visual overhaul to modernize the app with contemporary design pattern
 
 30. **Animated Charts** — Enhance `fl_chart` visualizations with entry animations (chart draws in on load), touch-responsive highlights, and smooth data transitions when filters change. Add haptic feedback on category bar taps.
 
-31. **Custom Bottom Navigation** — Replace standard `NavigationBar` with a custom animated FAB-style nav: floating pill-shaped indicator with smooth slide transitions, micro-animations on icon press, and adaptive icons that morph between outline/filled states.
+31. **Custom Bottom Navigation** ✅ — Replaced standard `NavigationBar` with custom animated FAB-style nav: floating pill-shaped indicator with smooth slide transitions (300ms easeOutCubic), icon morphing between outline/filled states via AnimatedSwitcher, glassmorphism blur effect (BackdropFilter + ImageFilter), and theme-aware colors that react to Fiat ↔ Bitcoin toggle (Emerald #10B981 ↔ Gold #F59E0B).
 
 32. **Skeleton Loaders** — Replace circular progress indicators with skeleton shimmer placeholders throughout the app (History list, Dashboard cards, Scanner loading) for a more polished loading experience.
     - **Current partial implementation** — key screens now use richer empty/loading/error state cards (`StateMessageCard`) for scanner, paywall, templates, price alerts, and filtered history. Full shimmer/skeleton treatment is still pending.

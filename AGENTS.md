@@ -81,6 +81,10 @@ import 'package:inflabasket/features/entry_management/data/entry_repository.dart
 - Use nullable `Type?` explicitly
 - Typed collections: `List<String>`, `Map<String, int>`
 
+### Component Guidelines
+- **Never create a component longer than 150 lines.** If it exceeds this, split it into smaller components automatically.
+- **Always separate UI from logic.** Use Riverpod controllers for business logic, keep widgets focused on presentation only.
+
 ---
 
 ## 3. Architecture Patterns

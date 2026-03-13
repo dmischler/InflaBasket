@@ -85,7 +85,7 @@ workflows:
           mkdir -p /tmp/payload
           cp -R "$APP_PATH" /tmp/payload/Runner.app
           cd /tmp
-          zip -r "$OLDPWD/build/ios/output/InflaBasket.ipa" payload
+          zip -r "$OLDPWD/build/ios/output/InflaBasket.ipa" Payload
           cd "$OLDPWD"
           rm -rf /tmp/payload
           
