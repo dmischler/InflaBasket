@@ -25,12 +25,14 @@ class AppSettings {
   final bool isMetric;
   final String locale;
   final AppThemeType themeType;
+  final bool isBitcoinMode;
 
   const AppSettings({
     this.currency = 'CHF',
     this.isMetric = true,
     this.locale = 'en',
     this.themeType = AppThemeType.luxeDarkFiat,
+    this.isBitcoinMode = false,
   });
 
   AppSettings copyWith({
@@ -38,12 +40,14 @@ class AppSettings {
     bool? isMetric,
     String? locale,
     AppThemeType? themeType,
+    bool? isBitcoinMode,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
       isMetric: isMetric ?? this.isMetric,
       locale: locale ?? this.locale,
       themeType: themeType ?? this.themeType,
+      isBitcoinMode: isBitcoinMode ?? this.isBitcoinMode,
     );
   }
 }
@@ -61,6 +65,7 @@ class SettingsController extends _$SettingsController {
   static const _metricKey = 'settings_is_metric';
   static const _localeKey = 'settings_locale';
   static const _themeKey = 'settings_theme_type';
+  static const _bitcoinModeKey = 'settings_bitcoin_mode';
 
   @override
   AppSettings build() {
@@ -76,6 +81,7 @@ class SettingsController extends _$SettingsController {
       isMetric: prefs.getBool(_metricKey) ?? true,
       locale: resolveAppLanguageCode(prefs.getString(_localeKey)),
       themeType: themeType,
+      isBitcoinMode: prefs.getBool(_bitcoinModeKey) ?? false,
     );
   }
 
@@ -102,6 +108,12 @@ class SettingsController extends _$SettingsController {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setInt(_themeKey, type.index);
     state = state.copyWith(themeType: type);
+  }
+
+  Future<void> setBitcoinMode(bool isBitcoinMode) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setBool(_bitcoinModeKey, isBitcoinMode);
+    state = state.copyWith(isBitcoinMode: isBitcoinMode);
   }
 }
 

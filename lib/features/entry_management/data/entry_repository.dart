@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/api/bitcoin_price_client.dart';
+import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'entry_repository.g.dart';
@@ -146,6 +148,14 @@ class EntryRepository {
     });
   }
 
+  Future<int?> calculatePriceSats(
+      double fiatPrice, String currency, DateTime date) async {
+    final btcClient = BtcPriceClient(db: _db);
+    final btcPrice = await btcClient.fetchBtcPrice(currency, date);
+    if (btcPrice == null || btcPrice <= 0) return null;
+    return SatsConverter.fiatToSats(fiatPrice, btcPrice);
+  }
+
   Future<int> addPurchaseEntry({
     required int productId,
     required String storeName,
@@ -154,13 +164,17 @@ class EntryRepository {
     required double quantity,
     UnitType? unit,
     String? notes,
-  }) {
+    String currency = 'CHF',
+  }) async {
+    final priceSats = await calculatePriceSats(price, currency, purchaseDate);
+
     return _db.into(_db.purchaseEntries).insert(
           PurchaseEntriesCompanion.insert(
             productId: productId,
             storeName: storeName,
             purchaseDate: purchaseDate,
             price: price,
+            priceSats: Value<int?>(priceSats),
             quantity: Value(quantity),
             unit: Value(unit == UnitType.count ? null : unit?.name),
             notes: Value(notes),

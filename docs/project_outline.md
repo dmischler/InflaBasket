@@ -562,6 +562,20 @@ A focused effort to improve code maintainability, reduce technical debt, and pre
 
 A toggle to view all inflation data denominated in Bitcoin (satoshis) instead of fiat currency. This feature appeals to Bitcoin users who want to track their purchasing power in BTC terms.
 
+**Implementation Status (v1.1.0):**
+- [x] **Bitcoin Price API** — CoinGecko API integration for historical BTC/fiat rates (`bitcoin_price_client.dart`)
+- [x] **Bitcoin Mode Toggle** — Added `isBitcoinMode` bool in `AppSettings`, persisted via SharedPreferences
+- [x] **Sats Converter Utility** — `SatsConverter` class with fiat-to-sats conversion and formatting (`sats_converter.dart`)
+- [x] **Bitcoin Inflation Providers** — `itemInflationListSatsProvider` and `basketInflationSatsProvider` for sats-based inflation calculations
+- [x] **Localization** — Added Bitcoin mode strings to EN/DE ARB files
+
+**To Complete:**
+- [ ] **Sats UI Display** — Show sats values in Overview, Categories, and History tabs when Bitcoin mode is active
+- [ ] **Chart Updates** — Display sats-denominated basket index in charts
+- [ ] **Price Fetch on Demand** — Fetch BTC prices when viewing entries in Bitcoin mode
+
+---
+
 21. **Fiat/Bitcoin Toggle** — A prominent toggle in the Settings and/or Dashboard header to switch between "Fiat Standard" and "Bitcoin Standard". Persisted via `SharedPreferences`.
 
 22. **Bitcoin-Theme UI** — When Bitcoin Standard is active, the app's color scheme switches to an orange palette (Bitcoin orange: #F7931A) throughout the UI:

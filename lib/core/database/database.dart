@@ -34,6 +34,10 @@ class PurchaseEntries extends Table {
   /// Stores the [UnitType.name] string. Null means 'count'.
   TextColumn get unit => text().nullable()();
   TextColumn get notes => text().nullable()();
+
+  /// Price converted to satoshis at time of entry save.
+  /// Null if BTC price was unavailable. Always stored as integer.
+  IntColumn get priceSats => integer().nullable()();
 }
 
 /// Stores user-defined basket weights per category.
@@ -100,7 +104,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -154,6 +158,16 @@ class AppDatabase extends _$AppDatabase {
             // v6: Location field removed from schema.
             // Existing users' location data remains in SQLite but is unused.
             // SQLite doesn't support DROP COLUMN, so we skip the migration.
+          }
+          if (from < 7) {
+            // v7: Add priceSats column for Bitcoin mode
+            await m.addColumn(purchaseEntries, purchaseEntries.priceSats);
+          }
+          if (from < 8) {
+            // v8: Convert priceSats from REAL to INTEGER for precision
+            await customStatement(
+              'ALTER TABLE purchase_entries ALTER COLUMN price_sats INTEGER',
+            );
           }
         },
       );

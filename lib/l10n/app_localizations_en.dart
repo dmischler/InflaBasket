@@ -825,4 +825,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apply => 'Apply';
+
+  @override
+  String get bitcoinMode => 'Bitcoin Mode (Sats)';
+
+  @override
+  String get bitcoinModeSubtitle => 'View inflation in satoshis';
+
+  @override
+  String get satsInflation => 'Sats Inflation';
+
+  @override
+  String fiatEquivalent(String amount, String currency) {
+    return '~$amount $currency';
+  }
 }

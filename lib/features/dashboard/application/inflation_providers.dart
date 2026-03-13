@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:collection/collection.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/utils/sats_converter.dart';
+import 'package:inflabasket/core/api/bitcoin_price_client.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -16,6 +18,29 @@ export 'package:inflabasket/features/entry_management/application/entry_provider
         chartTimeFilterControllerProvider;
 
 part 'inflation_providers.g.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bitcoin Mode Support
+// ─────────────────────────────────────────────────────────────────────────────
+
+@riverpod
+bool isBitcoinMode(IsBitcoinModeRef ref) {
+  final settings = ref.watch(settingsControllerProvider);
+  return settings.isBitcoinMode;
+}
+
+@riverpod
+BtcPriceClient btcPriceClient(BtcPriceClientRef ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return BtcPriceClient(db: db);
+}
+
+@riverpod
+Future<Map<String, double>> btcPriceCache(BtcPriceCacheRef ref) async {
+  final client = ref.watch(btcPriceClientProvider);
+  final settings = ref.watch(settingsControllerProvider);
+  return client.getCachedPriceMap(settings.currency);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -354,4 +379,129 @@ List<MonthlyIndex> filteredBasketIndexHistory(
     final normalizedIndex = (item.index / baseIndex) * 100;
     return MonthlyIndex(item.month, normalizedIndex);
   }).toList();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bitcoin Mode Inflation Calculations
+// ─────────────────────────────────────────────────────────────────────────────
+
+class ItemInflationSats {
+  final Product product;
+  final Category category;
+  final int baseSatsPrice;
+  final int currentSatsPrice;
+  final UnitType baseUnit;
+  final double inflationPercent;
+  final double btcPriceAtBase;
+  final double btcPriceAtCurrent;
+
+  ItemInflationSats({
+    required this.product,
+    required this.category,
+    required this.baseSatsPrice,
+    required this.currentSatsPrice,
+    required this.baseUnit,
+    required this.inflationPercent,
+    required this.btcPriceAtBase,
+    required this.btcPriceAtCurrent,
+  });
+}
+
+@riverpod
+Future<List<ItemInflationSats>> itemInflationListSats(
+    ItemInflationListSatsRef ref) async {
+  final entries =
+      ref.watch(entriesWithDetailsProvider).valueOrNull ?? <EntryWithDetails>[];
+  if (entries.isEmpty) return [];
+
+  final settings = ref.watch(settingsControllerProvider);
+  final btcPrices = await ref.watch(btcPriceCacheProvider.future);
+
+  final currency = settings.currency.toLowerCase();
+
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final result = <ItemInflationSats>[];
+
+  for (final productEntries in grouped.values) {
+    if (productEntries.length < 2) continue;
+
+    productEntries
+        .sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+
+    final baseEntry = productEntries.first;
+
+    EntryWithDetails? currentEntry;
+    for (int i = productEntries.length - 1; i > 0; i--) {
+      if (_compatible(baseEntry.entry, productEntries[i].entry)) {
+        currentEntry = productEntries[i];
+        break;
+      }
+    }
+
+    if (currentEntry == null) continue;
+
+    final baseBtcPrice =
+        _getBtcPriceForDate(btcPrices, currency, baseEntry.entry.purchaseDate);
+    final currentBtcPrice = _getBtcPriceForDate(
+        btcPrices, currency, currentEntry.entry.purchaseDate);
+
+    if (baseBtcPrice == null || currentBtcPrice == null) continue;
+
+    final baseUnitPrice = _normalizedUnitPrice(baseEntry.entry);
+    final currentUnitPrice = _normalizedUnitPrice(currentEntry.entry);
+
+    final baseSats = SatsConverter.fiatToSats(baseUnitPrice, baseBtcPrice);
+    final currentSats =
+        SatsConverter.fiatToSats(currentUnitPrice, currentBtcPrice);
+
+    double inflation = 0;
+    if (baseSats > 0) {
+      inflation = ((currentSats - baseSats) / baseSats) * 100;
+    }
+
+    result.add(ItemInflationSats(
+      product: baseEntry.product,
+      category: baseEntry.category,
+      baseSatsPrice: baseSats,
+      currentSatsPrice: currentSats,
+      baseUnit: unitTypeFromString(baseEntry.entry.unit),
+      inflationPercent: inflation,
+      btcPriceAtBase: baseBtcPrice,
+      btcPriceAtCurrent: currentBtcPrice,
+    ));
+  }
+
+  result.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
+  return result;
+}
+
+double? _getBtcPriceForDate(
+    Map<String, double> priceCache, String currency, DateTime date) {
+  final key = '${date.year}-${date.month}';
+  return priceCache[key];
+}
+
+@riverpod
+double basketInflationSats(BasketInflationSatsRef ref) {
+  final itemInflationsAsync = ref.watch(itemInflationListSatsProvider);
+
+  return itemInflationsAsync.when(
+    data: (itemInflations) {
+      if (itemInflations.isEmpty) return 0.0;
+
+      double totalInflation = 0;
+      double totalWeight = 0;
+
+      for (final item in itemInflations) {
+        if (!item.inflationPercent.isFinite) continue;
+        totalInflation += item.inflationPercent;
+        totalWeight += 1;
+      }
+
+      if (totalWeight == 0) return 0.0;
+      return totalInflation / totalWeight;
+    },
+    loading: () => 0.0,
+    error: (_, __) => 0.0,
+  );
 }

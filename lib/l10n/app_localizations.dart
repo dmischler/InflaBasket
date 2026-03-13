@@ -1574,6 +1574,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Apply'**
   String get apply;
+
+  /// Bitcoin mode toggle label
+  ///
+  /// In en, this message translates to:
+  /// **'Bitcoin Mode (Sats)'**
+  String get bitcoinMode;
+
+  /// Bitcoin mode toggle subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'View inflation in satoshis'**
+  String get bitcoinModeSubtitle;
+
+  /// Label for sats-based inflation
+  ///
+  /// In en, this message translates to:
+  /// **'Sats Inflation'**
+  String get satsInflation;
+
+  /// Fiat equivalent display
+  ///
+  /// In en, this message translates to:
+  /// **'~{amount} {currency}'**
+  String fiatEquivalent(String amount, String currency);
 }
 
 class _AppLocalizationsDelegate

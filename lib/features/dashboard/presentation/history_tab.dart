@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -206,13 +207,13 @@ class HistoryTab extends ConsumerWidget {
             children: [
               if (isLuxeMode)
                 TabularAmountText(
-                  currencyFormat.format(entry.price),
+                  _formatPrice(entry, settings),
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16),
                 )
               else
                 Text(
-                  currencyFormat.format(entry.price),
+                  _formatPrice(entry, settings),
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16),
                 ),
@@ -250,6 +251,14 @@ class HistoryTab extends ConsumerWidget {
       label,
       style: const TextStyle(fontSize: 11, color: Colors.grey),
     );
+  }
+
+  String _formatPrice(PurchaseEntry entry, AppSettings settings) {
+    if (settings.isBitcoinMode && entry.priceSats != null) {
+      return SatsConverter.formatSats(entry.priceSats!.toInt());
+    }
+    final currencyFormat = NumberFormat.simpleCurrency(name: settings.currency);
+    return currencyFormat.format(entry.price);
   }
 
   void _showFilterSheet(

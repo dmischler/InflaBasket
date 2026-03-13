@@ -9,7 +9,6 @@ import 'package:inflabasket/core/api/cpi_client.dart';
 import 'package:inflabasket/core/api/cpi_provider.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
-import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
@@ -21,11 +20,14 @@ class OverviewTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
-    final overallInflation = ref.watch(basketInflationProvider);
+    final settings = ref.watch(settingsControllerProvider);
+    final isBitcoinMode = settings.isBitcoinMode;
+    final overallInflation = isBitcoinMode
+        ? ref.watch(basketInflationSatsProvider)
+        : ref.watch(basketInflationProvider);
     final history = ref.watch(filteredBasketIndexHistoryProvider);
     final allHistory = ref.watch(basketIndexHistoryProvider);
     final topInflators = ref.watch(itemInflationListProvider);
-    final settings = ref.watch(settingsControllerProvider);
     final showCpi = ref.watch(showCpiOverlayProvider);
     final overlayType = ref.watch(effectiveComparisonOverlayTypeProvider);
     final overlayAsync = ref.watch(comparisonOverlayDataProvider);
@@ -46,7 +48,7 @@ class OverviewTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSummaryCard(context, l, overallInflation),
+          _buildSummaryCard(context, l, overallInflation, isBitcoinMode),
           const SizedBox(height: 24),
           _buildTimeRangeSelector(
             context,
@@ -81,19 +83,19 @@ class OverviewTab extends ConsumerWidget {
           Text(l.overviewTopInflators,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopInflators(context, l, topInflators, settings),
+          _buildTopInflators(context, l, topInflators, settings, isBitcoinMode),
           const SizedBox(height: 24),
           Text(l.overviewTopDeflators,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopDeflators(context, l, topInflators, settings),
+          _buildTopDeflators(context, l, topInflators, settings, isBitcoinMode),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard(
-      BuildContext context, AppLocalizations l, double inflation) {
+  Widget _buildSummaryCard(BuildContext context, AppLocalizations l,
+      double inflation, bool isBitcoinMode) {
     final color = inflation > 0
         ? Colors.red
         : (inflation < 0 ? Colors.green : Colors.grey);
@@ -104,6 +106,8 @@ class OverviewTab extends ConsumerWidget {
     final isLuxeMode =
         Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
 
+    final title = isBitcoinMode ? 'Sats Inflation' : l.overviewTitle;
+
     return isLuxeMode
         ? VaultCard(
             isActive: true,
@@ -113,8 +117,7 @@ class OverviewTab extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.overviewTitle,
-                        style: Theme.of(context).textTheme.titleMedium),
+                    Text(title, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     TabularAmountText(
                       '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
@@ -146,7 +149,7 @@ class OverviewTab extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l.overviewTitle,
+                      Text(title,
                           style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       Text(
@@ -658,7 +661,7 @@ class OverviewTab extends ConsumerWidget {
   }
 
   Widget _buildTopInflators(BuildContext context, AppLocalizations l,
-      List<ItemInflation> items, AppSettings settings) {
+      List<ItemInflation> items, AppSettings settings, bool isBitcoinMode) {
     if (items.isEmpty) {
       return Text(l.overviewNoData);
     }
@@ -723,7 +726,7 @@ class OverviewTab extends ConsumerWidget {
   }
 
   Widget _buildTopDeflators(BuildContext context, AppLocalizations l,
-      List<ItemInflation> items, AppSettings settings) {
+      List<ItemInflation> items, AppSettings settings, bool isBitcoinMode) {
     if (items.isEmpty) {
       return Text(l.overviewNoData);
     }

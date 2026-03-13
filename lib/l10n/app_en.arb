@@ -849,5 +849,23 @@
   "@filterMonth": { "description": "Month label in date picker" },
 
   "apply": "Apply",
-  "@apply": { "description": "Apply button label" }
+  "@apply": { "description": "Apply button label" },
+
+  "bitcoinMode": "Bitcoin Mode (Sats)",
+  "@bitcoinMode": { "description": "Bitcoin mode toggle label" },
+
+  "bitcoinModeSubtitle": "View inflation in satoshis",
+  "@bitcoinModeSubtitle": { "description": "Bitcoin mode toggle subtitle" },
+
+  "satsInflation": "Sats Inflation",
+  "@satsInflation": { "description": "Label for sats-based inflation" },
+
+  "fiatEquivalent": "~{amount} {currency}",
+  "@fiatEquivalent": {
+    "description": "Fiat equivalent display",
+    "placeholders": {
+      "amount": { "type": "String" },
+      "currency": { "type": "String" }
+    }
+  }
 }
