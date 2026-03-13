@@ -242,7 +242,7 @@ class SettingsScreen extends ConsumerWidget {
                           const SnackBar(
                               content: Text('Factory reset completed')),
                         );
-                        context.go('/');
+                        context.go('/home');
                       }
                     }
                   },

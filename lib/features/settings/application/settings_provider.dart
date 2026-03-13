@@ -123,6 +123,8 @@ class SettingsController extends _$SettingsController {
     await database.resetDatabase();
     await prefs.clear();
     await prefs.setBool(hasCompletedOnboardingKey, false);
+    ref.invalidate(settingsControllerProvider);
+    ref.invalidate(categoryWeightsControllerProvider);
   }
 }
 
