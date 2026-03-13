@@ -8,7 +8,12 @@ import 'package:inflabasket/core/database/database.dart';
 
 // Re-export ChartTimeFilter classes for use in UI
 export 'package:inflabasket/features/entry_management/application/entry_providers.dart'
-    show ChartTimeRange, ChartTimeFilter, monthsBetween, availableTimeRanges;
+    show
+        ChartTimeRange,
+        ChartTimeFilter,
+        monthsBetween,
+        availableTimeRanges,
+        chartTimeFilterControllerProvider;
 
 part 'inflation_providers.g.dart';
 
@@ -146,10 +151,34 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
 }
 
 @riverpod
+List<EntryWithDetails> filteredEntriesWithDetails(
+    FilteredEntriesWithDetailsRef ref) {
+  final allEntries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  final timeFilter = ref.watch(chartTimeFilterControllerProvider);
+
+  if (allEntries.isEmpty) return [];
+
+  final firstDataPoint = allEntries
+      .map((e) => e.entry.purchaseDate)
+      .reduce((a, b) => a.isBefore(b) ? a : b);
+  final startDate = timeFilter.getStartDate(firstDataPoint);
+  final endDate = timeFilter.getEndDate();
+
+  if (startDate == null) return allEntries;
+
+  return allEntries.where((e) {
+    final entryDate = e.entry.purchaseDate;
+    final entryMonth = DateTime(entryDate.year, entryDate.month, 1);
+    final start = DateTime(startDate.year, startDate.month, 1);
+    final end = DateTime(endDate.year, endDate.month, 1);
+    return !entryMonth.isBefore(start) && !entryMonth.isAfter(end);
+  }).toList();
+}
+
+@riverpod
 List<CategoryInflation> categoryInflationList(CategoryInflationListRef ref) {
   final itemInflations = ref.watch(itemInflationListProvider);
-  final entries =
-      ref.watch(entriesWithDetailsProvider).valueOrNull ?? <EntryWithDetails>[];
+  final entries = ref.watch(filteredEntriesWithDetailsProvider);
 
   if (itemInflations.isEmpty || entries.isEmpty) return [];
 
