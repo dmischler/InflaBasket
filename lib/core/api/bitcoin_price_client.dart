@@ -37,7 +37,8 @@ class BtcPriceClient {
       return price;
     }
 
-    return null;
+    final stale = await _getStaleCachedPrice(currency, date);
+    return stale;
   }
 
   Future<List<BtcPricePoint>> fetchBtcPriceRange(
@@ -53,9 +54,11 @@ class BtcPriceClient {
         await _fallbackClient.fetchPriceRange(currency, startDate, endDate);
     if (prices.isNotEmpty) {
       await _cachePrices(currency, prices);
+      return prices;
     }
 
-    return prices;
+    final stale = await _getCachedPriceRange(currency, startDate, endDate);
+    return stale;
   }
 
   Future<double?> _getCachedPrice(String currency, DateTime date) async {
@@ -102,6 +105,54 @@ class BtcPriceClient {
     }
 
     return true;
+  }
+
+  Future<double?> _getStaleCachedPrice(String currency, DateTime date) async {
+    final monthStart = DateTime(date.year, date.month, 1);
+    final monthEnd = DateTime(date.year, date.month + 1, 0);
+
+    final query = _db.select(_db.externalSeriesCache)
+      ..where((t) =>
+          t.source.equals('btc_price') &
+          t.currency.equals(currency.toLowerCase()) &
+          t.metric.equals(_metricKey(currency)) &
+          t.month.isBiggerOrEqualValue(monthStart) &
+          t.month.isSmallerOrEqualValue(monthEnd));
+
+    final results = await query.get();
+    if (results.isEmpty) return null;
+
+    final cached = results.firstWhere(
+      (row) => _isValidForDate(row, date),
+      orElse: () => results.first,
+    );
+
+    return cached.value;
+  }
+
+  Future<List<BtcPricePoint>> _getCachedPriceRange(
+    String currency,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final query = _db.select(_db.externalSeriesCache)
+      ..where((t) =>
+          t.source.equals('btc_price') &
+          t.currency.equals(currency.toLowerCase()) &
+          t.metric.equals(_metricKey(currency)) &
+          t.month.isBiggerOrEqualValue(startDate) &
+          t.month.isSmallerOrEqualValue(endDate))
+      ..orderBy([(t) => OrderingTerm.asc(t.month)]);
+
+    final results = await query.get();
+    if (results.isEmpty) return [];
+
+    return results
+        .map((row) => BtcPricePoint(
+              date: row.month,
+              price: row.value,
+            ))
+        .toList();
   }
 
   Future<void> _cachePrice(String currency, DateTime date, double price) async {
