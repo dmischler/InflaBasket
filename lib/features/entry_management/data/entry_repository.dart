@@ -113,6 +113,12 @@ class EntryRepository {
         .getSingleOrNull();
   }
 
+  /// Returns the product with the given barcode, or null if not found.
+  Future<Product?> getProductByBarcode(String barcode) async {
+    return (_db.select(_db.products)..where((p) => p.barcode.equals(barcode)))
+        .getSingleOrNull();
+  }
+
   /// Returns all product names in a given category (for duplicate detection).
   Future<List<String>> getProductNamesForCategory(int categoryId) async {
     final res = await (_db.select(_db.products)
@@ -121,9 +127,13 @@ class EntryRepository {
     return res.map((p) => p.name).toList();
   }
 
-  Future<int> addProduct(String name, int categoryId) {
+  Future<int> addProduct(String name, int categoryId, {String? barcode}) {
     return _db.into(_db.products).insert(
-          ProductsCompanion.insert(name: name, categoryId: categoryId),
+          ProductsCompanion.insert(
+            name: name,
+            categoryId: categoryId,
+            barcode: Value(barcode),
+          ),
         );
   }
 

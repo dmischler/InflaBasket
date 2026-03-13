@@ -224,6 +224,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 ? null
                 : _notesController.text.trim(),
             existingEntryId: widget.entryToEdit?.entry.id,
+            barcode: widget.productInfoFromBarcode?.barcode,
           );
 
       if (!mounted) return;
@@ -237,7 +238,12 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
           ),
         );
       } else {
-        context.pop();
+        // If coming from barcode scan, go back to home; otherwise just pop
+        if (widget.productInfoFromBarcode != null) {
+          context.go('/home');
+        } else {
+          context.pop();
+        }
       }
     }
   }

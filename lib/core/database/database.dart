@@ -20,6 +20,10 @@ class Products extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
   IntColumn get categoryId => integer().references(Categories, #id)();
+
+  /// EAN-13/UPC barcode for this product (optional).
+  /// Used to match future barcode scans to existing products.
+  TextColumn get barcode => text().nullable()();
 }
 
 @DataClassName('PurchaseEntry')
@@ -104,7 +108,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -168,6 +172,10 @@ class AppDatabase extends _$AppDatabase {
             await customStatement(
               'ALTER TABLE purchase_entries ALTER COLUMN price_sats INTEGER',
             );
+          }
+          if (from < 9) {
+            // v9: Add barcode column to products table
+            await m.addColumn(products, products.barcode);
           }
         },
       );

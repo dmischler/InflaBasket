@@ -331,6 +331,14 @@ final isPremiumProvider = Provider<bool>((ref) {
  3. **Category Not Prefilled** ✅ — Fixed category TypeAheadField to use a dedicated `_categoryController` initialized with `barcodeInfo.suggestedCategory` so the category pre-fills correctly.
  4. **Stuck on Barcode Processing** ✅ — Fixed "Barcode processing" loading state appearing when returning from AddEntryScreen: Reset `_isLooking` and `_hasScanned` state before navigating away from BarcodeScreen.
 
+**Barcode Scanner Local Caching (v1.4.2):**
+ 1. **Database Schema v9** ✅ — Added `barcode` column to `Products` table to store product barcodes locally.
+ 2. **Local Lookup First** ✅ — BarcodeScreen now checks local database for existing product before querying Open Food Facts API:
+     - If product found locally → pre-fills name and last used store, skips API call
+     - If not found → queries Open Food Facts API (existing behavior)
+ 3. **Save Barcode** ✅ — When saving a new entry with barcode data, the barcode is stored with the product in the database.
+ 4. **Return to Home** ✅ — After saving from barcode scan, navigates back to home screen instead of just popping.
+
 **New Features:**
 14. **FAB Swipe-Up Selection** ✅ — When clicking the FAB, show a swipe-up modal bottom sheet with 3 options: "Manual", "Barcode", and "Scanner". 
     - **Manual** → navigates to `/home/add` (AddEntryScreen)

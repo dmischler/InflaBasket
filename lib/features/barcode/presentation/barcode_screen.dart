@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/features/barcode/presentation/product_name_dialog.dart';
@@ -91,6 +92,46 @@ class _BarcodeScreenState extends ConsumerState<BarcodeScreen> {
     });
 
     try {
+      // 1. First check local database for existing product with this barcode
+      final repo = ref.read(entryRepositoryProvider);
+      final existingProduct = await repo.getProductByBarcode(barcode);
+
+      if (!mounted) return;
+
+      if (existingProduct != null) {
+        // Product found in local DB - get latest entry for this product
+        final latestEntry =
+            await repo.getLatestEntryForProduct(existingProduct.id);
+
+        // Reset state before navigating
+        setState(() {
+          _isLooking = false;
+          _hasScanned = false;
+        });
+
+        // Create ProductInfo from local data - use latest entry for store
+        final localInfo = ProductInfo(
+          name: existingProduct.name,
+          barcode: barcode,
+          brand: latestEntry?.storeName, // Pre-fill with last used store
+          suggestedCategory: null, // User can select from autocomplete
+        );
+
+        if (mounted) {
+          // Show a message that we're using local data
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Found "${existingProduct.name}" from your history'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          context.push('/home/add', extra: localInfo);
+        }
+        return;
+      }
+
+      // 2. Not in local DB - query Open Food Facts API
       final settings = ref.read(settingsControllerProvider);
       final client = ref.read(openFoodFactsClientProvider);
       var info = await client.lookupBarcode(barcode, locale: settings.locale);

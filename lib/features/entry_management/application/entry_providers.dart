@@ -307,6 +307,7 @@ class AddEntryController extends _$AddEntryController {
     UnitType? unit,
     String? notes,
     int? existingEntryId,
+    String? barcode,
   }) async {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
@@ -326,8 +327,8 @@ class AddEntryController extends _$AddEntryController {
 
       // 2. Resolve or create product
       Product? product = await repo.getProductByName(productName);
-      final productId =
-          product?.id ?? await repo.addProduct(productName, catId);
+      final productId = product?.id ??
+          await repo.addProduct(productName, catId, barcode: barcode);
 
       // Normalise: store null for count (default)
       final storedUnit = (unit == null || unit == UnitType.count) ? null : unit;
