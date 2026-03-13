@@ -20,7 +20,9 @@ bool get supportsSubscriptionsOnCurrentPlatform {
   return Platform.isAndroid || Platform.isIOS;
 }
 
-bool get debugPremiumOverrideEnabled => kDebugMode;
+bool get debugPremiumOverrideEnabled =>
+    kDebugMode ||
+    const bool.fromEnvironment('FORCE_PREMIUM', defaultValue: false);
 
 @riverpod
 class SubscriptionController extends _$SubscriptionController {
