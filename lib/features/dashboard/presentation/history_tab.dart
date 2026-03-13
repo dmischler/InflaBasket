@@ -77,10 +77,6 @@ class HistoryTab extends ConsumerWidget {
                 context,
                 category.name,
               );
-              final locationText =
-                  entry.location == null || entry.location!.isEmpty
-                      ? ''
-                      : ' (${entry.location})';
 
               return Dismissible(
                 key: ValueKey(entry.id),
@@ -142,7 +138,6 @@ class HistoryTab extends ConsumerWidget {
                   dateFormat: dateFormat,
                   currencyFormat: currencyFormat,
                   categoryName: categoryName,
-                  locationText: locationText,
                 ),
               );
             },
@@ -160,7 +155,6 @@ class HistoryTab extends ConsumerWidget {
     required DateFormat dateFormat,
     required NumberFormat currencyFormat,
     required String categoryName,
-    required String locationText,
   }) {
     final entry = entryDetails.entry;
     final product = entryDetails.product;
@@ -181,8 +175,7 @@ class HistoryTab extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-              '${entry.storeName}$locationText • ${dateFormat.format(entry.purchaseDate)}'),
+          Text('${entry.storeName} • ${dateFormat.format(entry.purchaseDate)}'),
           if (entry.notes != null && entry.notes!.isNotEmpty)
             Text(
               entry.notes!,

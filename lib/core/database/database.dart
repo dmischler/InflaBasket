@@ -27,7 +27,6 @@ class PurchaseEntries extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productId => integer().references(Products, #id)();
   TextColumn get storeName => text()();
-  TextColumn get location => text().nullable()();
   DateTimeColumn get purchaseDate => dateTime()();
   RealColumn get price => real()();
   RealColumn get quantity => real().withDefault(const Constant(1.0))();
@@ -57,7 +56,6 @@ class EntryTemplates extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productId => integer().references(Products, #id)();
   TextColumn get storeName => text()();
-  TextColumn get location => text().nullable()();
   RealColumn get quantity => real().withDefault(const Constant(1.0))();
   TextColumn get unit => text().nullable()();
   TextColumn get notes => text().nullable()();
@@ -102,7 +100,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -151,6 +149,11 @@ class AppDatabase extends _$AppDatabase {
                 ));
               }
             }
+          }
+          if (from < 6) {
+            // v6: Location field removed from schema.
+            // Existing users' location data remains in SQLite but is unused.
+            // SQLite doesn't support DROP COLUMN, so we skip the migration.
           }
         },
       );

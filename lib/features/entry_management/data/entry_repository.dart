@@ -153,7 +153,6 @@ class EntryRepository {
     required double price,
     required double quantity,
     UnitType? unit,
-    String? location,
     String? notes,
   }) {
     return _db.into(_db.purchaseEntries).insert(
@@ -164,7 +163,6 @@ class EntryRepository {
             price: price,
             quantity: Value(quantity),
             unit: Value(unit == UnitType.count ? null : unit?.name),
-            location: Value(location),
             notes: Value(notes),
           ),
         );
@@ -196,19 +194,6 @@ class EntryRepository {
       ..limit(10);
     final res = await queryExp.get();
     return res.map((row) => row.read(_db.purchaseEntries.storeName)!).toList();
-  }
-
-  Future<List<String>> searchLocations(String query) async {
-    final queryExp = _db.selectOnly(_db.purchaseEntries, distinct: true)
-      ..addColumns([_db.purchaseEntries.location])
-      ..where(_db.purchaseEntries.location.like('%$query%'))
-      ..limit(10);
-    final res = await queryExp.get();
-    return res
-        .map((row) => row.read(_db.purchaseEntries.location))
-        .where((loc) => loc != null && loc.isNotEmpty)
-        .cast<String>()
-        .toList();
   }
 
   Future<bool> updatePurchaseEntry(PurchaseEntry entry) {
@@ -304,7 +289,6 @@ class EntryRepository {
   Future<int> addTemplate({
     required int productId,
     required String storeName,
-    String? location,
     double quantity = 1.0,
     UnitType? unit,
     String? notes,
@@ -313,7 +297,6 @@ class EntryRepository {
           EntryTemplatesCompanion.insert(
             productId: productId,
             storeName: storeName,
-            location: Value(location),
             quantity: Value(quantity),
             unit: Value(unit == UnitType.count ? null : unit?.name),
             notes: Value(notes),

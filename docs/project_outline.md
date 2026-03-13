@@ -326,7 +326,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 10. **Remove Location Field** — Remove location (City/Branch) field from items as it's not important for inflation tracking.
 
 **New Features:**
-14. **FAB Swipe-Up Selection** — When clicking the FAB, show a swipe-up modal bottom sheet with options to "Scan Receipt" (camera) or "Add Manually" instead of directly opening scanner. This allows non-premium users to access manual entry without hitting the paywall.
+14. **FAB Swipe-Up Selection** — When clicking the FAB, show a swipe-up modal bottom sheet with options to "Scan Receipt" (camera), "Select from Photos", or "Add Manually". These three choices should be named/labeled consistently as "scanning", "selecting from photos", and "manual" throughout the app. This allows non-premium users to access manual entry without hitting the paywall.
 15. **Monthly Aggregated Comparison Data** — Instead of discrete item data points, sample and compare inflation data at monthly intervals. Store items with month+year granularity and sample the inflation curve accordingly for smoother comparisons.
 16. **Core Inflation Comparison Bars** — In the Categories tab, if categorized core inflation data is available (e.g., from CPI sources), display a comparison bar next to each category's actual inflation bar. Show the difference between user's category inflation and official core inflation for that category.
 17. **Factory Reset** — Add option in Settings to revert to factory settings (delete database and all data to start fresh). Shows confirmation dialog with warning before deletion. Clears all SQLite tables, SharedPreferences keys (except onboarding flag), and resets app to initial state.

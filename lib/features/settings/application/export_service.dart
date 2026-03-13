@@ -33,7 +33,6 @@ class ExportService extends _$ExportService {
         [
           'Date',
           'Store',
-          'Location',
           'Category',
           'Product',
           'Price',
@@ -53,7 +52,6 @@ class ExportService extends _$ExportService {
         rows.add([
           dateFormat.format(entry.purchaseDate),
           entry.storeName,
-          entry.location ?? '',
           CategoryLocalization.displayName(
             category.name,
             languageCode: languageCode,

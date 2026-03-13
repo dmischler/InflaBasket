@@ -93,12 +93,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storeHint => 'e.g. Migros';
 
   @override
-  String get location => 'Location (City / Branch)';
-
-  @override
-  String get locationHint => 'e.g. Zurich, Bahnhofstrasse';
-
-  @override
   String get price => 'Price';
 
   @override

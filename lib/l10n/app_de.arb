@@ -29,8 +29,6 @@
   "category": "Kategorie",
   "store": "Geschäft",
   "storeHint": "z.B. Migros",
-  "location": "Ort / Filiale",
-  "locationHint": "z.B. Zürich, Bahnhofstrasse",
   "price": "Preis",
   "quantity": "Menge",
   "unit": "Einheit",

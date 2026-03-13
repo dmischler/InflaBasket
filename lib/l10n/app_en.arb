@@ -85,12 +85,6 @@
   "storeHint": "e.g. Migros",
   "@storeHint": { "description": "Hint text for store name field" },
 
-  "location": "Location (City / Branch)",
-  "@location": { "description": "Label for location field" },
-
-  "locationHint": "e.g. Zurich, Bahnhofstrasse",
-  "@locationHint": { "description": "Hint text for location field" },
-
   "price": "Price",
   "@price": { "description": "Label for price field" },
 

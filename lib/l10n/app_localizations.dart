@@ -266,18 +266,6 @@ abstract class AppLocalizations {
   /// **'e.g. Migros'**
   String get storeHint;
 
-  /// Label for location field
-  ///
-  /// In en, this message translates to:
-  /// **'Location (City / Branch)'**
-  String get location;
-
-  /// Hint text for location field
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. Zurich, Bahnhofstrasse'**
-  String get locationHint;
-
   /// Label for price field
   ///
   /// In en, this message translates to:

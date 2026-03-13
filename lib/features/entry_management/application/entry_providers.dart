@@ -43,7 +43,6 @@ class AddTemplateController extends _$AddTemplateController {
   Future<void> addTemplate({
     required int productId,
     required String storeName,
-    String? location,
     double quantity = 1.0,
     UnitType? unit,
     String? notes,
@@ -54,7 +53,6 @@ class AddTemplateController extends _$AddTemplateController {
       await repo.addTemplate(
         productId: productId,
         storeName: storeName,
-        location: location,
         quantity: quantity,
         unit: unit,
         notes: notes,
@@ -66,7 +64,6 @@ class AddTemplateController extends _$AddTemplateController {
     required String productName,
     required String categoryName,
     required String storeName,
-    String? location,
     double quantity = 1.0,
     UnitType? unit,
     String? notes,
@@ -95,7 +92,6 @@ class AddTemplateController extends _$AddTemplateController {
       await repo.addTemplate(
         productId: productId,
         storeName: storeName,
-        location: location,
         quantity: quantity,
         unit: unit,
         notes: notes,
@@ -309,7 +305,6 @@ class AddEntryController extends _$AddEntryController {
     required double quantity,
     required DateTime date,
     UnitType? unit,
-    String? location,
     String? notes,
     int? existingEntryId,
   }) async {
@@ -351,7 +346,6 @@ class AddEntryController extends _$AddEntryController {
             price: price,
             quantity: quantity,
             unit: storedUnit?.name,
-            location: location,
             notes: notes,
           ),
         );
@@ -363,7 +357,6 @@ class AddEntryController extends _$AddEntryController {
           price: price,
           quantity: quantity,
           unit: storedUnit,
-          location: location,
           notes: notes,
         );
 

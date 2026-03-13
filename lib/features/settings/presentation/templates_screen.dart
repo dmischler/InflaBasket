@@ -76,7 +76,6 @@ class TemplatesScreen extends ConsumerWidget {
         price: 0.0,
         quantity: t.template.quantity,
         unit: t.template.unit,
-        location: t.template.location,
         notes: t.template.notes,
       ),
       product: t.product,

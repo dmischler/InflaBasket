@@ -26,7 +26,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _productController;
   late final TextEditingController _storeController;
-  late final TextEditingController _locationController;
   late final TextEditingController _priceController;
   late final TextEditingController _quantityController;
   late final TextEditingController _notesController;
@@ -45,8 +44,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     _productController = TextEditingController(text: edit?.product.name ?? '');
     _selectedCategoryName = edit?.category.name;
     _storeController = TextEditingController(text: edit?.entry.storeName ?? '');
-    _locationController =
-        TextEditingController(text: edit?.entry.location ?? '');
     _priceController =
         TextEditingController(text: edit?.entry.price.toString() ?? '');
     _quantityController =
@@ -60,7 +57,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   void dispose() {
     _productController.dispose();
     _storeController.dispose();
-    _locationController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
     _notesController.dispose();
@@ -188,9 +184,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
             quantity: double.parse(_quantityController.text),
             date: _selectedDate,
             unit: _selectedUnit,
-            location: _locationController.text.trim().isEmpty
-                ? null
-                : _locationController.text.trim(),
             notes: _notesController.text.trim().isEmpty
                 ? null
                 : _notesController.text.trim(),
@@ -220,9 +213,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
           productName: (_resolvedProductName ?? _productController.text).trim(),
           categoryName: _selectedCategoryName!,
           storeName: _storeController.text.trim(),
-          location: _locationController.text.trim().isEmpty
-              ? null
-              : _locationController.text.trim(),
           quantity: double.parse(_quantityController.text),
           unit: _selectedUnit,
           notes: _notesController.text.trim().isEmpty
@@ -345,12 +335,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 optionsBuilder: repo.searchStoreNames,
                 validator: (value) =>
                     value == null || value.isEmpty ? l10n.fieldRequired : null,
-              ),
-              const SizedBox(height: 16),
-              AsyncAutocompleteField(
-                labelText: l10n.location,
-                controller: _locationController,
-                optionsBuilder: repo.searchLocations,
               ),
               const SizedBox(height: 16),
               ListTile(
