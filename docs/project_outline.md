@@ -17,7 +17,10 @@ Here is the complete, production-grade development roadmap for **InflaBasket**, 
   - *As a user, I want to see a side-by-side comparison of inflation by category.*
 - **Epic 3: AI Magic & Monetization (Premium)**
   - *As a premium user, I want to snap a photo of my grocery receipt and have the app automatically extract and categorize every item.*
+  - *As a premium user, I want to ask natural-language questions about my data ("Why did my meat inflation spike?") and receive AI answers.*
   - *As a user, I want a smooth paywall experience to upgrade to premium.*
+- **Epic 4: Family Sharing (Premium)**
+  - *As a family-plan user, I want household members to contribute to a shared basket with per-person contribution views.*
 
 ---
 
@@ -62,7 +65,6 @@ class PurchaseEntries extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productId => integer().references(Products, #id)();
   TextColumn get storeName => text()();
-  TextColumn get location => text().nullable()();
   DateTimeColumn get purchaseDate => dateTime()();
   RealColumn get price => real()(); // Store exact decimal
   RealColumn get quantity => real().withDefault(const Constant(1.0))();
@@ -237,7 +239,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] Basic list view (`History` tab).
 - [x] SQLite CRUD operations via `EntryRepository`.
 - [x] **Category Seeding:** Default categories (Food & Groceries, Restaurants & Dining Out, Beverages, Transportation, Fuel & Energy, Housing & Rent, Utilities, Healthcare & Medical, Personal Care & Hygiene, Household Supplies, Clothing & Apparel, Electronics & Tech) are automatically created on first launch.
-- [x] **Localized Category Display:** Default categories remain stored as canonical English keys in Drift, while the UI localizes them for `en`, `de`, `fr`, and `it`. User-created custom categories remain exactly as typed and are never translated.
+- [x] **Localized Category Display:** Default categories remain stored as canonical English keys in Drift, while the UI localizes them for `en` and `de`. User-created custom categories remain exactly as typed and are never translated.
 
 **Phase 2: Data Visualization & Analytics**
 - [x] **Inflation Calculation Engine:**
@@ -269,7 +271,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 - [x] **Export Data:** Settings → Export Data (CSV) implemented via `ExportService`.
 - [x] **Recurring Purchase Templates:** Settings → Templates plus direct "Save as Template" from Add Entry.
 - [x] **Price Alerts Settings UI:** Settings → Price Alerts (`/settings/price-alerts`) for per-product threshold configuration.
-- [x] **Location Tracking:** Added "Location (City/Branch)" field to manual entry and history view.
 - [x] Dark/Light mode support via Material 3.
 - [x] Desktop (Linux) support enabled.
 
@@ -321,6 +322,7 @@ final isPremiumProvider = Provider<bool>((ref) {
     - Medium ranges (6mo - 2y): Show month + year (e.g., "Mar '24")
     - Long ranges (>2y): Show year only or year + month (e.g., "2024")
     - Implementation in `overview_tab.dart`: Modify `_buildLineChart` to calculate tick count based on available width and apply date format based on `ChartTimeRange` selection.
+10. **Remove Location Field** — Remove location (City/Branch) field from items as it's not important for inflation tracking.
 
 **New Features:**
 14. **FAB Swipe-Up Selection** — When clicking the FAB, show a swipe-up modal bottom sheet with options to "Scan Receipt" (camera) or "Add Manually" instead of directly opening scanner. This allows non-premium users to access manual entry without hitting the paywall.
@@ -394,7 +396,7 @@ final isPremiumProvider = Provider<bool>((ref) {
   - Camera implementation, API client setup for Grok/GPT-4o.
   - Review/Edit screen for parsed receipt data.
 - **Phase 4: Polish & Launch (Weeks 7-8)** ✅ COMPLETE
-  - Settings, Category Management, Location Tracking.
+  - Settings, Category Management.
   - Dark/light mode, bottom navigation polish.
   - Beta testing (TestFlight / Play Console Internal).
 
@@ -419,6 +421,10 @@ final isPremiumProvider = Provider<bool>((ref) {
 2. **Autocomplete for Manual Entry** ✅ — TypeAhead dropdown on Product, Store, and Location fields.
 3. **CSV Export** ✅ — Settings → Export Data, implemented via `ExportService` using `CsvEncoder` + `share_plus`.
 4. **Default Currency & Units** ✅ — CHF default with metric/imperial toggle, persisted via `SharedPreferences`.
+5. **CSV Import (Free)** — Settings → "Import Data". Drag-and-drop on desktop or file picker on mobile. Column mapper preview, duplicate detection (same LLM heuristic), progress bar, and rollback transaction. Same format as export for seamless round-trip.
+6. **History Search & Advanced Filters (Free)** — Add a persistent search bar (product name, store, notes) using Drift's CustomExpression full-text search. Combine with existing date/category filters. Live results via Riverpod stream.
+7. **Batch Operations in History (Free)** — Long-press → multi-select mode (checkboxes + "Select All"). Bulk delete, re-categorize, or add notes. Confirmation dialog with count. Undo via SnackBar + local cache.
+8. **Auto-detect Similar Product** — Implement functionality to auto-detect similar product names during entry creation to prevent duplicates and improve data consistency.
 
 ### Sprint 2 – Bug Fixes & Polish ✅ COMPLETE
 
@@ -440,7 +446,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 6. **Product Normalization** ✅ — Already fully implemented in Sprint 1 via `unit.dart` (`UnitType` enum, `normalizedPricePerUnit`) and `inflation_providers.dart` (`normalizePricePerUnit` helper). No changes required.
 7. **Custom Basket Weighting** ✅ — `WeightEditorScreen` (`/settings/weights`) presents one `Slider` per category. Values validate to 100%. `CategoryWeightsController` persists fractions to the `category_weights` DB table (schema v3). `basketInflation()` uses custom weights when set; otherwise falls back to spend-weighted averaging.
 8. **Official CPI + Money Supply Comparison** ✅ — `CpiClient` now uses Eurostat SDMX 3.0 monthly HICP index feeds with bounded history windows for supported CPI currencies: CHF → Switzerland (`M.I15.CP00.CH`), EUR → EU27 aggregate (`M.I15.CP00.EU27_2020`). `MoneySupplyClient` fetches currency-specific broad-money data with time-range filtering: CHF → SNB M2, EUR → ECB M2 stocks, USD → FRED M2, GBP → Bank of England M2. `OverviewTab` lets users switch the overlay between CPI and M2 when available, rebasing external series to the same 100-index baseline for visual comparison. External macro series are cached in Drift for offline fallback and transient TLS/network/API failures; if refresh fails, the app falls back to the latest cached series before degrading to an empty overlay.
-9. **Localization (i18n)** ✅ — `flutter_localizations` + `gen_l10n` ARB pipeline with 4 locales: `en`, `de`, `fr`, `it`. Unsupported device locales fall back to English. `l10n.yaml` uses `synthetic-package: false`; import path is `package:inflabasket/l10n/app_localizations.dart`. The Settings screen now includes a manual language selector.
+9. **Localization (i18n)** ✅ — `flutter_localizations` + `gen_l10n` ARB pipeline with 2 locales: `en`, `de`. Unsupported device locales fall back to English. `l10n.yaml` uses `synthetic-package: false`; import path is `package:inflabasket/l10n/app_localizations.dart`. The Settings screen now includes a manual language selector.
 10. **Barcode Scanner** ✅ — `mobile_scanner` (replaces unused `camera`) powers `BarcodeScanDialog` (modal bottom sheet with live preview). `OpenFoodFactsClient` calls the OFF API and maps PNNS categories → InflaBasket categories. Barcode `IconButton.filledTonal` added next to the Product Name field in `AddEntryScreen`.
     - **Premium default** — When adding a new entry, premium users are taken directly to the receipt scanner from the FAB; non-premium users continue to the manual entry form.
 11. **Recurring Purchase Templates** ✅ — `TemplatesScreen` (`/settings/templates`) lists `watchTemplatesWithDetails()` stream. Swipe-to-delete with confirmation. "Use" button opens `AddEntryScreen` pre-filled via a synthetic `EntryWithDetails`. `AddEntryScreen` also exposes a direct "Save as Template" action backed by `AddTemplateController.addTemplateFromForm()`.

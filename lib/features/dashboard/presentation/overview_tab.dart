@@ -67,7 +67,8 @@ class OverviewTab extends ConsumerWidget {
             overlayAsync.isLoading,
           ),
           const SizedBox(height: 8),
-          _buildLineChart(context, l, history, showCpi, overlayPoints),
+          _buildLineChart(
+              context, l, history, showCpi, overlayPoints, timeFilter.range),
           if (showCpi && hasOverlaySource) ...[
             const SizedBox(height: 8),
             _buildOverlayStatus(context, l, overlayAsync, hasOverlayData),
@@ -436,12 +437,48 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
+  String _getDateFormat(ChartTimeRange range, List<MonthlyIndex> validHistory) {
+    if (range == ChartTimeRange.custom && validHistory.isNotEmpty) {
+      final start = validHistory.first.month;
+      final end = validHistory.last.month;
+      final months = (end.year - start.year) * 12 + end.month - start.month;
+      range = months <= 6
+          ? ChartTimeRange.ytd
+          : months <= 24
+              ? ChartTimeRange.twoYears
+              : ChartTimeRange.fiveYears;
+    }
+
+    switch (range) {
+      case ChartTimeRange.ytd:
+        return 'MMM d';
+      case ChartTimeRange.oneYear:
+        return 'MMM d';
+      case ChartTimeRange.twoYears:
+        return "MMM ''yy";
+      case ChartTimeRange.fiveYears:
+      case ChartTimeRange.allTime:
+        return 'yyyy';
+      case ChartTimeRange.custom:
+        return 'MMM d';
+    }
+  }
+
+  double _getTickInterval(ChartTimeRange range, int dataLength) {
+    if (dataLength <= 6) return 1;
+    if (dataLength <= 12) return 2;
+    if (dataLength <= 24) return 3;
+    if (dataLength <= 60) return 6;
+    return (dataLength / 8).ceilToDouble();
+  }
+
   Widget _buildLineChart(
     BuildContext context,
     AppLocalizations l,
     List<MonthlyIndex> history,
     bool showCpi,
     List<ComparisonDataPoint> overlayPoints,
+    ChartTimeRange timeRange,
   ) {
     final validHistory = history.where((h) => h.index.isFinite).toList();
     if (validHistory.isEmpty || validHistory.length == 1) {
@@ -569,15 +606,16 @@ class OverviewTab extends ConsumerWidget {
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index >= 0 && index < validHistory.length) {
+                    final format = _getDateFormat(timeRange, validHistory);
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
-                          DateFormat.MMM().format(validHistory[index].month)),
+                          DateFormat(format).format(validHistory[index].month)),
                     );
                   }
                   return const Text('');
                 },
-                interval: 1,
+                interval: _getTickInterval(timeRange, validHistory.length),
               ),
             ),
             leftTitles:
@@ -595,10 +633,13 @@ class OverviewTab extends ConsumerWidget {
               fitInsideVertically: true,
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
-                  // Data is already normalized to 0% baseline, use directly
+                  final index = spot.x.toInt();
+                  final dateStr = index >= 0 && index < validHistory.length
+                      ? DateFormat('MMM yyyy').format(validHistory[index].month)
+                      : '';
                   final delta = spot.y;
                   final label =
-                      '${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%';
+                      '$dateStr\n${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%';
                   return LineTooltipItem(
                     label,
                     TextStyle(

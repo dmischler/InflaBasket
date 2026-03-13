@@ -56,7 +56,7 @@ String resolveAppLanguageCode([String? languageCode]) {
 
 @Riverpod(keepAlive: true)
 class SettingsController extends _$SettingsController {
-  static const supportedLocales = <String>['en', 'de', 'fr', 'it'];
+  static const supportedLocales = <String>['en', 'de'];
   static const _currencyKey = 'settings_currency';
   static const _metricKey = 'settings_is_metric';
   static const _localeKey = 'settings_locale';

@@ -13,8 +13,6 @@ class SettingsScreen extends ConsumerWidget {
   static const Map<String, String> _languageLabels = <String, String>{
     'en': 'English',
     'de': 'Deutsch',
-    'fr': 'Français',
-    'it': 'Italiano',
   };
 
   @override

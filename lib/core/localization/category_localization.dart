@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/l10n/app_localizations_de.dart';
 import 'package:inflabasket/l10n/app_localizations_en.dart';
-import 'package:inflabasket/l10n/app_localizations_fr.dart';
-import 'package:inflabasket/l10n/app_localizations_it.dart';
 
 class CategoryLocalization {
   const CategoryLocalization._();
@@ -28,8 +26,6 @@ class CategoryLocalization {
   static const List<String> supportedLanguageCodes = <String>[
     'en',
     'de',
-    'fr',
-    'it',
   ];
 
   static const Map<String, String> _aliases = <String, String>{
@@ -175,10 +171,6 @@ class CategoryLocalization {
     switch (normalizeLanguageCode(languageCode)) {
       case 'de':
         return AppLocalizationsDe();
-      case 'fr':
-        return AppLocalizationsFr();
-      case 'it':
-        return AppLocalizationsIt();
       case 'en':
       default:
         return AppLocalizationsEn();
