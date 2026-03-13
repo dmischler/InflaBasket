@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=InflaBasket
+Comment=Personal Basket Inflation Tracker
+Exec=inflabasket
+Icon=app_icon
+Terminal=false
+Type=Application
+Categories=Finance;Utility;
