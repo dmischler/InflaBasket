@@ -310,6 +310,7 @@ final isPremiumProvider = Provider<bool>((ref) {
    - Added iOS permissions template (`ios_config/Info.plist.template`) with `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription`.
    - Updated `codemagic.yaml` to copy Info.plist template after iOS project generation.
 4. **Dark Mode SNB Curve Color** ✅ — Fixed legend color to match chart: updated `_buildChartLegend` to accept `isLuxeMode` parameter and use `isLuxeMode ? AppColors.textSecondary : Colors.orange` for the overlay curve dot, matching the chart's color logic.
+5. **Linux Window Size** ✅ — Changed Linux app window dimensions from 1280×720 to 393×852 (iPhone 15 portrait) for accurate mobile-like testing on desktop.
 
 **Bugs to Fix:**
 4. **Dark Mode SNB Curve Color** — In dark mode, the SNB curve color does not match the legend color; fix color theming.
