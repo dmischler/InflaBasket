@@ -323,7 +323,7 @@ final isPremiumProvider = Provider<bool>((ref) {
     - Medium ranges (6mo - 2y): Show month + year (e.g., "Mar '24")
     - Long ranges (>2y): Show year only or year + month (e.g., "2024")
     - Implementation in `overview_tab.dart`: Modify `_buildLineChart` to calculate tick count based on available width and apply date format based on `ChartTimeRange` selection.
-10. **Remove Location Field** — Remove location (City/Branch) field from items as it's not important for inflation tracking.
+10. **Remove Location Field** ✅ — Removed location (City/Branch) field from items as it's not important for inflation tracking. Removed from database schema (v6), Add Entry form, History display, CSV export, and localization strings.
 
 **New Features:**
 14. **FAB Swipe-Up Selection** — When clicking the FAB, show a swipe-up modal bottom sheet with options to "Scan Receipt" (camera), "Select from Photos", or "Add Manually". These three choices should be named/labeled consistently as "scanning", "selecting from photos", and "manual" throughout the app. This allows non-premium users to access manual entry without hitting the paywall.
@@ -419,7 +419,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 ### Sprint 1 – Quick Wins ✅ COMPLETE
 
 1. **Edit/Delete History Entries** ✅ — Swipe-to-delete and explicit edit button (pencil icon) in the History tab. Long-press to edit was unreliable on Linux desktop due to a known Flutter gesture limitation with Dismissible widgets.
-2. **Autocomplete for Manual Entry** ✅ — TypeAhead dropdown on Product, Store, and Location fields.
+2. **Autocomplete for Manual Entry** ✅ — TypeAhead dropdown on Product and Store fields.
 3. **CSV Export** ✅ — Settings → Export Data, implemented via `ExportService` using `CsvEncoder` + `share_plus`.
 4. **Default Currency & Units** ✅ — CHF default with metric/imperial toggle, persisted via `SharedPreferences`.
 5. **CSV Import (Free)** — Settings → "Import Data". Drag-and-drop on desktop or file picker on mobile. Column mapper preview, duplicate detection (same LLM heuristic), progress bar, and rollback transaction. Same format as export for seamless round-trip.
