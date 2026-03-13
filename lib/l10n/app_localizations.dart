@@ -608,6 +608,30 @@ abstract class AppLocalizations {
   /// **'Export Data (CSV)'**
   String get settingsExportData;
 
+  /// List tile label for factory reset
+  ///
+  /// In en, this message translates to:
+  /// **'Factory Reset'**
+  String get settingsFactoryReset;
+
+  /// Dialog title for factory reset confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Reset App?'**
+  String get factoryResetConfirmTitle;
+
+  /// Warning message in factory reset dialog
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete all your data including purchase history, categories, templates, and settings. This action cannot be undone.'**
+  String get factoryResetConfirmMessage;
+
+  /// Confirm button for factory reset
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get factoryResetButton;
+
   /// List tile label for custom basket weights
   ///
   /// In en, this message translates to:

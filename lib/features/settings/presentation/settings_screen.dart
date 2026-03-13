@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:inflabasket/features/settings/application/export_service.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 
@@ -202,6 +203,48 @@ class SettingsScreen extends ConsumerWidget {
                   title: Text(l10n.settingsExportData),
                   onTap: () {
                     ref.read(exportServiceProvider.notifier).exportData();
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.restart_alt),
+                  title: Text(l10n.settingsFactoryReset),
+                  onTap: () async {
+                    final shouldReset = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(l10n.factoryResetConfirmTitle),
+                        content: Text(l10n.factoryResetConfirmMessage),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text(MaterialLocalizations.of(context)
+                                .cancelButtonLabel),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
+                            child: Text(l10n.factoryResetButton),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (shouldReset == true && context.mounted) {
+                      final repo = ref.read(entryRepositoryProvider);
+                      final database = repo.database;
+                      await ref
+                          .read(settingsControllerProvider.notifier)
+                          .factoryReset(database);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Factory reset completed')),
+                        );
+                        context.go('/');
+                      }
+                    }
                   },
                 ),
               ],

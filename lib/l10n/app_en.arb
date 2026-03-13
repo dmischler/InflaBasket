@@ -259,6 +259,18 @@
   "settingsExportData": "Export Data (CSV)",
   "@settingsExportData": { "description": "List tile label for CSV export" },
 
+  "settingsFactoryReset": "Factory Reset",
+  "@settingsFactoryReset": { "description": "List tile label for factory reset" },
+
+  "factoryResetConfirmTitle": "Reset App?",
+  "@factoryResetConfirmTitle": { "description": "Dialog title for factory reset confirmation" },
+
+  "factoryResetConfirmMessage": "This will delete all your data including purchase history, categories, templates, and settings. This action cannot be undone.",
+  "@factoryResetConfirmMessage": { "description": "Warning message in factory reset dialog" },
+
+  "factoryResetButton": "Reset",
+  "@factoryResetButton": { "description": "Confirm button for factory reset" },
+
   "settingsCategoryWeights": "Category Weights",
   "@settingsCategoryWeights": { "description": "List tile label for custom basket weights" },
 

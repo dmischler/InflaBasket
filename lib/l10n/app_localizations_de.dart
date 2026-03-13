@@ -274,6 +274,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsExportData => 'Daten exportieren (CSV)';
 
   @override
+  String get settingsFactoryReset => 'Werkseinstellungen';
+
+  @override
+  String get factoryResetConfirmTitle => 'App zurücksetzen?';
+
+  @override
+  String get factoryResetConfirmMessage =>
+      'Alle Ihre Daten werden gelöscht, einschließlich Kaufhistorie, Kategorien, Vorlagen und Einstellungen. Diese Aktion kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get factoryResetButton => 'Zurücksetzen';
+
+  @override
   String get settingsCategoryWeights => 'Kategoriegewichtungen';
 
   @override

@@ -172,6 +172,19 @@ class AppDatabase extends _$AppDatabase {
         },
       );
 
+  Future<void> resetDatabase() async {
+    await transaction(() async {
+      await delete(purchaseEntries).go();
+      await delete(products).go();
+      await delete(entryTemplates).go();
+      await delete(priceAlerts).go();
+      await delete(categoryWeights).go();
+      await delete(externalSeriesCache).go();
+      await delete(categories).go();
+    });
+    await _seedDefaultCategories();
+  }
+
   Future<void> _seedDefaultCategories() async {
     final defaults = <CategoriesCompanion>[
       CategoriesCompanion.insert(

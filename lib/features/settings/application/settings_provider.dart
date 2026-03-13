@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
+import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'settings_provider.g.dart';
@@ -66,6 +67,7 @@ class SettingsController extends _$SettingsController {
   static const _localeKey = 'settings_locale';
   static const _themeKey = 'settings_theme_type';
   static const _bitcoinModeKey = 'settings_bitcoin_mode';
+  static const hasCompletedOnboardingKey = 'has_completed_onboarding';
 
   @override
   AppSettings build() {
@@ -114,6 +116,13 @@ class SettingsController extends _$SettingsController {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setBool(_bitcoinModeKey, isBitcoinMode);
     state = state.copyWith(isBitcoinMode: isBitcoinMode);
+  }
+
+  Future<void> factoryReset(AppDatabase database) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await database.resetDatabase();
+    await prefs.clear();
+    await prefs.setBool(hasCompletedOnboardingKey, false);
   }
 }
 
