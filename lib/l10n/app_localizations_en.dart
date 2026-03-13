@@ -852,4 +852,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String fiatEquivalent(String amount, String currency) {
     return '~$amount $currency';
   }
+
+  @override
+  String get addEntryTitle => 'Add Entry';
+
+  @override
+  String get selectFromPhotos => 'Select from Photos';
+
+  @override
+  String get addManually => 'Add Manually';
+
+  @override
+  String get premiumFeature => 'Premium feature';
+
+  @override
+  String get notAvailableDesktop => 'Not available on desktop';
 }

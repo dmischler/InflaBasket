@@ -20,7 +20,9 @@ import 'package:inflabasket/features/settings/application/settings_provider.dart
 import 'package:inflabasket/l10n/app_localizations.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
-  const ScannerScreen({super.key});
+  final ImageSource? initialSource;
+
+  const ScannerScreen({super.key, this.initialSource});
 
   @override
   ConsumerState<ScannerScreen> createState() => _ScannerScreenState();
@@ -29,6 +31,7 @@ class ScannerScreen extends ConsumerStatefulWidget {
 class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   bool _isProcessing = false;
   bool _isDraggingFile = false;
+  bool _hasAutoOpened = false;
 
   bool get _supportsDesktopDragAndDrop {
     if (kIsWeb) return false;
@@ -186,6 +189,19 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         context.go('/home');
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasAutoOpened && widget.initialSource != null) {
+      _hasAutoOpened = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _scanReceipt(widget.initialSource!);
+        }
+      });
+    }
   }
 
   @override

@@ -1622,6 +1622,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'~{amount} {currency}'**
   String fiatEquivalent(String amount, String currency);
+
+  /// Bottom sheet title for adding entry
+  ///
+  /// In en, this message translates to:
+  /// **'Add Entry'**
+  String get addEntryTitle;
+
+  /// Option to select image from gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Select from Photos'**
+  String get selectFromPhotos;
+
+  /// Option to add entry manually
+  ///
+  /// In en, this message translates to:
+  /// **'Add Manually'**
+  String get addManually;
+
+  /// Label for premium-gated features
+  ///
+  /// In en, this message translates to:
+  /// **'Premium feature'**
+  String get premiumFeature;
+
+  /// Message when feature unavailable on desktop
+  ///
+  /// In en, this message translates to:
+  /// **'Not available on desktop'**
+  String get notAvailableDesktop;
 }
 
 class _AppLocalizationsDelegate

@@ -856,4 +856,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String fiatEquivalent(String amount, String currency) {
     return '~$amount $currency';
   }
+
+  @override
+  String get addEntryTitle => 'Eintrag hinzufügen';
+
+  @override
+  String get selectFromPhotos => 'Aus Fotos auswählen';
+
+  @override
+  String get addManually => 'Manuell hinzufügen';
+
+  @override
+  String get premiumFeature => 'Premium-Funktion';
+
+  @override
+  String get notAvailableDesktop => 'Auf Desktop nicht verfügbar';
 }

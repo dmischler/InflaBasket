@@ -528,5 +528,20 @@
       "amount": { "type": "String" },
       "currency": { "type": "String" }
     }
-  }
+  },
+
+  "addEntryTitle": "Eintrag hinzufügen",
+  "@addEntryTitle": { "description": "Bottom sheet title for adding entry" },
+
+  "selectFromPhotos": "Aus Fotos auswählen",
+  "@selectFromPhotos": { "description": "Option to select image from gallery" },
+
+  "addManually": "Manuell hinzufügen",
+  "@addManually": { "description": "Option to add entry manually" },
+
+  "premiumFeature": "Premium-Funktion",
+  "@premiumFeature": { "description": "Label for premium-gated features" },
+
+  "notAvailableDesktop": "Auf Desktop nicht verfügbar",
+  "@notAvailableDesktop": { "description": "Message when feature unavailable on desktop" }
 }

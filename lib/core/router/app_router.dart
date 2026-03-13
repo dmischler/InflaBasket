@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:inflabasket/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
@@ -39,7 +40,14 @@ GoRouter appRouter(AppRouterRef ref) {
       ),
       GoRoute(
         path: '/scanner',
-        builder: (context, state) => const ScannerScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          ImageSource? initialSource;
+          if (extra is ImageSource) {
+            initialSource = extra;
+          }
+          return ScannerScreen(initialSource: initialSource);
+        },
       ),
       GoRoute(
         path: '/settings/categories',
