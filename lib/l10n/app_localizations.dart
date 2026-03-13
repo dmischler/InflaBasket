@@ -812,6 +812,24 @@ abstract class AppLocalizations {
   /// **'Create New'**
   String get duplicateDetectionCreateNew;
 
+  /// Label showing similarity percentage
+  ///
+  /// In en, this message translates to:
+  /// **'Similarity'**
+  String get similarity;
+
+  /// Label for scanned product in comparison dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned'**
+  String get scannedProduct;
+
+  /// Label for existing product in comparison dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Existing'**
+  String get existingProduct;
+
   /// Feature name
   ///
   /// In en, this message translates to:

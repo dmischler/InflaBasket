@@ -373,6 +373,15 @@
   "duplicateDetectionCreateNew": "Create New",
   "@duplicateDetectionCreateNew": { "description": "Button to create a new product" },
 
+  "similarity": "Similarity",
+  "@similarity": { "description": "Label showing similarity percentage" },
+
+  "scannedProduct": "Scanned",
+  "@scannedProduct": { "description": "Label for scanned product in comparison dialog" },
+
+  "existingProduct": "Existing",
+  "@existingProduct": { "description": "Label for existing product in comparison dialog" },
+
   "priceAlerts": "Price Alerts",
   "@priceAlerts": { "description": "Feature name" },
 

@@ -332,12 +332,29 @@ final isPremiumProvider = Provider<bool>((ref) {
  4. **Stuck on Barcode Processing** ✅ — Fixed "Barcode processing" loading state appearing when returning from AddEntryScreen: Reset `_isLooking` and `_hasScanned` state before navigating away from BarcodeScreen.
 
 **Barcode Scanner Local Caching (v1.4.2):**
- 1. **Database Schema v9** ✅ — Added `barcode` column to `Products` table to store product barcodes locally.
- 2. **Local Lookup First** ✅ — BarcodeScreen now checks local database for existing product before querying Open Food Facts API:
+  1. **Database Schema v9** ✅ — Added `barcode` column to `Products` table to store product barcodes locally.
+  2. **Local Lookup First** ✅ — BarcodeScreen now checks local database for existing product before querying Open Food Facts API:
      - If product found locally → pre-fills name and last used store, skips API call
      - If not found → queries Open Food Facts API (existing behavior)
- 3. **Save Barcode** ✅ — When saving a new entry with barcode data, the barcode is stored with the product in the database.
- 4. **Return to Home** ✅ — After saving from barcode scan, navigates back to home screen instead of just popping.
+  3. **Save Barcode** ✅ — When saving a new entry with barcode data, the barcode is stored with the product in the database.
+  4. **Return to Home** ✅ — After saving from barcode scan, navigates back to home screen instead of just popping.
+
+**Smart Product Duplicate Detection (v1.5.0):**
+  1. **Database Schema v10** ✅ — Added `brand` column to `Products` table for improved fuzzy matching.
+  2. **Two-Stage Matching** ✅ — After Open Food Facts returns a product:
+     - **Stage 1:** Exact barcode match → silently reuse existing product (no dialog)
+     - **Stage 2:** Fuzzy similarity check (only if barcode is new) → show confirmation dialog if ≥85% match
+  3. **Fuzzy Matching Engine** ✅ — Uses `fuzzywuzzy` package with weighted scoring:
+     - 70% name similarity (token_set_ratio for word reordering)
+     - 20% brand similarity
+     - 10% category match
+  4. **Name Normalization** ✅ — Removes quantities (1L, 500g), "Bio"/"Öko", punctuation for Swiss product variants
+  5. **Confirmation Dialog** ✅ — Side-by-side comparison bottom sheet showing:
+     - Scanned product (from Open Food Facts) with thumbnail
+     - Existing product (from local DB)
+     - Similarity percentage badge
+     - Buttons: "Use Existing", "Create New", "Cancel"
+  6. **Merge Behavior** ✅ — When user selects "Use Existing", updates the existing product with new barcode and brand, then navigates to add entry.
 
 **New Features:**
 14. **FAB Swipe-Up Selection** ✅ — When clicking the FAB, show a swipe-up modal bottom sheet with 3 options: "Manual", "Barcode", and "Scanner". 

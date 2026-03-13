@@ -127,14 +127,26 @@ class EntryRepository {
     return res.map((p) => p.name).toList();
   }
 
-  Future<int> addProduct(String name, int categoryId, {String? barcode}) {
+  Future<int> addProduct(String name, int categoryId,
+      {String? barcode, String? brand}) {
     return _db.into(_db.products).insert(
           ProductsCompanion.insert(
             name: name,
             categoryId: categoryId,
             barcode: Value(barcode),
+            brand: Value(brand),
           ),
         );
+  }
+
+  Future<void> updateProductBrand(int productId, String brand) async {
+    await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
+        .write(ProductsCompanion(brand: Value(brand)));
+  }
+
+  Future<void> updateProductBarcode(int productId, String barcode) async {
+    await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
+        .write(ProductsCompanion(barcode: Value(barcode)));
   }
 
   // ─── Entries ─────────────────────────────────────────────────────────────────

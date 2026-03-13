@@ -387,6 +387,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get duplicateDetectionCreateNew => 'Neu erstellen';
 
   @override
+  String get similarity => 'Ähnlichkeit';
+
+  @override
+  String get scannedProduct => 'Gescannt';
+
+  @override
+  String get existingProduct => 'Vorhanden';
+
+  @override
   String get priceAlerts => 'Preisalarme';
 
   @override

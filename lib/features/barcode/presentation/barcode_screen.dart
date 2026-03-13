@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
+import 'package:inflabasket/core/services/product_duplicate_detector.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/features/entry_management/presentation/product_match_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/features/barcode/presentation/product_name_dialog.dart';
@@ -160,6 +162,51 @@ class _BarcodeScreenState extends ConsumerState<BarcodeScreen> {
           // Update product info with selected name using copyWith
           info = info.copyWith(name: selectedName);
           print('🔍 ProductInfo after copyWith: name=${info.name}');
+        }
+
+        // Stage 2: Check for similar products in local database using fuzzy matching
+        final detector =
+            ProductDuplicateDetectorService(ref.read(appDatabaseProvider));
+        final similarProducts = await detector.findSimilarProducts(
+          name: info.name,
+          brand: info.brand,
+        );
+
+        if (similarProducts.isNotEmpty && mounted) {
+          final bestMatch = similarProducts.first;
+          final action = await showProductMatchDialog(
+            context: context,
+            newProduct: info,
+            existingProduct: bestMatch.existingProduct,
+            similarityScore: bestMatch.similarityScore,
+          );
+
+          if (!mounted) return;
+
+          if (action == ProductMatchAction.useExisting) {
+            // Update existing product with new barcode and brand, then navigate
+            await detector.updateProductBrand(
+                bestMatch.existingProduct.id, info.brand ?? '');
+            final existingProduct = bestMatch.existingProduct;
+            final updatedInfo = ProductInfo(
+              name: existingProduct.name,
+              barcode: barcode,
+              brand: info.brand ?? existingProduct.brand,
+            );
+            if (mounted) {
+              context.push('/home/add', extra: updatedInfo);
+            }
+            return;
+          } else if (action == ProductMatchAction.cancel) {
+            // User cancelled - reset and let them scan again
+            setState(() {
+              _hasScanned = false;
+              _isLooking = false;
+              _statusMessage = null;
+            });
+            return;
+          }
+          // If createNew, proceed with new product from Open Food Facts
         }
 
         print('🔍 Navigating to AddEntryScreen with: $info');

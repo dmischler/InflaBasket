@@ -24,6 +24,10 @@ class Products extends Table {
   /// EAN-13/UPC barcode for this product (optional).
   /// Used to match future barcode scans to existing products.
   TextColumn get barcode => text().nullable()();
+
+  /// Brand name for this product (optional).
+  /// Used for fuzzy matching when scanning new products.
+  TextColumn get brand => text().nullable()();
 }
 
 @DataClassName('PurchaseEntry')
@@ -108,7 +112,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -176,6 +180,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 9) {
             // v9: Add barcode column to products table
             await m.addColumn(products, products.barcode);
+          }
+          if (from < 10) {
+            // v10: Add brand column to products table for fuzzy matching
+            await m.addColumn(products, products.brand);
           }
         },
       );
