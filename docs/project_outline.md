@@ -311,12 +311,11 @@ final isPremiumProvider = Provider<bool>((ref) {
    - Updated `codemagic.yaml` to copy Info.plist template after iOS project generation.
 4. **Dark Mode SNB Curve Color** ✅ — Fixed legend color to match chart: updated `_buildChartLegend` to accept `isLuxeMode` parameter and use `isLuxeMode ? AppColors.textSecondary : Colors.orange` for the overlay curve dot, matching the chart's color logic.
 5. **Linux Window Size** ✅ — Changed Linux app window dimensions from 1280×720 to 393×852 (iPhone 15 portrait) for accurate mobile-like testing on desktop.
+6. **Chart Hover Tooltip Positioning** ✅ — Added `fitInsideHorizontally: true` to `LineTouchTooltipData` in overview_tab.dart to prevent tooltips from extending beyond chart edges.
 
 **Bugs to Fix:**
 4. **Dark Mode SNB Curve Color** — In dark mode, the SNB curve color does not match the legend color; fix color theming.
 5. **Curve Baseline Alignment** — Both inflation curves should start at 100%, but currently only "own inflation" starts there; align both curves to start at 100%.
-6. **Chart Hover Tooltip Positioning** — When hovering over the curve, the first and last points cannot be read because the hover box is only half on screen; fix tooltip positioning.
-7. **Chart Curve Interpolation** — Interpolate curve so that hovering feels more natural (smooth curve vs. straight lines).
 8. **BasketIndex Vertical Layout** — "BasketIndex" is currently completely vertical (likely due to not landscape mode); optimize layout for phone screens.
 9. **Compact Taskbar** — Taskbar is quite large; shift it to the bottom and only show icons to save screen real estate.
 10. **Category Tab Time Filters** — In category tab, add ability to filter by ytd, 1y, 2y, 3y, 5y, 10y.

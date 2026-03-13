@@ -186,7 +186,7 @@ class SnbClient {
       result.sort((a, b) => a.month.compareTo(b.month));
 
       // Convert quarterly to monthly via interpolation
-      return _interpolateToMonthly(result);
+      return _expandQuarterlyToMonthly(result);
     } catch (e) {
       debugPrint('parseSnbCpiSeries error: $e');
     }
@@ -283,9 +283,9 @@ class SnbClient {
     return null;
   }
 
-  /// Interpolate quarterly data to monthly for chart consistency.
+  /// Expands quarterly data to monthly for chart consistency.
   /// Uses linear interpolation between quarterly points.
-  List<CpiDataPoint> _interpolateToMonthly(List<CpiDataPoint> quarterly) {
+  List<CpiDataPoint> _expandQuarterlyToMonthly(List<CpiDataPoint> quarterly) {
     if (quarterly.length < 2) return quarterly;
 
     final monthly = <CpiDataPoint>[];

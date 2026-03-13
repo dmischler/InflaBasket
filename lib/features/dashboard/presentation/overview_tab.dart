@@ -164,63 +164,54 @@ class OverviewTab extends ConsumerWidget {
       ComparisonOverlayType? overlayType,
       bool showCpi,
       bool isLoading) {
+    if (availableTypes.isEmpty) return const SizedBox.shrink();
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Text(l.overviewBasketIndex,
-              style: Theme.of(context).textTheme.titleLarge),
-        ),
-        if (availableTypes.isNotEmpty)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (overlayType != null)
-                IconButton(
-                  tooltip: l.comparisonSourceDetails,
-                  onPressed: () => _showOverlaySourceInfo(
-                    context,
-                    l,
-                    overlayType,
-                    ref.read(settingsControllerProvider).currency,
-                  ),
-                  icon: const Icon(Icons.info_outline, size: 20),
-                ),
-              Text(l.showComparisonOverlay,
-                  style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(width: 8),
-              if (overlayType != null)
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<ComparisonOverlayType>(
-                    value: overlayType,
-                    borderRadius: BorderRadius.circular(12),
-                    items: availableTypes
-                        .map(
-                          (type) => DropdownMenuItem<ComparisonOverlayType>(
-                            value: type,
-                            child: Text(_overlayLabel(l, type)),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: availableTypes.length < 2
-                        ? null
-                        : (value) {
-                            if (value == null) return;
-                            ref
-                                .read(selectedComparisonOverlayTypeProvider
-                                    .notifier)
-                                .set(value);
-                          },
-                  ),
-                ),
-              const SizedBox(width: 4),
-              Switch.adaptive(
-                value: showCpi,
-                onChanged: isLoading
-                    ? null
-                    : (_) => ref.read(showCpiOverlayProvider.notifier).toggle(),
-              ),
-            ],
+        if (overlayType != null)
+          IconButton(
+            tooltip: l.comparisonSourceDetails,
+            onPressed: () => _showOverlaySourceInfo(
+              context,
+              l,
+              overlayType,
+              ref.read(settingsControllerProvider).currency,
+            ),
+            icon: const Icon(Icons.info_outline, size: 20),
           ),
+        Text(l.showComparisonOverlay,
+            style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(width: 8),
+        if (overlayType != null)
+          DropdownButtonHideUnderline(
+            child: DropdownButton<ComparisonOverlayType>(
+              value: overlayType,
+              borderRadius: BorderRadius.circular(12),
+              items: availableTypes
+                  .map(
+                    (type) => DropdownMenuItem<ComparisonOverlayType>(
+                      value: type,
+                      child: Text(_overlayLabel(l, type)),
+                    ),
+                  )
+                  .toList(),
+              onChanged: availableTypes.length < 2
+                  ? null
+                  : (value) {
+                      if (value == null) return;
+                      ref
+                          .read(selectedComparisonOverlayTypeProvider.notifier)
+                          .set(value);
+                    },
+            ),
+          ),
+        const SizedBox(width: 4),
+        Switch.adaptive(
+          value: showCpi,
+          onChanged: isLoading
+              ? null
+              : (_) => ref.read(showCpiOverlayProvider.notifier).toggle(),
+        ),
       ],
     );
   }
@@ -497,6 +488,8 @@ class OverviewTab extends ConsumerWidget {
           lineBarsData: barData,
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
+              fitInsideHorizontally: true,
+              fitInsideVertically: true,
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
                   final delta = spot.y - 100;
