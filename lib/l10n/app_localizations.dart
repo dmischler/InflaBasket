@@ -1554,6 +1554,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could Not Load Alert Settings'**
   String get priceAlertLoadSettingsError;
+
+  /// Label for time range selector
+  ///
+  /// In en, this message translates to:
+  /// **'Time Range'**
+  String get timeRangeLabel;
+
+  /// Year to date time range option
+  ///
+  /// In en, this message translates to:
+  /// **'YTD'**
+  String get timeRangeYtd;
+
+  /// 1 year time range option
+  ///
+  /// In en, this message translates to:
+  /// **'1y'**
+  String get timeRange1y;
+
+  /// 2 years time range option
+  ///
+  /// In en, this message translates to:
+  /// **'2y'**
+  String get timeRange2y;
+
+  /// 5 years time range option
+  ///
+  /// In en, this message translates to:
+  /// **'5y'**
+  String get timeRange5y;
+
+  /// All time range option
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get timeRangeAll;
+
+  /// Custom time range option
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get timeRangeCustom;
+
+  /// Filter from date label
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get filterDateFrom;
+
+  /// Filter to date label
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get filterDateTo;
+
+  /// Year label in date picker
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get filterYear;
+
+  /// Month label in date picker
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get filterMonth;
+
+  /// Apply button label
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
 }
 
 class _AppLocalizationsDelegate

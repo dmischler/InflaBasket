@@ -818,4 +818,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get priceAlertLoadSettingsError => 'Could Not Load Alert Settings';
+
+  @override
+  String get timeRangeLabel => 'Time Range';
+
+  @override
+  String get timeRangeYtd => 'YTD';
+
+  @override
+  String get timeRange1y => '1y';
+
+  @override
+  String get timeRange2y => '2y';
+
+  @override
+  String get timeRange5y => '5y';
+
+  @override
+  String get timeRangeAll => 'All';
+
+  @override
+  String get timeRangeCustom => 'Custom';
+
+  @override
+  String get filterDateFrom => 'From';
+
+  @override
+  String get filterDateTo => 'To';
+
+  @override
+  String get filterYear => 'Year';
+
+  @override
+  String get filterMonth => 'Month';
+
+  @override
+  String get apply => 'Apply';
 }

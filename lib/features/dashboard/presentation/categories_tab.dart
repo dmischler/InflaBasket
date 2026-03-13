@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
+import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
@@ -18,6 +19,11 @@ class CategoriesTab extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final categoriesInflation = ref.watch(categoryInflationListProvider);
     final settings = ref.watch(settingsControllerProvider);
+    final timeFilter = ref.watch(chartTimeFilterControllerProvider);
+    final allHistory = ref.watch(basketIndexHistoryProvider);
+    final firstDataPoint =
+        allHistory.isNotEmpty ? allHistory.first.month : null;
+    final availableTimeRangeOptions = availableTimeRanges(firstDataPoint);
 
     if (categoriesInflation.isEmpty) {
       return Center(child: Text(l10n.categoryNoCategoryData));
@@ -28,6 +34,15 @@ class CategoriesTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _buildTimeRangeSelector(
+            context,
+            l10n,
+            ref,
+            timeFilter,
+            availableTimeRangeOptions,
+            firstDataPoint,
+          ),
+          const SizedBox(height: 24),
           Text(l10n.categoryInflationTitle,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 24),
@@ -254,6 +269,290 @@ class CategoriesTab extends ConsumerWidget {
           child: listTile,
         );
       },
+    );
+  }
+
+  Widget _buildTimeRangeSelector(
+    BuildContext context,
+    AppLocalizations l,
+    WidgetRef ref,
+    ChartTimeFilter timeFilter,
+    List<ChartTimeRange> availableOptions,
+    DateTime? firstDataPoint,
+  ) {
+    final segments = <ButtonSegment<ChartTimeRange>>[];
+    for (final option in availableOptions) {
+      if (option == ChartTimeRange.custom) continue;
+      segments.add(ButtonSegment(
+        value: option,
+        label: Text(_timeRangeLabel(l, option)),
+      ));
+    }
+    segments.add(ButtonSegment(
+      value: ChartTimeRange.custom,
+      label: const Text('…'),
+      enabled: true,
+    ));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l.timeRangeLabel, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 8),
+        SegmentedButton<ChartTimeRange>(
+          segments: segments,
+          selected: {timeFilter.range},
+          onSelectionChanged: (selected) {
+            final range = selected.first;
+            if (range == ChartTimeRange.custom) {
+              _showCustomDatePicker(context, ref, timeFilter, firstDataPoint);
+            } else {
+              ref
+                  .read(chartTimeFilterControllerProvider.notifier)
+                  .setRange(range);
+            }
+          },
+          showSelectedIcon: false,
+        ),
+      ],
+    );
+  }
+
+  String _timeRangeLabel(AppLocalizations l, ChartTimeRange range) {
+    return switch (range) {
+      ChartTimeRange.ytd => l.timeRangeYtd,
+      ChartTimeRange.oneYear => l.timeRange1y,
+      ChartTimeRange.twoYears => l.timeRange2y,
+      ChartTimeRange.fiveYears => l.timeRange5y,
+      ChartTimeRange.allTime => l.timeRangeAll,
+      ChartTimeRange.custom => '…',
+    };
+  }
+
+  Future<void> _showCustomDatePicker(
+    BuildContext context,
+    WidgetRef ref,
+    ChartTimeFilter currentFilter,
+    DateTime? firstDataPoint,
+  ) async {
+    final l = AppLocalizations.of(context)!;
+    final now = DateTime.now();
+    final minDate = firstDataPoint ?? DateTime(now.year - 5, 1, 1);
+    final maxDate = DateTime(now.year, now.month, 1);
+
+    DateTime startDate =
+        currentFilter.customStart ?? DateTime(now.year - 1, now.month, 1);
+    DateTime endDate = currentFilter.customEnd ?? maxDate;
+
+    final result = await showDialog<(DateTime, DateTime)>(
+      context: context,
+      builder: (context) => _CustomDateRangeDialog(
+        initialStart: startDate,
+        initialEnd: endDate,
+        minDate: minDate,
+        maxDate: maxDate,
+        l: l,
+      ),
+    );
+
+    if (result != null) {
+      ref.read(chartTimeFilterControllerProvider.notifier).setCustomRange(
+            result.$1,
+            result.$2,
+          );
+    }
+  }
+}
+
+class _CustomDateRangeDialog extends StatefulWidget {
+  final DateTime initialStart;
+  final DateTime initialEnd;
+  final DateTime minDate;
+  final DateTime maxDate;
+  final AppLocalizations l;
+
+  const _CustomDateRangeDialog({
+    required this.initialStart,
+    required this.initialEnd,
+    required this.minDate,
+    required this.maxDate,
+    required this.l,
+  });
+
+  @override
+  State<_CustomDateRangeDialog> createState() => _CustomDateRangeDialogState();
+}
+
+class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
+  late int startYear;
+  late int startMonth;
+  late int endYear;
+  late int endMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    startYear = widget.initialStart.year;
+    startMonth = widget.initialStart.month;
+    endYear = widget.initialEnd.year;
+    endMonth = widget.initialEnd.month;
+  }
+
+  List<int> get _availableStartYears {
+    return List.generate(
+      widget.maxDate.year - widget.minDate.year + 1,
+      (i) => widget.minDate.year + i,
+    );
+  }
+
+  List<int> get _availableEndYears {
+    return List.generate(
+      widget.maxDate.year - startYear + 1,
+      (i) => startYear + i,
+    );
+  }
+
+  List<int> get _availableStartMonths {
+    if (startYear == widget.minDate.year) {
+      return List.generate(
+          13 - widget.minDate.month, (i) => widget.minDate.month + i);
+    }
+    return List.generate(12, (i) => i + 1);
+  }
+
+  List<int> get _availableEndMonths {
+    if (endYear == startYear) {
+      return List.generate(13 - startMonth, (i) => startMonth + i);
+    }
+    if (endYear == widget.maxDate.year) {
+      return List.generate(widget.maxDate.month, (i) => i + 1);
+    }
+    return List.generate(12, (i) => i + 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.l.timeRangeCustom),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${widget.l.filterDateFrom}:'),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  value: startYear,
+                  decoration: InputDecoration(labelText: widget.l.filterYear),
+                  items: _availableStartYears
+                      .map((y) => DropdownMenuItem(value: y, child: Text('$y')))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        startYear = value;
+                        if (!_availableStartMonths.contains(startMonth)) {
+                          startMonth = _availableStartMonths.first;
+                        }
+                        if (endYear < startYear ||
+                            (endYear == startYear && endMonth < startMonth)) {
+                          endYear = startYear;
+                          endMonth = startMonth;
+                        }
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  value: startMonth,
+                  decoration: InputDecoration(labelText: widget.l.filterMonth),
+                  items: _availableStartMonths
+                      .map((m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(
+                              DateFormat.MMM().format(DateTime(2024, m, 1)))))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        startMonth = value;
+                        if (endYear == startYear && endMonth < startMonth) {
+                          endMonth = startMonth;
+                        }
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text('${widget.l.filterDateTo}:'),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  value: endYear,
+                  decoration: InputDecoration(labelText: widget.l.filterYear),
+                  items: _availableEndYears
+                      .map((y) => DropdownMenuItem(value: y, child: Text('$y')))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        endYear = value;
+                        if (!_availableEndMonths.contains(endMonth)) {
+                          endMonth = _availableEndMonths.first;
+                        }
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  value: endMonth,
+                  decoration: InputDecoration(labelText: widget.l.filterMonth),
+                  items: _availableEndMonths
+                      .map((m) => DropdownMenuItem(
+                          value: m,
+                          child: Text(
+                              DateFormat.MMM().format(DateTime(2024, m, 1)))))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        endMonth = value;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(widget.l.cancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            final start = DateTime(startYear, startMonth, 1);
+            final end = DateTime(endYear, endMonth, 1);
+            Navigator.of(context).pop((start, end));
+          },
+          child: Text(widget.l.apply),
+        ),
+      ],
     );
   }
 }

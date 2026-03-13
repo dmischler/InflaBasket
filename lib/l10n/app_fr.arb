@@ -476,4 +476,41 @@
 
   "priceAlertLoadSettingsError": "Impossible de charger les paramètres d'alerte",
   "@priceAlertLoadSettingsError": { "description": "Error title for saved price-alert settings" }
+,
+
+  "timeRangeLabel": "Période",
+  "@timeRangeLabel": { "description": "Label for time range selector" },
+
+  "timeRangeYtd": "Année",
+  "@timeRangeYtd": { "description": "Year to date time range option" },
+
+  "timeRange1y": "1an",
+  "@timeRange1y": { "description": "1 year time range option" },
+
+  "timeRange2y": "2ans",
+  "@timeRange2y": { "description": "2 years time range option" },
+
+  "timeRange5y": "5ans",
+  "@timeRange5y": { "description": "5 years time range option" },
+
+  "timeRangeAll": "Tout",
+  "@timeRangeAll": { "description": "All time range option" },
+
+  "timeRangeCustom": "Personnalisé",
+  "@timeRangeCustom": { "description": "Custom time range option" },
+
+  "filterDateFrom": "De",
+  "@filterDateFrom": { "description": "Filter from date label" },
+
+  "filterDateTo": "À",
+  "@filterDateTo": { "description": "Filter to date label" },
+
+  "filterYear": "Année",
+  "@filterYear": { "description": "Year label in date picker" },
+
+  "filterMonth": "Mois",
+  "@filterMonth": { "description": "Month label in date picker" },
+
+  "apply": "Appliquer",
+  "@apply": { "description": "Apply button label" }
 }

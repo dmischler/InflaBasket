@@ -12,16 +12,12 @@ import 'package:inflabasket/features/settings/application/settings_provider.dart
 part 'cpi_provider.g.dart';
 
 enum ComparisonOverlayType {
-  cpi,
   moneySupply,
   snbCoreInflation,
 }
 
 List<ComparisonOverlayType> availableComparisonOverlayTypes(String currency) {
   final available = <ComparisonOverlayType>[];
-  if (cpiSourceForCurrency(currency) != null) {
-    available.add(ComparisonOverlayType.cpi);
-  }
   if (moneySupplySourceForCurrency(currency) != null) {
     available.add(ComparisonOverlayType.moneySupply);
   }
@@ -103,66 +99,6 @@ MoneySupplyClient moneySupplyClient(MoneySupplyClientRef ref) =>
     MoneySupplyClient(
       Dio(BaseOptions(headers: {'User-Agent': 'InflaBasket/1.0'})),
     );
-
-/// Returns the CPI data points for the currently selected currency, or an
-/// empty list if the currency has no supported CPI source.
-///
-/// For CHF: Uses SNB Data Portal (snbiprogq cube) instead of Eurostat.
-/// For EUR: Uses Eurostat HICP.
-@riverpod
-Future<List<CpiDataPoint>> cpiData(CpiDataRef ref) async {
-  final currency = ref.watch(settingsControllerProvider).currency;
-  final window = _comparisonWindow(ref.watch(basketIndexHistoryProvider));
-  final repo = ref.read(entryRepositoryProvider);
-
-  if (currency.toUpperCase() == 'CHF') {
-    // Use SNB for CHF CPI data
-    final client = ref.read(snbClientProvider);
-    return _loadCachedSeries<CpiDataPoint>(
-      repo: repo,
-      sourceKey: 'snb_observed_inflation',
-      currency: currency,
-      metric: EntryRepository.metricCpi,
-      startMonth: window.startMonth,
-      fetchLive: () => client.fetchCpi(
-        startMonth: window.startMonth,
-        observationCount: window.observationCount,
-      ),
-      toPairs: (points) =>
-          points.map((point) => (point.month, point.index)).toList(),
-      fromCache: (rows) => rows
-          .map<CpiDataPoint>(
-            (ExternalSeriesCacheEntry row) =>
-                CpiDataPoint(month: row.month, index: row.value),
-          )
-          .toList(),
-    );
-  }
-
-  final source = cpiSourceForCurrency(currency);
-  if (source == null) return [];
-
-  final client = ref.read(cpiClientProvider);
-  return _loadCachedSeries<CpiDataPoint>(
-    repo: repo,
-    sourceKey: source.name,
-    currency: currency,
-    metric: EntryRepository.metricCpi,
-    startMonth: window.startMonth,
-    fetchLive: () => client.fetchCpi(
-      source,
-      observationCount: window.observationCount,
-    ),
-    toPairs: (points) =>
-        points.map((point) => (point.month, point.index)).toList(),
-    fromCache: (rows) => rows
-        .map<CpiDataPoint>(
-          (ExternalSeriesCacheEntry row) =>
-              CpiDataPoint(month: row.month, index: row.value),
-        )
-        .toList(),
-  );
-}
 
 @riverpod
 Future<List<MoneySupplyDataPoint>> moneySupplyData(
@@ -247,16 +183,15 @@ Future<List<ComparisonDataPoint>> comparisonOverlayData(
   final selected = ref.watch(effectiveComparisonOverlayTypeProvider);
   if (selected == null) return [];
 
-  // Rebase from the basket's first entry date so both the basket index and
-  // the comparison overlay start at 100 on the same month.
-  final history = ref.watch(basketIndexHistoryProvider);
-  final startDate = _comparisonWindow(history).startMonth;
+  // Use the filtered basket history to determine the date range
+  final filteredHistory = ref.watch(filteredBasketIndexHistoryProvider);
+  if (filteredHistory.isEmpty) return [];
+
+  final startDate = filteredHistory.first.month;
+  final endDate = filteredHistory.last.month;
 
   List<(DateTime, double)> rawPoints = [];
   switch (selected) {
-    case ComparisonOverlayType.cpi:
-      final points = await ref.watch(cpiDataProvider.future);
-      rawPoints = points.map((p) => (p.month, p.index)).toList();
     case ComparisonOverlayType.moneySupply:
       final points = await ref.watch(moneySupplyDataProvider.future);
       rawPoints = points.map((p) => (p.month, p.value)).toList();
@@ -265,8 +200,10 @@ Future<List<ComparisonDataPoint>> comparisonOverlayData(
       rawPoints = points.map((p) => (p.month, p.index)).toList();
   }
 
-  // Filter to basket start date, then rebase so index = 100 at that date.
-  final filtered = rawPoints.where((p) => !p.$1.isBefore(startDate)).toList();
+  // Filter to the same date range as the basket, then rebase so index = 100 at that date.
+  final filtered = rawPoints
+      .where((p) => !p.$1.isBefore(startDate) && !p.$1.isAfter(endDate))
+      .toList();
   return rebaseComparisonSeries(filtered);
 }
 
@@ -325,7 +262,7 @@ bool isExternalSeriesCacheFresh(List<ExternalSeriesCacheEntry> rows) {
 @riverpod
 class SelectedComparisonOverlayType extends _$SelectedComparisonOverlayType {
   @override
-  ComparisonOverlayType build() => ComparisonOverlayType.cpi;
+  ComparisonOverlayType build() => ComparisonOverlayType.moneySupply;
 
   void set(ComparisonOverlayType value) => state = value;
 }

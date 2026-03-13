@@ -827,4 +827,40 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get priceAlertLoadSettingsError =>
       'Impossible de charger les paramètres d\'alerte';
+
+  @override
+  String get timeRangeLabel => 'Période';
+
+  @override
+  String get timeRangeYtd => 'Année';
+
+  @override
+  String get timeRange1y => '1an';
+
+  @override
+  String get timeRange2y => '2ans';
+
+  @override
+  String get timeRange5y => '5ans';
+
+  @override
+  String get timeRangeAll => 'Tout';
+
+  @override
+  String get timeRangeCustom => 'Personnalisé';
+
+  @override
+  String get filterDateFrom => 'De';
+
+  @override
+  String get filterDateTo => 'À';
+
+  @override
+  String get filterYear => 'Année';
+
+  @override
+  String get filterMonth => 'Mois';
+
+  @override
+  String get apply => 'Appliquer';
 }

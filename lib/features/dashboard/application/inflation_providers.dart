@@ -6,6 +6,10 @@ import 'package:inflabasket/features/entry_management/data/entry_repository.dart
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/core/database/database.dart';
 
+// Re-export ChartTimeFilter classes for use in UI
+export 'package:inflabasket/features/entry_management/application/entry_providers.dart'
+    show ChartTimeRange, ChartTimeFilter, monthsBetween, availableTimeRanges;
+
 part 'inflation_providers.g.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -285,4 +289,40 @@ List<MonthlyIndex> basketIndexHistory(BasketIndexHistoryRef ref) {
   }
 
   return result;
+}
+
+/// Returns the filtered basket index history based on the selected time range.
+/// This normalizes the data so the first point in the filtered range is always at index 100.
+@riverpod
+List<MonthlyIndex> filteredBasketIndexHistory(
+    FilteredBasketIndexHistoryRef ref) {
+  final allHistory = ref.watch(basketIndexHistoryProvider);
+  final timeFilter = ref.watch(chartTimeFilterControllerProvider);
+
+  if (allHistory.isEmpty) return [];
+
+  final firstDataPoint = allHistory.first.month;
+  final startDate = timeFilter.getStartDate(firstDataPoint);
+  final endDate = timeFilter.getEndDate();
+
+  if (startDate == null) return [];
+
+  // Filter to the selected date range
+  final filtered = allHistory.where((item) {
+    final itemMonth = DateTime(item.month.year, item.month.month, 1);
+    final start = DateTime(startDate.year, startDate.month, 1);
+    final end = DateTime(endDate.year, endDate.month, 1);
+    return !itemMonth.isBefore(start) && !itemMonth.isAfter(end);
+  }).toList();
+
+  if (filtered.isEmpty) return [];
+
+  // Normalize so the first point is at index 100 (baseline)
+  final baseIndex = filtered.first.index;
+  if (!baseIndex.isFinite || baseIndex == 0) return filtered;
+
+  return filtered.map((item) {
+    final normalizedIndex = (item.index / baseIndex) * 100;
+    return MonthlyIndex(item.month, normalizedIndex);
+  }).toList();
 }

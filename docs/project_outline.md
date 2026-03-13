@@ -316,12 +316,73 @@ final isPremiumProvider = Provider<bool>((ref) {
 **Bugs to Fix:**
 4. **Dark Mode SNB Curve Color** — In dark mode, the SNB curve color does not match the legend color; fix color theming.
 5. **Curve Baseline Alignment** — Both inflation curves should start at 100%, but currently only "own inflation" starts there; align both curves to start at 100%.
-8. **BasketIndex Vertical Layout** — "BasketIndex" is currently completely vertical (likely due to not landscape mode); optimize layout for phone screens.
+8. **BasketIndex Vertical Layout** ✅ — Optimized layout for phone screens.
 9. **Compact Taskbar** ✅ — Taskbar height reduced from 80 to 60 pixels; removed labels to show icons only; fixed pill indicator alignment to correctly animate to Categories/Settings icons (was misaligned due to FAB gap in row layout).
-10. **Category Tab Time Filters** — In category tab, add ability to filter by ytd, 1y, 2y, 3y, 5y, 10y.
+10. **Category Tab Date Range Filter** — In category tab, changing the date range does not update the displayed inflation per category. Fix to filter and display category inflation for the selected date range (ytd, 1y, 2y, 3y, 5y, 10y).
 11. **Reduce Text in Settings** — Less text especially in settings to avoid screen overload.
-12. **Overview Time Frame Adjustment** — Add ability to adjust time frame on overview screen.
+12. **Overview Time Frame Adjustment** ✅ — Timeline selector added to Overview screen with YTD, 1y, 2y, 5y options (depending on available data range).
 13. **App Icon** — Add app icon.
+
+**New Features:**
+14. **FAB Swipe-Up Selection** — When clicking the FAB, show a swipe-up modal bottom sheet with options to "Scan Receipt" (camera) or "Add Manually" instead of directly opening scanner. This allows non-premium users to access manual entry without hitting the paywall.
+15. **Monthly Aggregated Comparison Data** — Instead of discrete item data points, sample and compare inflation data at monthly intervals. Store items with month+year granularity and sample the inflation curve accordingly for smoother comparisons.
+16. **Core Inflation Comparison Bars** — In the Categories tab, if categorized core inflation data is available (e.g., from CPI sources), display a comparison bar next to each category's actual inflation bar. Show the difference between user's category inflation and official core inflation for that category.
+
+### Timeline Selector Feature (Overview & Categories)
+
+**Goal:** Allow users to filter chart data by time range (YTD, 1y, 2y, 3y, 5y, 10y, All) or custom date range. Both Overview and Categories tabs should share the same filter state.
+
+**UI Implementation:**
+1. Add a `SegmentedButton` or `DropdownButton` in the Overview tab header (next to the overlay selector)
+2. Options: `YTD`, `1y`, `2y`, `3y`, `5y`, `10y`, `All` (or custom date picker)
+3. Dynamically show only options where data exists (e.g., if only 8 months of data, show YTD, 1y, All)
+4. Style consistently with existing overlay selector
+5. **Categories Tab** must also apply the selected time filter to category inflation calculations - currently the filter does not update the displayed category inflation
+
+**Data Model:**
+1. Create a new `ChartTimeRange` enum in `entry_providers.dart`:
+   ```dart
+   enum ChartTimeRange {
+     ytd,      // Year to Date
+     oneYear,  // Last 12 months
+     twoYears, // Last 24 months
+     threeYears, // Last 36 months
+     fiveYears,// Last 60 months
+     tenYears, // Last 120 months
+     allTime,  // All available data
+     custom,   // User-selected date range
+   }
+   ```
+2. Add `customStartDate` and `customEndDate` fields for custom range
+
+**Monthly Aggregation:**
+- Inflation calculations should aggregate data by month (year-month) rather than individual item entries
+- When calculating category and basket inflation, group entries by year-month and compute average prices per product for that period
+- Chart data points should represent monthly samples for smoother curve visualization
+- Store dates with day-of-month normalized (e.g., always 1st of month) for consistent grouping
+
+**State Management:**
+1. Create `ChartTimeFilterController` Riverpod provider (persisted in SharedPreferences)
+2. Create `filteredBasketIndexHistoryProvider` that wraps `basketIndexHistoryProvider` and filters by selected time range
+3. **Create `filteredCategoryInflationProvider`** that calculates category-level inflation for the selected time range - this is currently missing and causing the Categories tab filter bug
+4. Update `comparisonOverlayDataProvider` to also respect the time filter
+
+**Key Files to Modify:**
+- `lib/features/entry_management/application/entry_providers.dart` — Add `ChartTimeRange` enum and `ChartTimeFilterController`
+- `lib/features/dashboard/presentation/overview_tab.dart` — Add timeline selector UI
+- `lib/features/dashboard/presentation/categories_tab.dart` — Add timeline selector and fix filter to actually apply to category inflation calculations
+- `lib/core/api/cpi_provider.dart` — Update overlay data fetching to respect time filter
+- `lib/core/utils/inflation_calculator.dart` — Add monthly aggregation logic
+
+**Implementation Steps:**
+1. Add `ChartTimeRange` enum and `ChartTimeFilterController` provider with SharedPreferences persistence
+2. Create `filteredBasketIndexHistoryProvider` that applies date filtering
+3. Add timeline selector UI to Overview tab (SegmentedButton with YTD/1y/2y/3y/5y/10y/All)
+4. Update chart rendering to use filtered data
+5. Add timeline selector to Categories tab (same controller for consistency)
+6. **Fix Categories tab filter bug**: Ensure `filteredCategoryInflationProvider` is used and recalculates category inflation based on the selected date range
+7. Ensure overlay data respects selected time range
+8. Implement monthly aggregation in inflation calculations
 
 ### 📝 Production Configuration (Not Code)
 - Replace `'appl_apiKey'` / `'goog_apiKey'` placeholders in `subscription_providers.dart` with real RevenueCat keys before store submission.

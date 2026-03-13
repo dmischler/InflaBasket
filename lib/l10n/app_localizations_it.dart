@@ -823,4 +823,40 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get priceAlertLoadSettingsError =>
       'Impossibile caricare le impostazioni avvisi';
+
+  @override
+  String get timeRangeLabel => 'Periodo';
+
+  @override
+  String get timeRangeYtd => 'YTD';
+
+  @override
+  String get timeRange1y => '1a';
+
+  @override
+  String get timeRange2y => '2a';
+
+  @override
+  String get timeRange5y => '5a';
+
+  @override
+  String get timeRangeAll => 'Tutto';
+
+  @override
+  String get timeRangeCustom => 'Personalizzato';
+
+  @override
+  String get filterDateFrom => 'Da';
+
+  @override
+  String get filterDateTo => 'A';
+
+  @override
+  String get filterYear => 'Anno';
+
+  @override
+  String get filterMonth => 'Mese';
+
+  @override
+  String get apply => 'Applica';
 }

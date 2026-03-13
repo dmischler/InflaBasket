@@ -188,6 +188,114 @@ List<EntryWithDetails> filteredEntries(FilteredEntriesRef ref) {
   }).toList();
 }
 
+// ─── Chart Time Filter ────────────────────────────────────────────────────────
+
+enum ChartTimeRange {
+  ytd,
+  oneYear,
+  twoYears,
+  fiveYears,
+  allTime,
+  custom,
+}
+
+class ChartTimeFilter {
+  final ChartTimeRange range;
+  final DateTime? customStart;
+  final DateTime? customEnd;
+
+  const ChartTimeFilter({
+    this.range = ChartTimeRange.allTime,
+    this.customStart,
+    this.customEnd,
+  });
+
+  ChartTimeFilter copyWith({
+    ChartTimeRange? range,
+    DateTime? customStart,
+    DateTime? customEnd,
+  }) {
+    return ChartTimeFilter(
+      range: range ?? this.range,
+      customStart: customStart ?? this.customStart,
+      customEnd: customEnd ?? this.customEnd,
+    );
+  }
+
+  /// Returns the start date for this filter based on the provided data range
+  DateTime? getStartDate(DateTime firstDataPoint) {
+    final now = DateTime.now();
+    switch (range) {
+      case ChartTimeRange.ytd:
+        return DateTime(now.year, 1, 1);
+      case ChartTimeRange.oneYear:
+        return DateTime(now.year - 1, now.month, 1);
+      case ChartTimeRange.twoYears:
+        return DateTime(now.year - 2, now.month, 1);
+      case ChartTimeRange.fiveYears:
+        return DateTime(now.year - 5, now.month, 1);
+      case ChartTimeRange.allTime:
+        return firstDataPoint;
+      case ChartTimeRange.custom:
+        return customStart ?? firstDataPoint;
+    }
+  }
+
+  DateTime getEndDate() {
+    if (range == ChartTimeRange.custom && customEnd != null) {
+      return customEnd!;
+    }
+    return DateTime.now();
+  }
+}
+
+/// Helper to calculate months between two dates
+int monthsBetween(DateTime start, DateTime end) {
+  return (end.year - start.year) * 12 + end.month - start.month;
+}
+
+/// Returns which time range options are available based on data range
+List<ChartTimeRange> availableTimeRanges(DateTime? firstDataPoint) {
+  if (firstDataPoint == null) {
+    return [ChartTimeRange.allTime, ChartTimeRange.custom];
+  }
+
+  final now = DateTime.now();
+  final monthsOfData = monthsBetween(firstDataPoint, now);
+
+  final available = <ChartTimeRange>[];
+
+  // YTD available if we have any data this year or at least 1 month
+  if (firstDataPoint.year <= now.year && monthsOfData >= 1) {
+    available.add(ChartTimeRange.ytd);
+  }
+  if (monthsOfData >= 12) available.add(ChartTimeRange.oneYear);
+  if (monthsOfData >= 24) available.add(ChartTimeRange.twoYears);
+  if (monthsOfData >= 60) available.add(ChartTimeRange.fiveYears);
+  available.add(ChartTimeRange.allTime);
+  available.add(ChartTimeRange.custom);
+
+  return available;
+}
+
+@riverpod
+class ChartTimeFilterController extends _$ChartTimeFilterController {
+  @override
+  ChartTimeFilter build() => const ChartTimeFilter();
+
+  void setRange(ChartTimeRange range) {
+    state = state.copyWith(range: range);
+  }
+
+  void setCustomRange(DateTime start, DateTime end) {
+    state = ChartTimeFilter(
+      range: ChartTimeRange.custom,
+      customStart: start,
+      customEnd: end,
+    );
+  }
+}
+
 @riverpod
 class AddEntryController extends _$AddEntryController {
   @override

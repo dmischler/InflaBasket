@@ -800,4 +800,78 @@
 
   "priceAlertLoadSettingsError": "Could Not Load Alert Settings",
   "@priceAlertLoadSettingsError": { "description": "Error title for saved price-alert settings" }
+,
+
+  "timeRangeLabel": "Time Range",
+  "@timeRangeLabel": { "description": "Label for time range selector" },
+
+  "timeRangeYtd": "YTD",
+  "@timeRangeYtd": { "description": "Year to date time range option" },
+
+  "timeRange1y": "1y",
+  "@timeRange1y": { "description": "1 year time range option" },
+
+  "timeRange2y": "2y",
+  "@timeRange2y": { "description": "2 years time range option" },
+
+  "timeRange5y": "5y",
+  "@timeRange5y": { "description": "5 years time range option" },
+
+  "timeRangeAll": "All",
+  "@timeRangeAll": { "description": "All time range option" },
+
+  "timeRangeCustom": "Custom",
+  "@timeRangeCustom": { "description": "Custom time range option" },
+
+  "filterDateFrom": "From",
+  "@filterDateFrom": { "description": "Filter from date label" },
+
+  "filterDateTo": "To",
+  "@filterDateTo": { "description": "Filter to date label" },
+
+  "filterYear": "Year",
+  "@filterYear": { "description": "Year label in date picker" },
+
+  "filterMonth": "Month",
+  "@filterMonth": { "description": "Month label in date picker" },
+
+  "apply": "Apply",
+  "@apply": { "description": "Apply button label" }
+,
+
+  "timeRangeLabel": "Time Range",
+  "@timeRangeLabel": { "description": "Label for time range selector" },
+
+  "timeRangeYtd": "YTD",
+  "@timeRangeYtd": { "description": "Year to date time range option" },
+
+  "timeRange1y": "1y",
+  "@timeRange1y": { "description": "1 year time range option" },
+
+  "timeRange2y": "2y",
+  "@timeRange2y": { "description": "2 years time range option" },
+
+  "timeRange5y": "5y",
+  "@timeRange5y": { "description": "5 years time range option" },
+
+  "timeRangeAll": "All",
+  "@timeRangeAll": { "description": "All time range option" },
+
+  "timeRangeCustom": "Custom",
+  "@timeRangeCustom": { "description": "Custom time range option" },
+
+  "filterDateFrom": "From",
+  "@filterDateFrom": { "description": "Filter from date label" },
+
+  "filterDateTo": "To",
+  "@filterDateTo": { "description": "Filter to date label" },
+
+  "filterYear": "Year",
+  "@filterYear": { "description": "Year label in date picker" },
+
+  "filterMonth": "Month",
+  "@filterMonth": { "description": "Month label in date picker" },
+
+  "apply": "Apply",
+  "@apply": { "description": "Apply button label" }
 }

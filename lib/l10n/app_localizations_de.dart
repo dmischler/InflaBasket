@@ -822,4 +822,40 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get priceAlertLoadSettingsError =>
       'Alarm-Einstellungen konnten nicht geladen werden';
+
+  @override
+  String get timeRangeLabel => 'Zeitraum';
+
+  @override
+  String get timeRangeYtd => 'JTD';
+
+  @override
+  String get timeRange1y => '1J';
+
+  @override
+  String get timeRange2y => '2J';
+
+  @override
+  String get timeRange5y => '5J';
+
+  @override
+  String get timeRangeAll => 'Alle';
+
+  @override
+  String get timeRangeCustom => 'Benutzerdefiniert';
+
+  @override
+  String get filterDateFrom => 'Von';
+
+  @override
+  String get filterDateTo => 'Bis';
+
+  @override
+  String get filterYear => 'Jahr';
+
+  @override
+  String get filterMonth => 'Monat';
+
+  @override
+  String get apply => 'Anwenden';
 }
