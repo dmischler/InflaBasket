@@ -309,6 +309,7 @@ final isPremiumProvider = Provider<bool>((ref) {
    - Added error handling in `barcode_scan_dialog.dart`: try/catch around controller initialization, `_onDetect` callback, and controller start/stop operations.
    - Added iOS permissions template (`ios_config/Info.plist.template`) with `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription`.
    - Updated `codemagic.yaml` to copy Info.plist template after iOS project generation.
+4. **Dark Mode SNB Curve Color** ✅ — Fixed legend color to match chart: updated `_buildChartLegend` to accept `isLuxeMode` parameter and use `isLuxeMode ? AppColors.textSecondary : Colors.orange` for the overlay curve dot, matching the chart's color logic.
 
 **Bugs to Fix:**
 4. **Dark Mode SNB Curve Color** — In dark mode, the SNB curve color does not match the legend color; fix color theming.

@@ -32,6 +32,8 @@ class OverviewTab extends ConsumerWidget {
     final overlayPoints =
         overlayAsync.valueOrNull ?? const <ComparisonDataPoint>[];
     final hasOverlayData = overlayPoints.isNotEmpty;
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -57,7 +59,7 @@ class OverviewTab extends ConsumerWidget {
           ],
           if (showCpi && hasOverlayData && overlayType != null) ...[
             const SizedBox(height: 8),
-            _buildChartLegend(context, l, overlayType),
+            _buildChartLegend(context, l, overlayType, isLuxeMode),
           ],
           const SizedBox(height: 24),
           Text(l.overviewTopInflators,
@@ -310,14 +312,14 @@ class OverviewTab extends ConsumerWidget {
   }
 
   Widget _buildChartLegend(BuildContext context, AppLocalizations l,
-      ComparisonOverlayType overlayType) {
+      ComparisonOverlayType overlayType, bool isLuxeMode) {
     return Row(
       children: [
         _legendDot(Theme.of(context).colorScheme.primary),
         const SizedBox(width: 4),
         Text(l.yourInflation, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(width: 16),
-        _legendDot(Colors.orange),
+        _legendDot(isLuxeMode ? AppColors.textSecondary : Colors.orange),
         const SizedBox(width: 4),
         Text(_overlayLabel(l, overlayType),
             style: Theme.of(context).textTheme.bodySmall),
