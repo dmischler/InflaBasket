@@ -897,4 +897,41 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get notAvailableDesktop => 'Auf Desktop nicht verfügbar';
+
+  @override
+  String get settingsBackupRestore => 'Backup & Wiederherstellen';
+
+  @override
+  String get settingsExportDatabase => 'Datenbank exportieren';
+
+  @override
+  String get settingsImportDatabase => 'Datenbank importieren';
+
+  @override
+  String get settingsExportJson => 'Als JSON exportieren';
+
+  @override
+  String backupExportSuccess(String filename) {
+    return 'Datenbank exportiert: $filename';
+  }
+
+  @override
+  String get backupImportConfirmTitle => 'Datenbank wiederherstellen?';
+
+  @override
+  String get backupImportConfirmMessage =>
+      'Dies ersetzt ALLE vorhandenen Produkte und Einstellungen. Fortfahren?';
+
+  @override
+  String get backupImportSuccess => 'Datenbank erfolgreich wiederhergestellt';
+
+  @override
+  String get backupRestartRequired =>
+      'Bitte starten Sie die App neu, um die Änderungen anzuwenden.';
+
+  @override
+  String get backupInvalidFile => 'Ungültige Backup-Datei';
+
+  @override
+  String get backupRestoreButton => 'Wiederherstellen';
 }

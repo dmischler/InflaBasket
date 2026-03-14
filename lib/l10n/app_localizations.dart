@@ -1700,6 +1700,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not available on desktop'**
   String get notAvailableDesktop;
+
+  /// Settings section header for backup/restore
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & Restore'**
+  String get settingsBackupRestore;
+
+  /// List tile label for database export
+  ///
+  /// In en, this message translates to:
+  /// **'Export Database'**
+  String get settingsExportDatabase;
+
+  /// List tile label for database import
+  ///
+  /// In en, this message translates to:
+  /// **'Import Database'**
+  String get settingsImportDatabase;
+
+  /// List tile label for JSON export
+  ///
+  /// In en, this message translates to:
+  /// **'Export as JSON'**
+  String get settingsExportJson;
+
+  /// Snackbar after successful database export
+  ///
+  /// In en, this message translates to:
+  /// **'Database exported: {filename}'**
+  String backupExportSuccess(String filename);
+
+  /// Dialog title for import confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Database?'**
+  String get backupImportConfirmTitle;
+
+  /// Dialog message for import confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'This will REPLACE all existing products and settings. Continue?'**
+  String get backupImportConfirmMessage;
+
+  /// Snackbar after successful database import
+  ///
+  /// In en, this message translates to:
+  /// **'Database successfully restored'**
+  String get backupImportSuccess;
+
+  /// Message shown after import requiring restart
+  ///
+  /// In en, this message translates to:
+  /// **'Please restart the app to apply changes.'**
+  String get backupRestartRequired;
+
+  /// Error when importing invalid file
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid backup file'**
+  String get backupInvalidFile;
+
+  /// Confirm button for restore
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get backupRestoreButton;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/router/app_router.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
@@ -14,6 +18,20 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env');
   await NotificationService.initialize();
   final sharedPreferences = await SharedPreferences.getInstance();
+
+  // Check for pending database restore
+  final pendingPath = sharedPreferences.getString('pending_restore_path');
+  if (pendingPath != null) {
+    try {
+      final dbFolder = await getApplicationDocumentsDirectory();
+      final dbPath = p.join(dbFolder.path, 'db.sqlite');
+      await File(pendingPath).copy(dbPath);
+      await sharedPreferences.remove('pending_restore_path');
+    } catch (e) {
+      // If restore fails, just continue with existing database
+      await sharedPreferences.remove('pending_restore_path');
+    }
+  }
 
   runApp(
     ProviderScope(

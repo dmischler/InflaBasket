@@ -564,5 +564,41 @@
   "@premiumFeature": { "description": "Label for premium-gated features" },
 
   "notAvailableDesktop": "Auf Desktop nicht verfügbar",
-  "@notAvailableDesktop": { "description": "Message when feature unavailable on desktop" }
+  "@notAvailableDesktop": { "description": "Message when feature unavailable on desktop" },
+
+  "settingsBackupRestore": "Backup & Wiederherstellen",
+  "@settingsBackupRestore": { "description": "Settings section header for backup/restore" },
+
+  "settingsExportDatabase": "Datenbank exportieren",
+  "@settingsExportDatabase": { "description": "List tile label for database export" },
+
+  "settingsImportDatabase": "Datenbank importieren",
+  "@settingsImportDatabase": { "description": "List tile label for database import" },
+
+  "settingsExportJson": "Als JSON exportieren",
+  "@settingsExportJson": { "description": "List tile label for JSON export" },
+
+  "backupExportSuccess": "Datenbank exportiert: {filename}",
+  "@backupExportSuccess": {
+    "description": "Snackbar after successful database export",
+    "placeholders": { "filename": { "type": "String" } }
+  },
+
+  "backupImportConfirmTitle": "Datenbank wiederherstellen?",
+  "@backupImportConfirmTitle": { "description": "Dialog title for import confirmation" },
+
+  "backupImportConfirmMessage": "Dies ersetzt ALLE vorhandenen Produkte und Einstellungen. Fortfahren?",
+  "@backupImportConfirmMessage": { "description": "Dialog message for import confirmation" },
+
+  "backupImportSuccess": "Datenbank erfolgreich wiederhergestellt",
+  "@backupImportSuccess": { "description": "Snackbar after successful database import" },
+
+  "backupRestartRequired": "Bitte starten Sie die App neu, um die Änderungen anzuwenden.",
+  "@backupRestartRequired": { "description": "Message shown after import requiring restart" },
+
+  "backupInvalidFile": "Ungültige Backup-Datei",
+  "@backupInvalidFile": { "description": "Error when importing invalid file" },
+
+  "backupRestoreButton": "Wiederherstellen",
+  "@backupRestoreButton": { "description": "Confirm button for restore" }
 }

@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inflabasket/core/services/database_backup_service.dart';
 import 'package:inflabasket/features/settings/application/export_service.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
@@ -8,16 +11,110 @@ import 'package:inflabasket/features/entry_management/data/entry_repository.dart
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
+  @override
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   static const Map<String, String> _languageLabels = <String, String>{
     'en': 'English',
     'de': 'Deutsch',
   };
 
+  Future<void> _handleExport(BuildContext context, WidgetRef ref) async {
+    try {
+      final filename = await ref
+          .read(databaseBackupServiceProvider.notifier)
+          .exportDatabase();
+      if (context.mounted) {
+        HapticFeedback.mediumImpact();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  AppLocalizations.of(context)!.backupExportSuccess(filename))),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorGeneric)),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleImport(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(AppLocalizations.of(context)!.backupImportConfirmTitle),
+        content: Text(AppLocalizations.of(context)!.backupImportConfirmMessage),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppLocalizations.of(context)!.backupRestoreButton),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      final result = await ref
+          .read(databaseBackupServiceProvider.notifier)
+          .importDatabase();
+      if (result != null && context.mounted) {
+        HapticFeedback.heavyImpact();
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: Text(AppLocalizations.of(context)!.backupImportSuccess),
+            content: Text(AppLocalizations.of(context)!.backupRestartRequired),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                child: Text(MaterialLocalizations.of(context).okButtonLabel),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!.backupInvalidFile)),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleExportJson(BuildContext context, WidgetRef ref) async {
+    try {
+      await ref.read(databaseBackupServiceProvider.notifier).exportAsJson();
+      if (context.mounted) {
+        HapticFeedback.mediumImpact();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorGeneric)),
+        );
+      }
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final subscriptionsSupported = supportsSubscriptionsOnCurrentPlatform;
     final premiumAsync = ref.watch(subscriptionControllerProvider);
@@ -237,6 +334,39 @@ class SettingsScreen extends ConsumerWidget {
                     }
                   },
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Text(
+                    l10n.settingsBackupRestore,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.upload_outlined),
+                  title: Text(l10n.settingsExportDatabase),
+                  onTap: () => _handleExport(context, ref),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.download_outlined),
+                  title: Text(l10n.settingsImportDatabase),
+                  onTap: () => _handleImport(context, ref),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.code_outlined),
+                  title: Text(l10n.settingsExportJson),
+                  onTap: () => _handleExportJson(context, ref),
+                ),
+                const SizedBox(height: 8),
               ],
             ),
           ),

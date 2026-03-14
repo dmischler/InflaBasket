@@ -921,5 +921,41 @@
   "@premiumFeature": { "description": "Label for premium-gated features" },
 
   "notAvailableDesktop": "Not available on desktop",
-  "@notAvailableDesktop": { "description": "Message when feature unavailable on desktop" }
+  "@notAvailableDesktop": { "description": "Message when feature unavailable on desktop" },
+
+  "settingsBackupRestore": "Backup & Restore",
+  "@settingsBackupRestore": { "description": "Settings section header for backup/restore" },
+
+  "settingsExportDatabase": "Export Database",
+  "@settingsExportDatabase": { "description": "List tile label for database export" },
+
+  "settingsImportDatabase": "Import Database",
+  "@settingsImportDatabase": { "description": "List tile label for database import" },
+
+  "settingsExportJson": "Export as JSON",
+  "@settingsExportJson": { "description": "List tile label for JSON export" },
+
+  "backupExportSuccess": "Database exported: {filename}",
+  "@backupExportSuccess": {
+    "description": "Snackbar after successful database export",
+    "placeholders": { "filename": { "type": "String" } }
+  },
+
+  "backupImportConfirmTitle": "Restore Database?",
+  "@backupImportConfirmTitle": { "description": "Dialog title for import confirmation" },
+
+  "backupImportConfirmMessage": "This will REPLACE all existing products and settings. Continue?",
+  "@backupImportConfirmMessage": { "description": "Dialog message for import confirmation" },
+
+  "backupImportSuccess": "Database successfully restored",
+  "@backupImportSuccess": { "description": "Snackbar after successful database import" },
+
+  "backupRestartRequired": "Please restart the app to apply changes.",
+  "@backupRestartRequired": { "description": "Message shown after import requiring restart" },
+
+  "backupInvalidFile": "Invalid backup file",
+  "@backupInvalidFile": { "description": "Error when importing invalid file" },
+
+  "backupRestoreButton": "Restore",
+  "@backupRestoreButton": { "description": "Confirm button for restore" }
 }

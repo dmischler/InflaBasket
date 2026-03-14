@@ -357,6 +357,8 @@ final isPremiumProvider = Provider<bool>((ref) {
   6. **Merge Behavior** ✅ — When user selects "Use Existing", updates the existing product with new barcode and brand, then navigates to add entry.
 
 **New Features:**
+14. **Database Backup & Restore (v1.6.0)** — Full backup/restore in Settings. Export Database copies SQLite file and opens iOS Share Sheet. Import Database uses file picker with SQLite validation and CupertinoAlertDialog warning. Export as JSON provides human-readable backup.
+
 14. **FAB Swipe-Up Selection** ✅ — When clicking the FAB, show a swipe-up modal bottom sheet with 3 options: "Manual", "Barcode", and "Scanner". 
     - **Manual** → navigates to `/home/add` (AddEntryScreen)
     - **Barcode** → navigates to `/barcode` (BarcodeScreen with MobileScanner)
@@ -385,6 +387,8 @@ final isPremiumProvider = Provider<bool>((ref) {
 15. **Monthly Aggregated Comparison Data** — Instead of discrete item data points, sample and compare inflation data at monthly intervals. Store items with month+year granularity and sample the inflation curve accordingly for smoother comparisons.
 16. **Core Inflation Comparison Bars** — In the Categories tab, if categorized core inflation data is available (e.g., from CPI sources), display a comparison bar next to each category's actual inflation bar. Show the difference between user's category inflation and official core inflation for that category.
 17. **Factory Reset** ✅ — Added option in Settings to revert to factory settings. Shows confirmation dialog with warning before deletion. Clears all SQLite tables (purchase entries, products, templates, alerts, weights, external series cache, categories), re-seeds default categories, and clears all SharedPreferences. Sets `hasCompletedOnboardingKey` to `false` to support future onboarding feature. Navigates to home screen after reset.
+
+18. **Database Backup & Restore (v1.6.0)** — Added full backup/restore functionality in Settings.
 
 ### Timeline Selector Feature (Overview & Categories)
 
