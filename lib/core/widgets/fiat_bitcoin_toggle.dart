@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
 
@@ -23,10 +24,26 @@ class FiatBitcoinToggle extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        final newTheme = isBitcoin
+
+        // Use isBitcoinMode to determine the new theme (not the current theme)
+        final newTheme = settings.isBitcoinMode
             ? AppThemeType.luxeDarkFiat
             : AppThemeType.luxeDarkBitcoin;
         ref.read(settingsControllerProvider.notifier).setThemeType(newTheme);
+
+        final newBitcoinMode = !settings.isBitcoinMode;
+        ref
+            .read(settingsControllerProvider.notifier)
+            .setBitcoinMode(newBitcoinMode);
+
+        if (newBitcoinMode) {
+          ref.invalidate(btcPriceCacheProvider);
+          ref.invalidate(itemInflationListSatsProvider);
+          ref.invalidate(basketInflationSatsProvider);
+        }
+
+        print(
+            '[DEBUG] FiatBitcoinToggle: isBitcoinMode=${settings.isBitcoinMode}, newTheme=$newTheme, setting bitcoinMode=$newBitcoinMode');
       },
       child: Container(
         width: 60,

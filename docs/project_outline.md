@@ -627,9 +627,17 @@ A toggle to view all inflation data denominated in Bitcoin (satoshis) instead of
 - [x] **Offline-First Price Cache** — Bitcoin prices now use stale cache fallback on network failure, consistent with economic data (CPI/M2) behavior. If network is unavailable, returns last cached price instead of null.
 
 **To Complete:**
-- [ ] **Sats UI Display** — Show sats values in Overview, Categories, and History tabs when Bitcoin mode is active
-- [ ] **Chart Updates** — Display sats-denominated basket index in charts
 - [ ] **Price Fetch on Demand** — Fetch BTC prices when viewing entries in Bitcoin mode
+
+**Completed in v1.2.0:**
+- [x] **Sats UI Display** — Show sats values in Overview tab when Bitcoin mode is active (top inflators/deflators show sats prices)
+- [x] **Chart Updates** — Display sats-denominated basket index in chart via `basketIndexHistorySatsProvider` and `filteredBasketIndexHistorySatsProvider`
+
+**Completed in v1.2.1:**
+- [x] **Unified Fiat/Bitcoin Toggle** — Removed separate Bitcoin Mode toggle from Settings; consolidated into `FiatBitcoinToggle` widget in Dashboard header. Toggling now controls both theme (Luxe Dark Fiat ↔ Bitcoin) and sats display mode.
+- [x] **Auto-Fetch BTC Prices** — `btcPriceCacheProvider` now auto-fetches historical BTC prices for the last 5 years when cache is empty, enabling Bitcoin mode to work immediately without needing to add new entries first.
+- [x] **Provider Invalidation** — BTC-related providers (`btcPriceCacheProvider`, `itemInflationListSatsProvider`, `basketInflationSatsProvider`) are now invalidated when enabling Bitcoin mode to trigger fresh data fetching.
+- [x] **Sats Price Calculation on Entry** — BTC prices are fetched and cached when entries are added via `calculatePriceSats()` in `EntryRepository`.
 
 ---
 

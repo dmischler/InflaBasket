@@ -147,16 +147,6 @@ class SettingsScreen extends ConsumerWidget {
                     },
                   ),
                 ),
-                const Divider(height: 1),
-                SwitchListTile.adaptive(
-                  secondary: const Icon(Icons.currency_bitcoin),
-                  title: const Text('Bitcoin Mode (Sats)'),
-                  subtitle: const Text('View inflation in satoshis'),
-                  value: settings.isBitcoinMode,
-                  onChanged: (val) => ref
-                      .read(settingsControllerProvider.notifier)
-                      .setBitcoinMode(val),
-                ),
               ],
             ),
           ),

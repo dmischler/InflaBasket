@@ -39,7 +39,17 @@ BtcPriceClient btcPriceClient(BtcPriceClientRef ref) {
 Future<Map<String, double>> btcPriceCache(BtcPriceCacheRef ref) async {
   final client = ref.watch(btcPriceClientProvider);
   final settings = ref.watch(settingsControllerProvider);
-  return client.getCachedPriceMap(settings.currency);
+
+  var priceMap = await client.getCachedPriceMap(settings.currency);
+
+  if (priceMap.isEmpty) {
+    final now = DateTime.now();
+    final startDate = DateTime(now.year - 5, 1, 1);
+    await client.fetchBtcPriceRange(settings.currency, startDate, now);
+    priceMap = await client.getCachedPriceMap(settings.currency);
+  }
+
+  return priceMap;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -343,6 +353,131 @@ List<MonthlyIndex> basketIndexHistory(BasketIndexHistoryRef ref) {
   }
 
   return result;
+}
+
+@riverpod
+Future<List<MonthlyIndex>> basketIndexHistorySats(
+    BasketIndexHistorySatsRef ref) async {
+  final entries =
+      ref.watch(entriesWithDetailsProvider).valueOrNull ?? <EntryWithDetails>[];
+  if (entries.isEmpty) return [];
+
+  final settings = ref.watch(settingsControllerProvider);
+  final btcPrices = await ref.watch(btcPriceCacheProvider.future);
+  final currency = settings.currency.toLowerCase();
+
+  final sorted = List<EntryWithDetails>.of(entries)
+    ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+
+  final groupedByMonth = groupBy<EntryWithDetails, DateTime>(sorted,
+      (e) => DateTime(e.entry.purchaseDate.year, e.entry.purchaseDate.month));
+
+  final result = <MonthlyIndex>[];
+  double baseCostSats = 0;
+
+  final firstMonthDate =
+      groupedByMonth.keys.reduce((a, b) => a.isBefore(b) ? a : b);
+  final baseBasket = groupedByMonth[firstMonthDate]!;
+
+  final baseBasketBaseQty = <int, double>{};
+  for (final e in baseBasket) {
+    final unit = unitTypeFromString(e.entry.unit);
+    final baseQty = e.entry.quantity * unit.toBaseMultiplier;
+    baseBasketBaseQty[e.product.id] =
+        (baseBasketBaseQty[e.product.id] ?? 0) + baseQty;
+
+    final btcPrice =
+        _getBtcPriceForDate(btcPrices, currency, e.entry.purchaseDate);
+    if (btcPrice != null) {
+      final normalizedPrice = _normalizedUnitPrice(e.entry);
+      final sats = SatsConverter.fiatToSats(normalizedPrice, btcPrice);
+      baseCostSats += sats;
+    }
+  }
+
+  if (baseCostSats == 0) return [];
+
+  final latestUnitSatsPrices = <int, int>{};
+  final sortedMonths = groupedByMonth.keys.toList()..sort();
+
+  for (final month in sortedMonths) {
+    final monthEntries = groupedByMonth[month]!;
+
+    for (final e in monthEntries) {
+      final btcPrice =
+          _getBtcPriceForDate(btcPrices, currency, e.entry.purchaseDate);
+      if (btcPrice != null) {
+        final normalizedPrice = _normalizedUnitPrice(e.entry);
+        latestUnitSatsPrices[e.product.id] =
+            SatsConverter.fiatToSats(normalizedPrice, btcPrice);
+      }
+    }
+
+    double currentCostSats = 0;
+    for (final productId in baseBasketBaseQty.keys) {
+      final baseQty = baseBasketBaseQty[productId]!;
+      final unitSatsPrice = latestUnitSatsPrices[productId];
+
+      if (unitSatsPrice == null || unitSatsPrice == 0) {
+        final originalEntry =
+            baseBasket.firstWhere((e) => e.product.id == productId);
+        final originalBtcPrice = _getBtcPriceForDate(
+            btcPrices, currency, originalEntry.entry.purchaseDate);
+        if (originalBtcPrice != null) {
+          final normalizedPrice = _normalizedUnitPrice(originalEntry.entry);
+          currentCostSats +=
+              SatsConverter.fiatToSats(normalizedPrice, originalBtcPrice) *
+                  baseQty.toDouble();
+        }
+      } else {
+        currentCostSats += unitSatsPrice * baseQty;
+      }
+    }
+
+    final index = (currentCostSats / baseCostSats) * 100;
+    if (!index.isFinite) continue;
+    result.add(MonthlyIndex(month, index));
+  }
+
+  return result;
+}
+
+@riverpod
+Future<List<MonthlyIndex>> filteredBasketIndexHistorySats(
+    FilteredBasketIndexHistorySatsRef ref) async {
+  final allHistoryAsync = ref.watch(basketIndexHistorySatsProvider);
+  final timeFilter = ref.watch(chartTimeFilterControllerProvider);
+
+  final allHistory = allHistoryAsync.when(
+    data: (data) => data,
+    loading: () => <MonthlyIndex>[],
+    error: (_, __) => <MonthlyIndex>[],
+  );
+
+  if (allHistory.isEmpty) return [];
+
+  final firstDataPoint = allHistory.first.month;
+  final startDate = timeFilter.getStartDate(firstDataPoint);
+  final endDate = timeFilter.getEndDate();
+
+  if (startDate == null) return [];
+
+  final filtered = allHistory.where((item) {
+    final itemMonth = DateTime(item.month.year, item.month.month, 1);
+    final start = DateTime(startDate.year, startDate.month, 1);
+    final end = DateTime(endDate.year, endDate.month, 1);
+    return !itemMonth.isBefore(start) && !itemMonth.isAfter(end);
+  }).toList();
+
+  if (filtered.isEmpty) return [];
+
+  final baseIndex = filtered.first.index;
+  if (!baseIndex.isFinite || baseIndex == 0) return filtered;
+
+  return filtered.map((item) {
+    final normalizedIndex = (item.index / baseIndex) * 100;
+    return MonthlyIndex(item.month, normalizedIndex);
+  }).toList();
 }
 
 /// Returns the filtered basket index history based on the selected time range.

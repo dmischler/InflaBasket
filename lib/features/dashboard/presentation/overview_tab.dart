@@ -8,6 +8,7 @@ import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/api/cpi_client.dart';
 import 'package:inflabasket/core/api/cpi_provider.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
@@ -22,12 +23,29 @@ class OverviewTab extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final settings = ref.watch(settingsControllerProvider);
     final isBitcoinMode = settings.isBitcoinMode;
+    print(
+        '[DEBUG OverviewTab] isBitcoinMode=$isBitcoinMode, themeType=${settings.themeType}');
+
     final overallInflation = isBitcoinMode
         ? ref.watch(basketInflationSatsProvider)
         : ref.watch(basketInflationProvider);
-    final history = ref.watch(filteredBasketIndexHistoryProvider);
-    final allHistory = ref.watch(basketIndexHistoryProvider);
-    final topInflators = ref.watch(itemInflationListProvider);
+    print(
+        '[DEBUG OverviewTab] overallInflation: $overallInflation (isBitcoinMode: $isBitcoinMode)');
+
+    final history = isBitcoinMode
+        ? ref.watch(filteredBasketIndexHistorySatsProvider).when(
+              data: (data) => data,
+              loading: () => <MonthlyIndex>[],
+              error: (_, __) => <MonthlyIndex>[],
+            )
+        : ref.watch(filteredBasketIndexHistoryProvider);
+    final allHistory = isBitcoinMode
+        ? ref.watch(basketIndexHistorySatsProvider).when(
+              data: (data) => data,
+              loading: () => <MonthlyIndex>[],
+              error: (_, __) => <MonthlyIndex>[],
+            )
+        : ref.watch(basketIndexHistoryProvider);
     final showCpi = ref.watch(showCpiOverlayProvider);
     final overlayType = ref.watch(effectiveComparisonOverlayTypeProvider);
     final overlayAsync = ref.watch(comparisonOverlayDataProvider);
@@ -42,6 +60,27 @@ class OverviewTab extends ConsumerWidget {
     final firstDataPoint =
         allHistory.isNotEmpty ? allHistory.first.month : null;
     final availableTimeRangeOptions = availableTimeRanges(firstDataPoint);
+
+    final topInflators = isBitcoinMode
+        ? ref.watch(itemInflationListSatsProvider).when(
+            data: (data) {
+              print(
+                  '[DEBUG OverviewTab] itemInflationListSats: ${data.length} items');
+              return data;
+            },
+            loading: () {
+              print('[DEBUG OverviewTab] itemInflationListSats: loading');
+              return <ItemInflationSats>[];
+            },
+            error: (e, st) {
+              print('[DEBUG OverviewTab] itemInflationListSats: error $e');
+              return <ItemInflationSats>[];
+            },
+          )
+        : ref.watch(itemInflationListProvider);
+
+    print(
+        '[DEBUG OverviewTab] topInflators length: ${topInflators.length}, isBitcoinMode: $isBitcoinMode');
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -661,20 +700,27 @@ class OverviewTab extends ConsumerWidget {
   }
 
   Widget _buildTopInflators(BuildContext context, AppLocalizations l,
-      List<ItemInflation> items, AppSettings settings, bool isBitcoinMode) {
+      dynamic items, AppSettings settings, bool isBitcoinMode) {
     if (items.isEmpty) {
       return Text(l.overviewNoData);
     }
 
-    final inflators =
-        items.where((i) => i.inflationPercent > 0).take(5).toList();
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+
+    final List<dynamic> inflators = isBitcoinMode
+        ? (items as List<ItemInflationSats>)
+            .where((i) => i.inflationPercent > 0)
+            .take(5)
+            .toList()
+        : (items as List<ItemInflation>)
+            .where((i) => i.inflationPercent > 0)
+            .take(5)
+            .toList();
 
     if (inflators.isEmpty) {
       return Text(l.overviewNoPriceIncreases);
     }
-
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
 
     return ListView.builder(
       shrinkWrap: true,
@@ -682,7 +728,8 @@ class OverviewTab extends ConsumerWidget {
       itemCount: inflators.length,
       itemBuilder: (context, index) {
         final item = inflators[index];
-        final unitLabel = _unitPriceLabel(item, settings.currency);
+        final unitLabel =
+            _unitPriceLabel(item, settings.currency, isBitcoinMode);
 
         final listTile = ListTile(
           contentPadding: isLuxeMode
@@ -726,21 +773,33 @@ class OverviewTab extends ConsumerWidget {
   }
 
   Widget _buildTopDeflators(BuildContext context, AppLocalizations l,
-      List<ItemInflation> items, AppSettings settings, bool isBitcoinMode) {
+      dynamic items, AppSettings settings, bool isBitcoinMode) {
     if (items.isEmpty) {
       return Text(l.overviewNoData);
     }
 
-    final deflators = items.where((i) => i.inflationPercent < 0).toList()
-      ..sort((a, b) => a.inflationPercent.compareTo(b.inflationPercent));
+    final isLuxeMode =
+        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+
+    List<dynamic> deflators;
+    if (isBitcoinMode) {
+      final list = (items as List<ItemInflationSats>)
+          .where((i) => i.inflationPercent < 0)
+          .toList();
+      list.sort((a, b) => a.inflationPercent.compareTo(b.inflationPercent));
+      deflators = list;
+    } else {
+      final list = (items as List<ItemInflation>)
+          .where((i) => i.inflationPercent < 0)
+          .toList();
+      list.sort((a, b) => a.inflationPercent.compareTo(b.inflationPercent));
+      deflators = list;
+    }
 
     final top = deflators.take(5).toList();
     if (top.isEmpty) {
       return Text(l.overviewNoPriceDecreases);
     }
-
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
 
     return ListView.builder(
       shrinkWrap: true,
@@ -748,7 +807,8 @@ class OverviewTab extends ConsumerWidget {
       itemCount: top.length,
       itemBuilder: (context, index) {
         final item = top[index];
-        final unitLabel = _unitPriceLabel(item, settings.currency);
+        final unitLabel =
+            _unitPriceLabel(item, settings.currency, isBitcoinMode);
 
         final listTile = ListTile(
           contentPadding: isLuxeMode
@@ -791,12 +851,27 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
-  /// Builds a subtitle string showing base → current per-unit price.
-  String _unitPriceLabel(ItemInflation item, String currency) {
-    final unit = item.baseUnit;
-    String fmt(double pricePerBase) =>
-        unit.formattedUnitPriceFromNormalized(pricePerBase, currency);
-    return '${fmt(item.baseUnitPrice)} → ${fmt(item.currentUnitPrice)}';
+  String _unitPriceLabel(dynamic item, String currency, bool isBitcoinMode) {
+    print(
+        '[DEBUG _unitPriceLabel] isBitcoinMode=$isBitcoinMode, item type=${item.runtimeType}');
+
+    if (isBitcoinMode) {
+      final satsItem = item as ItemInflationSats;
+      print(
+          '[DEBUG _unitPriceLabel] baseSats=${satsItem.baseSatsPrice}, currentSats=${satsItem.currentSatsPrice}');
+      final baseFormatted = SatsConverter.formatSats(satsItem.baseSatsPrice);
+      final currentFormatted =
+          SatsConverter.formatSats(satsItem.currentSatsPrice);
+      return '$baseFormatted → $currentFormatted';
+    } else {
+      final fiatItem = item as ItemInflation;
+      print(
+          '[DEBUG _unitPriceLabel] baseFiat=${fiatItem.baseUnitPrice}, currentFiat=${fiatItem.currentUnitPrice}');
+      final unit = fiatItem.baseUnit;
+      String fmt(double pricePerBase) =>
+          unit.formattedUnitPriceFromNormalized(pricePerBase, currency);
+      return '${fmt(fiatItem.baseUnitPrice)} → ${fmt(fiatItem.currentUnitPrice)}';
+    }
   }
 }
 
