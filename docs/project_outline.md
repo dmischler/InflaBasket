@@ -103,18 +103,29 @@ lib/
 
 ## 5. Inflation Calculation
 
-**Item-Level (Unit-Normalized):**
-- Mass: CHF/g (convert g, kg, oz, lb)
-- Volume: CHF/ml (convert ml, l, fl oz)
-- Count: CHF/item
+**Current Method: Product-Level Personal Inflation (Unweighted Mean)**
+
+- Inflation is defined as the **simple average of individual active product price changes**.
+- No basket-cost index, no quantity weighting in inflation math.
+- Each product uses sparse/irregular updates with **latest known price <= target date**.
 
 `normalizedUnitPrice = price / (quantity × toBaseMultiplier)`
-`Inflation = ((currentNormPrice - baseNormPrice) / baseNormPrice) × 100`
 
-**Category-Level:** Weighted average by spend.
+`productChangePct = ((price_at_end - price_at_start) / price_at_start) × 100`
 
-**Basket-Level (Modified Laspeyres):**
-$Index_t = \frac{\sum (Price_{t} \times Quantity_{base})}{\sum (Price_{base} \times Quantity_{base})} \times 100$
+`overallInflationPct = mean(productChangePct for all active products with valid data)`
+
+### Chart Semantics
+
+- Baseline point is always forced to **0.0%**.
+- Series is generated from **real update dates only** (plus baseline and end date).
+- No interpolation and no synthetic monthly points.
+- New products only affect inflation from their first available price onward.
+
+### Bitcoin Mode
+
+- Same unweighted product-change algorithm.
+- Prices are converted to sats at each product update date using cached BTC prices.
 
 ---
 
@@ -286,6 +297,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Instant list refresh after saving
 - Pull-to-refresh support
 - Empty state with themed message
+
+**v1.9.0 Inflation Engine Refactor**
+- Replaced modified Laspeyres basket index with product-level unweighted mean
+- Added sparse-data-aware price lookup (`latest price <= date`)
+- Chart now uses exact date-based stepped points with forced 0% baseline
+- Preserved fiat/bitcoin toggle with simplified shared inflation logic
+- Added jump-driver metadata for chart tooltips
 
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API

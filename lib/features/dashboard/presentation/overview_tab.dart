@@ -23,29 +23,25 @@ class OverviewTab extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final settings = ref.watch(settingsControllerProvider);
     final isBitcoinMode = settings.isBitcoinMode;
-    print(
-        '[DEBUG OverviewTab] isBitcoinMode=$isBitcoinMode, themeType=${settings.themeType}');
 
     final overallInflation = isBitcoinMode
         ? ref.watch(basketInflationSatsProvider)
         : ref.watch(basketInflationProvider);
-    print(
-        '[DEBUG OverviewTab] overallInflation: $overallInflation (isBitcoinMode: $isBitcoinMode)');
 
     final history = isBitcoinMode
-        ? ref.watch(filteredBasketIndexHistorySatsProvider).when(
+        ? ref.watch(filteredDynamicIndexSatsProvider).when(
               data: (data) => data,
               loading: () => <MonthlyIndex>[],
               error: (_, __) => <MonthlyIndex>[],
             )
-        : ref.watch(filteredBasketIndexHistoryProvider);
+        : ref.watch(filteredDynamicIndexProvider);
     final allHistory = isBitcoinMode
-        ? ref.watch(basketIndexHistorySatsProvider).when(
+        ? ref.watch(dynamicLaspeyresIndexSatsProvider).when(
               data: (data) => data,
               loading: () => <MonthlyIndex>[],
               error: (_, __) => <MonthlyIndex>[],
             )
-        : ref.watch(basketIndexHistoryProvider);
+        : ref.watch(dynamicLaspeyresIndexProvider);
     final showCpi = ref.watch(showCpiOverlayProvider);
     final overlayType = ref.watch(effectiveComparisonOverlayTypeProvider);
     final overlayAsync = ref.watch(comparisonOverlayDataProvider);
@@ -63,24 +59,11 @@ class OverviewTab extends ConsumerWidget {
 
     final topInflators = isBitcoinMode
         ? ref.watch(itemInflationListSatsProvider).when(
-            data: (data) {
-              print(
-                  '[DEBUG OverviewTab] itemInflationListSats: ${data.length} items');
-              return data;
-            },
-            loading: () {
-              print('[DEBUG OverviewTab] itemInflationListSats: loading');
-              return <ItemInflationSats>[];
-            },
-            error: (e, st) {
-              print('[DEBUG OverviewTab] itemInflationListSats: error $e');
-              return <ItemInflationSats>[];
-            },
-          )
+              data: (data) => data,
+              loading: () => <ItemInflationSats>[],
+              error: (_, __) => <ItemInflationSats>[],
+            )
         : ref.watch(itemInflationListProvider);
-
-    print(
-        '[DEBUG OverviewTab] topInflators length: ${topInflators.length}, isBitcoinMode: $isBitcoinMode');
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -507,11 +490,17 @@ class OverviewTab extends ConsumerWidget {
   }
 
   double _getTickInterval(ChartTimeRange range, int dataLength) {
-    if (dataLength <= 6) return 1;
-    if (dataLength <= 12) return 2;
-    if (dataLength <= 24) return 3;
-    if (dataLength <= 60) return 6;
-    return (dataLength / 8).ceilToDouble();
+    switch (range) {
+      case ChartTimeRange.ytd:
+      case ChartTimeRange.oneYear:
+      case ChartTimeRange.custom:
+        return const Duration(days: 30).inMilliseconds.toDouble();
+      case ChartTimeRange.twoYears:
+        return const Duration(days: 90).inMilliseconds.toDouble();
+      case ChartTimeRange.fiveYears:
+      case ChartTimeRange.allTime:
+        return const Duration(days: 365).inMilliseconds.toDouble();
+    }
   }
 
   Widget _buildLineChart(
@@ -523,18 +512,26 @@ class OverviewTab extends ConsumerWidget {
     ChartTimeRange timeRange,
   ) {
     final validHistory = history.where((h) => h.index.isFinite).toList();
-    if (validHistory.isEmpty || validHistory.length == 1) {
+    if (validHistory.isEmpty) {
       return SizedBox(
         height: 200,
         child: Center(child: Text(l.overviewNoData)),
       );
     }
 
-    // Convert to percentage change from baseline (0% at start)
-    // Data is already normalized so first point = 100, convert to (index - 100)
-    final spots = validHistory.asMap().entries.map((e) {
-      return FlSpot(e.key.toDouble(), e.value.index - 100);
-    }).toList();
+    final baseSpots = validHistory
+        .map((e) => FlSpot(
+              e.month.millisecondsSinceEpoch.toDouble(),
+              e.index - 100,
+            ))
+        .toList();
+    final spots = <FlSpot>[];
+    for (int i = 0; i < baseSpots.length; i++) {
+      spots.add(baseSpots[i]);
+      if (i < baseSpots.length - 1) {
+        spots.add(FlSpot(baseSpots[i + 1].x, baseSpots[i].y));
+      }
+    }
 
     // Build CPI spots aligned to the same x-axis if overlay is active
     List<FlSpot> comparisonSpots = [];
@@ -547,37 +544,11 @@ class OverviewTab extends ConsumerWidget {
             !p.month.isBefore(basketStart) && !p.month.isAfter(basketEnd));
 
         for (final cp in relevantCpi) {
-          // Find the closest basket month index for this CPI month.
-          // Initialise bestDiff from the first element so it is always a
-          // valid date-range comparison (not an arbitrary small constant).
-          int bestIdx = 0;
-          int bestDiff = (validHistory.first.month.millisecondsSinceEpoch -
-                  cp.month.millisecondsSinceEpoch)
-              .abs();
-          for (int i = 1; i < validHistory.length; i++) {
-            final diff = (validHistory[i].month.millisecondsSinceEpoch -
-                    cp.month.millisecondsSinceEpoch)
-                .abs();
-            if (diff <= bestDiff) {
-              bestDiff = diff;
-              bestIdx = i;
-            }
-          }
-          // Convert to percentage change from baseline (0% at start)
-          comparisonSpots.add(FlSpot(bestIdx.toDouble(), cp.index - 100));
+          comparisonSpots.add(
+            FlSpot(cp.month.millisecondsSinceEpoch.toDouble(), cp.index - 100),
+          );
         }
-        // Sort by x to guarantee a monotonic line.  If multiple overlay
-        // months map to the same basket slot, keep the most recent one.
         comparisonSpots.sort((a, b) => a.x.compareTo(b.x));
-        final deduped = <FlSpot>[];
-        for (final spot in comparisonSpots) {
-          if (deduped.isNotEmpty && deduped.last.x == spot.x) {
-            deduped[deduped.length - 1] = spot;
-          } else {
-            deduped.add(spot);
-          }
-        }
-        comparisonSpots = deduped;
       }
     }
 
@@ -598,7 +569,7 @@ class OverviewTab extends ConsumerWidget {
     final barData = <LineChartBarData>[
       LineChartBarData(
         spots: spots,
-        isCurved: true,
+        isCurved: false,
         color: primaryColor,
         barWidth: isLuxeMode ? 3 : 4,
         isStrokeCapRound: true,
@@ -624,7 +595,7 @@ class OverviewTab extends ConsumerWidget {
       if (showCpi && comparisonSpots.isNotEmpty)
         LineChartBarData(
           spots: comparisonSpots,
-          isCurved: true,
+          isCurved: false,
           color: isLuxeMode ? AppColors.textSecondary : Colors.orange,
           barWidth: 2,
           isStrokeCapRound: true,
@@ -647,16 +618,13 @@ class OverviewTab extends ConsumerWidget {
                 showTitles: true,
                 reservedSize: 32,
                 getTitlesWidget: (value, meta) {
-                  final index = value.toInt();
-                  if (index >= 0 && index < validHistory.length) {
-                    final format = _getDateFormat(timeRange, validHistory);
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                          DateFormat(format).format(validHistory[index].month)),
-                    );
-                  }
-                  return const Text('');
+                  final format = _getDateFormat(timeRange, validHistory);
+                  final date =
+                      DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(DateFormat(format).format(date)),
+                  );
                 },
                 interval: _getTickInterval(timeRange, validHistory.length),
               ),
@@ -676,13 +644,24 @@ class OverviewTab extends ConsumerWidget {
               fitInsideVertically: true,
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
-                  final index = spot.x.toInt();
-                  final dateStr = index >= 0 && index < validHistory.length
-                      ? DateFormat('MMM yyyy').format(validHistory[index].month)
-                      : '';
+                  final nearest = validHistory.reduce((a, b) {
+                    final da =
+                        (a.month.millisecondsSinceEpoch.toDouble() - spot.x)
+                            .abs();
+                    final db =
+                        (b.month.millisecondsSinceEpoch.toDouble() - spot.x)
+                            .abs();
+                    return da <= db ? a : b;
+                  });
+                  final dateStr = DateFormat('MMM yyyy').format(nearest.month);
                   final delta = spot.y;
+                  final drivers =
+                      nearest.chartPoint?.jumpDrivers ?? const <String>[];
+                  final driversLine = drivers.isEmpty
+                      ? ''
+                      : '\n${drivers.take(3).join(', ')}${drivers.length > 3 ? '…' : ''}';
                   final label =
-                      '$dateStr\n${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%';
+                      '$dateStr\n${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%$driversLine';
                   return LineTooltipItem(
                     label,
                     TextStyle(
@@ -852,21 +831,14 @@ class OverviewTab extends ConsumerWidget {
   }
 
   String _unitPriceLabel(dynamic item, String currency, bool isBitcoinMode) {
-    print(
-        '[DEBUG _unitPriceLabel] isBitcoinMode=$isBitcoinMode, item type=${item.runtimeType}');
-
     if (isBitcoinMode) {
       final satsItem = item as ItemInflationSats;
-      print(
-          '[DEBUG _unitPriceLabel] baseSats=${satsItem.baseSatsPrice}, currentSats=${satsItem.currentSatsPrice}');
       final baseFormatted = SatsConverter.formatSats(satsItem.baseSatsPrice);
       final currentFormatted =
           SatsConverter.formatSats(satsItem.currentSatsPrice);
       return '$baseFormatted → $currentFormatted';
     } else {
       final fiatItem = item as ItemInflation;
-      print(
-          '[DEBUG _unitPriceLabel] baseFiat=${fiatItem.baseUnitPrice}, currentFiat=${fiatItem.currentUnitPrice}');
       final unit = fiatItem.baseUnit;
       String fmt(double pricePerBase) =>
           unit.formattedUnitPriceFromNormalized(pricePerBase, currency);

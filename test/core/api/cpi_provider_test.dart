@@ -13,8 +13,8 @@ void main() {
 
     test('uses exact month span for valid history', () {
       final history = [
-        MonthlyIndex(DateTime(2024, 1), 100),
-        MonthlyIndex(DateTime(2024, 3), 102),
+        MonthlyIndex(month: DateTime(2024, 1), index: 100),
+        MonthlyIndex(month: DateTime(2024, 3), index: 102),
       ];
 
       final window = comparisonWindowForHistory(history);

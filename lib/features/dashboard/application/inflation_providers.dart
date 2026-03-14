@@ -1,14 +1,14 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:collection/collection.dart';
-import 'package:inflabasket/core/models/unit.dart';
-import 'package:inflabasket/core/utils/sats_converter.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inflabasket/core/api/bitcoin_price_client.dart';
+import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/utils/inflation_calculator.dart';
+import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
-import 'package:inflabasket/core/database/database.dart';
 
-// Re-export ChartTimeFilter classes for use in UI
 export 'package:inflabasket/features/entry_management/application/entry_providers.dart'
     show
         ChartTimeRange,
@@ -19,14 +19,84 @@ export 'package:inflabasket/features/entry_management/application/entry_provider
 
 part 'inflation_providers.g.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Bitcoin Mode Support
-// ─────────────────────────────────────────────────────────────────────────────
+class InflationRange {
+  const InflationRange({required this.start, required this.end});
 
-@riverpod
-bool isBitcoinMode(IsBitcoinModeRef ref) {
-  final settings = ref.watch(settingsControllerProvider);
-  return settings.isBitcoinMode;
+  final DateTime start;
+  final DateTime end;
+}
+
+class ItemInflation {
+  ItemInflation({
+    required this.product,
+    required this.category,
+    required this.baseUnitPrice,
+    required this.currentUnitPrice,
+    required this.baseUnit,
+    required this.inflationPercent,
+  });
+
+  final Product product;
+  final Category category;
+  final double baseUnitPrice;
+  final double currentUnitPrice;
+  final UnitType baseUnit;
+  final double inflationPercent;
+}
+
+class ItemInflationSats {
+  ItemInflationSats({
+    required this.product,
+    required this.category,
+    required this.baseSatsPrice,
+    required this.currentSatsPrice,
+    required this.baseUnit,
+    required this.inflationPercent,
+    required this.btcPriceAtBase,
+    required this.btcPriceAtCurrent,
+  });
+
+  final Product product;
+  final Category category;
+  final int baseSatsPrice;
+  final int currentSatsPrice;
+  final UnitType baseUnit;
+  final double inflationPercent;
+  final double btcPriceAtBase;
+  final double btcPriceAtCurrent;
+}
+
+class CategoryInflation {
+  CategoryInflation({
+    required this.category,
+    required this.inflationPercent,
+    required this.totalSpend,
+  });
+
+  final Category category;
+  final double inflationPercent;
+  final double totalSpend;
+}
+
+class MonthlyIndex {
+  MonthlyIndex({required this.month, required this.index, this.chartPoint});
+
+  final DateTime month;
+  final double index;
+  final ChartPoint? chartPoint;
+}
+
+double _normalizedUnitPrice(PurchaseEntry e) {
+  final price = e.price;
+  final quantity = e.quantity;
+  if (!price.isFinite || !quantity.isFinite || quantity <= 0 || price <= 0) {
+    return 0;
+  }
+  return unitTypeFromString(e.unit).normalizedPrice(price, quantity);
+}
+
+bool _compatible(PurchaseEntry a, PurchaseEntry b) {
+  return unitTypeFromString(a.unit).compatibleWith(unitTypeFromString(b.unit));
 }
 
 @riverpod
@@ -39,604 +109,348 @@ BtcPriceClient btcPriceClient(BtcPriceClientRef ref) {
 Future<Map<String, double>> btcPriceCache(BtcPriceCacheRef ref) async {
   final client = ref.watch(btcPriceClientProvider);
   final settings = ref.watch(settingsControllerProvider);
-
-  var priceMap = await client.getCachedPriceMap(settings.currency);
-
-  if (priceMap.isEmpty) {
+  var map = await client.getCachedPriceMap(settings.currency);
+  if (map.isEmpty) {
     final now = DateTime.now();
-    final startDate = DateTime(now.year - 5, 1, 1);
+    final startDate = DateTime(now.year - 10, 1, 1);
     await client.fetchBtcPriceRange(settings.currency, startDate, now);
-    priceMap = await client.getCachedPriceMap(settings.currency);
+    map = await client.getCachedPriceMap(settings.currency);
   }
-
-  return priceMap;
+  return map;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// Returns the price normalised to the *base unit* for the given entry.
-///
-/// Base units: mass → g, volume → ml, count → 1 item.
-/// E.g. 2.00 CHF / 500 g  → 0.004 CHF/g
-///      3.50 CHF / 1.5 kg → 0.002333… CHF/g
-double _normalizedUnitPrice(PurchaseEntry e) {
-  final price = e.price;
-  final quantity = e.quantity;
-  if (price.isNaN ||
-      price.isInfinite ||
-      quantity.isNaN ||
-      quantity.isInfinite ||
-      quantity <= 0) {
-    return 0;
-  }
-
-  final unit = unitTypeFromString(e.unit);
-  return unit.normalizedPrice(price, quantity);
-}
-
-/// Returns true when two entries for the same product can be meaningfully
-/// compared (same physical dimension: both mass, both volume, or both count).
-bool _compatible(PurchaseEntry a, PurchaseEntry b) {
-  final ua = unitTypeFromString(a.unit);
-  final ub = unitTypeFromString(b.unit);
-  return ua.compatibleWith(ub);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Models
-// ─────────────────────────────────────────────────────────────────────────────
-
-class ItemInflation {
-  final Product product;
-  final Category category;
-
-  /// Per-base-unit price at the earliest entry (CHF/g, CHF/ml, or CHF/item).
-  final double baseUnitPrice;
-
-  /// Per-base-unit price at the most recent entry.
-  final double currentUnitPrice;
-
-  /// The unit stored on the base entry (used for display).
-  final UnitType baseUnit;
-
-  final double inflationPercent;
-
-  ItemInflation({
-    required this.product,
-    required this.category,
-    required this.baseUnitPrice,
-    required this.currentUnitPrice,
-    required this.baseUnit,
-    required this.inflationPercent,
-  });
-
-  // Legacy aliases kept so existing UI code compiles without changes.
-  double get basePrice => baseUnitPrice;
-  double get currentPrice => currentUnitPrice;
-}
-
-class CategoryInflation {
-  final Category category;
-  final double inflationPercent;
-  final double totalSpend;
-
-  CategoryInflation({
-    required this.category,
-    required this.inflationPercent,
-    required this.totalSpend,
-  });
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Providers
-// ─────────────────────────────────────────────────────────────────────────────
 
 @riverpod
-List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
-  final entries =
-      ref.watch(entriesWithDetailsProvider).valueOrNull ?? <EntryWithDetails>[];
-  if (entries.isEmpty) return [];
+InflationRange activeInflationRange(ActiveInflationRangeRef ref) {
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  final filter = ref.watch(chartTimeFilterControllerProvider);
+  if (entries.isEmpty) {
+    final now = DateTime.now();
+    return InflationRange(start: now, end: now);
+  }
+
+  final sorted = List<EntryWithDetails>.from(entries)
+    ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+  final first = sorted.first.entry.purchaseDate;
+  final start = filter.getStartDate(first) ?? first;
+  final end = filter.getEndDate();
+  return InflationRange(start: start, end: end);
+}
+
+@riverpod
+List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return const [];
 
   final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
-  final result = <ItemInflation>[];
-
+  final products = <TrackedProduct>[];
   for (final productEntries in grouped.values) {
-    if (productEntries.length < 2) continue;
+    final first = productEntries.first;
+    final priceHistory = productEntries
+        .map((e) => PriceEntry(
+              date: e.entry.purchaseDate,
+              price: _normalizedUnitPrice(e.entry),
+            ))
+        .where((e) => e.price > 0 && e.price.isFinite)
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
 
-    productEntries
-        .sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
-
-    final baseEntry = productEntries.first;
-
-    // Walk forward to find the most recent entry that is unit-compatible with
-    // the base entry. This allows g↔kg etc. while skipping incompatible units.
-    EntryWithDetails? currentEntry;
-    for (int i = productEntries.length - 1; i > 0; i--) {
-      if (_compatible(baseEntry.entry, productEntries[i].entry)) {
-        currentEntry = productEntries[i];
-        break;
-      }
-    }
-
-    // No compatible pair found — skip this product
-    if (currentEntry == null) continue;
-
-    final baseUnitPrice = _normalizedUnitPrice(baseEntry.entry);
-    final currentUnitPrice = _normalizedUnitPrice(currentEntry.entry);
-
-    double inflation = 0;
-    if (baseUnitPrice > 0) {
-      inflation = ((currentUnitPrice - baseUnitPrice) / baseUnitPrice) * 100;
-    }
-
-    result.add(ItemInflation(
-      product: baseEntry.product,
-      category: baseEntry.category,
-      baseUnitPrice: baseUnitPrice,
-      currentUnitPrice: currentUnitPrice,
-      baseUnit: unitTypeFromString(baseEntry.entry.unit),
-      inflationPercent: inflation,
+    products.add(TrackedProduct(
+      name: first.product.name,
+      isActive: true,
+      priceHistory: priceHistory,
     ));
   }
 
-  result.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
-  return result;
-}
-
-@riverpod
-List<EntryWithDetails> filteredEntriesWithDetails(
-    FilteredEntriesWithDetailsRef ref) {
-  final allEntries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
-  final timeFilter = ref.watch(chartTimeFilterControllerProvider);
-
-  if (allEntries.isEmpty) return [];
-
-  final firstDataPoint = allEntries
-      .map((e) => e.entry.purchaseDate)
-      .reduce((a, b) => a.isBefore(b) ? a : b);
-  final startDate = timeFilter.getStartDate(firstDataPoint);
-  final endDate = timeFilter.getEndDate();
-
-  if (startDate == null) return allEntries;
-
-  return allEntries.where((e) {
-    final entryDate = e.entry.purchaseDate;
-    final entryMonth = DateTime(entryDate.year, entryDate.month, 1);
-    final start = DateTime(startDate.year, startDate.month, 1);
-    final end = DateTime(endDate.year, endDate.month, 1);
-    return !entryMonth.isBefore(start) && !entryMonth.isAfter(end);
-  }).toList();
-}
-
-@riverpod
-List<CategoryInflation> categoryInflationList(CategoryInflationListRef ref) {
-  final itemInflations = ref.watch(itemInflationListProvider);
-  final entries = ref.watch(filteredEntriesWithDetailsProvider);
-
-  if (itemInflations.isEmpty || entries.isEmpty) return [];
-
-  final groupedItems =
-      groupBy<ItemInflation, int>(itemInflations, (i) => i.category.id);
-  final result = <CategoryInflation>[];
-
-  for (final entry in groupedItems.entries) {
-    final items = entry.value;
-    final category = items.first.category;
-
-    double categoryTotalSpend = 0;
-    double weightedInflationSum = 0;
-
-    for (final item in items) {
-      final itemEntries = entries.where((e) => e.product.id == item.product.id);
-      final itemSpend =
-          itemEntries.fold(0.0, (sum, e) => sum + (e.entry.price));
-
-      categoryTotalSpend += itemSpend;
-      weightedInflationSum += (item.inflationPercent * itemSpend);
-    }
-
-    double categoryInflation = 0;
-    if (categoryTotalSpend > 0) {
-      categoryInflation = weightedInflationSum / categoryTotalSpend;
-    }
-
-    result.add(CategoryInflation(
-      category: category,
-      inflationPercent: categoryInflation,
-      totalSpend: categoryTotalSpend,
-    ));
-  }
-
-  result.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
-  return result;
-}
-
-@riverpod
-double basketInflation(BasketInflationRef ref) {
-  final categoryInflations = ref.watch(categoryInflationListProvider);
-  if (categoryInflations.isEmpty) return 0.0;
-
-  // Check for user-defined category weights
-  final weightsAsync = ref.watch(categoryWeightsControllerProvider);
-  final customWeights = weightsAsync.valueOrNull ?? {};
-
-  double totalWeight = 0;
-  double weightedInflationSum = 0;
-
-  for (final cat in categoryInflations) {
-    if (!cat.inflationPercent.isFinite) continue;
-    final customWeight = customWeights[cat.category.id];
-    if (customWeights.isNotEmpty && customWeight != null) {
-      // User-defined weighting
-      weightedInflationSum += cat.inflationPercent * customWeight;
-      totalWeight += customWeight;
-    } else if (customWeights.isEmpty) {
-      // Fall back to spend-weighted averaging
-      weightedInflationSum += cat.inflationPercent * cat.totalSpend;
-      totalWeight += cat.totalSpend;
-    }
-    // If customWeights is set but this category has no weight, skip it
-  }
-
-  if (totalWeight == 0) return 0.0;
-  return weightedInflationSum / totalWeight;
-}
-
-class MonthlyIndex {
-  final DateTime month;
-  final double index;
-  MonthlyIndex(this.month, this.index);
+  return products;
 }
 
 @riverpod
 List<MonthlyIndex> basketIndexHistory(BasketIndexHistoryRef ref) {
-  final entries =
-      ref.watch(entriesWithDetailsProvider).valueOrNull ?? <EntryWithDetails>[];
-  if (entries.isEmpty) return [];
-
-  final sorted = List<EntryWithDetails>.of(entries)
-    ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
-
-  final groupedByMonth = groupBy<EntryWithDetails, DateTime>(sorted,
-      (e) => DateTime(e.entry.purchaseDate.year, e.entry.purchaseDate.month));
-
-  final result = <MonthlyIndex>[];
-  double baseCost = 0;
-
-  final firstMonthDate =
-      groupedByMonth.keys.reduce((a, b) => a.isBefore(b) ? a : b);
-  final baseBasket = groupedByMonth[firstMonthDate]!;
-
-  // Base basket: quantities in base units (g or ml) per product.
-  final baseBasketBaseQty = <int, double>{};
-  for (final e in baseBasket) {
-    final unit = unitTypeFromString(e.entry.unit);
-    final baseQty = e.entry.quantity * unit.toBaseMultiplier;
-    baseBasketBaseQty[e.product.id] =
-        (baseBasketBaseQty[e.product.id] ?? 0) + baseQty;
-    baseCost += e.entry.price;
-  }
-
-  if (baseCost == 0) return [];
-
-  // Latest normalised unit price (CHF per base unit) seen up to current month.
-  final latestUnitPrices = <int, double>{};
-  final sortedMonths = groupedByMonth.keys.toList()..sort();
-
-  for (final month in sortedMonths) {
-    final monthEntries = groupedByMonth[month]!;
-
-    for (final e in monthEntries) {
-      latestUnitPrices[e.product.id] = _normalizedUnitPrice(e.entry);
-    }
-
-    double currentCost = 0;
-    for (final productId in baseBasketBaseQty.keys) {
-      final baseQty = baseBasketBaseQty[productId]!;
-      final unitPrice = latestUnitPrices[productId];
-
-      if (unitPrice == null || unitPrice == 0) {
-        // Use original base unit price for this product
-        final originalEntry =
-            baseBasket.firstWhere((e) => e.product.id == productId);
-        currentCost += _normalizedUnitPrice(originalEntry.entry) * baseQty;
-      } else {
-        currentCost += unitPrice * baseQty;
-      }
-    }
-
-    final index = (currentCost / baseCost) * 100;
-    if (!index.isFinite) continue;
-    result.add(MonthlyIndex(month, index));
-  }
-
-  return result;
+  final products = ref.watch(trackedProductsProvider);
+  if (products.isEmpty) return [];
+  final baseline =
+      products.expand((p) => p.priceHistory).map((e) => e.date).minOrNull;
+  if (baseline == null) return [];
+  final now = DateTime.now();
+  final points =
+      InflationCalculator.generateInflationChart(baseline, now, products);
+  return points
+      .map((p) => MonthlyIndex(
+            month: p.date,
+            index: 100 + p.inflationPct,
+            chartPoint: p,
+          ))
+      .toList();
 }
 
-@riverpod
-Future<List<MonthlyIndex>> basketIndexHistorySats(
-    BasketIndexHistorySatsRef ref) async {
-  final entries =
-      ref.watch(entriesWithDetailsProvider).valueOrNull ?? <EntryWithDetails>[];
-  if (entries.isEmpty) return [];
-
-  final settings = ref.watch(settingsControllerProvider);
-  final btcPrices = await ref.watch(btcPriceCacheProvider.future);
-  final currency = settings.currency.toLowerCase();
-
-  final sorted = List<EntryWithDetails>.of(entries)
-    ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
-
-  final groupedByMonth = groupBy<EntryWithDetails, DateTime>(sorted,
-      (e) => DateTime(e.entry.purchaseDate.year, e.entry.purchaseDate.month));
-
-  final result = <MonthlyIndex>[];
-  double baseCostSats = 0;
-
-  final firstMonthDate =
-      groupedByMonth.keys.reduce((a, b) => a.isBefore(b) ? a : b);
-  final baseBasket = groupedByMonth[firstMonthDate]!;
-
-  final baseBasketBaseQty = <int, double>{};
-  for (final e in baseBasket) {
-    final unit = unitTypeFromString(e.entry.unit);
-    final baseQty = e.entry.quantity * unit.toBaseMultiplier;
-    baseBasketBaseQty[e.product.id] =
-        (baseBasketBaseQty[e.product.id] ?? 0) + baseQty;
-
-    final btcPrice =
-        _getBtcPriceForDate(btcPrices, currency, e.entry.purchaseDate);
-    if (btcPrice != null) {
-      final normalizedPrice = _normalizedUnitPrice(e.entry);
-      final sats = SatsConverter.fiatToSats(normalizedPrice, btcPrice);
-      baseCostSats += sats;
-    }
-  }
-
-  if (baseCostSats == 0) return [];
-
-  final latestUnitSatsPrices = <int, int>{};
-  final sortedMonths = groupedByMonth.keys.toList()..sort();
-
-  for (final month in sortedMonths) {
-    final monthEntries = groupedByMonth[month]!;
-
-    for (final e in monthEntries) {
-      final btcPrice =
-          _getBtcPriceForDate(btcPrices, currency, e.entry.purchaseDate);
-      if (btcPrice != null) {
-        final normalizedPrice = _normalizedUnitPrice(e.entry);
-        latestUnitSatsPrices[e.product.id] =
-            SatsConverter.fiatToSats(normalizedPrice, btcPrice);
-      }
-    }
-
-    double currentCostSats = 0;
-    for (final productId in baseBasketBaseQty.keys) {
-      final baseQty = baseBasketBaseQty[productId]!;
-      final unitSatsPrice = latestUnitSatsPrices[productId];
-
-      if (unitSatsPrice == null || unitSatsPrice == 0) {
-        final originalEntry =
-            baseBasket.firstWhere((e) => e.product.id == productId);
-        final originalBtcPrice = _getBtcPriceForDate(
-            btcPrices, currency, originalEntry.entry.purchaseDate);
-        if (originalBtcPrice != null) {
-          final normalizedPrice = _normalizedUnitPrice(originalEntry.entry);
-          currentCostSats +=
-              SatsConverter.fiatToSats(normalizedPrice, originalBtcPrice) *
-                  baseQty.toDouble();
-        }
-      } else {
-        currentCostSats += unitSatsPrice * baseQty;
-      }
-    }
-
-    final index = (currentCostSats / baseCostSats) * 100;
-    if (!index.isFinite) continue;
-    result.add(MonthlyIndex(month, index));
-  }
-
-  return result;
-}
-
-@riverpod
-Future<List<MonthlyIndex>> filteredBasketIndexHistorySats(
-    FilteredBasketIndexHistorySatsRef ref) async {
-  final allHistoryAsync = ref.watch(basketIndexHistorySatsProvider);
-  final timeFilter = ref.watch(chartTimeFilterControllerProvider);
-
-  final allHistory = allHistoryAsync.when(
-    data: (data) => data,
-    loading: () => <MonthlyIndex>[],
-    error: (_, __) => <MonthlyIndex>[],
-  );
-
-  if (allHistory.isEmpty) return [];
-
-  final firstDataPoint = allHistory.first.month;
-  final startDate = timeFilter.getStartDate(firstDataPoint);
-  final endDate = timeFilter.getEndDate();
-
-  if (startDate == null) return [];
-
-  final filtered = allHistory.where((item) {
-    final itemMonth = DateTime(item.month.year, item.month.month, 1);
-    final start = DateTime(startDate.year, startDate.month, 1);
-    final end = DateTime(endDate.year, endDate.month, 1);
-    return !itemMonth.isBefore(start) && !itemMonth.isAfter(end);
-  }).toList();
-
-  if (filtered.isEmpty) return [];
-
-  final baseIndex = filtered.first.index;
-  if (!baseIndex.isFinite || baseIndex == 0) return filtered;
-
-  return filtered.map((item) {
-    final normalizedIndex = (item.index / baseIndex) * 100;
-    return MonthlyIndex(item.month, normalizedIndex);
-  }).toList();
-}
-
-/// Returns the filtered basket index history based on the selected time range.
-/// This normalizes the data so the first point in the filtered range is always at index 100.
 @riverpod
 List<MonthlyIndex> filteredBasketIndexHistory(
     FilteredBasketIndexHistoryRef ref) {
-  final allHistory = ref.watch(basketIndexHistoryProvider);
-  final timeFilter = ref.watch(chartTimeFilterControllerProvider);
+  final all = ref.watch(basketIndexHistoryProvider);
+  if (all.isEmpty) return [];
 
-  if (allHistory.isEmpty) return [];
-
-  final firstDataPoint = allHistory.first.month;
-  final startDate = timeFilter.getStartDate(firstDataPoint);
-  final endDate = timeFilter.getEndDate();
-
-  if (startDate == null) return [];
-
-  // Filter to the selected date range
-  final filtered = allHistory.where((item) {
-    final itemMonth = DateTime(item.month.year, item.month.month, 1);
-    final start = DateTime(startDate.year, startDate.month, 1);
-    final end = DateTime(endDate.year, endDate.month, 1);
-    return !itemMonth.isBefore(start) && !itemMonth.isAfter(end);
-  }).toList();
-
+  final range = ref.watch(activeInflationRangeProvider);
+  final filtered = all
+      .where(
+          (p) => !p.month.isBefore(range.start) && !p.month.isAfter(range.end))
+      .toList();
   if (filtered.isEmpty) return [];
 
-  // Normalize so the first point is at index 100 (baseline)
-  final baseIndex = filtered.first.index;
-  if (!baseIndex.isFinite || baseIndex == 0) return filtered;
-
-  return filtered.map((item) {
-    final normalizedIndex = (item.index / baseIndex) * 100;
-    return MonthlyIndex(item.month, normalizedIndex);
-  }).toList();
+  final base = filtered.first.index;
+  if (!base.isFinite || base == 0) return filtered;
+  return filtered
+      .map((p) => MonthlyIndex(
+            month: p.month,
+            index: (p.index / base) * 100,
+            chartPoint: p.chartPoint,
+          ))
+      .toList();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Bitcoin Mode Inflation Calculations
-// ─────────────────────────────────────────────────────────────────────────────
+@riverpod
+double basketInflation(BasketInflationRef ref) {
+  final range = ref.watch(activeInflationRangeProvider);
+  final products = ref.watch(trackedProductsProvider);
+  return InflationCalculator.overallInflationPercent(
+        range.start,
+        range.end,
+        products,
+      ) ??
+      0.0;
+}
 
-class ItemInflationSats {
-  final Product product;
-  final Category category;
-  final int baseSatsPrice;
-  final int currentSatsPrice;
-  final UnitType baseUnit;
-  final double inflationPercent;
-  final double btcPriceAtBase;
-  final double btcPriceAtCurrent;
+@riverpod
+List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return [];
+  final range = ref.watch(activeInflationRangeProvider);
 
-  ItemInflationSats({
-    required this.product,
-    required this.category,
-    required this.baseSatsPrice,
-    required this.currentSatsPrice,
-    required this.baseUnit,
-    required this.inflationPercent,
-    required this.btcPriceAtBase,
-    required this.btcPriceAtCurrent,
-  });
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final result = <ItemInflation>[];
+
+  for (final list in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(list)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    final first = sorted.first;
+    final base = sorted.lastWhereOrNull(
+      (e) => !e.entry.purchaseDate.isAfter(range.start),
+    );
+    final current = sorted.lastWhereOrNull(
+      (e) => !e.entry.purchaseDate.isAfter(range.end),
+    );
+    if (base == null ||
+        current == null ||
+        !_compatible(base.entry, current.entry)) {
+      continue;
+    }
+
+    final basePrice = _normalizedUnitPrice(base.entry);
+    final currentPrice = _normalizedUnitPrice(current.entry);
+    if (basePrice <= 0 || !basePrice.isFinite || !currentPrice.isFinite)
+      continue;
+
+    result.add(ItemInflation(
+      product: first.product,
+      category: first.category,
+      baseUnitPrice: basePrice,
+      currentUnitPrice: currentPrice,
+      baseUnit: unitTypeFromString(base.entry.unit),
+      inflationPercent: ((currentPrice - basePrice) / basePrice) * 100,
+    ));
+  }
+
+  result.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
+  return result;
+}
+
+@riverpod
+List<CategoryInflation> categoryInflationList(CategoryInflationListRef ref) {
+  final items = ref.watch(itemInflationListProvider);
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (items.isEmpty || entries.isEmpty) return [];
+
+  final spendByProduct = <int, double>{};
+  for (final e in entries) {
+    spendByProduct[e.product.id] =
+        (spendByProduct[e.product.id] ?? 0) + e.entry.price;
+  }
+
+  final grouped = groupBy<ItemInflation, int>(items, (i) => i.category.id);
+  final out = <CategoryInflation>[];
+  for (final group in grouped.values) {
+    final category = group.first.category;
+    var spend = 0.0;
+    var weighted = 0.0;
+    for (final i in group) {
+      final s = spendByProduct[i.product.id] ?? 0;
+      spend += s;
+      weighted += i.inflationPercent * (s <= 0 ? 1 : s);
+    }
+    final denom = spend <= 0 ? group.length.toDouble() : spend;
+    out.add(CategoryInflation(
+      category: category,
+      inflationPercent: denom > 0 ? weighted / denom : 0,
+      totalSpend: spend,
+    ));
+  }
+
+  out.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
+  return out;
+}
+
+double? _getBtcPriceForDate(Map<String, double> cache, DateTime date) {
+  final key = '${date.year}-${date.month}';
+  return cache[key];
 }
 
 @riverpod
 Future<List<ItemInflationSats>> itemInflationListSats(
     ItemInflationListSatsRef ref) async {
-  final entries =
-      ref.watch(entriesWithDetailsProvider).valueOrNull ?? <EntryWithDetails>[];
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return [];
-
-  final settings = ref.watch(settingsControllerProvider);
-  final btcPrices = await ref.watch(btcPriceCacheProvider.future);
-
-  final currency = settings.currency.toLowerCase();
+  final range = ref.watch(activeInflationRangeProvider);
+  final btc = await ref.watch(btcPriceCacheProvider.future);
 
   final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
-  final result = <ItemInflationSats>[];
-
-  for (final productEntries in grouped.values) {
-    if (productEntries.length < 2) continue;
-
-    productEntries
-        .sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
-
-    final baseEntry = productEntries.first;
-
-    EntryWithDetails? currentEntry;
-    for (int i = productEntries.length - 1; i > 0; i--) {
-      if (_compatible(baseEntry.entry, productEntries[i].entry)) {
-        currentEntry = productEntries[i];
-        break;
-      }
+  final out = <ItemInflationSats>[];
+  for (final list in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(list)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    final first = sorted.first;
+    final base = sorted
+        .lastWhereOrNull((e) => !e.entry.purchaseDate.isAfter(range.start));
+    final current =
+        sorted.lastWhereOrNull((e) => !e.entry.purchaseDate.isAfter(range.end));
+    if (base == null ||
+        current == null ||
+        !_compatible(base.entry, current.entry)) {
+      continue;
     }
 
-    if (currentEntry == null) continue;
-
-    final baseBtcPrice =
-        _getBtcPriceForDate(btcPrices, currency, baseEntry.entry.purchaseDate);
-    final currentBtcPrice = _getBtcPriceForDate(
-        btcPrices, currency, currentEntry.entry.purchaseDate);
-
-    if (baseBtcPrice == null || currentBtcPrice == null) continue;
-
-    final baseUnitPrice = _normalizedUnitPrice(baseEntry.entry);
-    final currentUnitPrice = _normalizedUnitPrice(currentEntry.entry);
-
-    final baseSats = SatsConverter.fiatToSats(baseUnitPrice, baseBtcPrice);
-    final currentSats =
-        SatsConverter.fiatToSats(currentUnitPrice, currentBtcPrice);
-
-    double inflation = 0;
-    if (baseSats > 0) {
-      inflation = ((currentSats - baseSats) / baseSats) * 100;
+    final baseBtc = _getBtcPriceForDate(btc, base.entry.purchaseDate);
+    final currentBtc = _getBtcPriceForDate(btc, current.entry.purchaseDate);
+    if (baseBtc == null ||
+        currentBtc == null ||
+        baseBtc <= 0 ||
+        currentBtc <= 0) {
+      continue;
     }
 
-    result.add(ItemInflationSats(
-      product: baseEntry.product,
-      category: baseEntry.category,
+    final baseNorm = _normalizedUnitPrice(base.entry);
+    final currentNorm = _normalizedUnitPrice(current.entry);
+    if (baseNorm <= 0 || !baseNorm.isFinite || !currentNorm.isFinite) continue;
+
+    final baseSats = SatsConverter.fiatToSats(baseNorm, baseBtc);
+    final currentSats = SatsConverter.fiatToSats(currentNorm, currentBtc);
+    if (baseSats <= 0) continue;
+
+    out.add(ItemInflationSats(
+      product: first.product,
+      category: first.category,
       baseSatsPrice: baseSats,
       currentSatsPrice: currentSats,
-      baseUnit: unitTypeFromString(baseEntry.entry.unit),
-      inflationPercent: inflation,
-      btcPriceAtBase: baseBtcPrice,
-      btcPriceAtCurrent: currentBtcPrice,
+      baseUnit: unitTypeFromString(base.entry.unit),
+      inflationPercent: ((currentSats - baseSats) / baseSats) * 100,
+      btcPriceAtBase: baseBtc,
+      btcPriceAtCurrent: currentBtc,
     ));
   }
 
-  result.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
-  return result;
-}
-
-double? _getBtcPriceForDate(
-    Map<String, double> priceCache, String currency, DateTime date) {
-  final key = '${date.year}-${date.month}';
-  return priceCache[key];
+  out.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
+  return out;
 }
 
 @riverpod
 double basketInflationSats(BasketInflationSatsRef ref) {
-  final itemInflationsAsync = ref.watch(itemInflationListSatsProvider);
+  final items = ref.watch(itemInflationListSatsProvider).valueOrNull ?? [];
+  if (items.isEmpty) return 0.0;
+  return items.map((e) => e.inflationPercent).average;
+}
 
-  return itemInflationsAsync.when(
-    data: (itemInflations) {
-      if (itemInflations.isEmpty) return 0.0;
+@riverpod
+Future<List<MonthlyIndex>> dynamicLaspeyresIndexSats(
+    DynamicLaspeyresIndexSatsRef ref) async {
+  final isBitcoin = ref.watch(isBitcoinModeProvider);
+  if (!isBitcoin) return [];
 
-      double totalInflation = 0;
-      double totalWeight = 0;
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return [];
+  final btc = await ref.watch(btcPriceCacheProvider.future);
 
-      for (final item in itemInflations) {
-        if (!item.inflationPercent.isFinite) continue;
-        totalInflation += item.inflationPercent;
-        totalWeight += 1;
-      }
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final products = <TrackedProduct>[];
+  for (final list in grouped.values) {
+    final first = list.first;
+    final history = list
+        .map((e) {
+          final btcPrice = _getBtcPriceForDate(btc, e.entry.purchaseDate);
+          if (btcPrice == null || btcPrice <= 0) return null;
+          final norm = _normalizedUnitPrice(e.entry);
+          if (norm <= 0) return null;
+          return PriceEntry(
+            date: e.entry.purchaseDate,
+            price: SatsConverter.fiatToSats(norm, btcPrice).toDouble(),
+          );
+        })
+        .whereType<PriceEntry>()
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+    products.add(TrackedProduct(
+        name: first.product.name, isActive: true, priceHistory: history));
+  }
 
-      if (totalWeight == 0) return 0.0;
-      return totalInflation / totalWeight;
-    },
-    loading: () => 0.0,
-    error: (_, __) => 0.0,
-  );
+  if (products.isEmpty) return [];
+  final baseline =
+      products.expand((p) => p.priceHistory).map((e) => e.date).minOrNull;
+  if (baseline == null) return [];
+  final now = DateTime.now();
+  final points =
+      InflationCalculator.generateInflationChart(baseline, now, products);
+  return points
+      .map((p) => MonthlyIndex(
+          month: p.date, index: 100 + p.inflationPct, chartPoint: p))
+      .toList();
+}
+
+@riverpod
+Future<List<MonthlyIndex>> filteredDynamicIndexSats(
+    FilteredDynamicIndexSatsRef ref) async {
+  final isBitcoin = ref.watch(isBitcoinModeProvider);
+  if (!isBitcoin) return [];
+
+  final all = await ref.watch(dynamicLaspeyresIndexSatsProvider.future);
+  if (all.isEmpty) return [];
+
+  final range = ref.watch(activeInflationRangeProvider);
+  final filtered = all
+      .where(
+          (p) => !p.month.isBefore(range.start) && !p.month.isAfter(range.end))
+      .toList();
+  if (filtered.isEmpty) return [];
+
+  final base = filtered.first.index;
+  if (!base.isFinite || base == 0) return filtered;
+  return filtered
+      .map((p) => MonthlyIndex(
+            month: p.month,
+            index: (p.index / base) * 100,
+            chartPoint: p.chartPoint,
+          ))
+      .toList();
+}
+
+@riverpod
+bool isBitcoinMode(IsBitcoinModeRef ref) {
+  final settings = ref.watch(settingsControllerProvider);
+  return settings.isBitcoinMode;
+}
+
+@riverpod
+List<MonthlyIndex> dynamicLaspeyresIndex(DynamicLaspeyresIndexRef ref) {
+  return ref.watch(basketIndexHistoryProvider);
+}
+
+@riverpod
+List<MonthlyIndex> filteredDynamicIndex(FilteredDynamicIndexRef ref) {
+  return ref.watch(filteredBasketIndexHistoryProvider);
 }
