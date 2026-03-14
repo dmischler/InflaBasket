@@ -125,6 +125,8 @@
   "@factoryResetConfirmMessage": { "description": "Warning message in factory reset dialog" },
   "factoryResetButton": "Zurücksetzen",
   "@factoryResetButton": { "description": "Confirm button for factory reset" },
+  "factoryResetCompleted": "Auf Werkseinstellung zurückgesetzt",
+  "@factoryResetCompleted": { "description": "Snackbar message after factory reset" },
   "settingsCategoryWeights": "Kategoriegewichtungen",
   "settingsTemplates": "Wiederkehrende Einkäufe",
   "settingsAbout": "Über die App",

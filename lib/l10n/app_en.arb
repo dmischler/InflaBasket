@@ -301,6 +301,9 @@
   "factoryResetButton": "Reset",
   "@factoryResetButton": { "description": "Confirm button for factory reset" },
 
+  "factoryResetCompleted": "Factory reset completed",
+  "@factoryResetCompleted": { "description": "Snackbar message after factory reset" },
+
   "settingsCategoryWeights": "Category Weights",
   "@settingsCategoryWeights": { "description": "List tile label for custom basket weights" },
 

@@ -692,6 +692,12 @@ abstract class AppLocalizations {
   /// **'Reset'**
   String get factoryResetButton;
 
+  /// Snackbar message after factory reset
+  ///
+  /// In en, this message translates to:
+  /// **'Factory reset completed'**
+  String get factoryResetCompleted;
+
   /// List tile label for custom basket weights
   ///
   /// In en, this message translates to:

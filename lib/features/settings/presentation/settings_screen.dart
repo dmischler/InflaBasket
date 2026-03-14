@@ -397,20 +397,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: exportState.isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.download_outlined),
-                  title: Text(l10n.settingsExportData),
-                  onTap: () {
-                    ref.read(exportServiceProvider.notifier).exportData();
-                  },
-                ),
-                const Divider(height: 1),
-                ListTile(
                   leading: const Icon(Icons.restart_alt),
                   title: Text(l10n.settingsFactoryReset),
                   onTap: () async {
@@ -443,8 +429,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           .factoryReset(database);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Factory reset completed')),
+                          SnackBar(content: Text(l10n.factoryResetCompleted)),
                         );
                         context.go('/home');
                       }

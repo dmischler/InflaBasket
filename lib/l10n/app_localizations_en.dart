@@ -314,6 +314,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get factoryResetButton => 'Reset';
 
   @override
+  String get factoryResetCompleted => 'Factory reset completed';
+
+  @override
   String get settingsCategoryWeights => 'Category Weights';
 
   @override

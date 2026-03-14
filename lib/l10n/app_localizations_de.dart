@@ -321,6 +321,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get factoryResetButton => 'Zurücksetzen';
 
   @override
+  String get factoryResetCompleted => 'Auf Werkseinstellung zurückgesetzt';
+
+  @override
   String get settingsCategoryWeights => 'Kategoriegewichtungen';
 
   @override
