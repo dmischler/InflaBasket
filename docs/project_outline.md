@@ -14,7 +14,7 @@ Personal inflation tracking app that compares user's custom basket against offic
 - **Icons/Fonts:** `lucide_icons`, `google_fonts`
 - **Device Features:** `camera`, `image_picker`, `image_cropper`, `mobile_scanner`
 - **Subscriptions:** `purchases_flutter` (RevenueCat)
-- **Network:** `dio`, `retrofit`
+- **Network:** `dio`, `retrofit`, `openfoodfacts` (official package)
 
 ---
 
@@ -297,6 +297,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Instant list refresh after saving
 - Pull-to-refresh support
 - Empty state with themed message
+
+**v1.9.2 OpenFoodFacts Migration**
+- Replaced custom Dio HTTP client with official `openfoodfacts` package
+- Configured global UserAgent and country settings for bot protection
+- Uses v3 API with targeted fields for faster response
+- Preserved store parsing and category mapping logic
 
 **v1.9.0 Inflation Engine Refactor**
 - Replaced modified Laspeyres basket index with product-level unweighted mean

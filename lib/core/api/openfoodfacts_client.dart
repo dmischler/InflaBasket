@@ -1,12 +1,12 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'openfoodfacts_client.g.dart';
 
 @riverpod
 OpenFoodFactsClient openFoodFactsClient(OpenFoodFactsClientRef ref) {
-  return OpenFoodFactsClient(Dio());
+  return OpenFoodFactsClient();
 }
 
 /// Store information extracted from Open Food Facts
@@ -162,50 +162,34 @@ const Map<String, String> _storeNameMapping = {
   'microspot': 'Microspot',
 };
 
-List<StoreInfo> _parseStores(dynamic storesRaw, List<dynamic>? storesTags) {
+List<StoreInfo> _parseStores(String? storesRaw, List<String>? storesTags) {
   final stores = <StoreInfo>[];
   final seenNames = <String>{};
 
-  // Parse stores_tags (List)
-  if (storesTags is List) {
+  // Parse storesTags (List)
+  if (storesTags != null) {
     for (final tag in storesTags) {
-      if (tag is String) {
-        final cleanTag = tag.contains(':')
-            ? tag.split(':').last.toLowerCase()
-            : tag.toLowerCase();
-        final displayName = _storeNameMapping[cleanTag] ??
-            (cleanTag.isNotEmpty
-                ? cleanTag[0].toUpperCase() + cleanTag.substring(1)
-                : null);
-        if (displayName != null && !seenNames.contains(displayName)) {
-          seenNames.add(displayName);
-          stores.add(StoreInfo(name: displayName, tag: cleanTag));
-        }
+      final cleanTag = tag.contains(':')
+          ? tag.split(':').last.toLowerCase()
+          : tag.toLowerCase();
+      final displayName = _storeNameMapping[cleanTag] ??
+          (cleanTag.isNotEmpty
+              ? cleanTag[0].toUpperCase() + cleanTag.substring(1)
+              : null);
+      if (displayName != null && !seenNames.contains(displayName)) {
+        seenNames.add(displayName);
+        stores.add(StoreInfo(name: displayName, tag: cleanTag));
       }
     }
   }
 
-  // Parse stores field - can be String (comma-separated) or Map
-  if (storesRaw is String && storesRaw.isNotEmpty) {
+  // Parse storesRaw - can be String (comma-separated)
+  if (storesRaw != null && storesRaw.isNotEmpty) {
     for (final name in storesRaw.split(',')) {
       final trimmed = name.trim();
       if (trimmed.isNotEmpty && !seenNames.contains(trimmed)) {
         seenNames.add(trimmed);
         stores.add(StoreInfo(name: trimmed));
-      }
-    }
-  } else if (storesRaw is Map) {
-    final storeList = storesRaw['stores'] as List?;
-    if (storeList != null) {
-      for (final store in storeList) {
-        final name = store is String ? store : store['name']?.toString();
-        if (name != null && !seenNames.contains(name)) {
-          final cleanName = name.trim();
-          if (cleanName.isNotEmpty) {
-            seenNames.add(cleanName);
-            stores.add(StoreInfo(name: cleanName));
-          }
-        }
       }
     }
   }
@@ -214,11 +198,7 @@ List<StoreInfo> _parseStores(dynamic storesRaw, List<dynamic>? storesTags) {
 }
 
 class OpenFoodFactsClient {
-  static const _baseUrl = 'https://world.openfoodfacts.org/api/v0/product';
-
-  final Dio _dio;
-
-  OpenFoodFactsClient(this._dio);
+  OpenFoodFactsClient();
 
   /// Looks up a product by [barcode] (EAN-13, UPC-A, …).
   /// Returns [ProductInfo] on success, or null if nothing was found.
@@ -229,68 +209,72 @@ class OpenFoodFactsClient {
     try {
       print('🔍 [OpenFoodFacts] Looking up barcode: $barcode');
 
-      final response = await _dio.get(
-        '$_baseUrl/$barcode.json',
-        queryParameters: {
-          'fields':
-              'product_name,product_name_de,product_name_fr,brands,stores,stores_tags,image_front_url,pnns_groups_1,categories_tags',
-        },
-        options: Options(
-          receiveTimeout: const Duration(seconds: 10),
-          sendTimeout: const Duration(seconds: 10),
-        ),
+      final config = ProductQueryConfiguration(
+        barcode.trim(),
+        fields: [
+          ProductField.BARCODE,
+          ProductField.NAME_ALL_LANGUAGES,
+          ProductField.BRANDS,
+          ProductField.IMAGE_FRONT_URL,
+          ProductField.STORES,
+          ProductField.STORES_TAGS,
+          ProductField.CATEGORIES_TAGS,
+        ],
+        version: ProductQueryVersion.v3,
       );
 
-      final data = response.data as Map<String, dynamic>?;
-      if (data == null) {
-        print('❌ [OpenFoodFacts] No data returned');
+      final ProductResultV3 result =
+          await OpenFoodAPIClient.getProductV3(config);
+
+      if (result.status != ProductResultV3.statusSuccess ||
+          result.product == null) {
+        print('❌ [OpenFoodFacts] Product not found or error: ${result.status}');
         return null;
       }
 
-      print('📦 [OpenFoodFacts] Raw response: $data');
+      final product = result.product!;
 
-      final status = data['status'];
-      if (status == 0) {
-        print('❌ [OpenFoodFacts] Product not found (status=0)');
-        return null;
-      }
-
-      final product = data['product'] as Map<String, dynamic>?;
-      if (product == null) {
-        print('❌ [OpenFoodFacts] No product in response');
-        return null;
-      }
-
-      print('📦 [OpenFoodFacts] Product data: $product');
+      print('📦 [OpenFoodFacts] Product data retrieved');
 
       // Extract all name variants
-      final nameEn = product['product_name'] as String?;
-      final nameDe = product['product_name_de'] as String?;
-      final nameFr = product['product_name_fr'] as String?;
+      final nameEn =
+          product.productNameInLanguages?[OpenFoodFactsLanguage.ENGLISH];
+      final nameDe =
+          product.productNameInLanguages?[OpenFoodFactsLanguage.GERMAN];
+      final nameFr =
+          product.productNameInLanguages?[OpenFoodFactsLanguage.FRENCH];
+
+      // Fallback to productName if mapped languages are null
+      final defaultName = product.productName;
 
       // Use first available name as default (until user selects)
-      String? resolvedName = nameEn?.trim() ?? nameDe?.trim() ?? nameFr?.trim();
-      if (resolvedName == null || resolvedName.isEmpty) return null;
+      String? resolvedName = nameEn?.trim() ??
+          nameDe?.trim() ??
+          nameFr?.trim() ??
+          defaultName?.trim();
 
-      final brand = product['brands'] as String?;
-      final imageUrl = product['image_front_url'] as String?;
+      if (resolvedName == null || resolvedName.isEmpty) {
+        print('❌ [OpenFoodFacts] No product name in response');
+        return null;
+      }
 
-      final storesRaw = product['stores'];
-      final storesTags = product['stores_tags'] as List<dynamic>?;
-      final stores = _parseStores(storesRaw, storesTags);
+      final brand = product.brands;
+      final imageUrl = product.imageFrontUrl;
 
-      final pnns = product['pnns_groups_1'] as String?;
+      final storesRaw = product.stores;
+      final storesTags = product.storesTags;
+      final storesList = _parseStores(storesRaw, storesTags);
+
       String? categoryTag;
-      final catTags = product['categories_tags'];
-      if (catTags is List && catTags.isNotEmpty) {
-        final raw = catTags.first as String;
+      final catTags = product.categoriesTags;
+      if (catTags != null && catTags.isNotEmpty) {
+        final raw = catTags.first;
         categoryTag = raw.contains(':') ? raw.split(':').last : raw;
       }
 
-      final suggestedCategory =
-          _mapOffCategory(pnns) ?? _mapOffCategory(categoryTag);
+      final suggestedCategory = _mapOffCategory(categoryTag);
 
-      final result = ProductInfo(
+      final productInfo = ProductInfo(
         name: resolvedName.trim(),
         nameEn: nameEn?.trim(),
         nameDe: nameDe?.trim(),
@@ -298,20 +282,20 @@ class OpenFoodFactsClient {
         brand: brand?.trim().isNotEmpty == true ? brand!.trim() : null,
         suggestedCategory: suggestedCategory,
         imageUrl: imageUrl,
-        stores: stores,
+        stores: storesList,
         barcode: barcode,
         locale: locale,
       );
 
-      print('✅ [OpenFoodFacts] Found product: ${result.name}');
+      print('✅ [OpenFoodFacts] Found product: ${productInfo.name}');
       print(
-          '   Name variants: EN=${result.nameEn}, DE=${result.nameDe}, FR=${result.nameFr}');
-      print('   Brand: ${result.brand}');
-      print('   Category: ${result.suggestedCategory}');
-      print('   Image: ${result.imageUrl}');
-      print('   Stores: ${result.stores.map((s) => s.name).toList()}');
+          '   Name variants: EN=${productInfo.nameEn}, DE=${productInfo.nameDe}, FR=${productInfo.nameFr}');
+      print('   Brand: ${productInfo.brand}');
+      print('   Category: ${productInfo.suggestedCategory}');
+      print('   Image: ${productInfo.imageUrl}');
+      print('   Stores: ${productInfo.stores.map((s) => s.name).toList()}');
 
-      return result;
+      return productInfo;
     } catch (e) {
       print('❌ [OpenFoodFacts] Error: $e');
       return null;
