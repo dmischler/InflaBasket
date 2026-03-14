@@ -64,9 +64,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     _selectedCategoryName = edit?.category.name ??
         barcodeInfo?.suggestedCategory ??
         'Food & Groceries';
-    _categoryController = TextEditingController(
-      text: _selectedCategoryName,
-    );
+    _categoryController = TextEditingController();
     _storeController = TextEditingController(
       text: edit?.entry.storeName ??
           (barcodeInfo?.stores.isNotEmpty == true
@@ -81,6 +79,13 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     _notesController = TextEditingController(text: edit?.entry.notes ?? '');
     _selectedDate = edit?.entry.purchaseDate ?? DateTime.now();
     _selectedUnit = unitTypeFromString(edit?.entry.unit);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _categoryController.text = CategoryLocalization.displayNameForContext(
+        context, _selectedCategoryName!);
   }
 
   @override
@@ -571,7 +576,9 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   );
                 },
                 onSelected: (selection) {
-                  _categoryController.text = selection;
+                  _categoryController.text =
+                      CategoryLocalization.displayNameForContext(
+                          context, selection);
                   setState(() => _selectedCategoryName = selection);
                 },
                 debounceDuration: const Duration(milliseconds: 300),
