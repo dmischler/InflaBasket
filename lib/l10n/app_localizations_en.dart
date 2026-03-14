@@ -259,6 +259,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMetricSystem => 'Use Metric System';
 
   @override
+  String get settingsPriceUpdateReminder => 'Price Update Reminder';
+
+  @override
+  String get settingsPriceUpdateReminderDesc =>
+      'Get reminded when prices need updating';
+
+  @override
+  String get settingsReminderAfter => 'Reminder after';
+
+  @override
+  String get settingsShowPriceUpdateList => 'Show Price Update List';
+
+  @override
+  String get settingsPriceUpdateReminderDisabled =>
+      'Enable to track price updates';
+
+  @override
+  String get priceUpdatesTitle => 'Update Prices';
+
+  @override
+  String get priceUpdatesNoPriceYet => 'No price yet';
+
+  @override
+  String get priceUpdatesSaved => 'Price saved';
+
+  @override
+  String get priceUpdatesAllCurrent => 'All prices are up to date – great!';
+
+  @override
+  String get priceUpdatesAllCurrentDesc =>
+      'All your product prices are current.';
+
+  @override
   String get settingsDataManagement => 'Data Management';
 
   @override

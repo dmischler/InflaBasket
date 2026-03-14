@@ -277,6 +277,16 @@ final isPremiumProvider = Provider<bool>((ref) {
 - TypeAhead with localization-aware filtering
 - Empty field on start
 
+**v1.8.0 Smart Price Update Reminder**
+- Price update reminder toggle in Settings
+- Duration picker (3/6/9/12/18 months)
+- Price Updates screen with collapsible store sections
+- Products grouped by store → category
+- Price prompt integration (reused from barcode scanner)
+- Instant list refresh after saving
+- Pull-to-refresh support
+- Empty state with themed message
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility

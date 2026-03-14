@@ -27,6 +27,8 @@ class AppSettings {
   final String locale;
   final AppThemeType themeType;
   final bool isBitcoinMode;
+  final bool priceUpdateReminderEnabled;
+  final int priceUpdateReminderMonths;
 
   const AppSettings({
     this.currency = 'CHF',
@@ -34,6 +36,8 @@ class AppSettings {
     this.locale = 'en',
     this.themeType = AppThemeType.luxeDarkFiat,
     this.isBitcoinMode = false,
+    this.priceUpdateReminderEnabled = false,
+    this.priceUpdateReminderMonths = 6,
   });
 
   AppSettings copyWith({
@@ -42,6 +46,8 @@ class AppSettings {
     String? locale,
     AppThemeType? themeType,
     bool? isBitcoinMode,
+    bool? priceUpdateReminderEnabled,
+    int? priceUpdateReminderMonths,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
@@ -49,6 +55,10 @@ class AppSettings {
       locale: locale ?? this.locale,
       themeType: themeType ?? this.themeType,
       isBitcoinMode: isBitcoinMode ?? this.isBitcoinMode,
+      priceUpdateReminderEnabled:
+          priceUpdateReminderEnabled ?? this.priceUpdateReminderEnabled,
+      priceUpdateReminderMonths:
+          priceUpdateReminderMonths ?? this.priceUpdateReminderMonths,
     );
   }
 }
@@ -68,6 +78,10 @@ class SettingsController extends _$SettingsController {
   static const _themeKey = 'settings_theme_type';
   static const _bitcoinModeKey = 'settings_bitcoin_mode';
   static const hasCompletedOnboardingKey = 'has_completed_onboarding';
+  static const _priceUpdateReminderKey =
+      'settings_price_update_reminder_enabled';
+  static const _priceUpdateReminderMonthsKey =
+      'settings_price_update_reminder_months';
 
   @override
   AppSettings build() {
@@ -84,6 +98,10 @@ class SettingsController extends _$SettingsController {
       locale: resolveAppLanguageCode(prefs.getString(_localeKey)),
       themeType: themeType,
       isBitcoinMode: prefs.getBool(_bitcoinModeKey) ?? false,
+      priceUpdateReminderEnabled:
+          prefs.getBool(_priceUpdateReminderKey) ?? false,
+      priceUpdateReminderMonths:
+          prefs.getInt(_priceUpdateReminderMonthsKey) ?? 6,
     );
   }
 
@@ -116,6 +134,18 @@ class SettingsController extends _$SettingsController {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setBool(_bitcoinModeKey, isBitcoinMode);
     state = state.copyWith(isBitcoinMode: isBitcoinMode);
+  }
+
+  Future<void> setPriceUpdateReminder(bool enabled) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setBool(_priceUpdateReminderKey, enabled);
+    state = state.copyWith(priceUpdateReminderEnabled: enabled);
+  }
+
+  Future<void> setPriceUpdateReminderMonths(int months) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setInt(_priceUpdateReminderMonthsKey, months);
+    state = state.copyWith(priceUpdateReminderMonths: months);
   }
 
   Future<void> factoryReset(AppDatabase database) async {

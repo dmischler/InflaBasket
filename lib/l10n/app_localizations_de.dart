@@ -265,6 +265,40 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsMetricSystem => 'Metrisches System verwenden';
 
   @override
+  String get settingsPriceUpdateReminder =>
+      'Preise automatisch aktualisieren erinnern';
+
+  @override
+  String get settingsPriceUpdateReminderDesc =>
+      'Erinnerung erhalten, wenn Preise aktualisiert werden sollten';
+
+  @override
+  String get settingsReminderAfter => 'Erinnerung nach';
+
+  @override
+  String get settingsShowPriceUpdateList => 'Preis-Update-Liste anzeigen';
+
+  @override
+  String get settingsPriceUpdateReminderDisabled =>
+      'Aktivieren, um Preis-Updates zu verfolgen';
+
+  @override
+  String get priceUpdatesTitle => 'Preise aktualisieren';
+
+  @override
+  String get priceUpdatesNoPriceYet => 'Noch kein Preis';
+
+  @override
+  String get priceUpdatesSaved => 'Preis gespeichert';
+
+  @override
+  String get priceUpdatesAllCurrent => 'Alle Preise sind aktuell – super!';
+
+  @override
+  String get priceUpdatesAllCurrentDesc =>
+      'Alle Ihre Produktpreise sind auf dem neuesten Stand.';
+
+  @override
   String get settingsDataManagement => 'Datenverwaltung';
 
   @override

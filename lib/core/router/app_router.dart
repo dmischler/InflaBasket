@@ -11,6 +11,7 @@ import 'package:inflabasket/features/settings/presentation/category_management_s
 import 'package:inflabasket/features/settings/presentation/price_alerts_screen.dart';
 import 'package:inflabasket/features/settings/presentation/weight_editor_screen.dart';
 import 'package:inflabasket/features/settings/presentation/templates_screen.dart';
+import 'package:inflabasket/features/settings/presentation/price_updates_screen.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'app_router.g.dart';
@@ -76,6 +77,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/settings/templates',
         builder: (context, state) => const TemplatesScreen(),
+      ),
+      GoRoute(
+        path: '/settings/price-updates',
+        builder: (context, state) => const PriceUpdatesScreen(),
       ),
     ],
   );

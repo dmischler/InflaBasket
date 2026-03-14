@@ -590,6 +590,66 @@ abstract class AppLocalizations {
   /// **'Use Metric System'**
   String get settingsMetricSystem;
 
+  /// Toggle label for price update reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Price Update Reminder'**
+  String get settingsPriceUpdateReminder;
+
+  /// Description for price update reminder toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Get reminded when prices need updating'**
+  String get settingsPriceUpdateReminderDesc;
+
+  /// Label for reminder duration
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder after'**
+  String get settingsReminderAfter;
+
+  /// Button to navigate to price updates screen
+  ///
+  /// In en, this message translates to:
+  /// **'Show Price Update List'**
+  String get settingsShowPriceUpdateList;
+
+  /// Helper text when toggle is disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Enable to track price updates'**
+  String get settingsPriceUpdateReminderDisabled;
+
+  /// Title for price updates screen
+  ///
+  /// In en, this message translates to:
+  /// **'Update Prices'**
+  String get priceUpdatesTitle;
+
+  /// Label for products without price
+  ///
+  /// In en, this message translates to:
+  /// **'No price yet'**
+  String get priceUpdatesNoPriceYet;
+
+  /// Snackbar message after saving price
+  ///
+  /// In en, this message translates to:
+  /// **'Price saved'**
+  String get priceUpdatesSaved;
+
+  /// Empty state title
+  ///
+  /// In en, this message translates to:
+  /// **'All prices are up to date – great!'**
+  String get priceUpdatesAllCurrent;
+
+  /// Empty state description
+  ///
+  /// In en, this message translates to:
+  /// **'All your product prices are current.'**
+  String get priceUpdatesAllCurrentDesc;
+
   /// Settings section header
   ///
   /// In en, this message translates to:

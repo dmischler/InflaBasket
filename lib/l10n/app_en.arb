@@ -250,6 +250,36 @@
   "settingsMetricSystem": "Use Metric System",
   "@settingsMetricSystem": { "description": "Toggle label for metric/imperial" },
 
+  "settingsPriceUpdateReminder": "Price Update Reminder",
+  "@settingsPriceUpdateReminder": { "description": "Toggle label for price update reminder" },
+
+  "settingsPriceUpdateReminderDesc": "Get reminded when prices need updating",
+  "@settingsPriceUpdateReminderDesc": { "description": "Description for price update reminder toggle" },
+
+  "settingsReminderAfter": "Reminder after",
+  "@settingsReminderAfter": { "description": "Label for reminder duration" },
+
+  "settingsShowPriceUpdateList": "Show Price Update List",
+  "@settingsShowPriceUpdateList": { "description": "Button to navigate to price updates screen" },
+
+  "settingsPriceUpdateReminderDisabled": "Enable to track price updates",
+  "@settingsPriceUpdateReminderDisabled": { "description": "Helper text when toggle is disabled" },
+
+  "priceUpdatesTitle": "Update Prices",
+  "@priceUpdatesTitle": { "description": "Title for price updates screen" },
+
+  "priceUpdatesNoPriceYet": "No price yet",
+  "@priceUpdatesNoPriceYet": { "description": "Label for products without price" },
+
+  "priceUpdatesSaved": "Price saved",
+  "@priceUpdatesSaved": { "description": "Snackbar message after saving price" },
+
+  "priceUpdatesAllCurrent": "All prices are up to date – great!",
+  "@priceUpdatesAllCurrent": { "description": "Empty state title" },
+
+  "priceUpdatesAllCurrentDesc": "All your product prices are current.",
+  "@priceUpdatesAllCurrentDesc": { "description": "Empty state description" },
+
   "settingsDataManagement": "Data Management",
   "@settingsDataManagement": { "description": "Settings section header" },
 

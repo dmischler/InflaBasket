@@ -83,6 +83,37 @@
   "settingsCurrency": "Währung",
   "settingsLanguage": "Sprache",
   "settingsMetricSystem": "Metrisches System verwenden",
+
+  "settingsPriceUpdateReminder": "Preise automatisch aktualisieren erinnern",
+  "@settingsPriceUpdateReminder": { "description": "Toggle label for price update reminder" },
+
+  "settingsPriceUpdateReminderDesc": "Erinnerung erhalten, wenn Preise aktualisiert werden sollten",
+  "@settingsPriceUpdateReminderDesc": { "description": "Description for price update reminder toggle" },
+
+  "settingsReminderAfter": "Erinnerung nach",
+  "@settingsReminderAfter": { "description": "Label for reminder duration" },
+
+  "settingsShowPriceUpdateList": "Preis-Update-Liste anzeigen",
+  "@settingsShowPriceUpdateList": { "description": "Button to navigate to price updates screen" },
+
+  "settingsPriceUpdateReminderDisabled": "Aktivieren, um Preis-Updates zu verfolgen",
+  "@settingsPriceUpdateReminderDisabled": { "description": "Helper text when toggle is disabled" },
+
+  "priceUpdatesTitle": "Preise aktualisieren",
+  "@priceUpdatesTitle": { "description": "Title for price updates screen" },
+
+  "priceUpdatesNoPriceYet": "Noch kein Preis",
+  "@priceUpdatesNoPriceYet": { "description": "Label for products without price" },
+
+  "priceUpdatesSaved": "Preis gespeichert",
+  "@priceUpdatesSaved": { "description": "Snackbar message after saving price" },
+
+  "priceUpdatesAllCurrent": "Alle Preise sind aktuell – super!",
+  "@priceUpdatesAllCurrent": { "description": "Empty state title" },
+
+  "priceUpdatesAllCurrentDesc": "Alle Ihre Produktpreise sind auf dem neuesten Stand.",
+  "@priceUpdatesAllCurrentDesc": { "description": "Empty state description" },
+
   "settingsDataManagement": "Datenverwaltung",
   "settingsManageCategories": "Kategorien verwalten",
   "settingsExportData": "Daten exportieren (CSV)",
