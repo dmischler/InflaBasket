@@ -65,8 +65,7 @@ class DatabaseBackupService extends _$DatabaseBackupService {
 
   Future<String?> importDatabase() async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['sqlite', 'db'],
+      type: FileType.any,
       allowMultiple: false,
     );
 
