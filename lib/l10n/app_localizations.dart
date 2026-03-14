@@ -593,13 +593,13 @@ abstract class AppLocalizations {
   /// Toggle label for price update reminder
   ///
   /// In en, this message translates to:
-  /// **'Price Update Reminder'**
+  /// **'Price Updates'**
   String get settingsPriceUpdateReminder;
 
   /// Description for price update reminder toggle
   ///
   /// In en, this message translates to:
-  /// **'Get reminded when prices need updating'**
+  /// **'Get reminded to update prices'**
   String get settingsPriceUpdateReminderDesc;
 
   /// Label for reminder duration

@@ -250,10 +250,10 @@
   "settingsMetricSystem": "Use Metric System",
   "@settingsMetricSystem": { "description": "Toggle label for metric/imperial" },
 
-  "settingsPriceUpdateReminder": "Price Update Reminder",
+  "settingsPriceUpdateReminder": "Price Updates",
   "@settingsPriceUpdateReminder": { "description": "Toggle label for price update reminder" },
 
-  "settingsPriceUpdateReminderDesc": "Get reminded when prices need updating",
+  "settingsPriceUpdateReminderDesc": "Get reminded to update prices",
   "@settingsPriceUpdateReminderDesc": { "description": "Description for price update reminder toggle" },
 
   "settingsReminderAfter": "Reminder after",

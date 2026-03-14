@@ -259,11 +259,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMetricSystem => 'Use Metric System';
 
   @override
-  String get settingsPriceUpdateReminder => 'Price Update Reminder';
+  String get settingsPriceUpdateReminder => 'Price Updates';
 
   @override
-  String get settingsPriceUpdateReminderDesc =>
-      'Get reminded when prices need updating';
+  String get settingsPriceUpdateReminderDesc => 'Get reminded to update prices';
 
   @override
   String get settingsReminderAfter => 'Reminder after';

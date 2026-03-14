@@ -84,10 +84,10 @@
   "settingsLanguage": "Sprache",
   "settingsMetricSystem": "Metrisches System verwenden",
 
-  "settingsPriceUpdateReminder": "Preise automatisch aktualisieren erinnern",
+  "settingsPriceUpdateReminder": "Preis-Updates",
   "@settingsPriceUpdateReminder": { "description": "Toggle label for price update reminder" },
 
-  "settingsPriceUpdateReminderDesc": "Erinnerung erhalten, wenn Preise aktualisiert werden sollten",
+  "settingsPriceUpdateReminderDesc": "Erinnerung zum Aktualisieren",
   "@settingsPriceUpdateReminderDesc": { "description": "Description for price update reminder toggle" },
 
   "settingsReminderAfter": "Erinnerung nach",
