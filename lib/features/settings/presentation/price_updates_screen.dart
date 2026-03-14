@@ -29,7 +29,6 @@ class PriceUpdatesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final productsAsync = ref.watch(productsNeedingUpdateProvider);
-    final noPriceAsync = ref.watch(productsWithoutPriceProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -37,55 +36,27 @@ class PriceUpdatesScreen extends ConsumerWidget {
       ),
       body: productsAsync.when(
         data: (productsWithPrice) {
-          return noPriceAsync.when(
-            data: (productsNoPrice) {
-              final allProducts =
-                  <String, Map<String, List<ProductNeedingUpdate>>>{};
+          if (productsWithPrice.isEmpty) {
+            return const _EmptyState();
+          }
 
-              for (final store in productsWithPrice.keys) {
-                allProducts.putIfAbsent(store, () => {});
-                for (final category in productsWithPrice[store]!.keys) {
-                  allProducts[store]!.putIfAbsent(category, () => []);
-                  allProducts[store]![category]!
-                      .addAll(productsWithPrice[store]![category]!);
-                }
-              }
-
-              for (final store in productsNoPrice.keys) {
-                allProducts.putIfAbsent(store, () => {});
-                for (final category in productsNoPrice[store]!.keys) {
-                  allProducts[store]!.putIfAbsent(category, () => []);
-                  allProducts[store]![category]!
-                      .addAll(productsNoPrice[store]![category]!);
-                }
-              }
-
-              if (allProducts.isEmpty) {
-                return const _EmptyState();
-              }
-
-              return RefreshIndicator(
-                onRefresh: () async {
-                  ref.invalidate(productsNeedingUpdateProvider);
-                  ref.invalidate(productsWithoutPriceProvider);
-                },
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: allProducts.length,
-                  itemBuilder: (context, storeIndex) {
-                    final storeName = allProducts.keys.elementAt(storeIndex);
-                    final categories = allProducts[storeName]!;
-
-                    return _StoreSection(
-                      storeName: storeName,
-                      categories: categories,
-                    );
-                  },
-                ),
-              );
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(productsNeedingUpdateProvider);
             },
-            loading: () => const Center(child: CupertinoActivityIndicator()),
-            error: (e, st) => Center(child: Text('Error: $e')),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: productsWithPrice.length,
+              itemBuilder: (context, storeIndex) {
+                final storeName = productsWithPrice.keys.elementAt(storeIndex);
+                final categories = productsWithPrice[storeName]!;
+
+                return _StoreSection(
+                  storeName: storeName,
+                  categories: categories,
+                );
+              },
+            ),
           );
         },
         loading: () => const Center(child: CupertinoActivityIndicator()),
