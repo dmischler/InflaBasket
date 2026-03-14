@@ -110,7 +110,7 @@ class PriceHistoryService {
     return (_db.delete(_db.priceHistories)..where((t) => t.id.equals(id))).go();
   }
 
-  String _getCutoffDate(int months) {
+  DateTime _getCutoffDate(int months) {
     final now = DateTime.now();
     int year = now.year;
     int month = now.month - months;
@@ -120,7 +120,7 @@ class PriceHistoryService {
       year -= 1;
     }
 
-    return DateFormat('yyyy-MM-dd').format(DateTime(year, month, 1));
+    return DateTime(year, month, 1);
   }
 
   Future<Map<String, Map<String, List<ProductNeedingUpdate>>>>
@@ -147,7 +147,7 @@ class PriceHistoryService {
         pe.product_id = p.id AND pe.purchase_date = latest.max_purchase_date
       WHERE pe.purchase_date < ?
       ORDER BY pe.store_name, c.name, p.name
-    ''', variables: [Variable.withString(cutoffDate)]).get();
+    ''', variables: [Variable<DateTime>(cutoffDate)]).get();
 
     final Map<String, Map<String, List<ProductNeedingUpdate>>> grouped = {};
 
@@ -157,12 +157,12 @@ class PriceHistoryService {
           row.read<String?>('category_name') ?? 'Unkategorisiert';
       final product = ProductNeedingUpdate(
         productId: row.read<int>('product_id'),
-        productName: row.read<String>('product_name'),
+        productName: row.read<String?>('product_name') ?? 'Unbekannt',
         brand: row.read<String?>('brand'),
         categoryName: categoryName,
         storeName: storeName,
-        lastPrice: row.read<double>('last_price'),
-        lastMonthYear: row.read<String>('last_month_year') ?? '',
+        lastPrice: row.read<double?>('last_price') ?? 0.0,
+        lastMonthYear: row.read<String?>('last_month_year') ?? '',
       );
 
       grouped.putIfAbsent(storeName, () => {});
