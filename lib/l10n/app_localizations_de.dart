@@ -899,6 +899,32 @@ class AppLocalizationsDe extends AppLocalizations {
   String get notAvailableDesktop => 'Auf Desktop nicht verfügbar';
 
   @override
+  String get exportFormatTitle => 'Exportformat wählen';
+
+  @override
+  String get exportFormatMessage => 'Wie möchten Sie Ihre Daten exportieren?';
+
+  @override
+  String get exportFormatSqlite => 'SQLite-Datenbank';
+
+  @override
+  String get exportFormatSqliteDesc =>
+      'Vollständiges Backup, kann in dieser App wiederhergestellt werden';
+
+  @override
+  String get exportFormatCsv => 'CSV (Tabelle)';
+
+  @override
+  String get exportFormatCsvDesc =>
+      'Lesbar, kompatibel mit Excel/Google Sheets';
+
+  @override
+  String get exportFormatJson => 'JSON';
+
+  @override
+  String get exportFormatJsonDesc => 'Vollständiges Backup, maschinenlesbar';
+
+  @override
   String get settingsBackupRestore => 'Backup & Wiederherstellen';
 
   @override

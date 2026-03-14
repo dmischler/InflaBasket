@@ -11,6 +11,8 @@ import 'package:inflabasket/features/entry_management/data/entry_repository.dart
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 
+enum ExportFormat { sqlite, csv, json }
+
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -23,6 +25,56 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     'en': 'English',
     'de': 'Deutsch',
   };
+
+  Future<void> _showExportFormatDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await showDialog<ExportFormat>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(l10n.exportFormatTitle),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, ExportFormat.sqlite),
+            child: ListTile(
+              leading: const Icon(Icons.storage),
+              title: Text(l10n.exportFormatSqlite),
+              subtitle: Text(l10n.exportFormatSqliteDesc),
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, ExportFormat.csv),
+            child: ListTile(
+              leading: const Icon(Icons.table_chart),
+              title: Text(l10n.exportFormatCsv),
+              subtitle: Text(l10n.exportFormatCsvDesc),
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, ExportFormat.json),
+            child: ListTile(
+              leading: const Icon(Icons.code),
+              title: Text(l10n.exportFormatJson),
+              subtitle: Text(l10n.exportFormatJsonDesc),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      switch (result) {
+        case ExportFormat.sqlite:
+          _handleExport(context, ref);
+          break;
+        case ExportFormat.csv:
+          ref.read(exportServiceProvider.notifier).exportData();
+          break;
+        case ExportFormat.json:
+          _handleExportJson(context, ref);
+          break;
+      }
+    }
+  }
 
   Future<void> _handleExport(BuildContext context, WidgetRef ref) async {
     try {
@@ -350,21 +402,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.upload_outlined),
-                  title: Text(l10n.settingsExportDatabase),
-                  onTap: () => _handleExport(context, ref),
+                  leading: exportState.isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.upload_outlined),
+                  title: Text(l10n.settingsExportData),
+                  onTap: () => _showExportFormatDialog(),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.download_outlined),
                   title: Text(l10n.settingsImportDatabase),
                   onTap: () => _handleImport(context, ref),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.code_outlined),
-                  title: Text(l10n.settingsExportJson),
-                  onTap: () => _handleExportJson(context, ref),
                 ),
                 const SizedBox(height: 8),
               ],

@@ -895,6 +895,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notAvailableDesktop => 'Not available on desktop';
 
   @override
+  String get exportFormatTitle => 'Choose Export Format';
+
+  @override
+  String get exportFormatMessage => 'How would you like to export your data?';
+
+  @override
+  String get exportFormatSqlite => 'SQLite Database';
+
+  @override
+  String get exportFormatSqliteDesc =>
+      'Full backup, can be restored to this app';
+
+  @override
+  String get exportFormatCsv => 'CSV (Spreadsheet)';
+
+  @override
+  String get exportFormatCsvDesc =>
+      'Human-readable, works with Excel/Google Sheets';
+
+  @override
+  String get exportFormatJson => 'JSON';
+
+  @override
+  String get exportFormatJsonDesc => 'Full backup, machine-readable';
+
+  @override
   String get settingsBackupRestore => 'Backup & Restore';
 
   @override

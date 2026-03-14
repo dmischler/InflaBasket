@@ -566,6 +566,30 @@
   "notAvailableDesktop": "Auf Desktop nicht verfügbar",
   "@notAvailableDesktop": { "description": "Message when feature unavailable on desktop" },
 
+  "exportFormatTitle": "Exportformat wählen",
+  "@exportFormatTitle": { "description": "Dialog title for export format selection" },
+
+  "exportFormatMessage": "Wie möchten Sie Ihre Daten exportieren?",
+  "@exportFormatMessage": { "description": "Dialog message for export format selection" },
+
+  "exportFormatSqlite": "SQLite-Datenbank",
+  "@exportFormatSqlite": { "description": "SQLite database export option" },
+
+  "exportFormatSqliteDesc": "Vollständiges Backup, kann in dieser App wiederhergestellt werden",
+  "@exportFormatSqliteDesc": { "description": "Description for SQLite export option" },
+
+  "exportFormatCsv": "CSV (Tabelle)",
+  "@exportFormatCsv": { "description": "CSV export option" },
+
+  "exportFormatCsvDesc": "Lesbar, kompatibel mit Excel/Google Sheets",
+  "@exportFormatCsvDesc": { "description": "Description for CSV export option" },
+
+  "exportFormatJson": "JSON",
+  "@exportFormatJson": { "description": "JSON export option" },
+
+  "exportFormatJsonDesc": "Vollständiges Backup, maschinenlesbar",
+  "@exportFormatJsonDesc": { "description": "Description for JSON export option" },
+
   "settingsBackupRestore": "Backup & Wiederherstellen",
   "@settingsBackupRestore": { "description": "Settings section header for backup/restore" },
 

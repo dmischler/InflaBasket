@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -73,12 +75,27 @@ class ExportService extends _$ExportService {
       await file.writeAsString(csvData);
 
       // Share
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path)],
-          text: 'My InflaBasket Purchase History',
-        ),
-      );
+      try {
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(file.path)],
+            text: 'My InflaBasket Purchase History',
+          ),
+        );
+      } catch (e) {
+        debugPrint('SharePlus failed on Linux: $e');
+        final result = await FilePicker.platform.saveFile(
+          dialogTitle: 'Save InflaBasket Export',
+          fileName: 'inflabasket_export_$dateStr.csv',
+          type: FileType.custom,
+          allowedExtensions: ['csv'],
+        );
+        if (result != null) {
+          await file.copy(result);
+        } else {
+          throw Exception('Export cancelled');
+        }
+      }
     });
   }
 }

@@ -1701,6 +1701,54 @@ abstract class AppLocalizations {
   /// **'Not available on desktop'**
   String get notAvailableDesktop;
 
+  /// Dialog title for export format selection
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Export Format'**
+  String get exportFormatTitle;
+
+  /// Dialog message for export format selection
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to export your data?'**
+  String get exportFormatMessage;
+
+  /// SQLite database export option
+  ///
+  /// In en, this message translates to:
+  /// **'SQLite Database'**
+  String get exportFormatSqlite;
+
+  /// Description for SQLite export option
+  ///
+  /// In en, this message translates to:
+  /// **'Full backup, can be restored to this app'**
+  String get exportFormatSqliteDesc;
+
+  /// CSV export option
+  ///
+  /// In en, this message translates to:
+  /// **'CSV (Spreadsheet)'**
+  String get exportFormatCsv;
+
+  /// Description for CSV export option
+  ///
+  /// In en, this message translates to:
+  /// **'Human-readable, works with Excel/Google Sheets'**
+  String get exportFormatCsvDesc;
+
+  /// JSON export option
+  ///
+  /// In en, this message translates to:
+  /// **'JSON'**
+  String get exportFormatJson;
+
+  /// Description for JSON export option
+  ///
+  /// In en, this message translates to:
+  /// **'Full backup, machine-readable'**
+  String get exportFormatJsonDesc;
+
   /// Settings section header for backup/restore
   ///
   /// In en, this message translates to:
