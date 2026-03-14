@@ -33,7 +33,10 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
     final savedWeights =
         ref.read(categoryWeightsControllerProvider).valueOrNull ?? {};
 
-    if (categories.isEmpty) return;
+    if (categories.isEmpty) {
+      _initialized = true;
+      return;
+    }
 
     _initialized = true;
 
@@ -80,16 +83,28 @@ class _WeightEditorScreenState extends ConsumerState<WeightEditorScreen> {
       for (final e in _percentages.entries) e.key: e.value / total,
     };
 
-    await ref
-        .read(categoryWeightsControllerProvider.notifier)
-        .saveWeights(fractions);
+    try {
+      await ref
+          .read(categoryWeightsControllerProvider.notifier)
+          .saveWeights(fractions);
 
-    if (mounted) {
-      final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.weightEditorSaved)),
-      );
-      Navigator.of(context).pop();
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.weightEditorSaved)),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorGeneric),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     }
   }
 

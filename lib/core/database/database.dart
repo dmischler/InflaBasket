@@ -181,12 +181,6 @@ class AppDatabase extends _$AppDatabase {
             // v7: Add priceSats column for Bitcoin mode
             await m.addColumn(purchaseEntries, purchaseEntries.priceSats);
           }
-          if (from < 8) {
-            // v8: Convert priceSats from REAL to INTEGER for precision
-            await customStatement(
-              'ALTER TABLE purchase_entries ALTER COLUMN price_sats INTEGER',
-            );
-          }
           if (from < 9) {
             // v9: Add barcode column to products table
             await m.addColumn(products, products.barcode);

@@ -164,7 +164,26 @@ final entry = state.extra as EntryWithDetails;
 
 ---
 
-## 6. Key Dependencies
+## 6. Localization (ARB Files)
+
+This project uses `flutter_localizations` with ARB files for i18n support.
+
+### Language Files
+- `lib/l10n/app_en.arb` — English strings
+- `lib/l10n/app_de.arb` — German strings
+
+### When Adding User-Facing Strings
+1. Add the key to `app_en.arb` first ( canonical English)
+2. Add the same key to `app_de.arb` with German translation
+3. Run `flutter gen-l10n`to generate `AppLocalizations` class
+4. Use in code: `l10n.stringKey` or `AppLocalizations.of(context)!.stringKey`
+
+### String Naming Convention
+- Use `camelCase` keys: `settingsBackupRestore`, `errorNetworkFailed`
+- Group by feature prefix: `dashboard*`, `settings*`, `scanner*`
+- Descriptive names: `entryDeleteConfirm` not `deleteMessage`
+
+## 7. Key Dependencies
 
 - `flutter_riverpod` / `riverpod_annotation` — State management
 - `drift` — SQLite database
@@ -175,7 +194,7 @@ final entry = state.extra as EntryWithDetails;
 - `shared_preferences` — Local settings
 - `csv` / `share_plus` — Data export
 
-## 7. Context Management
+## 8. Context Management
 
 Context is your most important resource. Proactively use subagents to keep exploration, research, and verbose operations out of the main conversation.
 
@@ -191,7 +210,7 @@ Context is your most important resource. Proactively use subagents to keep explo
 - Conversations requiring back-and-forth
 - Tasks where the user needs immediate steps
 
-## 8. Documentation
+## 9. Documentation
 
 - **Always update `docs/project_outline.md`** when adding a new feature or changing the implementation strategy. This includes:
   - Adding new features to the implementation status section
@@ -200,7 +219,7 @@ Context is your most important resource. Proactively use subagents to keep explo
   - Updating the AI prompt template if receipt parsing changes
   - Adding new roadmap items to the Future Roadmap section
 
-## 9. Version Management
+## 10. Version Management
 
 This project uses semantic versioning. After every code change, bump the version appropriately:
 

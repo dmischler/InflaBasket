@@ -44,12 +44,32 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   Future<void> _scanReceipt(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source, imageQuality: 80);
-    if (!mounted) return;
+    try {
+      final picker = ImagePicker();
+      final pickedFile =
+          await picker.pickImage(source: source, imageQuality: 80);
+      if (!mounted) return;
 
-    if (pickedFile != null) {
-      await _processReceiptFile(File(pickedFile.path));
+      if (pickedFile != null) {
+        await _processReceiptFile(File(pickedFile.path));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      String message;
+      if (e.toString().contains('photo library') ||
+          e.toString().contains('photos')) {
+        message = l10n.scannerSaveError(
+            'Photo library access denied. Please enable in Settings.');
+      } else if (e.toString().contains('camera')) {
+        message = l10n.scannerSaveError(
+            'Camera access denied. Please enable in Settings.');
+      } else {
+        message = l10n.scannerSaveError(e.toString());
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
     }
   }
 

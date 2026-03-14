@@ -655,13 +655,8 @@ class OverviewTab extends ConsumerWidget {
                   });
                   final dateStr = DateFormat('MMM yyyy').format(nearest.month);
                   final delta = spot.y;
-                  final drivers =
-                      nearest.chartPoint?.jumpDrivers ?? const <String>[];
-                  final driversLine = drivers.isEmpty
-                      ? ''
-                      : '\n${drivers.take(3).join(', ')}${drivers.length > 3 ? '…' : ''}';
                   final label =
-                      '$dateStr\n${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%$driversLine';
+                      '$dateStr\n${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%';
                   return LineTooltipItem(
                     label,
                     TextStyle(
