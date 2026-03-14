@@ -26,12 +26,14 @@ class ChartPoint {
     required this.date,
     required this.inflationPct,
     this.contributingProducts = 0,
+    this.productsAtBaseline = 0,
     this.jumpDrivers = const [],
   });
 
   final DateTime date;
   final double inflationPct;
   final int contributingProducts;
+  final int productsAtBaseline;
   final List<String> jumpDrivers;
 }
 
@@ -57,13 +59,14 @@ class InflationCalculator {
     return unitTypeFromString(e.unit).normalizedPrice(price, quantity);
   }
 
-  static double? _lastPriceOnOrBefore(
+  static PriceEntry? _lastEntryOnOrBefore(
       List<PriceEntry> sorted, DateTime target) {
-    final found = sorted.lastWhereOrNull((e) => !e.date.isAfter(target));
-    if (found == null || !found.price.isFinite || found.price <= 0) {
-      return null;
-    }
-    return found.price;
+    return sorted.lastWhereOrNull((e) => !e.date.isAfter(target));
+  }
+
+  static PriceEntry? _firstEntryAtOrAfter(
+      List<PriceEntry> sorted, DateTime target) {
+    return sorted.firstWhereOrNull((e) => !e.date.isBefore(target));
   }
 
   static double? productPercentChange(
@@ -71,13 +74,34 @@ class InflationCalculator {
     DateTime start,
     DateTime end,
   ) {
-    if (!p.isActive || p.priceHistory.isEmpty || start.isAfter(end))
+    if (!p.isActive || p.priceHistory.isEmpty || start.isAfter(end)) {
       return null;
+    }
     final history = List<PriceEntry>.from(p.priceHistory)
       ..sort((a, b) => a.date.compareTo(b.date));
-    final startPrice = _lastPriceOnOrBefore(history, start);
-    final endPrice = _lastPriceOnOrBefore(history, end);
-    if (startPrice == null || endPrice == null) return null;
+
+    var startEntry = _lastEntryOnOrBefore(history, start);
+    var isPartial = false;
+    if (startEntry == null) {
+      startEntry = _firstEntryAtOrAfter(history, start);
+      if (startEntry == null) return null;
+      isPartial = true;
+    }
+
+    final endEntry = _lastEntryOnOrBefore(history, end);
+    if (endEntry == null) return null;
+
+    final startPrice = startEntry.price;
+    final endPrice = endEntry.price;
+    if (!startPrice.isFinite ||
+        startPrice <= 0 ||
+        !endPrice.isFinite ||
+        endPrice <= 0) {
+      return null;
+    }
+
+    if (isPartial && startEntry == endEntry) return 0.0;
+
     return ((endPrice - startPrice) / startPrice) * 100;
   }
 
@@ -114,6 +138,14 @@ class InflationCalculator {
     }
 
     final dates = dateSet.toList()..sort();
+
+    int productsAtBaseline = 0;
+    for (final p in activeProducts) {
+      final hasAtOrBeforeBaseline =
+          p.priceHistory.any((e) => !e.date.isAfter(baseline));
+      if (hasAtOrBeforeBaseline) productsAtBaseline++;
+    }
+
     final points = <ChartPoint>[];
     for (final d in dates) {
       final changes = <double>[];
@@ -140,6 +172,7 @@ class InflationCalculator {
         date: d,
         inflationPct: inflation,
         contributingProducts: changes.length,
+        productsAtBaseline: productsAtBaseline,
         jumpDrivers: jumpDrivers,
       ));
     }

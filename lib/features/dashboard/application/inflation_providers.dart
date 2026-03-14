@@ -34,6 +34,8 @@ class ItemInflation {
     required this.currentUnitPrice,
     required this.baseUnit,
     required this.inflationPercent,
+    this.isPartialPeriod = false,
+    this.baseDate,
   });
 
   final Product product;
@@ -42,6 +44,8 @@ class ItemInflation {
   final double currentUnitPrice;
   final UnitType baseUnit;
   final double inflationPercent;
+  final bool isPartialPeriod;
+  final DateTime? baseDate;
 }
 
 class ItemInflationSats {
@@ -54,6 +58,7 @@ class ItemInflationSats {
     required this.inflationPercent,
     required this.btcPriceAtBase,
     required this.btcPriceAtCurrent,
+    this.isPartialPeriod = false,
   });
 
   final Product product;
@@ -64,6 +69,7 @@ class ItemInflationSats {
   final double inflationPercent;
   final double btcPriceAtBase;
   final double btcPriceAtCurrent;
+  final bool isPartialPeriod;
 }
 
 class CategoryInflation {
@@ -232,12 +238,22 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
     final sorted = List<EntryWithDetails>.from(list)
       ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
     final first = sorted.first;
-    final base = sorted.lastWhereOrNull(
+
+    var base = sorted.lastWhereOrNull(
       (e) => !e.entry.purchaseDate.isAfter(range.start),
     );
+    var isPartialPeriod = false;
+    if (base == null) {
+      base = sorted.firstWhereOrNull(
+        (e) => !e.entry.purchaseDate.isBefore(range.start),
+      );
+      isPartialPeriod = base != null;
+    }
+
     final current = sorted.lastWhereOrNull(
       (e) => !e.entry.purchaseDate.isAfter(range.end),
     );
+
     if (base == null ||
         current == null ||
         !_compatible(base.entry, current.entry)) {
@@ -246,8 +262,13 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
 
     final basePrice = _normalizedUnitPrice(base.entry);
     final currentPrice = _normalizedUnitPrice(current.entry);
-    if (basePrice <= 0 || !basePrice.isFinite || !currentPrice.isFinite)
+    if (basePrice <= 0 || !basePrice.isFinite || !currentPrice.isFinite) {
       continue;
+    }
+
+    final inflationPct = (base == current)
+        ? 0.0
+        : ((currentPrice - basePrice) / basePrice) * 100;
 
     result.add(ItemInflation(
       product: first.product,
@@ -255,7 +276,9 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
       baseUnitPrice: basePrice,
       currentUnitPrice: currentPrice,
       baseUnit: unitTypeFromString(base.entry.unit),
-      inflationPercent: ((currentPrice - basePrice) / basePrice) * 100,
+      inflationPercent: inflationPct,
+      isPartialPeriod: isPartialPeriod,
+      baseDate: base.entry.purchaseDate,
     ));
   }
 
@@ -317,10 +340,22 @@ Future<List<ItemInflationSats>> itemInflationListSats(
     final sorted = List<EntryWithDetails>.from(list)
       ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
     final first = sorted.first;
-    final base = sorted
-        .lastWhereOrNull((e) => !e.entry.purchaseDate.isAfter(range.start));
-    final current =
-        sorted.lastWhereOrNull((e) => !e.entry.purchaseDate.isAfter(range.end));
+
+    var base = sorted.lastWhereOrNull(
+      (e) => !e.entry.purchaseDate.isAfter(range.start),
+    );
+    var isPartialPeriod = false;
+    if (base == null) {
+      base = sorted.firstWhereOrNull(
+        (e) => !e.entry.purchaseDate.isBefore(range.start),
+      );
+      isPartialPeriod = base != null;
+    }
+
+    final current = sorted.lastWhereOrNull(
+      (e) => !e.entry.purchaseDate.isAfter(range.end),
+    );
+
     if (base == null ||
         current == null ||
         !_compatible(base.entry, current.entry)) {
@@ -344,15 +379,19 @@ Future<List<ItemInflationSats>> itemInflationListSats(
     final currentSats = SatsConverter.fiatToSats(currentNorm, currentBtc);
     if (baseSats <= 0) continue;
 
+    final inflationPct =
+        (base == current) ? 0.0 : ((currentSats - baseSats) / baseSats) * 100;
+
     out.add(ItemInflationSats(
       product: first.product,
       category: first.category,
       baseSatsPrice: baseSats,
       currentSatsPrice: currentSats,
       baseUnit: unitTypeFromString(base.entry.unit),
-      inflationPercent: ((currentSats - baseSats) / baseSats) * 100,
+      inflationPercent: inflationPct,
       btcPriceAtBase: baseBtc,
       btcPriceAtCurrent: currentBtc,
+      isPartialPeriod: isPartialPeriod,
     ));
   }
 
