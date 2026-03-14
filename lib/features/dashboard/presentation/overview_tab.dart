@@ -503,6 +503,47 @@ class OverviewTab extends ConsumerWidget {
     }
   }
 
+  List<MonthlyIndex> _aggregateByPeriod(
+    List<MonthlyIndex> history,
+    ChartTimeRange range,
+  ) {
+    if (history.isEmpty) return history;
+
+    DateTime periodStart(DateTime date) {
+      switch (range) {
+        case ChartTimeRange.ytd:
+        case ChartTimeRange.oneYear:
+        case ChartTimeRange.custom:
+          return DateTime(date.year, date.month, 1);
+        case ChartTimeRange.twoYears:
+          final quarter = (date.month - 1) ~/ 3;
+          return DateTime(date.year, quarter * 3 + 1, 1);
+        case ChartTimeRange.fiveYears:
+        case ChartTimeRange.allTime:
+          return DateTime(date.year, 1, 1);
+      }
+    }
+
+    final groups = <DateTime, List<MonthlyIndex>>{};
+    for (final point in history) {
+      final key = periodStart(point.month);
+      groups.putIfAbsent(key, () => []).add(point);
+    }
+
+    return groups.entries.map((entry) {
+      final avgIndex = entry.value.map((p) => p.index).reduce((a, b) => a + b) /
+          entry.value.length;
+      final latest =
+          entry.value.reduce((a, b) => a.month.isAfter(b.month) ? a : b);
+      return MonthlyIndex(
+        month: entry.key,
+        index: avgIndex,
+        chartPoint: latest.chartPoint,
+      );
+    }).toList()
+      ..sort((a, b) => a.month.compareTo(b.month));
+  }
+
   Widget _buildLineChart(
     BuildContext context,
     AppLocalizations l,
@@ -519,37 +560,53 @@ class OverviewTab extends ConsumerWidget {
       );
     }
 
-    final baseSpots = validHistory
+    final aggregatedHistory = _aggregateByPeriod(validHistory, timeRange);
+
+    final spots = aggregatedHistory
         .map((e) => FlSpot(
               e.month.millisecondsSinceEpoch.toDouble(),
               e.index - 100,
             ))
         .toList();
-    final spots = <FlSpot>[];
-    for (int i = 0; i < baseSpots.length; i++) {
-      spots.add(baseSpots[i]);
-      if (i < baseSpots.length - 1) {
-        spots.add(FlSpot(baseSpots[i + 1].x, baseSpots[i].y));
-      }
-    }
 
-    // Build CPI spots aligned to the same x-axis if overlay is active
     List<FlSpot> comparisonSpots = [];
-    if (showCpi) {
-      if (overlayPoints.isNotEmpty && validHistory.isNotEmpty) {
-        // Align CPI months to our basket history months
-        final basketStart = validHistory.first.month;
-        final basketEnd = validHistory.last.month;
-        final relevantCpi = overlayPoints.where((p) =>
-            !p.month.isBefore(basketStart) && !p.month.isAfter(basketEnd));
-
-        for (final cp in relevantCpi) {
-          comparisonSpots.add(
-            FlSpot(cp.month.millisecondsSinceEpoch.toDouble(), cp.index - 100),
-          );
+    if (showCpi && overlayPoints.isNotEmpty) {
+      DateTime periodStart(DateTime date) {
+        switch (timeRange) {
+          case ChartTimeRange.ytd:
+          case ChartTimeRange.oneYear:
+          case ChartTimeRange.custom:
+            return DateTime(date.year, date.month, 1);
+          case ChartTimeRange.twoYears:
+            final quarter = (date.month - 1) ~/ 3;
+            return DateTime(date.year, quarter * 3 + 1, 1);
+          case ChartTimeRange.fiveYears:
+          case ChartTimeRange.allTime:
+            return DateTime(date.year, 1, 1);
         }
-        comparisonSpots.sort((a, b) => a.x.compareTo(b.x));
       }
+
+      final basketStart = aggregatedHistory.first.month;
+      final basketEnd = aggregatedHistory.last.month;
+      final relevantCpi = overlayPoints.where(
+          (p) => !p.month.isBefore(basketStart) && !p.month.isAfter(basketEnd));
+
+      final cpiGroups = <DateTime, List<ComparisonDataPoint>>{};
+      for (final cp in relevantCpi) {
+        final key = periodStart(cp.month);
+        cpiGroups.putIfAbsent(key, () => []).add(cp);
+      }
+
+      comparisonSpots = cpiGroups.entries.map((entry) {
+        final avgIndex =
+            entry.value.map((p) => p.index).reduce((a, b) => a + b) /
+                entry.value.length;
+        return FlSpot(
+          entry.key.millisecondsSinceEpoch.toDouble(),
+          avgIndex - 100,
+        );
+      }).toList()
+        ..sort((a, b) => a.x.compareTo(b.x));
     }
 
     // Compute explicit Y bounds
@@ -569,7 +626,7 @@ class OverviewTab extends ConsumerWidget {
     final barData = <LineChartBarData>[
       LineChartBarData(
         spots: spots,
-        isCurved: false,
+        isCurved: true,
         color: primaryColor,
         barWidth: isLuxeMode ? 3 : 4,
         isStrokeCapRound: true,
@@ -595,7 +652,7 @@ class OverviewTab extends ConsumerWidget {
       if (showCpi && comparisonSpots.isNotEmpty)
         LineChartBarData(
           spots: comparisonSpots,
-          isCurved: false,
+          isCurved: true,
           color: isLuxeMode ? AppColors.textSecondary : Colors.orange,
           barWidth: 2,
           isStrokeCapRound: true,

@@ -224,7 +224,11 @@ Future<List<T>> _loadCachedSeries<T>({
     startMonth: startMonth,
   );
 
-  if (cachedRows.isNotEmpty && _isCacheFresh(cachedRows)) {
+  final isCacheFresh = cachedRows.isNotEmpty && _isCacheFresh(cachedRows);
+  final cacheCoversRange =
+      cachedRows.isNotEmpty && !cachedRows.first.month.isAfter(startMonth);
+
+  if (isCacheFresh && cacheCoversRange) {
     return fromCache(cachedRows);
   }
 
