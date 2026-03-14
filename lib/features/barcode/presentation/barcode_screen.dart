@@ -8,11 +8,13 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
 import 'package:inflabasket/core/services/product_duplicate_detector.dart';
+import 'package:inflabasket/core/services/price_history_service.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/product_match_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/features/barcode/presentation/product_name_dialog.dart';
+import 'package:inflabasket/features/barcode/presentation/price_prompt_dialog.dart';
 
 class BarcodeScreen extends ConsumerStatefulWidget {
   const BarcodeScreen({super.key});
@@ -101,34 +103,39 @@ class _BarcodeScreenState extends ConsumerState<BarcodeScreen> {
       if (!mounted) return;
 
       if (existingProduct != null) {
-        // Product found in local DB - get latest entry for this product
-        final latestEntry =
-            await repo.getLatestEntryForProduct(existingProduct.id);
+        // Exact barcode match found - show price prompt instead of AddEntryScreen
+        final priceHistoryService = ref.read(priceHistoryServiceProvider);
 
-        // Reset state before navigating
         setState(() {
           _isLooking = false;
           _hasScanned = false;
         });
 
-        // Create ProductInfo from local data - use latest entry for store
-        final localInfo = ProductInfo(
-          name: existingProduct.name,
-          barcode: barcode,
-          brand: latestEntry?.storeName, // Pre-fill with last used store
-          suggestedCategory: null, // User can select from autocomplete
+        final price = await showPricePromptDialog(
+          context: context,
+          productName: existingProduct.name,
+          productId: existingProduct.id,
         );
 
-        if (mounted) {
-          // Show a message that we're using local data
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content:
-                  Text('Found "${existingProduct.name}" from your history'),
-              duration: const Duration(seconds: 2),
-            ),
+        if (!mounted) return;
+
+        if (price != null && price > 0) {
+          await priceHistoryService.addPrice(
+            productId: existingProduct.id,
+            price: price,
           );
-          context.push('/home/add', extra: localInfo);
+
+          HapticFeedback.mediumImpact();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content:
+                    Text('Preis für "${existingProduct.name}" gespeichert'),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
         }
         return;
       }

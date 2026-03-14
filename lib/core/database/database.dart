@@ -86,6 +86,15 @@ class PriceAlerts extends Table {
   Set<Column> get primaryKey => {productId};
 }
 
+@DataClassName('PriceHistory')
+class PriceHistories extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productId => integer().references(Products, #id)();
+  RealColumn get price => real()();
+  TextColumn get monthYear => text().withLength(min: 7, max: 7)();
+  DateTimeColumn get createdAt => dateTime()();
+}
+
 @DataClassName('ExternalSeriesCacheEntry')
 class ExternalSeriesCache extends Table {
   TextColumn get source => text()();
@@ -107,12 +116,13 @@ class ExternalSeriesCache extends Table {
   EntryTemplates,
   PriceAlerts,
   ExternalSeriesCache,
+  PriceHistories,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -184,6 +194,14 @@ class AppDatabase extends _$AppDatabase {
           if (from < 10) {
             // v10: Add brand column to products table for fuzzy matching
             await m.addColumn(products, products.brand);
+          }
+          if (from < 11) {
+            // v11: Add price_histories table for tracking price history
+            await m.createTable(priceHistories);
+            await customStatement(
+              'CREATE UNIQUE INDEX IF NOT EXISTS idx_price_histories_product_month '
+              'ON price_histories(product_id, month_year)',
+            );
           }
         },
       );

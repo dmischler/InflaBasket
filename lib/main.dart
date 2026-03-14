@@ -15,7 +15,12 @@ import 'package:inflabasket/l10n/app_localizations.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: '.env');
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    // .env file may not exist in some environments (e.g., production builds)
+    // Ignore error - env vars will just be null
+  }
   await NotificationService.initialize();
   final sharedPreferences = await SharedPreferences.getInstance();
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:go_router/go_router.dart';
@@ -6,11 +7,14 @@ import 'package:inflabasket/core/api/openfoodfacts_client.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/services/barcode_assignment_service.dart';
+import 'package:inflabasket/core/services/price_history_service.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/autocomplete_field.dart';
 import 'package:inflabasket/features/entry_management/presentation/barcode_scan_dialog.dart';
 import 'package:inflabasket/features/entry_management/presentation/duplicate_dialog.dart';
+import 'package:inflabasket/features/barcode/presentation/barcode_input_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -282,6 +286,212 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     );
   }
 
+  Widget _buildBarcodeSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final entry = widget.entryToEdit;
+    if (entry == null) return const SizedBox.shrink();
+
+    final product = entry.product;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Barcode zuweisen',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.primary,
+              ),
+        ),
+        const SizedBox(height: 12),
+        if (product.barcode != null && product.barcode!.isNotEmpty) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.qr_code, size: 18, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  product.barcode!,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(Icons.copy,
+                      size: 18, color: colorScheme.onSurfaceVariant),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: product.barcode!));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Barcode kopiert')),
+                    );
+                  },
+                  tooltip: 'Kopieren',
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
+                ),
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: Icon(Icons.close, size: 18, color: colorScheme.error),
+                  onPressed: () => _removeBarcode(context, product.id),
+                  tooltip: 'Entfernen',
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        OutlinedButton.icon(
+          onPressed: () => _assignBarcode(context, product.id),
+          icon: const Icon(Icons.qr_code_scanner),
+          label: Text(
+              product.barcode == null ? 'Barcode zuweisen' : 'Barcode ändern'),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(44),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPriceHistorySection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final entry = widget.entryToEdit;
+    if (entry == null) return const SizedBox.shrink();
+
+    final priceHistoryStream = ref
+        .watch(priceHistoryServiceProvider)
+        .watchPriceHistoryForProduct(entry.product.id);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Preisverlauf',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.primary,
+              ),
+        ),
+        const SizedBox(height: 12),
+        StreamBuilder<List<PriceHistory>>(
+          stream: priceHistoryStream,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final prices = snapshot.data ?? [];
+            if (prices.isEmpty) {
+              return Text(
+                'Noch keine Preise erfasst',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+              );
+            }
+            return Column(
+              children: prices.take(6).map((price) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        PriceHistoryService.formatGermanMonth(price.monthYear),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Text(
+                        'CHF ${price.price.toStringAsFixed(2)}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
+                            ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<void> _assignBarcode(BuildContext context, int productId) async {
+    final barcode = await showBarcodeInputDialog(context);
+    if (barcode == null || !mounted) return;
+
+    final service = ref.read(barcodeAssignmentServiceProvider);
+    final result =
+        await service.assignBarcode(productId: productId, barcode: barcode);
+
+    if (!mounted) return;
+
+    if (result.status == BarcodeAssignmentStatus.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Barcode zugewiesen: $barcode')),
+      );
+      context.pop();
+      context.push('/home/add', extra: widget.entryToEdit);
+    } else if (result.status == BarcodeAssignmentStatus.conflict) {
+      final conflicting = result.conflictingProduct!;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Barcode bereits vergeben'),
+          content: Text(
+            'Der Barcode "$barcode" ist bereits dem Produkt "${conflicting.name}" zugewiesen.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } else if (result.status == BarcodeAssignmentStatus.alreadyAssigned) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Diesem Produkt ist dieser Barcode bereits zugewiesen.')),
+      );
+    }
+  }
+
+  Future<void> _removeBarcode(BuildContext context, int productId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Barcode entfernen?'),
+        content:
+            const Text('Möchten Sie den Barcode von diesem Produkt entfernen?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Abbrechen'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Entfernen'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final service = ref.read(barcodeAssignmentServiceProvider);
+      await service.removeBarcode(productId);
+      context.pop();
+      context.push('/home/add', extra: widget.entryToEdit);
+    }
+  }
+
   // ─── Build ─────────────────────────────────────────────────────────────────
 
   @override
@@ -470,6 +680,14 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 maxLines: 2,
                 textCapitalization: TextCapitalization.sentences,
               ),
+              if (isEditing) ...[
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 16),
+                _buildBarcodeSection(context),
+                const SizedBox(height: 16),
+                _buildPriceHistorySection(context),
+              ],
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: _submit,
