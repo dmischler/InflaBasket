@@ -110,7 +110,7 @@ class PriceHistoryService {
     return (_db.delete(_db.priceHistories)..where((t) => t.id.equals(id))).go();
   }
 
-  String _getCutoffMonthYear(int months) {
+  String _getCutoffDate(int months) {
     final now = DateTime.now();
     int year = now.year;
     int month = now.month - months;
@@ -120,12 +120,12 @@ class PriceHistoryService {
       year -= 1;
     }
 
-    return DateFormat('yyyy-MM').format(DateTime(year, month));
+    return DateFormat('yyyy-MM-dd').format(DateTime(year, month, 1));
   }
 
   Future<Map<String, Map<String, List<ProductNeedingUpdate>>>>
       getProductsNeedingUpdate(int months) async {
-    final cutoffMonthYear = _getCutoffMonthYear(months);
+    final cutoffDate = _getCutoffDate(months);
 
     final results = await _db.customSelect('''
       SELECT 
@@ -133,23 +133,21 @@ class PriceHistoryService {
         p.name as product_name,
         p.brand,
         c.name as category_name,
-        (SELECT pe.store_name FROM purchase_entries pe 
-         WHERE pe.product_id = p.id 
-         ORDER BY pe.purchase_date DESC LIMIT 1) as store_name,
-        ph.price as last_price,
-        ph.month_year as last_month_year
+        pe.store_name,
+        pe.price as last_price,
+        strftime('%Y-%m', pe.purchase_date) as last_month_year
       FROM products p
       INNER JOIN categories c ON p.category_id = c.id
       INNER JOIN (
-        SELECT product_id, MAX(month_year) as max_month_year
-        FROM price_histories
+        SELECT product_id, MAX(purchase_date) as max_purchase_date
+        FROM purchase_entries
         GROUP BY product_id
       ) latest ON p.id = latest.product_id
-      INNER JOIN price_histories ph ON 
-        ph.product_id = p.id AND ph.month_year = latest.max_month_year
-      WHERE ph.month_year < ?
-      ORDER BY store_name, category_name, product_name
-    ''', variables: [Variable.withString(cutoffMonthYear)]).get();
+      INNER JOIN purchase_entries pe ON 
+        pe.product_id = p.id AND pe.purchase_date = latest.max_purchase_date
+      WHERE pe.purchase_date < ?
+      ORDER BY pe.store_name, c.name, p.name
+    ''', variables: [Variable.withString(cutoffDate)]).get();
 
     final Map<String, Map<String, List<ProductNeedingUpdate>>> grouped = {};
 
@@ -164,44 +162,7 @@ class PriceHistoryService {
         categoryName: categoryName,
         storeName: storeName,
         lastPrice: row.read<double>('last_price'),
-        lastMonthYear: row.read<String>('last_month_year'),
-      );
-
-      grouped.putIfAbsent(storeName, () => {});
-      grouped[storeName]!.putIfAbsent(categoryName, () => []);
-      grouped[storeName]![categoryName]!.add(product);
-    }
-
-    return grouped;
-  }
-
-  Future<Map<String, Map<String, List<ProductNeedingUpdate>>>>
-      getProductsWithoutPrice() async {
-    final results = await _db.customSelect('''
-      SELECT p.id, p.name, p.brand, c.name as category_name,
-             (SELECT pe.store_name FROM purchase_entries pe 
-              WHERE pe.product_id = p.id 
-              ORDER BY pe.purchase_date DESC LIMIT 1) as store_name
-      FROM products p
-      INNER JOIN categories c ON p.category_id = c.id
-      WHERE p.id NOT IN (SELECT DISTINCT product_id FROM price_histories)
-      ORDER BY store_name, category_name, p.name
-    ''').get();
-
-    final Map<String, Map<String, List<ProductNeedingUpdate>>> grouped = {};
-
-    for (final row in results) {
-      final storeName = row.read<String?>('store_name') ?? 'Andere';
-      final categoryName =
-          row.read<String?>('category_name') ?? 'Unkategorisiert';
-      final product = ProductNeedingUpdate(
-        productId: row.read<int>('id'),
-        productName: row.read<String>('name'),
-        brand: row.read<String?>('brand'),
-        categoryName: categoryName,
-        storeName: storeName,
-        lastPrice: 0,
-        lastMonthYear: '',
+        lastMonthYear: row.read<String>('last_month_year') ?? '',
       );
 
       grouped.putIfAbsent(storeName, () => {});

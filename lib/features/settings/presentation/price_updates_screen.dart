@@ -15,13 +15,6 @@ final productsNeedingUpdateProvider =
   return service.getProductsNeedingUpdate(settings.priceUpdateReminderMonths);
 });
 
-final productsWithoutPriceProvider =
-    FutureProvider<Map<String, Map<String, List<ProductNeedingUpdate>>>>(
-        (ref) async {
-  final service = ref.watch(priceHistoryServiceProvider);
-  return service.getProductsWithoutPrice();
-});
-
 class PriceUpdatesScreen extends ConsumerWidget {
   const PriceUpdatesScreen({super.key});
 
@@ -257,7 +250,6 @@ class _ProductTile extends ConsumerWidget {
       HapticFeedback.mediumImpact();
 
       ref.invalidate(productsNeedingUpdateProvider);
-      ref.invalidate(productsWithoutPriceProvider);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
