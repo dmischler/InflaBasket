@@ -191,4 +191,60 @@ class PriceHistoryService {
 
     return grouped;
   }
+
+  Future<int> getStaleProductCount(int months) async {
+    final cutoffDate = _getCutoffDate(months);
+
+    final result = await _db.customSelect(
+      '''
+      SELECT COUNT(DISTINCT p.id) as count
+      FROM products p
+      INNER JOIN (
+        SELECT product_id, MAX(purchase_date) as max_purchase_date
+        FROM purchase_entries
+        GROUP BY product_id
+      ) latest ON p.id = latest.product_id
+      INNER JOIN purchase_entries pe ON 
+        pe.product_id = p.id AND pe.purchase_date = latest.max_purchase_date
+      WHERE pe.purchase_date < ?
+      ''',
+      variables: [Variable<DateTime>(cutoffDate)],
+    ).getSingle();
+
+    return result.read<int>('count');
+  }
+
+  Future<DateTime?> getNextProductDueDate(int months) async {
+    final now = DateTime.now();
+    int year = now.year;
+    int month = now.month + months;
+
+    while (month > 12) {
+      month -= 12;
+      year += 1;
+    }
+
+    final futureCutoff = DateTime(year, month, 1);
+
+    final result = await _db.customSelect(
+      '''
+      SELECT MIN(pe.purchase_date) as earliest_due
+      FROM products p
+      INNER JOIN (
+        SELECT product_id, MAX(purchase_date) as max_purchase_date
+        FROM purchase_entries
+        GROUP BY product_id
+      ) latest ON p.id = latest.product_id
+      INNER JOIN purchase_entries pe ON 
+        pe.product_id = p.id AND pe.purchase_date = latest.max_purchase_date
+      WHERE pe.purchase_date >= ?
+      ''',
+      variables: [Variable<DateTime>(futureCutoff)],
+    ).getSingleOrNull();
+
+    if (result == null) return null;
+
+    final earliestDue = result.read<DateTime?>('earliest_due');
+    return earliestDue;
+  }
 }

@@ -320,9 +320,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - AI-based data curation for product matching
 
 **v1.9.x Price Update Notifications**
-- Push notifications when products need price updates
-- Toggle moved to left side of header
-- Notification bell icon positioned on right side
+- Weekly local reminders for stale product prices (smart date-scheduled)
+- Notification fires on the earliest date any product exceeds the threshold
+- Re-fires weekly if user dismisses without updating
+- In-app popup shows exact count when opened from notification
+- Permission requested when enabling setting (iOS/Android)
+- Reschedules automatically when updating prices or changing settings
 
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API

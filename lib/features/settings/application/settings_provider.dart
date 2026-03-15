@@ -1,9 +1,12 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/services/notification_service.dart';
+import 'package:inflabasket/core/services/price_update_reminder_service.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -136,16 +139,38 @@ class SettingsController extends _$SettingsController {
     state = state.copyWith(isBitcoinMode: isBitcoinMode);
   }
 
-  Future<void> setPriceUpdateReminder(bool enabled) async {
+  Future<bool> setPriceUpdateReminder(bool enabled) async {
     final prefs = ref.read(sharedPreferencesProvider);
+
+    if (enabled) {
+      if (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.android) {
+        final notificationService = ref.read(notificationServiceProvider);
+        final granted = await notificationService.requestPermission();
+        if (!granted) {
+          return false;
+        }
+      }
+    }
+
     await prefs.setBool(_priceUpdateReminderKey, enabled);
     state = state.copyWith(priceUpdateReminderEnabled: enabled);
+
+    final reminderService = ref.read(priceUpdateReminderServiceProvider);
+    await reminderService.syncReminderSchedule();
+
+    return true;
   }
 
   Future<void> setPriceUpdateReminderMonths(int months) async {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setInt(_priceUpdateReminderMonthsKey, months);
     state = state.copyWith(priceUpdateReminderMonths: months);
+
+    if (state.priceUpdateReminderEnabled) {
+      final reminderService = ref.read(priceUpdateReminderServiceProvider);
+      await reminderService.syncReminderSchedule();
+    }
   }
 
   Future<void> factoryReset(AppDatabase database) async {

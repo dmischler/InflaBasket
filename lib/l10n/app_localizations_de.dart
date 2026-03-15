@@ -1020,4 +1020,35 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get entryDuplicateSaveAnyway => 'Trotzdem speichern';
+
+  @override
+  String get priceUpdateNotificationTitle => 'Preisaktualisierungs-Erinnerung';
+
+  @override
+  String get priceUpdateNotificationBody =>
+      'Einige Ihrer Produktpreise sind möglicherweise veraltet. Tippen Sie zum Überprüfen.';
+
+  @override
+  String get priceUpdatePopupTitle => 'Preisaktualisierungen verfügbar';
+
+  @override
+  String priceUpdatePopupMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Produkte benötigen Preisaktualisierungen',
+      one: '1 Produkt benötigt eine Preisaktualisierung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get priceUpdatePopupAction => 'Jetzt aktualisieren';
+
+  @override
+  String get priceUpdatePopupDismiss => 'Später';
+
+  @override
+  String get priceUpdatePermissionDenied =>
+      'Benachrichtigungsberechtigung verweigert. Aktivieren Sie sie in den Einstellungen.';
 }

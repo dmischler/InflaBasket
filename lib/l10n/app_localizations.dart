@@ -1928,6 +1928,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save Anyway'**
   String get entryDuplicateSaveAnyway;
+
+  /// Notification title for price update reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Price Update Reminder'**
+  String get priceUpdateNotificationTitle;
+
+  /// Notification body for price update reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Some of your product prices may be outdated. Tap to check.'**
+  String get priceUpdateNotificationBody;
+
+  /// Popup title when opened from notification
+  ///
+  /// In en, this message translates to:
+  /// **'Price Updates Available'**
+  String get priceUpdatePopupTitle;
+
+  /// Popup message showing count of products needing updates
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {1 product needs a price update} other {{count} products need price updates}}'**
+  String priceUpdatePopupMessage(int count);
+
+  /// Button to navigate to price updates screen
+  ///
+  /// In en, this message translates to:
+  /// **'Update Now'**
+  String get priceUpdatePopupAction;
+
+  /// Button to dismiss the popup
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get priceUpdatePopupDismiss;
+
+  /// Message when notification permission is denied
+  ///
+  /// In en, this message translates to:
+  /// **'Notification permission denied. Enable in Settings.'**
+  String get priceUpdatePermissionDenied;
 }
 
 class _AppLocalizationsDelegate

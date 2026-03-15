@@ -681,5 +681,29 @@
   "@entryDuplicateDontSave": { "description": "Button to discard the new entry" },
 
   "entryDuplicateSaveAnyway": "Trotzdem speichern",
-  "@entryDuplicateSaveAnyway": { "description": "Button to save the entry despite duplicate" }
+  "@entryDuplicateSaveAnyway": { "description": "Button to save the entry despite duplicate" },
+
+  "priceUpdateNotificationTitle": "Preisaktualisierungs-Erinnerung",
+  "@priceUpdateNotificationTitle": { "description": "Notification title for price update reminder" },
+
+  "priceUpdateNotificationBody": "Einige Ihrer Produktpreise sind möglicherweise veraltet. Tippen Sie zum Überprüfen.",
+  "@priceUpdateNotificationBody": { "description": "Notification body for price update reminder" },
+
+  "priceUpdatePopupTitle": "Preisaktualisierungen verfügbar",
+  "@priceUpdatePopupTitle": { "description": "Popup title when opened from notification" },
+
+  "priceUpdatePopupMessage": "{count, plural, =1 {1 Produkt benötigt eine Preisaktualisierung} other {{count} Produkte benötigen Preisaktualisierungen}}",
+  "@priceUpdatePopupMessage": {
+    "description": "Popup message showing count of products needing updates",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "priceUpdatePopupAction": "Jetzt aktualisieren",
+  "@priceUpdatePopupAction": { "description": "Button to navigate to price updates screen" },
+
+  "priceUpdatePopupDismiss": "Später",
+  "@priceUpdatePopupDismiss": { "description": "Button to dismiss the popup" },
+
+  "priceUpdatePermissionDenied": "Benachrichtigungsberechtigung verweigert. Aktivieren Sie sie in den Einstellungen.",
+  "@priceUpdatePermissionDenied": { "description": "Message when notification permission is denied" }
 }

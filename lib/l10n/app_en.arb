@@ -1038,5 +1038,29 @@
   "@entryDuplicateDontSave": { "description": "Button to discard the new entry" },
 
   "entryDuplicateSaveAnyway": "Save Anyway",
-  "@entryDuplicateSaveAnyway": { "description": "Button to save the entry despite duplicate" }
+  "@entryDuplicateSaveAnyway": { "description": "Button to save the entry despite duplicate" },
+
+  "priceUpdateNotificationTitle": "Price Update Reminder",
+  "@priceUpdateNotificationTitle": { "description": "Notification title for price update reminder" },
+
+  "priceUpdateNotificationBody": "Some of your product prices may be outdated. Tap to check.",
+  "@priceUpdateNotificationBody": { "description": "Notification body for price update reminder" },
+
+  "priceUpdatePopupTitle": "Price Updates Available",
+  "@priceUpdatePopupTitle": { "description": "Popup title when opened from notification" },
+
+  "priceUpdatePopupMessage": "{count, plural, =1 {1 product needs a price update} other {{count} products need price updates}}",
+  "@priceUpdatePopupMessage": {
+    "description": "Popup message showing count of products needing updates",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "priceUpdatePopupAction": "Update Now",
+  "@priceUpdatePopupAction": { "description": "Button to navigate to price updates screen" },
+
+  "priceUpdatePopupDismiss": "Later",
+  "@priceUpdatePopupDismiss": { "description": "Button to dismiss the popup" },
+
+  "priceUpdatePermissionDenied": "Notification permission denied. Enable in Settings.",
+  "@priceUpdatePermissionDenied": { "description": "Message when notification permission is denied" }
 }

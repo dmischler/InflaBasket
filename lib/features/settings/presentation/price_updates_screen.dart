@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/core/services/price_history_service.dart';
+import 'package:inflabasket/core/services/price_update_reminder_service.dart';
 import 'package:inflabasket/features/barcode/presentation/price_prompt_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -253,6 +254,9 @@ class _ProductTile extends ConsumerWidget {
       HapticFeedback.mediumImpact();
 
       ref.invalidate(productsNeedingUpdateProvider);
+
+      final reminderService = ref.read(priceUpdateReminderServiceProvider);
+      await reminderService.syncReminderSchedule();
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

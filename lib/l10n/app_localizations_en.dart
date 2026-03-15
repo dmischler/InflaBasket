@@ -1016,4 +1016,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get entryDuplicateSaveAnyway => 'Save Anyway';
+
+  @override
+  String get priceUpdateNotificationTitle => 'Price Update Reminder';
+
+  @override
+  String get priceUpdateNotificationBody =>
+      'Some of your product prices may be outdated. Tap to check.';
+
+  @override
+  String get priceUpdatePopupTitle => 'Price Updates Available';
+
+  @override
+  String priceUpdatePopupMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products need price updates',
+      one: '1 product needs a price update',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get priceUpdatePopupAction => 'Update Now';
+
+  @override
+  String get priceUpdatePopupDismiss => 'Later';
+
+  @override
+  String get priceUpdatePermissionDenied =>
+      'Notification permission denied. Enable in Settings.';
 }

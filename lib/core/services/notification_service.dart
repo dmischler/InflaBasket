@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz_data;
 
 part 'notification_service.g.dart';
 
@@ -9,39 +11,72 @@ NotificationService notificationService(NotificationServiceRef ref) {
   return NotificationService();
 }
 
-/// Thin wrapper around [FlutterLocalNotificationsPlugin].
-///
-/// Call [initialize] once at app startup (before [runApp]).
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
   static bool _initialized = false;
 
-  /// Initialise the notifications plugin.
-  /// Safe to call multiple times — only acts on the first call.
+  static const int _priceUpdateReminderId = 999;
+
+  static Function()? onPriceUpdateNotificationTap;
+
   static Future<void> initialize() async {
     if (_initialized) return;
     try {
+      tz_data.initializeTimeZones();
+
       const initSettings = InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         iOS: DarwinInitializationSettings(),
         linux: LinuxInitializationSettings(defaultActionName: 'Open'),
       );
-      await _plugin.initialize(initSettings);
+
+      await _plugin.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: _onNotificationResponse,
+      );
+
       _initialized = true;
     } catch (e) {
-      // Some desktop platforms may not support this plugin
       debugPrint('NotificationService init error: $e');
     }
   }
 
-  /// Shows a price-alert notification.
-  ///
-  /// [productName] — the tracked product.
-  /// [oldPrice] — the reference price.
-  /// [newPrice] — the newly recorded price.
-  /// [percentChange] — the signed percentage change (positive = increase).
+  static void _onNotificationResponse(NotificationResponse response) {
+    if (response.id == _priceUpdateReminderId) {
+      onPriceUpdateNotificationTap?.call();
+    }
+  }
+
+  Future<bool> requestPermission() async {
+    if (!_initialized) return false;
+
+    try {
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        final result = await _plugin
+            .resolvePlatformSpecificImplementation<
+                IOSFlutterLocalNotificationsPlugin>()
+            ?.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            );
+        return result ?? false;
+      } else if (defaultTargetPlatform == TargetPlatform.android) {
+        final result = await _plugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.requestNotificationsPermission();
+        return result ?? false;
+      }
+      return true;
+    } catch (e) {
+      debugPrint('NotificationService.requestPermission error: $e');
+      return false;
+    }
+  }
+
   Future<void> showPriceAlert({
     required String productName,
     required double oldPrice,
@@ -71,6 +106,85 @@ class NotificationService {
       );
     } catch (e) {
       debugPrint('NotificationService.showPriceAlert error: $e');
+    }
+  }
+
+  Future<void> schedulePriceUpdateReminder({
+    required DateTime firstFireAt,
+    required String title,
+    required String body,
+  }) async {
+    if (!_initialized) return;
+
+    try {
+      await _plugin.zonedSchedule(
+        _priceUpdateReminderId,
+        title,
+        body,
+        tz.TZDateTime.from(firstFireAt, tz.local),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'price_update_reminders',
+            'Price Update Reminders',
+            channelDescription:
+                'Weekly reminders to update stale product prices',
+            importance: Importance.defaultImportance,
+            priority: Priority.defaultPriority,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+      );
+
+      debugPrint(
+          'NotificationService: Scheduled weekly reminder starting at $firstFireAt');
+    } catch (e) {
+      debugPrint('NotificationService.schedulePriceUpdateReminder error: $e');
+    }
+  }
+
+  Future<void> scheduleImmediateReminder({
+    required String title,
+    required String body,
+  }) async {
+    if (!_initialized) return;
+
+    try {
+      final now = DateTime.now();
+      final firstFire = now.add(const Duration(minutes: 1));
+
+      await schedulePriceUpdateReminder(
+        firstFireAt: firstFire,
+        title: title,
+        body: body,
+      );
+    } catch (e) {
+      debugPrint('NotificationService.scheduleImmediateReminder error: $e');
+    }
+  }
+
+  Future<void> cancelPriceUpdateReminder() async {
+    if (!_initialized) return;
+
+    try {
+      await _plugin.cancel(_priceUpdateReminderId);
+      debugPrint('NotificationService: Cancelled price update reminder');
+    } catch (e) {
+      debugPrint('NotificationService.cancelPriceUpdateReminder error: $e');
+    }
+  }
+
+  Future<void> cancelAllReminders() async {
+    if (!_initialized) return;
+
+    try {
+      await _plugin.cancelAll();
+      debugPrint('NotificationService: Cancelled all notifications');
+    } catch (e) {
+      debugPrint('NotificationService.cancelAllReminders error: $e');
     }
   }
 }

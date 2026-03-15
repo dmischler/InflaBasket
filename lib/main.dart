@@ -9,14 +9,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:inflabasket/core/router/app_router.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
+import 'package:inflabasket/core/services/price_update_reminder_service.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/features/settings/presentation/price_update_reminder_dialog.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // === OpenFoodFacts Configuration ===
   OpenFoodAPIConfiguration.userAgent = UserAgent(
     name: 'InflaBasket',
     version: '1.9.1',
@@ -63,11 +64,60 @@ Future<void> main() async {
   );
 }
 
-class InflaBasketApp extends ConsumerWidget {
+class InflaBasketApp extends ConsumerStatefulWidget {
   const InflaBasketApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InflaBasketApp> createState() => _InflaBasketAppState();
+}
+
+class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    NotificationService.onPriceUpdateNotificationTap = () {
+      _handleNotificationTap();
+    };
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _syncReminderSchedule();
+      _checkPendingPopup();
+    }
+  }
+
+  void _handleNotificationTap() {
+    final reminderService = ref.read(priceUpdateReminderServiceProvider);
+    reminderService.handleNotificationTap();
+    _checkPendingPopup();
+  }
+
+  Future<void> _syncReminderSchedule() async {
+    final reminderService = ref.read(priceUpdateReminderServiceProvider);
+    await reminderService.syncReminderSchedule();
+  }
+
+  void _checkPendingPopup() {
+    if (!mounted) return;
+    final reminderService = ref.read(priceUpdateReminderServiceProvider);
+    if (reminderService.hasPendingPopup) {
+      showPriceUpdateReminderDialogIfNeeded(context, ref);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
     final settings = ref.watch(settingsControllerProvider);
 
