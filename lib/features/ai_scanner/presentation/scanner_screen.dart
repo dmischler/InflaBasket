@@ -32,7 +32,6 @@ class ScannerScreen extends ConsumerStatefulWidget {
 class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   bool _isProcessing = false;
   bool _isDraggingFile = false;
-  bool _hasAutoOpened = false;
 
   bool get _supportsDesktopDragAndDrop {
     if (kIsWeb) return false;
@@ -47,8 +46,11 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   Future<void> _scanReceipt(ImageSource source) async {
     try {
       final picker = ImagePicker();
-      final pickedFile =
-          await picker.pickImage(source: source, imageQuality: 80);
+      final pickedFile = await picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1200,
+      );
       if (!mounted) return;
 
       if (pickedFile != null) {
@@ -213,19 +215,23 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_hasAutoOpened) return;
-
-    _hasAutoOpened = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
       if (widget.initialFile != null) {
-        _processReceiptFile(File(widget.initialFile!.path));
-      } else if (widget.initialSource != null) {
-        _scanReceipt(widget.initialSource!);
+        await _processReceiptFile(File(widget.initialFile!.path));
+        return;
       }
+
+      final initialSource = widget.initialSource;
+      if (initialSource == null) return;
+
+      await WidgetsBinding.instance.endOfFrame;
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
+      await _scanReceipt(initialSource);
     });
   }
 

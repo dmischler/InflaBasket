@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart' show ImageSource;
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
@@ -72,10 +71,10 @@ class AddEntryBottomSheet extends StatelessWidget {
             ),
             Divider(height: 1, indent: 72),
             _OptionRow(
-              icon: Icons.qr_code_scanner,
+              icon: Icons.camera_alt,
               iconBackgroundColor: colorScheme.tertiaryContainer,
               iconColor: colorScheme.onTertiaryContainer,
-              title: l10n.scannerOption,
+              title: l10n.scannerTakePhoto,
               trailing: Icon(
                 Icons.chevron_right,
                 color: colorScheme.onSurfaceVariant,
@@ -83,7 +82,25 @@ class AddEntryBottomSheet extends StatelessWidget {
               onTap: () {
                 HapticFeedback.lightImpact();
                 Navigator.pop(context);
-                _pickImageAndNavigate(context, l10n);
+                GoRouter.of(context)
+                    .push('/scanner', extra: ImageSource.camera);
+              },
+            ),
+            Divider(height: 1, indent: 72),
+            _OptionRow(
+              icon: Icons.photo_library,
+              iconBackgroundColor: colorScheme.tertiaryContainer,
+              iconColor: colorScheme.onTertiaryContainer,
+              title: l10n.scannerChooseFromGallery,
+              trailing: Icon(
+                Icons.chevron_right,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Navigator.pop(context);
+                GoRouter.of(context)
+                    .push('/scanner', extra: ImageSource.gallery);
               },
             ),
             const SizedBox(height: 16),
@@ -111,61 +128,6 @@ class AddEntryBottomSheet extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _pickImageAndNavigate(
-      BuildContext context, AppLocalizations l10n) async {
-    final source = await showCupertinoModalPopup<ImageSource>(
-      context: context,
-      builder: (popupContext) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(popupContext, ImageSource.camera),
-            child: Text(l10n.scannerSelectCamera),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(popupContext, ImageSource.gallery),
-            child: Text(l10n.scannerSelectGallery),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          isDestructiveAction: true,
-          onPressed: () => Navigator.pop(popupContext),
-          child: Text(l10n.cancel),
-        ),
-      ),
-    );
-
-    if (source == null || !context.mounted) return;
-
-    try {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(
-        source: source,
-        imageQuality: 85,
-        maxWidth: 1200,
-      );
-
-      if (pickedFile != null && context.mounted) {
-        context.push('/scanner', extra: pickedFile);
-      }
-    } catch (e) {
-      if (!context.mounted) return;
-      String message;
-      if (e.toString().contains('photo library') ||
-          e.toString().contains('photos')) {
-        message = l10n.scannerSaveError(
-            'Photo library access denied. Please enable in Settings.');
-      } else if (e.toString().contains('camera')) {
-        message = l10n.scannerSaveError(
-            'Camera access denied. Please enable in Settings.');
-      } else {
-        message = l10n.scannerSaveError(e.toString());
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    }
   }
 }
 

@@ -281,7 +281,8 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 **FAB Swipe-Up Selection**
 - Modal with Manual/Barcode/Scanner options
-- iOS ActionSheet for scanner choice
+- Direct scanner actions in main sheet (Camera + Gallery)
+- Scanner route performs delayed native picker launch after transition settles (real iOS reliability)
 - Haptic feedback
 
 **Smart Category Autocomplete**
