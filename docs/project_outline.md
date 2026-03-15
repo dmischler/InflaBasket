@@ -312,6 +312,21 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Preserved fiat/bitcoin toggle with simplified shared inflation logic
 - Added jump-driver metadata for chart tooltips
 
+**v1.9.x Smart Search & Data Quality**
+- Smart search triggers only after 3 characters typed
+- Store name extraction with first-letter capitalization (Coop not coop)
+- Duplicate detection: same product within 1 month with same price triggers user confirmation, deletes newer entry if confirmed
+- Scanned products preserve fiat price in Bitcoin mode (no sat conversion)
+- AI-based data curation for product matching
+
+**v1.9.x Price Update Notifications**
+- Push notifications when products need price updates
+- Toggle moved to left side of header
+- Notification bell icon positioned on right side
+
+**v1.10.10 iOS App Icon Fix**
+- Added missing Contents.json to AppIcon.appiconset
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
@@ -332,7 +347,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### 🐛 Known Issues
 
-1. **App Icon** — Needs to be added
+*None currently*
 
 ---
 
@@ -386,7 +401,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 - [ ] Replace RevenueCat API key placeholder in `subscription_providers.dart`
 - [ ] Replace Vision API key in `vision_client.dart` (move to backend proxy recommended)
-- [ ] Add app icon
 - [ ] Configure iOS Info.plist permissions (camera, photo library)
 - [ ] Complete onboarding flow
 
