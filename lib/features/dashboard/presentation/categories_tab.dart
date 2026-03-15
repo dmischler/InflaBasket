@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
+import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -17,6 +19,7 @@ class CategoriesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final entriesAsync = ref.watch(entriesWithDetailsProvider);
     final categoriesInflation = ref.watch(categoryInflationListProvider);
     final settings = ref.watch(settingsControllerProvider);
     final timeFilter = ref.watch(chartTimeFilterControllerProvider);
@@ -25,34 +28,65 @@ class CategoriesTab extends ConsumerWidget {
         allHistory.isNotEmpty ? allHistory.first.month : null;
     final availableTimeRangeOptions = availableTimeRanges(firstDataPoint);
 
+    if (entriesAsync.isLoading && entriesAsync.valueOrNull == null) {
+      return const AnimatedSwitcher(
+        duration: Duration(milliseconds: 300),
+        child: ChartSkeleton.categories(key: ValueKey('categories-loading')),
+      );
+    }
+
+    if (entriesAsync.hasError && entriesAsync.valueOrNull == null) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+        child: StateMessageCard(
+          key: const ValueKey('categories-error'),
+          icon: Icons.error_outline,
+          title: l10n.errorGeneric,
+          message: entriesAsync.error.toString(),
+        ),
+      );
+    }
+
     if (categoriesInflation.isEmpty) {
       return Center(child: Text(l10n.categoryNoCategoryData));
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTimeRangeSelector(
-            context,
-            l10n,
-            ref,
-            timeFilter,
-            availableTimeRangeOptions,
-            firstDataPoint,
-          ),
-          const SizedBox(height: 24),
-          Text(l10n.categoryInflationTitle,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 24),
-          _buildBarChart(context, l10n, categoriesInflation),
-          const SizedBox(height: 24),
-          Text(l10n.categoryDetailsTitle,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
-          _buildCategoryList(context, l10n, categoriesInflation, settings),
-        ],
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: SingleChildScrollView(
+        key: const ValueKey('categories-content'),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTimeRangeSelector(
+              context,
+              l10n,
+              ref,
+              timeFilter,
+              availableTimeRangeOptions,
+              firstDataPoint,
+            ),
+            const SizedBox(height: 24),
+            Text(l10n.categoryInflationTitle,
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 24),
+            _buildBarChart(context, l10n, categoriesInflation),
+            const SizedBox(height: 24),
+            Text(l10n.categoryDetailsTitle,
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 16),
+            _buildCategoryList(context, l10n, categoriesInflation, settings),
+          ],
+        ),
       ),
     );
   }

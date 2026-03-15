@@ -8,8 +8,11 @@ import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/api/cpi_client.dart';
 import 'package:inflabasket/core/api/cpi_provider.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
+import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
+import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
@@ -21,26 +24,76 @@ class OverviewTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
+    final entriesAsync = ref.watch(entriesWithDetailsProvider);
     final settings = ref.watch(settingsControllerProvider);
     final isBitcoinMode = settings.isBitcoinMode;
+    final historySatsAsync = isBitcoinMode
+        ? ref.watch(filteredDynamicIndexSatsProvider)
+        : const AsyncData<List<MonthlyIndex>>(<MonthlyIndex>[]);
+    final allHistorySatsAsync = isBitcoinMode
+        ? ref.watch(dynamicLaspeyresIndexSatsProvider)
+        : const AsyncData<List<MonthlyIndex>>(<MonthlyIndex>[]);
+    final topInflatorsSatsAsync = isBitcoinMode
+        ? ref.watch(itemInflationListSatsProvider)
+        : const AsyncData<List<ItemInflationSats>>(<ItemInflationSats>[]);
+
+    final hasEntriesData = entriesAsync.valueOrNull != null;
+    final isInitialLoading = (!hasEntriesData && entriesAsync.isLoading) ||
+        (isBitcoinMode &&
+            ((historySatsAsync.valueOrNull == null &&
+                    historySatsAsync.isLoading) ||
+                (allHistorySatsAsync.valueOrNull == null &&
+                    allHistorySatsAsync.isLoading) ||
+                (topInflatorsSatsAsync.valueOrNull == null &&
+                    topInflatorsSatsAsync.isLoading)));
+
+    final coreError = entriesAsync.hasError && !hasEntriesData
+        ? entriesAsync.error
+        : isBitcoinMode &&
+                historySatsAsync.hasError &&
+                historySatsAsync.valueOrNull == null
+            ? historySatsAsync.error
+            : isBitcoinMode &&
+                    allHistorySatsAsync.hasError &&
+                    allHistorySatsAsync.valueOrNull == null
+                ? allHistorySatsAsync.error
+                : isBitcoinMode &&
+                        topInflatorsSatsAsync.hasError &&
+                        topInflatorsSatsAsync.valueOrNull == null
+                    ? topInflatorsSatsAsync.error
+                    : null;
+
+    final loadingChild = isInitialLoading
+        ? const ChartSkeleton.overview(key: ValueKey('overview-loading'))
+        : coreError != null
+            ? StateMessageCard(
+                key: const ValueKey('overview-error'),
+                icon: Icons.error_outline,
+                title: l.errorGeneric,
+                message: coreError.toString(),
+              )
+            : null;
+
+    if (loadingChild != null) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+        child: loadingChild,
+      );
+    }
 
     final overallInflation = isBitcoinMode
         ? ref.watch(basketInflationSatsProvider)
         : ref.watch(basketInflationProvider);
 
     final history = isBitcoinMode
-        ? ref.watch(filteredDynamicIndexSatsProvider).when(
-              data: (data) => data,
-              loading: () => <MonthlyIndex>[],
-              error: (_, __) => <MonthlyIndex>[],
-            )
+        ? historySatsAsync.valueOrNull ?? <MonthlyIndex>[]
         : ref.watch(filteredDynamicIndexProvider);
     final allHistory = isBitcoinMode
-        ? ref.watch(dynamicLaspeyresIndexSatsProvider).when(
-              data: (data) => data,
-              loading: () => <MonthlyIndex>[],
-              error: (_, __) => <MonthlyIndex>[],
-            )
+        ? allHistorySatsAsync.valueOrNull ?? <MonthlyIndex>[]
         : ref.watch(dynamicLaspeyresIndexProvider);
     final showCpi = ref.watch(showCpiOverlayProvider);
     final overlayType = ref.watch(effectiveComparisonOverlayTypeProvider);
@@ -58,60 +111,66 @@ class OverviewTab extends ConsumerWidget {
     final availableTimeRangeOptions = availableTimeRanges(firstDataPoint);
 
     final topInflators = isBitcoinMode
-        ? ref.watch(itemInflationListSatsProvider).when(
-              data: (data) => data,
-              loading: () => <ItemInflationSats>[],
-              error: (_, __) => <ItemInflationSats>[],
-            )
+        ? topInflatorsSatsAsync.valueOrNull ?? <ItemInflationSats>[]
         : ref.watch(itemInflationListProvider);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSummaryCard(context, l, overallInflation, isBitcoinMode),
-          const SizedBox(height: 24),
-          _buildTimeRangeSelector(
-            context,
-            l,
-            ref,
-            timeFilter,
-            availableTimeRangeOptions,
-            firstDataPoint,
-          ),
-          const SizedBox(height: 16),
-          _buildChartHeader(
-            context,
-            l,
-            ref,
-            availableTypes,
-            overlayType,
-            showCpi,
-            overlayAsync.isLoading,
-          ),
-          const SizedBox(height: 8),
-          _buildLineChart(
-              context, l, history, showCpi, overlayPoints, timeFilter.range),
-          if (showCpi && hasOverlaySource) ...[
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: SingleChildScrollView(
+        key: const ValueKey('overview-content'),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSummaryCard(context, l, overallInflation, isBitcoinMode),
+            const SizedBox(height: 24),
+            _buildTimeRangeSelector(
+              context,
+              l,
+              ref,
+              timeFilter,
+              availableTimeRangeOptions,
+              firstDataPoint,
+            ),
+            const SizedBox(height: 16),
+            _buildChartHeader(
+              context,
+              l,
+              ref,
+              availableTypes,
+              overlayType,
+              showCpi,
+              overlayAsync.isLoading,
+            ),
             const SizedBox(height: 8),
-            _buildOverlayStatus(context, l, overlayAsync, hasOverlayData),
+            _buildLineChart(
+                context, l, history, showCpi, overlayPoints, timeFilter.range),
+            if (showCpi && hasOverlaySource) ...[
+              const SizedBox(height: 8),
+              _buildOverlayStatus(context, l, overlayAsync, hasOverlayData),
+            ],
+            if (showCpi && hasOverlayData && overlayType != null) ...[
+              const SizedBox(height: 8),
+              _buildChartLegend(context, l, overlayType, isLuxeMode),
+            ],
+            const SizedBox(height: 24),
+            Text(l.overviewTopInflators,
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 16),
+            _buildTopInflators(
+                context, l, topInflators, settings, isBitcoinMode),
+            const SizedBox(height: 24),
+            Text(l.overviewTopDeflators,
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 16),
+            _buildTopDeflators(
+                context, l, topInflators, settings, isBitcoinMode),
           ],
-          if (showCpi && hasOverlayData && overlayType != null) ...[
-            const SizedBox(height: 8),
-            _buildChartLegend(context, l, overlayType, isLuxeMode),
-          ],
-          const SizedBox(height: 24),
-          Text(l.overviewTopInflators,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
-          _buildTopInflators(context, l, topInflators, settings, isBitcoinMode),
-          const SizedBox(height: 24),
-          Text(l.overviewTopDeflators,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
-          _buildTopDeflators(context, l, topInflators, settings, isBitcoinMode),
-        ],
+        ),
       ),
     );
   }

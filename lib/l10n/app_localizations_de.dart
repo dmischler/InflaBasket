@@ -66,6 +66,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get loading => 'Lädt…';
 
   @override
+  String get loadingChart => 'Diagramm wird geladen';
+
+  @override
+  String get loadingStillTitle => 'Lädt immer noch...';
+
+  @override
+  String get loadingStillMessage =>
+      'Das kann wegen einer langsamen Verbindung etwas länger dauern.';
+
+  @override
   String get errorGeneric =>
       'Ein Fehler ist aufgetreten. Bitte versuche es erneut.';
 

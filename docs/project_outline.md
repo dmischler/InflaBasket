@@ -11,6 +11,7 @@ Personal inflation tracking app that compares user's custom basket against offic
 - **Routing:** `go_router`
 - **Database:** `drift` & `sqlite3_flutter_libs` (type-safe SQLite)
 - **Charts:** `fl_chart`
+- **Loading States:** `shimmer`
 - **Icons/Fonts:** `lucide_icons`, `google_fonts`
 - **Device Features:** `camera`, `image_picker`, `image_cropper`, `mobile_scanner`
 - **Subscriptions:** `purchases_flutter` (RevenueCat)
@@ -327,6 +328,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Permission requested when enabling setting (iOS/Android)
 - Reschedules automatically when updating prices or changing settings
 
+**v1.13.2 Chart Loading Polish**
+- Reusable shimmer-based chart skeleton loaders for dashboard chart surfaces
+- Time-range pill placeholders and faux line/bar chart canvases
+- 8-second timeout fallback to `StateMessageCard`
+- Fade transitions into loaded content
+- Accessible loading semantics with dark/light shimmer palettes
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
@@ -340,7 +348,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### 🔄 In Progress / Partially Complete
 
-- **Chart Skeleton Loaders** — Partial (StateMessageCard exists, full shimmer pending)
+*(None currently)*
 
 ---
 

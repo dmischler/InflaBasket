@@ -212,6 +212,24 @@ abstract class AppLocalizations {
   /// **'Loading…'**
   String get loading;
 
+  /// Accessibility label for chart skeleton loaders
+  ///
+  /// In en, this message translates to:
+  /// **'Loading chart'**
+  String get loadingChart;
+
+  /// Title shown when chart loading takes longer than expected
+  ///
+  /// In en, this message translates to:
+  /// **'Still loading...'**
+  String get loadingStillTitle;
+
+  /// Message shown when chart loading takes longer than expected
+  ///
+  /// In en, this message translates to:
+  /// **'This might take a moment due to a slow connection.'**
+  String get loadingStillMessage;
+
   /// Generic error message
   ///
   /// In en, this message translates to:

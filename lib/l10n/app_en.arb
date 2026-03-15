@@ -58,6 +58,15 @@
   "loading": "Loading…",
   "@loading": { "description": "Generic loading label" },
 
+  "loadingChart": "Loading chart",
+  "@loadingChart": { "description": "Accessibility label for chart skeleton loaders" },
+
+  "loadingStillTitle": "Still loading...",
+  "@loadingStillTitle": { "description": "Title shown when chart loading takes longer than expected" },
+
+  "loadingStillMessage": "This might take a moment due to a slow connection.",
+  "@loadingStillMessage": { "description": "Message shown when chart loading takes longer than expected" },
+
   "errorGeneric": "An error occurred. Please try again.",
   "@errorGeneric": { "description": "Generic error message" },
 
