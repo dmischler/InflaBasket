@@ -148,6 +148,7 @@ Rules you MUST follow:
 7. suggestedCategory MUST be one of these exact values (case-sensitive):
    ${availableCategories.join(', ')}
 8. confidence = how certain you are this is a real product line (0.0–1.0)
+9. storeName: Capitalize the first letter (e.g., 'Coop' not 'coop', 'Migros' not 'migros')
 
 Return ONLY this JSON structure:
 
@@ -238,8 +239,13 @@ Example correct output:
         (parsed['items'] as List<dynamic>?) ?? [],
       );
 
+      final rawStoreName = parsed['storeName'] as String? ?? '';
+      final storeName = rawStoreName.isNotEmpty
+          ? rawStoreName[0].toUpperCase() + rawStoreName.substring(1)
+          : '';
+
       return {
-        'storeName': parsed['storeName'] as String? ?? '',
+        'storeName': storeName,
         'date': parsed['date'] as String? ?? '',
         'items': items,
       };
