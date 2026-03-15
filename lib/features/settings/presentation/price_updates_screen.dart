@@ -242,9 +242,12 @@ class _ProductTile extends ConsumerWidget {
 
     if (price != null && price > 0) {
       final service = ref.read(priceHistoryServiceProvider);
+      final currency = ref.read(settingsControllerProvider).currency;
       await service.addPrice(
         productId: product.productId,
         price: price,
+        storeName: product.storeName ?? '',
+        currency: currency,
       );
 
       HapticFeedback.mediumImpact();

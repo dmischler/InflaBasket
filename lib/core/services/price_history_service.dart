@@ -29,12 +29,16 @@ class ProductNeedingUpdate {
 
 @riverpod
 PriceHistoryService priceHistoryService(PriceHistoryServiceRef ref) {
-  return PriceHistoryService(ref.watch(appDatabaseProvider));
+  return PriceHistoryService(
+    ref.watch(appDatabaseProvider),
+    ref.watch(entryRepositoryProvider),
+  );
 }
 
 class PriceHistoryService {
   final AppDatabase _db;
-  PriceHistoryService(this._db);
+  final EntryRepository _entryRepo;
+  PriceHistoryService(this._db, this._entryRepo);
 
   static String formatMonthYear(DateTime date) {
     return DateFormat('yyyy-MM').format(date);
@@ -73,9 +77,13 @@ class PriceHistoryService {
     required int productId,
     required double price,
     DateTime? date,
-  }) {
+    String storeName = '',
+    String currency = 'CHF',
+  }) async {
     final monthYear = formatMonthYear(date ?? DateTime.now());
-    return _db.into(_db.priceHistories).insert(
+    final purchaseDate = date ?? DateTime.now();
+
+    final priceHistoryId = await _db.into(_db.priceHistories).insert(
           PriceHistoriesCompanion.insert(
             productId: productId,
             price: price,
@@ -83,6 +91,17 @@ class PriceHistoryService {
             createdAt: DateTime.now(),
           ),
         );
+
+    await _entryRepo.addPurchaseEntry(
+      productId: productId,
+      storeName: storeName,
+      purchaseDate: purchaseDate,
+      price: price,
+      quantity: 1.0,
+      currency: currency,
+    );
+
+    return priceHistoryId;
   }
 
   Future<List<PriceHistory>> getPriceHistoryForProduct(int productId) {
