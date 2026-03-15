@@ -222,6 +222,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
       final effectiveName = _resolvedProductName ?? _productController.text;
 
       await ref.read(addEntryControllerProvider.notifier).submitEntry(
+            context: context,
             productName: effectiveName,
             categoryName: _selectedCategoryName!,
             storeName: _storeController.text,

@@ -324,9 +324,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Toggle moved to left side of header
 - Notification bell icon positioned on right side
 
-**v1.10.10 iOS App Icon Fix**
-- Added missing Contents.json to AppIcon.appiconset
-
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
@@ -340,14 +337,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### 🔄 In Progress / Partially Complete
 
-- **Sats UI Display** — Overview shows sats when Bitcoin mode active (partially complete)
 - **Chart Skeleton Loaders** — Partial (StateMessageCard exists, full shimmer pending)
 
 ---
 
 ### 🐛 Known Issues
 
-*None currently*
+*(None currently)*
 
 ---
 
@@ -401,7 +397,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 - [ ] Replace RevenueCat API key placeholder in `subscription_providers.dart`
 - [ ] Replace Vision API key in `vision_client.dart` (move to backend proxy recommended)
-- [ ] Configure iOS Info.plist permissions (camera, photo library)
 - [ ] Complete onboarding flow
 
 ---

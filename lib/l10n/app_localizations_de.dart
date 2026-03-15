@@ -995,4 +995,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupRestoreButton => 'Wiederherstellen';
+
+  @override
+  String get entryDuplicateTitle => 'Ähnlicher Eintrag gefunden';
+
+  @override
+  String get entryDuplicateMessage =>
+      'Ein ähnlicher Kauf wurde in den letzten 30 Tagen mit demselben Preis gefunden:';
+
+  @override
+  String get entryDuplicateDontSave => 'Nicht speichern';
+
+  @override
+  String get entryDuplicateSaveAnyway => 'Trotzdem speichern';
 }

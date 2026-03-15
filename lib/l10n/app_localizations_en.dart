@@ -991,4 +991,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupRestoreButton => 'Restore';
+
+  @override
+  String get entryDuplicateTitle => 'Similar Entry Found';
+
+  @override
+  String get entryDuplicateMessage =>
+      'A similar purchase entry was found within the last 30 days with the same price:';
+
+  @override
+  String get entryDuplicateDontSave => 'Don\'t Save';
+
+  @override
+  String get entryDuplicateSaveAnyway => 'Save Anyway';
 }

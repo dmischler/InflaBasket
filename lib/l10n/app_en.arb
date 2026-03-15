@@ -1014,5 +1014,17 @@
   "@backupInvalidFile": { "description": "Error when importing invalid file" },
 
   "backupRestoreButton": "Restore",
-  "@backupRestoreButton": { "description": "Confirm button for restore" }
+  "@backupRestoreButton": { "description": "Confirm button for restore" },
+
+  "entryDuplicateTitle": "Similar Entry Found",
+  "@entryDuplicateTitle": { "description": "Dialog title for duplicate entry detection" },
+
+  "entryDuplicateMessage": "A similar purchase entry was found within the last 30 days with the same price:",
+  "@entryDuplicateMessage": { "description": "Dialog body for duplicate entry detection" },
+
+  "entryDuplicateDontSave": "Don't Save",
+  "@entryDuplicateDontSave": { "description": "Button to discard the new entry" },
+
+  "entryDuplicateSaveAnyway": "Save Anyway",
+  "@entryDuplicateSaveAnyway": { "description": "Button to save the entry despite duplicate" }
 }

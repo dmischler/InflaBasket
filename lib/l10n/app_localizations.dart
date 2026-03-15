@@ -1880,6 +1880,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore'**
   String get backupRestoreButton;
+
+  /// Dialog title for duplicate entry detection
+  ///
+  /// In en, this message translates to:
+  /// **'Similar Entry Found'**
+  String get entryDuplicateTitle;
+
+  /// Dialog body for duplicate entry detection
+  ///
+  /// In en, this message translates to:
+  /// **'A similar purchase entry was found within the last 30 days with the same price:'**
+  String get entryDuplicateMessage;
+
+  /// Button to discard the new entry
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t Save'**
+  String get entryDuplicateDontSave;
+
+  /// Button to save the entry despite duplicate
+  ///
+  /// In en, this message translates to:
+  /// **'Save Anyway'**
+  String get entryDuplicateSaveAnyway;
 }
 
 class _AppLocalizationsDelegate

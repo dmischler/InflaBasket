@@ -29,6 +29,19 @@ class EntryWithDetails {
       {required this.entry, required this.product, required this.category});
 }
 
+/// A lightweight version for duplicate detection - only includes product name.
+class PurchaseEntryWithProduct {
+  final PurchaseEntry entry;
+  final Product product;
+
+  PurchaseEntryWithProduct({required this.entry, required this.product});
+
+  String get productName => product.name;
+  double get price => entry.price;
+  DateTime get purchaseDate => entry.purchaseDate;
+  String get storeName => entry.storeName;
+}
+
 class TemplateWithDetails {
   final EntryTemplate template;
   final Product product;
@@ -171,6 +184,34 @@ class EntryRepository {
         );
       }).toList();
     });
+  }
+
+  /// Returns entries from the last [days] days with their products.
+  /// Used for duplicate detection.
+  Future<List<PurchaseEntryWithProduct>> getRecentEntriesWithProduct({
+    required int days,
+    double? price,
+  }) async {
+    final cutoffDate = DateTime.now().subtract(Duration(days: days));
+
+    var query = _db.select(_db.purchaseEntries).join([
+      innerJoin(_db.products,
+          _db.products.id.equalsExp(_db.purchaseEntries.productId)),
+    ])
+      ..where(
+          _db.purchaseEntries.purchaseDate.isBiggerOrEqualValue(cutoffDate));
+
+    if (price != null) {
+      query = query..where(_db.purchaseEntries.price.equals(price));
+    }
+
+    final rows = await query.get();
+    return rows.map((row) {
+      return PurchaseEntryWithProduct(
+        entry: row.readTable(_db.purchaseEntries),
+        product: row.readTable(_db.products),
+      );
+    }).toList();
   }
 
   Future<int?> calculatePriceSats(

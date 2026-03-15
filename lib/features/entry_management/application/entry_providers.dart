@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/price_alert_service.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/features/entry_management/presentation/entry_duplicate_dialog.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
+import 'package:inflabasket/core/services/entry_duplicate_detector.dart';
 
 part 'entry_providers.g.dart';
 
@@ -304,6 +307,7 @@ class AddEntryController extends _$AddEntryController {
     required double price,
     required double quantity,
     required DateTime date,
+    required BuildContext context,
     UnitType? unit,
     String? notes,
     int? existingEntryId,
@@ -329,6 +333,27 @@ class AddEntryController extends _$AddEntryController {
       Product? product = await repo.getProductByName(productName);
       final productId = product?.id ??
           await repo.addProduct(productName, catId, barcode: barcode);
+
+      // 2.5. Check for duplicate entries (only for new entries)
+      if (existingEntryId == null) {
+        final detector = EntryDuplicateDetectorService();
+        final duplicate = await detector.findDuplicate(
+          productName: productName,
+          price: price,
+          repository: repo,
+        );
+
+        if (duplicate != null && context.mounted) {
+          final action = await showEntryDuplicateDialog(
+            context: context,
+            existingEntry: duplicate.existingEntry,
+          );
+
+          if (action == EntryDuplicateAction.dontSave) {
+            return;
+          }
+        }
+      }
 
       // Normalise: store null for count (default)
       final storedUnit = (unit == null || unit == UnitType.count) ? null : unit;
