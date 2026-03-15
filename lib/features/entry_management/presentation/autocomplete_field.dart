@@ -6,6 +6,7 @@ class AsyncAutocompleteField extends StatelessWidget {
   final TextEditingController controller;
   final Future<List<String>> Function(String) suggestionsCallback;
   final String? Function(String?)? validator;
+  final int minChars;
 
   const AsyncAutocompleteField({
     super.key,
@@ -13,12 +14,21 @@ class AsyncAutocompleteField extends StatelessWidget {
     required this.controller,
     required this.suggestionsCallback,
     this.validator,
+    this.minChars = 0,
   });
+
+  Future<List<String>> _wrapSuggestions(String search) async {
+    if (search.length < minChars) {
+      return [];
+    }
+    return suggestionsCallback(search);
+  }
 
   @override
   Widget build(BuildContext context) {
     return TypeAheadField<String>(
-      suggestionsCallback: suggestionsCallback,
+      suggestionsCallback: _wrapSuggestions,
+      hideOnEmpty: true,
       builder: (context, textController, focusNode) {
         return TextFormField(
           controller: controller,

@@ -533,6 +533,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                       labelText: l10n.product,
                       controller: _productController,
                       suggestionsCallback: repo.searchProductNames,
+                      minChars: 3,
                       validator: (value) => value == null || value.isEmpty
                           ? l10n.fieldRequired
                           : null,
