@@ -52,10 +52,16 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (context, state) {
           final extra = state.extra;
           ImageSource? initialSource;
-          if (extra is ImageSource) {
+          XFile? initialFile;
+          if (extra is XFile) {
+            initialFile = extra;
+          } else if (extra is ImageSource) {
             initialSource = extra;
           }
-          return ScannerScreen(initialSource: initialSource);
+          return ScannerScreen(
+            initialSource: initialSource,
+            initialFile: initialFile,
+          );
         },
       ),
       GoRoute(

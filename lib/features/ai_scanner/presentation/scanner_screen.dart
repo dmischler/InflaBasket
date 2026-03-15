@@ -21,8 +21,9 @@ import 'package:inflabasket/l10n/app_localizations.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
   final ImageSource? initialSource;
+  final XFile? initialFile;
 
-  const ScannerScreen({super.key, this.initialSource});
+  const ScannerScreen({super.key, this.initialSource, this.initialFile});
 
   @override
   ConsumerState<ScannerScreen> createState() => _ScannerScreenState();
@@ -214,14 +215,18 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_hasAutoOpened && widget.initialSource != null) {
-      _hasAutoOpened = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _scanReceipt(widget.initialSource!);
-        }
-      });
-    }
+    if (_hasAutoOpened) return;
+
+    _hasAutoOpened = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      if (widget.initialFile != null) {
+        _processReceiptFile(File(widget.initialFile!.path));
+      } else if (widget.initialSource != null) {
+        _scanReceipt(widget.initialSource!);
+      }
+    });
   }
 
   @override

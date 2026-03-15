@@ -83,7 +83,7 @@ class AddEntryBottomSheet extends StatelessWidget {
               onTap: () {
                 HapticFeedback.lightImpact();
                 Navigator.pop(context);
-                _showScannerChoice(context);
+                _pickImageAndNavigate(context, l10n);
               },
             ),
             const SizedBox(height: 16),
@@ -113,34 +113,59 @@ class AddEntryBottomSheet extends StatelessWidget {
     );
   }
 
-  void _showScannerChoice(BuildContext context) {
-    HapticFeedback.lightImpact();
-    showCupertinoModalPopup(
+  Future<void> _pickImageAndNavigate(
+      BuildContext context, AppLocalizations l10n) async {
+    final source = await showCupertinoModalPopup<ImageSource>(
       context: context,
       builder: (popupContext) => CupertinoActionSheet(
         actions: [
           CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(popupContext);
-              context.push('/scanner', extra: ImageSource.camera);
-            },
-            child: const Text('Camera'),
+            onPressed: () => Navigator.pop(popupContext, ImageSource.camera),
+            child: Text(l10n.scannerSelectCamera),
           ),
           CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(popupContext);
-              context.push('/scanner', extra: ImageSource.gallery);
-            },
-            child: const Text('Photo Library'),
+            onPressed: () => Navigator.pop(popupContext, ImageSource.gallery),
+            child: Text(l10n.scannerSelectGallery),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           isDestructiveAction: true,
           onPressed: () => Navigator.pop(popupContext),
-          child: const Text('Cancel'),
+          child: Text(l10n.cancel),
         ),
       ),
     );
+
+    if (source == null || !context.mounted) return;
+
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1200,
+      );
+
+      if (pickedFile != null && context.mounted) {
+        context.push('/scanner', extra: pickedFile);
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      String message;
+      if (e.toString().contains('photo library') ||
+          e.toString().contains('photos')) {
+        message = l10n.scannerSaveError(
+            'Photo library access denied. Please enable in Settings.');
+      } else if (e.toString().contains('camera')) {
+        message = l10n.scannerSaveError(
+            'Camera access denied. Please enable in Settings.');
+      } else {
+        message = l10n.scannerSaveError(e.toString());
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
   }
 }
 
