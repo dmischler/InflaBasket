@@ -316,6 +316,8 @@ class EntryRepository {
                       name: productName, categoryId: catId),
                 );
 
+        final priceSats = await calculatePriceSats(price, 'CHF', receiptDate);
+
         // Insert entry
         await _db.into(_db.purchaseEntries).insert(
               PurchaseEntriesCompanion.insert(
@@ -323,6 +325,7 @@ class EntryRepository {
                 storeName: storeName,
                 purchaseDate: receiptDate,
                 price: price,
+                priceSats: Value<int?>(priceSats),
                 quantity: Value(quantity),
                 unit: Value(unit == UnitType.count ? null : unit.name),
               ),
