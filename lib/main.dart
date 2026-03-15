@@ -73,6 +73,9 @@ class InflaBasketApp extends ConsumerStatefulWidget {
 
 class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
     with WidgetsBindingObserver {
+  bool _didRunInitialReminderSync = false;
+  bool _isShowingReminderPopup = false;
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +84,22 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
     NotificationService.onPriceUpdateNotificationTap = () {
       _handleNotificationTap();
     };
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || _didRunInitialReminderSync) {
+        return;
+      }
+      _didRunInitialReminderSync = true;
+      await _syncReminderSchedule();
+
+      if (NotificationService.consumeDidLaunchFromPriceUpdateNotification()) {
+        await ref
+            .read(priceUpdateReminderServiceProvider)
+            .handleNotificationTap();
+      }
+
+      _checkPendingPopup();
+    });
   }
 
   @override
@@ -92,14 +111,19 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _syncReminderSchedule();
-      _checkPendingPopup();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        _syncReminderSchedule();
+        _checkPendingPopup();
+      });
     }
   }
 
-  void _handleNotificationTap() {
+  Future<void> _handleNotificationTap() async {
     final reminderService = ref.read(priceUpdateReminderServiceProvider);
-    reminderService.handleNotificationTap();
+    await reminderService.handleNotificationTap();
     _checkPendingPopup();
   }
 
@@ -111,9 +135,14 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
   void _checkPendingPopup() {
     if (!mounted) return;
     final reminderService = ref.read(priceUpdateReminderServiceProvider);
-    if (reminderService.hasPendingPopup) {
-      showPriceUpdateReminderDialogIfNeeded(context, ref);
+    if (_isShowingReminderPopup || !reminderService.hasPendingPopup) {
+      return;
     }
+
+    _isShowingReminderPopup = true;
+    showPriceUpdateReminderDialogIfNeeded(context, ref).whenComplete(() {
+      _isShowingReminderPopup = false;
+    });
   }
 
   @override

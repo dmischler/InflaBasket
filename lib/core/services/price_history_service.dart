@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:drift/drift.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -142,6 +144,31 @@ class PriceHistoryService {
     return DateTime(year, month, 1);
   }
 
+  DateTime _getNextReminderDueDate(DateTime purchaseDate, int months) {
+    final targetMonthIndex = purchaseDate.month + months;
+    final yearOffset = (targetMonthIndex - 1) ~/ 12;
+    final normalizedMonth = ((targetMonthIndex - 1) % 12) + 1;
+    final targetYear = purchaseDate.year + yearOffset;
+
+    final nextMonthFirstDay = DateTime(targetYear, normalizedMonth + 1, 1);
+    final lastDayOfTargetMonth =
+        nextMonthFirstDay.subtract(const Duration(days: 1)).day;
+    final clampedDay = math.min(purchaseDate.day, lastDayOfTargetMonth);
+
+    final thresholdMonthDate = DateTime(
+      targetYear,
+      normalizedMonth,
+      clampedDay,
+    );
+
+    return DateTime(
+      thresholdMonthDate.year,
+      thresholdMonthDate.month + 1,
+      1,
+      9,
+    );
+  }
+
   Future<Map<String, Map<String, List<ProductNeedingUpdate>>>>
       getProductsNeedingUpdate(int months) async {
     final cutoffDate = _getCutoffDate(months);
@@ -216,35 +243,37 @@ class PriceHistoryService {
 
   Future<DateTime?> getNextProductDueDate(int months) async {
     final now = DateTime.now();
-    int year = now.year;
-    int month = now.month + months;
-
-    while (month > 12) {
-      month -= 12;
-      year += 1;
-    }
-
-    final futureCutoff = DateTime(year, month, 1);
-
-    final result = await _db.customSelect(
+    final results = await _db.customSelect(
       '''
-      SELECT MIN(pe.purchase_date) as earliest_due
+      SELECT pe.purchase_date as latest_purchase_date
       FROM products p
       INNER JOIN (
         SELECT product_id, MAX(purchase_date) as max_purchase_date
         FROM purchase_entries
         GROUP BY product_id
       ) latest ON p.id = latest.product_id
-      INNER JOIN purchase_entries pe ON 
+      INNER JOIN purchase_entries pe ON
         pe.product_id = p.id AND pe.purchase_date = latest.max_purchase_date
-      WHERE pe.purchase_date >= ?
       ''',
-      variables: [Variable<DateTime>(futureCutoff)],
-    ).getSingleOrNull();
+    ).get();
 
-    if (result == null) return null;
+    DateTime? earliestDueDate;
+    for (final row in results) {
+      final latestPurchaseDate = row.read<DateTime?>('latest_purchase_date');
+      if (latestPurchaseDate == null) {
+        continue;
+      }
 
-    final earliestDue = result.read<DateTime?>('earliest_due');
-    return earliestDue;
+      final dueDate = _getNextReminderDueDate(latestPurchaseDate, months);
+      if (!dueDate.isAfter(now)) {
+        continue;
+      }
+
+      if (earliestDueDate == null || dueDate.isBefore(earliestDueDate)) {
+        earliestDueDate = dueDate;
+      }
+    }
+
+    return earliestDueDate;
   }
 }

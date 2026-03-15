@@ -302,9 +302,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: Text(l10n.settingsPriceUpdateReminder),
                   subtitle: Text(l10n.settingsPriceUpdateReminderDesc),
                   value: settings.priceUpdateReminderEnabled,
-                  onChanged: (val) => ref
-                      .read(settingsControllerProvider.notifier)
-                      .setPriceUpdateReminder(val),
+                  onChanged: (val) async {
+                    final enabled = await ref
+                        .read(settingsControllerProvider.notifier)
+                        .setPriceUpdateReminder(val);
+
+                    if (!enabled && val && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(l10n.priceUpdatePermissionDenied),
+                        ),
+                      );
+                    }
+                  },
                 ),
                 if (settings.priceUpdateReminderEnabled) ...[
                   const Divider(height: 1),

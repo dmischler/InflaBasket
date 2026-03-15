@@ -4,6 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
 import 'package:inflabasket/core/services/price_history_service.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
+import 'package:inflabasket/l10n/app_localizations.dart';
+import 'package:inflabasket/l10n/app_localizations_de.dart';
+import 'package:inflabasket/l10n/app_localizations_en.dart';
 
 part 'price_update_reminder_service.g.dart';
 
@@ -24,10 +27,9 @@ class PriceUpdateReminderService {
   final AppSettings _settings;
   final SharedPreferences _prefs;
 
-  static const String _keyTitleEn = 'Price Update Reminder';
-  static const String _keyBodyEn =
-      'Some of your product prices may be outdated. Tap to check.';
   static const String _keyPendingPopup = 'price_update_pending_popup';
+  static const String _keyReminderScheduledAt =
+      'price_update_reminder_scheduled_at';
 
   PriceUpdateReminderService(
     this._notificationService,
@@ -39,9 +41,29 @@ class PriceUpdateReminderService {
   bool get isReminderEnabled => _settings.priceUpdateReminderEnabled;
   int get reminderMonths => _settings.priceUpdateReminderMonths;
 
-  Future<void> syncReminderSchedule() async {
+  AppLocalizations get _fallbackL10n {
+    switch (_settings.locale) {
+      case 'de':
+        return AppLocalizationsDe();
+      case 'en':
+      default:
+        return AppLocalizationsEn();
+    }
+  }
+
+  String get _defaultNotificationTitle =>
+      _fallbackL10n.priceUpdateNotificationTitle;
+
+  String get _defaultNotificationBody =>
+      _fallbackL10n.priceUpdateNotificationBody;
+
+  Future<void> syncReminderSchedule({
+    String? notificationTitle,
+    String? notificationBody,
+  }) async {
     if (!isReminderEnabled) {
       await _notificationService.cancelPriceUpdateReminder();
+      await _prefs.remove(_keyReminderScheduledAt);
       return;
     }
 
@@ -51,24 +73,66 @@ class PriceUpdateReminderService {
 
     if (staleCount == 0) {
       await _notificationService.cancelPriceUpdateReminder();
+      await _prefs.remove(_keyReminderScheduledAt);
 
       final nextDueDate = await _priceHistoryService.getNextProductDueDate(
         reminderMonths,
       );
 
       if (nextDueDate != null) {
-        await _notificationService.schedulePriceUpdateReminder(
-          firstFireAt: nextDueDate,
-          title: _keyTitleEn,
-          body: _keyBodyEn,
+        await _scheduleIfChanged(
+          nextDueDate,
+          notificationTitle: notificationTitle,
+          notificationBody: notificationBody,
         );
       }
     } else {
-      await _notificationService.scheduleImmediateReminder(
-        title: _keyTitleEn,
-        body: _keyBodyEn,
-      );
+      final scheduledAt = _getScheduledReminderAt();
+      final shouldRescheduleImmediately = scheduledAt == null ||
+          scheduledAt.isAfter(DateTime.now().add(const Duration(days: 7)));
+
+      if (shouldRescheduleImmediately) {
+        final firstFireAt = DateTime.now().add(const Duration(minutes: 1));
+        await _scheduleIfChanged(
+          firstFireAt,
+          notificationTitle: notificationTitle,
+          notificationBody: notificationBody,
+        );
+      }
     }
+  }
+
+  DateTime? _getScheduledReminderAt() {
+    final storedValue = _prefs.getString(_keyReminderScheduledAt);
+    if (storedValue == null || storedValue.isEmpty) {
+      return null;
+    }
+
+    return DateTime.tryParse(storedValue);
+  }
+
+  Future<void> _scheduleIfChanged(
+    DateTime firstFireAt, {
+    String? notificationTitle,
+    String? notificationBody,
+  }) async {
+    final scheduledAt = _getScheduledReminderAt();
+    if (scheduledAt != null && scheduledAt.isAtSameMomentAs(firstFireAt)) {
+      return;
+    }
+
+    final title = notificationTitle ?? _defaultNotificationTitle;
+    final body = notificationBody ?? _defaultNotificationBody;
+
+    await _notificationService.schedulePriceUpdateReminder(
+      firstFireAt: firstFireAt,
+      title: title,
+      body: body,
+    );
+    await _prefs.setString(
+      _keyReminderScheduledAt,
+      firstFireAt.toIso8601String(),
+    );
   }
 
   Future<void> handleNotificationTap() async {

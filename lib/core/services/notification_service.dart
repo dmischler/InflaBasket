@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -20,11 +21,18 @@ class NotificationService {
   static const int _priceUpdateReminderId = 999;
 
   static Function()? onPriceUpdateNotificationTap;
+  static bool _launchedFromPriceUpdateNotification = false;
 
   static Future<void> initialize() async {
     if (_initialized) return;
     try {
       tz_data.initializeTimeZones();
+      try {
+        final timezoneName = await FlutterTimezone.getLocalTimezone();
+        tz.setLocalLocation(tz.getLocation(timezoneName));
+      } catch (e) {
+        debugPrint('NotificationService timezone fallback: $e');
+      }
 
       const initSettings = InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
@@ -37,6 +45,14 @@ class NotificationService {
         onDidReceiveNotificationResponse: _onNotificationResponse,
       );
 
+      final launchDetails = await _plugin.getNotificationAppLaunchDetails();
+      final response = launchDetails?.notificationResponse;
+      if (launchDetails?.didNotificationLaunchApp ?? false) {
+        if (response?.id == _priceUpdateReminderId) {
+          _launchedFromPriceUpdateNotification = true;
+        }
+      }
+
       _initialized = true;
     } catch (e) {
       debugPrint('NotificationService init error: $e');
@@ -45,8 +61,15 @@ class NotificationService {
 
   static void _onNotificationResponse(NotificationResponse response) {
     if (response.id == _priceUpdateReminderId) {
+      _launchedFromPriceUpdateNotification = true;
       onPriceUpdateNotificationTap?.call();
     }
+  }
+
+  static bool consumeDidLaunchFromPriceUpdateNotification() {
+    final launched = _launchedFromPriceUpdateNotification;
+    _launchedFromPriceUpdateNotification = false;
+    return launched;
   }
 
   Future<bool> requestPermission() async {

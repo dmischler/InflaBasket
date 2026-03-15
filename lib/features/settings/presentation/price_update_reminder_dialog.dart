@@ -71,6 +71,7 @@ Future<void> showPriceUpdateReminderDialogIfNeeded(
   if (context.mounted) {
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => const PriceUpdateReminderDialog(),
     );
   }
