@@ -699,6 +699,18 @@
   "filter": "Filter",
   "@filter": { "description": "Tooltip for filter controls" },
 
+  "search": "Search",
+  "@search": { "description": "Tooltip for search button" },
+
+  "searchTitle": "Search History",
+  "@searchTitle": { "description": "Bottom sheet title for search" },
+
+  "searchHint": "Search by item name...",
+  "@searchHint": { "description": "Hint text for search input field" },
+
+  "searchClear": "Clear search",
+  "@searchClear": { "description": "Tooltip for clearing search" },
+
   "historyEditEntryTooltip": "Edit entry",
   "@historyEditEntryTooltip": { "description": "Tooltip for editing an entry" },
 

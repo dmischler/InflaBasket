@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/models/unit.dart';
@@ -123,15 +124,19 @@ const _clearCategory = Object();
 class HistoryFilter {
   final HistoryDateRange range;
   final int? categoryId;
+  final String? searchQuery;
 
   const HistoryFilter({
     this.range = HistoryDateRange.allTime,
     this.categoryId,
+    this.searchQuery,
   });
 
   HistoryFilter copyWith({
     HistoryDateRange? range,
     Object? categoryId = _clearCategory,
+    String? searchQuery,
+    bool clearSearch = false,
   }) {
     return HistoryFilter(
       range: range ?? this.range,
@@ -140,6 +145,7 @@ class HistoryFilter {
       categoryId: identical(categoryId, _clearCategory)
           ? this.categoryId
           : categoryId as int?,
+      searchQuery: clearSearch ? null : (searchQuery ?? this.searchQuery),
     );
   }
 }
@@ -155,6 +161,14 @@ class HistoryFilterController extends _$HistoryFilterController {
 
   void setCategory(int? categoryId) {
     state = HistoryFilter(range: state.range, categoryId: categoryId);
+  }
+
+  void setSearchQuery(String? query) {
+    if (query == null || query.isEmpty) {
+      state = state.copyWith(clearSearch: true);
+    } else {
+      state = state.copyWith(searchQuery: query);
+    }
   }
 }
 
@@ -178,12 +192,24 @@ List<EntryWithDetails> filteredEntries(FilteredEntriesRef ref) {
       break;
   }
 
+  final searchQuery = filter.searchQuery;
+  final useFuzzySearch = searchQuery != null && searchQuery.length >= 3;
+
   return entries.where((entry) {
     final matchesDate =
         cutoff == null || entry.entry.purchaseDate.isAfter(cutoff);
     final matchesCategory =
         filter.categoryId == null || entry.category.id == filter.categoryId;
-    return matchesDate && matchesCategory;
+
+    bool matchesSearch = true;
+    if (useFuzzySearch) {
+      final productName = entry.product.name.toLowerCase();
+      final query = searchQuery!.toLowerCase();
+      final score = tokenSetRatio(query, productName);
+      matchesSearch = score >= 70;
+    }
+
+    return matchesDate && matchesCategory && matchesSearch;
   }).toList();
 }
 

@@ -27,8 +27,9 @@ class HistoryTab extends ConsumerWidget {
     final settings = ref.watch(settingsControllerProvider);
 
     if (entries.isEmpty) {
-      final hasActiveFilter =
-          filter.range != HistoryDateRange.allTime || filter.categoryId != null;
+      final hasActiveFilter = filter.range != HistoryDateRange.allTime ||
+          filter.categoryId != null ||
+          (filter.searchQuery != null && filter.searchQuery!.isNotEmpty);
       return StateMessageCard(
         icon: hasActiveFilter ? Icons.filter_alt_off : Icons.receipt_long,
         title:
@@ -54,6 +55,30 @@ class HistoryTab extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const Spacer(),
+              Stack(
+                children: [
+                  IconButton(
+                    tooltip: l10n.search,
+                    icon: const Icon(Icons.search),
+                    onPressed: () =>
+                        _showSearchSheet(context, l10n, ref, filter),
+                  ),
+                  if (filter.searchQuery != null &&
+                      filter.searchQuery!.isNotEmpty)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
               IconButton(
                 tooltip: l10n.filter,
                 icon: const Icon(Icons.filter_list),
@@ -344,6 +369,76 @@ class HistoryTab extends ConsumerWidget {
                 loading: () => const CircularProgressIndicator(),
                 error: (e, st) =>
                     Text(sheetL10n.errorLoadingCategories(e.toString())),
+              ),
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(sheetL10n.close),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSearchSheet(
+    BuildContext context,
+    AppLocalizations l10n,
+    WidgetRef ref,
+    HistoryFilter currentFilter,
+  ) {
+    final controller = TextEditingController(text: currentFilter.searchQuery);
+
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) {
+        final sheetL10n = AppLocalizations.of(context)!;
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(sheetL10n.searchTitle,
+                  style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: sheetL10n.searchHint,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: controller.text.isNotEmpty
+                      ? IconButton(
+                          tooltip: sheetL10n.searchClear,
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            controller.clear();
+                            ref
+                                .read(historyFilterControllerProvider.notifier)
+                                .setSearchQuery(null);
+                          },
+                        )
+                      : null,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  ref
+                      .read(historyFilterControllerProvider.notifier)
+                      .setSearchQuery(value);
+                  (context as Element).markNeedsBuild();
+                },
+                onSubmitted: (_) => Navigator.pop(context),
               ),
               const SizedBox(height: 16),
               Align(

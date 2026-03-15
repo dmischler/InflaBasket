@@ -1377,6 +1377,30 @@ abstract class AppLocalizations {
   /// **'Filter'**
   String get filter;
 
+  /// Tooltip for search button
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// Bottom sheet title for search
+  ///
+  /// In en, this message translates to:
+  /// **'Search History'**
+  String get searchTitle;
+
+  /// Hint text for search input field
+  ///
+  /// In en, this message translates to:
+  /// **'Search by item name...'**
+  String get searchHint;
+
+  /// Tooltip for clearing search
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClear;
+
   /// Tooltip for editing an entry
   ///
   /// In en, this message translates to:

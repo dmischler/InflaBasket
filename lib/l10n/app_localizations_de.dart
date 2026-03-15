@@ -707,6 +707,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get filter => 'Filtern';
 
   @override
+  String get search => 'Suchen';
+
+  @override
+  String get searchTitle => 'Verlauf durchsuchen';
+
+  @override
+  String get searchHint => 'Nach Artikelname suchen...';
+
+  @override
+  String get searchClear => 'Suche löschen';
+
+  @override
   String get historyEditEntryTooltip => 'Eintrag bearbeiten';
 
   @override
