@@ -172,7 +172,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
           final entry = entryDetails.entry;
           final category = entryDetails.category;
 
-          final dateFormat = DateFormat.yMMMd();
+          final dateFormat = DateFormat('d.M.yy');
           final currencyFormat =
               NumberFormat.simpleCurrency(name: settings.currency);
           final categoryName = CategoryLocalization.displayNameForContext(
@@ -272,7 +272,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${entry.storeName} • ${dateFormat.format(entry.purchaseDate)}'),
+          Text(dateFormat.format(entry.purchaseDate)),
           if (entry.notes != null && entry.notes!.isNotEmpty)
             Text(
               entry.notes!,
@@ -287,35 +287,21 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
         ],
       ),
       isThreeLine: entry.notes != null && entry.notes!.isNotEmpty,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            tooltip: l10n.historyEditEntryTooltip,
-            onPressed: () {
-              context.push('/home/add', extra: entryDetails);
-            },
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (isLuxeMode)
-                TabularAmountText(
-                  _formatPrice(entry, settings),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
-                )
-              else
-                Text(
-                  _formatPrice(entry, settings),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              _buildUnitPriceLabel(entry, settings.currency),
-            ],
-          ),
+          if (isLuxeMode)
+            TabularAmountText(
+              _formatPrice(entry, settings),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            )
+          else
+            Text(
+              _formatPrice(entry, settings),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          _buildUnitPriceLabel(entry, settings.currency),
         ],
       ),
     );

@@ -422,6 +422,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Built-in mapping for ~30 common stores (Migros, Coop, Aldi, Lidl, etc.)
 - Fallback to category letter when no website available
 
+**v1.18.1 History Tab Optimization**
+- Removed edit icon button (long press and swipe already provide edit access)
+- Store name removed from entry subtitle (now shown via store icon on left)
+- Date format changed to d.M.yy (e.g., 13.3.26)
+- Store icon now displays in place of category letter using StoreLogoWidget
+
 ---
 
 ### 🔄 In Progress / Partially Complete
