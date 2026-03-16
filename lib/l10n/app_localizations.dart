@@ -2121,6 +2121,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View Details'**
   String get productDetailViewAction;
+
+  /// Snackbar shown when duplicate entries are auto-deleted on startup
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Removed 1 duplicate entry} other{Removed {count} duplicate entries}}'**
+  String duplicateCleanupNotification(int count);
 }
 
 class _AppLocalizationsDelegate

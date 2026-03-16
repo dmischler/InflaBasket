@@ -1151,5 +1151,15 @@
   "@productDetailRange6m": { "description": "Six month time range label for product detail chart" },
 
   "productDetailViewAction": "View Details",
-  "@productDetailViewAction": { "description": "Bottom sheet action to open product details from history" }
+  "@productDetailViewAction": { "description": "Bottom sheet action to open product details from history" },
+
+  "duplicateCleanupNotification": "{count, plural, one{Removed 1 duplicate entry} other{Removed {count} duplicate entries}}",
+  "@duplicateCleanupNotification": {
+    "description": "Snackbar shown when duplicate entries are auto-deleted on startup",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

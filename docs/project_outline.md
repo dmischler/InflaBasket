@@ -369,6 +369,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Product price-history rows reuse swipe gestures: right to edit entry-specific values, left to delete a single price entry
 - Top-level product deletion removes linked entries, templates, alerts, and cached price-history rows after confirmation
 
+**v1.13.11 Startup Duplicate Cleanup**
+- On app startup, scans recent entries (last 30 days) for exact duplicates (same normalized product name + store + exact price)
+- Auto-deletes newer duplicates, keeping the oldest entry in each group
+- Shows localized snackbar notification with count of removed duplicates
+- Runs once per app launch alongside sats repair and reminder sync
+
 **v1.15.0 Animated Charts & Touch Highlights**
 - Added 600ms chart entrance animations with reduced-motion and single-point fallbacks across dashboard overview, categories, and product detail charts
 - Added touch-highlight interactions with dashed guide lines, glow-dot emphasis, debounced haptics, and safer timer-based reset handling
@@ -445,7 +451,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 | CSV Import | Planned | Free |
 | History Search & Advanced Filters | Planned | Free |
 | Batch Operations in History | Planned | Free |
-| Auto-detect Similar Product | Planned | Free |
 
 ---
 

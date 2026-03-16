@@ -76,7 +76,9 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
     with WidgetsBindingObserver {
   bool _didRunInitialReminderSync = false;
   bool _didRunInitialSatsRepair = false;
+  bool _didRunInitialDuplicateCleanup = false;
   bool _isShowingReminderPopup = false;
+  int _duplicateCleanupCount = 0;
 
   @override
   void initState() {
@@ -88,14 +90,19 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
     };
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted || _didRunInitialReminderSync || _didRunInitialSatsRepair) {
+      if (!mounted ||
+          _didRunInitialReminderSync ||
+          _didRunInitialSatsRepair ||
+          _didRunInitialDuplicateCleanup) {
         return;
       }
       _didRunInitialSatsRepair = true;
       _didRunInitialReminderSync = true;
+      _didRunInitialDuplicateCleanup = true;
       await Future.wait([
         _repairMissingEntrySats(),
         _syncReminderSchedule(),
+        _cleanupDuplicateEntries(),
       ]);
 
       if (NotificationService.consumeDidLaunchFromPriceUpdateNotification()) {
@@ -105,6 +112,7 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
       }
 
       _checkPendingPopup();
+      _showDuplicateCleanupNotification();
     });
   }
 
@@ -146,6 +154,33 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
       debugPrint('Failed to repair missing sats values: $error');
       debugPrintStack(stackTrace: stackTrace);
     }
+  }
+
+  Future<void> _cleanupDuplicateEntries() async {
+    try {
+      final repo = ref.read(entryRepositoryProvider);
+      final count = await repo.cleanupDuplicateEntries();
+      if (count > 0) {
+        _duplicateCleanupCount = count;
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Failed to cleanup duplicate entries: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+  }
+
+  void _showDuplicateCleanupNotification() {
+    if (!mounted || _duplicateCleanupCount == 0) return;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            Text(l10n.duplicateCleanupNotification(_duplicateCleanupCount)),
+        duration: const Duration(seconds: 4),
+      ),
+    );
+    _duplicateCleanupCount = 0;
   }
 
   void _checkPendingPopup() {

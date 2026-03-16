@@ -1137,4 +1137,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get productDetailViewAction => 'Details anzeigen';
+
+  @override
+  String duplicateCleanupNotification(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Duplikate entfernt',
+      one: '1 Duplikat entfernt',
+    );
+    return '$_temp0';
+  }
 }

@@ -763,4 +763,61 @@ class EntryRepository {
       }
     });
   }
+
+  // ─── Duplicate Cleanup ──────────────────────────────────────────────────────
+
+  /// Cleans up duplicate entries (same product + store + price within last N days).
+  /// Returns the count of deleted entries.
+  /// Keeps the oldest entry for each duplicate group.
+  Future<int> cleanupDuplicateEntries({int days = 30}) async {
+    final cutoffDate = DateTime.now().subtract(Duration(days: days));
+
+    final entries = await (_db.select(_db.purchaseEntries).join([
+      innerJoin(_db.products,
+          _db.products.id.equalsExp(_db.purchaseEntries.productId)),
+    ])
+          ..where(
+              _db.purchaseEntries.purchaseDate.isBiggerOrEqualValue(cutoffDate))
+          ..orderBy([
+            OrderingTerm.asc(_db.purchaseEntries.purchaseDate),
+          ]))
+        .get();
+
+    if (entries.isEmpty) return 0;
+
+    final groupedByKey = <String, List<(int entryId, DateTime purchaseDate)>>{};
+    for (final row in entries) {
+      final entry = row.readTable(_db.purchaseEntries);
+      final product = row.readTable(_db.products);
+      final key = _buildDuplicateKey(
+        productName: product.name,
+        storeName: entry.storeName,
+        price: entry.price,
+      );
+      groupedByKey
+          .putIfAbsent(key, () => [])
+          .add((entry.id, entry.purchaseDate));
+    }
+
+    final idsToDelete = <int>[];
+    for (final group in groupedByKey.values) {
+      if (group.length > 1) {
+        group.sort((a, b) => a.$2.compareTo(b.$2));
+        for (var i = 1; i < group.length; i++) {
+          idsToDelete.add(group[i].$1);
+        }
+      }
+    }
+
+    if (idsToDelete.isEmpty) return 0;
+
+    await _db.transaction(() async {
+      for (final id in idsToDelete) {
+        await (_db.delete(_db.purchaseEntries)..where((e) => e.id.equals(id)))
+            .go();
+      }
+    });
+
+    return idsToDelete.length;
+  }
 }
