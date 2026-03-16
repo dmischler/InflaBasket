@@ -23,6 +23,18 @@ import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
 
+class _ChartTickConfig {
+  const _ChartTickConfig({
+    required this.format,
+    required this.interval,
+    required this.reservedSize,
+  });
+
+  final String format;
+  final double interval;
+  final double reservedSize;
+}
+
 class OverviewTab extends ConsumerStatefulWidget {
   const OverviewTab({super.key});
 
@@ -47,12 +59,29 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     final topInflatorsSatsAsync = isBitcoinMode
         ? ref.watch(itemInflationListSatsProvider)
         : const AsyncData<List<ItemInflationSats>>(<ItemInflationSats>[]);
+    final bitcoinHistory = historySatsAsync.valueOrNull;
+    final bitcoinAllHistory = allHistorySatsAsync.valueOrNull;
+    final bitcoinTopInflators = topInflatorsSatsAsync.valueOrNull;
 
     final hasEntriesData = entriesAsync.valueOrNull != null;
     final isInitialLoading = !hasEntriesData && entriesAsync.isLoading;
+    final bitcoinLoading = isBitcoinMode &&
+        ((historySatsAsync.isLoading && bitcoinHistory == null) ||
+            (allHistorySatsAsync.isLoading && bitcoinAllHistory == null) ||
+            (topInflatorsSatsAsync.isLoading && bitcoinTopInflators == null));
 
-    final coreError =
-        entriesAsync.hasError && !hasEntriesData ? entriesAsync.error : null;
+    final coreError = entriesAsync.hasError && !hasEntriesData
+        ? entriesAsync.error
+        : !isBitcoinMode || bitcoinLoading
+            ? null
+            : historySatsAsync.hasError && bitcoinHistory == null
+                ? historySatsAsync.error
+                : allHistorySatsAsync.hasError && bitcoinAllHistory == null
+                    ? allHistorySatsAsync.error
+                    : topInflatorsSatsAsync.hasError &&
+                            bitcoinTopInflators == null
+                        ? topInflatorsSatsAsync.error
+                        : null;
 
     final loadingChild = isInitialLoading
         ? const ChartSkeleton.overview(key: ValueKey('overview-loading'))
@@ -78,16 +107,25 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       );
     }
 
-    final overallInflation = isBitcoinMode
-        ? ref.watch(basketInflationSatsProvider)
-        : ref.watch(basketInflationProvider);
+    final fiatOverallInflation = ref.watch(basketInflationProvider);
+    final fiatHistory = ref.watch(filteredDynamicIndexProvider);
+    final fiatAllHistory = ref.watch(dynamicLaspeyresIndexProvider);
+    final fiatTopInflators = ref.watch(itemInflationListProvider);
+    final displayBitcoinData =
+        isBitcoinMode && !bitcoinLoading && coreError == null;
 
-    final history = isBitcoinMode
-        ? historySatsAsync.valueOrNull ?? <MonthlyIndex>[]
-        : ref.watch(filteredDynamicIndexProvider);
-    final allHistory = isBitcoinMode
-        ? allHistorySatsAsync.valueOrNull ?? <MonthlyIndex>[]
-        : ref.watch(dynamicLaspeyresIndexProvider);
+    final overallInflation = displayBitcoinData
+        ? _averageSatsInflation(
+            bitcoinTopInflators ?? const <ItemInflationSats>[],
+          )
+        : fiatOverallInflation;
+
+    final history = displayBitcoinData
+        ? bitcoinHistory ?? const <MonthlyIndex>[]
+        : fiatHistory;
+    final allHistory = displayBitcoinData
+        ? bitcoinAllHistory ?? const <MonthlyIndex>[]
+        : fiatAllHistory;
     final showCpi = ref.watch(showCpiOverlayProvider);
     final overlayType = ref.watch(effectiveComparisonOverlayTypeProvider);
     final overlayAsync = ref.watch(comparisonOverlayDataProvider);
@@ -103,9 +141,9 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         allHistory.isNotEmpty ? allHistory.first.month : null;
     final availableTimeRangeOptions = availableTimeRanges(firstDataPoint);
 
-    final topInflators = isBitcoinMode
-        ? topInflatorsSatsAsync.valueOrNull ?? <ItemInflationSats>[]
-        : ref.watch(itemInflationListProvider);
+    final topInflators = displayBitcoinData
+        ? bitcoinTopInflators ?? const <ItemInflationSats>[]
+        : fiatTopInflators;
 
     return SingleChildScrollView(
       key: const ValueKey('overview-content'),
@@ -113,7 +151,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSummaryCard(context, l, overallInflation, isBitcoinMode),
+          _buildSummaryCard(context, l, overallInflation, displayBitcoinData),
           const SizedBox(height: 24),
           _buildTimeRangeSelector(
             context,
@@ -148,15 +186,36 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
           Text(l.overviewTopInflators,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopInflators(context, l, topInflators, settings, isBitcoinMode),
+          _buildTopInflators(
+            context,
+            l,
+            topInflators,
+            settings,
+            displayBitcoinData,
+          ),
           const SizedBox(height: 24),
           Text(l.overviewTopDeflators,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopDeflators(context, l, topInflators, settings, isBitcoinMode),
+          _buildTopDeflators(
+            context,
+            l,
+            topInflators,
+            settings,
+            displayBitcoinData,
+          ),
         ],
       ),
     );
+  }
+
+  double _averageSatsInflation(List<ItemInflationSats> items) {
+    if (items.isEmpty) return 0.0;
+    final total = items.fold<double>(
+      0,
+      (sum, item) => sum + item.inflationPercent,
+    );
+    return total / items.length;
   }
 
   Widget _buildSummaryCard(BuildContext context, AppLocalizations l,
@@ -177,25 +236,37 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         ? VaultCard(
             isActive: true,
             child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(title, style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 8),
-                    TabularAmountText(
-                      '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      FittedBox(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.scaleDown,
+                        child: TabularAmountText(
+                          '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
                                 color: color,
                                 fontWeight: FontWeight.bold,
                               ),
-                    ),
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 16),
                 CircleAvatar(
                   radius: 32,
                   backgroundColor: color.withValues(alpha: 0.1),
@@ -211,28 +282,37 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(title,
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(
-                              color: color,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        FittedBox(
+                          alignment: Alignment.centerLeft,
+                          fit: BoxFit.scaleDown,
+                          child: TabularAmountText(
+                            '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: color,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 16),
                   CircleAvatar(
                     radius: 32,
                     backgroundColor: color.withValues(alpha: 0.1),
@@ -509,45 +589,62 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     );
   }
 
-  String _getDateFormat(ChartTimeRange range, List<MonthlyIndex> validHistory) {
-    if (range == ChartTimeRange.custom && validHistory.isNotEmpty) {
-      final start = validHistory.first.month;
-      final end = validHistory.last.month;
-      final months = (end.year - start.year) * 12 + end.month - start.month;
-      range = months <= 6
-          ? ChartTimeRange.ytd
-          : months <= 24
-              ? ChartTimeRange.twoYears
-              : ChartTimeRange.fiveYears;
+  _ChartTickConfig _buildTickConfig(
+    ChartTimeRange range,
+    List<MonthlyIndex> validHistory,
+    double chartWidth,
+  ) {
+    if (validHistory.length < 2) {
+      return const _ChartTickConfig(
+        format: 'MMM',
+        interval: 2629800000,
+        reservedSize: 32,
+      );
     }
 
-    switch (range) {
-      case ChartTimeRange.ytd:
-        return 'MMM d';
-      case ChartTimeRange.oneYear:
-        return 'MMM d';
-      case ChartTimeRange.twoYears:
-        return "MMM ''yy";
-      case ChartTimeRange.fiveYears:
-      case ChartTimeRange.allTime:
-        return 'yyyy';
-      case ChartTimeRange.custom:
-        return 'MMM d';
-    }
+    final start = validHistory.first.month;
+    final end = validHistory.last.month;
+    final totalMonths = max(
+      1,
+      monthsBetween(DateTime(start.year, start.month),
+              DateTime(end.year, end.month)) +
+          1,
+    );
+    final estimatedLabelWidth = switch (range) {
+      ChartTimeRange.ytd || ChartTimeRange.oneYear => 44.0,
+      ChartTimeRange.twoYears => 64.0,
+      ChartTimeRange.fiveYears || ChartTimeRange.allTime => 42.0,
+      ChartTimeRange.custom => totalMonths <= 18 ? 44.0 : 64.0,
+    };
+    final targetLabels =
+        max(2, min(6, (chartWidth / estimatedLabelWidth).floor()));
+    final rawStepMonths = max(1, (totalMonths / targetLabels).ceil());
+    final stepMonths = _niceMonthStep(rawStepMonths);
+    final format = _tickDateFormat(totalMonths, stepMonths);
+
+    return _ChartTickConfig(
+      format: format,
+      interval: stepMonths * 30.4375 * Duration.millisecondsPerDay,
+      reservedSize: format == 'yyyy' ? 30 : 38,
+    );
   }
 
-  double _getTickInterval(ChartTimeRange range, int dataLength) {
-    switch (range) {
-      case ChartTimeRange.ytd:
-      case ChartTimeRange.oneYear:
-      case ChartTimeRange.custom:
-        return const Duration(days: 30).inMilliseconds.toDouble();
-      case ChartTimeRange.twoYears:
-        return const Duration(days: 90).inMilliseconds.toDouble();
-      case ChartTimeRange.fiveYears:
-      case ChartTimeRange.allTime:
-        return const Duration(days: 365).inMilliseconds.toDouble();
+  int _niceMonthStep(int rawStepMonths) {
+    const steps = <int>[1, 2, 3, 4, 6, 12, 18, 24, 36, 60];
+    for (final step in steps) {
+      if (rawStepMonths <= step) return step;
     }
+    return steps.last;
+  }
+
+  String _tickDateFormat(int totalMonths, int stepMonths) {
+    if (totalMonths <= 18 && stepMonths <= 3) {
+      return 'MMM';
+    }
+    if (stepMonths >= 12 || totalMonths > 72) {
+      return 'yyyy';
+    }
+    return "MMM ''yy";
   }
 
   List<MonthlyIndex> _aggregateByPeriod(
@@ -605,7 +702,6 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         height: responsiveChartHeight(context, type: ChartType.line),
         child: StateMessageCard(
           icon: Icons.show_chart,
-          animationAsset: StateIllustrations.emptyGeneral,
           title: l.overviewTitle,
           message: l.overviewNoData,
         ),
@@ -680,6 +776,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final glowOpacity = isDark ? 0.6 : 0.35;
+    final chartHeight = responsiveChartHeight(context, type: ChartType.line);
 
     final barData = <LineChartBarData>[
       LineChartBarData(
@@ -721,105 +818,126 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     ];
 
     return SizedBox(
-      height: responsiveChartHeight(context, type: ChartType.line),
-      child: LineChart(
-        LineChartData(
-          minY: chartMinY,
-          maxY: chartMaxY,
-          gridData: const FlGridData(show: false),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 32,
-                getTitlesWidget: (value, meta) {
-                  final format = _getDateFormat(timeRange, validHistory);
-                  final date =
-                      DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(DateFormat(format).format(date)),
-                  );
-                },
-                interval: _getTickInterval(timeRange, validHistory.length),
-              ),
-            ),
-            leftTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(show: false),
-          lineBarsData: barData,
-          lineTouchData: LineTouchData(
-            enabled: true,
-            touchCallback: (event, response) {
-              if (event is! FlTapUpEvent || response?.lineBarSpots == null) {
-                return;
-              }
-              if (!handleTouchDebounce()) return;
-              HapticFeedback.lightImpact();
-            },
-            getTouchedSpotIndicator: (barData, spotIndexes) {
-              return spotIndexes.map((index) {
-                final indicatorColor = barData.color ?? primaryColor;
-                return TouchedSpotIndicatorData(
-                  FlLine(
-                    color: indicatorColor.withValues(alpha: 0.6),
-                    strokeWidth: 2,
-                    dashArray: [4, 3],
-                  ),
-                  FlDotData(
-                    show: true,
-                    getDotPainter: (spot, percent, bar, spotIndex) {
-                      return GlowDotPainter(
-                        color: indicatorColor,
-                        radius: 8,
-                        glowColor:
-                            indicatorColor.withValues(alpha: glowOpacity),
-                        glowRadius: 12,
+      height: chartHeight,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final tickConfig = _buildTickConfig(
+              timeRange, aggregatedHistory, constraints.maxWidth);
+          return LineChart(
+            LineChartData(
+              minY: chartMinY,
+              maxY: chartMaxY,
+              gridData: const FlGridData(show: false),
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: tickConfig.reservedSize,
+                    interval: tickConfig.interval,
+                    maxIncluded: false,
+                    getTitlesWidget: (value, meta) {
+                      final date =
+                          DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                      return SideTitleWidget(
+                        meta: meta,
+                        fitInside: SideTitleFitInsideData.fromTitleMeta(
+                          meta,
+                          distanceFromEdge: 8,
+                        ),
+                        child: Text(
+                          DateFormat(tickConfig.format).format(date),
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    fontSize: 11,
+                                  ),
+                        ),
                       );
                     },
                   ),
-                );
-              }).toList();
-            },
-            touchTooltipData: LineTouchTooltipData(
-              fitInsideHorizontally: true,
-              fitInsideVertically: true,
-              getTooltipItems: (touchedSpots) {
-                return touchedSpots.map((spot) {
-                  final nearest = validHistory.reduce((a, b) {
-                    final da =
-                        (a.month.millisecondsSinceEpoch.toDouble() - spot.x)
-                            .abs();
-                    final db =
-                        (b.month.millisecondsSinceEpoch.toDouble() - spot.x)
-                            .abs();
-                    return da <= db ? a : b;
-                  });
-                  final dateStr = DateFormat('MMM yyyy').format(nearest.month);
-                  final delta = spot.y;
-                  final label =
-                      '$dateStr\n${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%';
-                  return LineTooltipItem(
-                    label,
-                    TextStyle(
-                      color: spot.bar.color,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
-                }).toList();
-              },
+                ),
+                leftTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: barData,
+              lineTouchData: LineTouchData(
+                enabled: true,
+                touchCallback: (event, response) {
+                  if (event is! FlTapUpEvent ||
+                      response?.lineBarSpots == null) {
+                    return;
+                  }
+                  if (!handleTouchDebounce()) return;
+                  HapticFeedback.lightImpact();
+                },
+                getTouchedSpotIndicator: (barData, spotIndexes) {
+                  return spotIndexes.map((index) {
+                    final indicatorColor = barData.color ?? primaryColor;
+                    return TouchedSpotIndicatorData(
+                      FlLine(
+                        color: indicatorColor.withValues(alpha: 0.6),
+                        strokeWidth: 2,
+                        dashArray: [4, 3],
+                      ),
+                      FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, bar, spotIndex) {
+                          return GlowDotPainter(
+                            color: indicatorColor,
+                            radius: 8,
+                            glowColor:
+                                indicatorColor.withValues(alpha: glowOpacity),
+                            glowRadius: 12,
+                          );
+                        },
+                      ),
+                    );
+                  }).toList();
+                },
+                touchTooltipData: LineTouchTooltipData(
+                  fitInsideHorizontally: true,
+                  fitInsideVertically: true,
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((spot) {
+                      final nearest = validHistory.reduce((a, b) {
+                        final da =
+                            (a.month.millisecondsSinceEpoch.toDouble() - spot.x)
+                                .abs();
+                        final db =
+                            (b.month.millisecondsSinceEpoch.toDouble() - spot.x)
+                                .abs();
+                        return da <= db ? a : b;
+                      });
+                      final dateStr =
+                          DateFormat('MMM yyyy').format(nearest.month);
+                      final delta = spot.y;
+                      final label =
+                          '$dateStr\n${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}%';
+                      return LineTooltipItem(
+                        label,
+                        TextStyle(
+                          color: spot.bar.color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
+              ),
             ),
-          ),
-        ),
-        duration: shouldAnimate
-            ? ChartAnimations.entranceDurationFor(aggregatedHistory.length)
-            : Duration.zero,
-        curve: ChartAnimations.entranceCurve,
+            duration: shouldAnimate
+                ? ChartAnimations.entranceDurationFor(aggregatedHistory.length)
+                : Duration.zero,
+            curve: ChartAnimations.entranceCurve,
+          );
+        },
       ),
     );
   }
