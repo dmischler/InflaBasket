@@ -422,6 +422,10 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Built-in mapping for ~30 common stores (Migros, Coop, Aldi, Lidl, etc.)
 - Fallback to category letter when no website available
 
+**v1.18.3 History Search Layout Fix**
+- Fixed RenderFlex error when clicking search icon in history tab
+- Added mainAxisSize.min to outer Row to provide bounded constraints for inner Expanded widget
+
 **v1.18.1 History Tab Optimization**
 - Removed edit icon button (long press and swipe already provide edit access)
 - Store name removed from entry subtitle (now shown via store icon on left)

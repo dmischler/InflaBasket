@@ -68,6 +68,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedCrossFade(
                 duration: const Duration(milliseconds: 200),
