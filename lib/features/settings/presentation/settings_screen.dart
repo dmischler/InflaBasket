@@ -274,14 +274,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   trailing: DropdownButton<AppThemeType>(
                     value: settings.themeType,
                     underline: const SizedBox(),
-                    items: AppThemeType.values
-                        .map(
-                          (theme) => DropdownMenuItem<AppThemeType>(
-                            value: theme,
-                            child: Text(theme.name),
-                          ),
-                        )
-                        .toList(),
+                    items: AppThemeType.values.map(
+                      (theme) {
+                        String label;
+                        switch (theme) {
+                          case AppThemeType.standardLight:
+                            label = 'Light';
+                            break;
+                          case AppThemeType.standardDark:
+                            label = 'Dark';
+                            break;
+                          case AppThemeType.luxeDarkFiat:
+                            label = 'Fiat (Luxe)';
+                            break;
+                          case AppThemeType.luxeDarkBitcoin:
+                            label = 'Bitcoin (Luxe)';
+                            break;
+                          case AppThemeType.neoCyberpunkTerminal:
+                            label = 'Matrix Terminal';
+                            break;
+                        }
+                        return DropdownMenuItem<AppThemeType>(
+                          value: theme,
+                          child: Text(label),
+                        );
+                      },
+                    ).toList(),
                     onChanged: (val) {
                       if (val != null) {
                         ref

@@ -402,6 +402,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Animated charts with touch highlights
 - Speed dial FAB expansion
 - Theme customization (accent color, density)
+- Matrix Neo-Cyberpunk Terminal theme
 - Empty state illustrations (Lottie/Rive)
 - Onboarding flow (3 screens)
 

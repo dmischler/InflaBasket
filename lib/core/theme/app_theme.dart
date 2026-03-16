@@ -6,6 +6,7 @@ enum AppThemeType {
   standardDark,
   luxeDarkFiat,
   luxeDarkBitcoin,
+  neoCyberpunkTerminal,
 }
 
 class AppTheme {
@@ -19,6 +20,8 @@ class AppTheme {
         return _buildStandardLightTheme();
       case AppThemeType.standardDark:
         return _buildStandardDarkTheme();
+      case AppThemeType.neoCyberpunkTerminal:
+        return _buildNeoCyberpunkTerminalTheme();
     }
   }
 
@@ -101,6 +104,93 @@ class AppTheme {
         bodyLarge: TextStyle(color: AppColors.textPrimary),
         bodyMedium: TextStyle(color: AppColors.textSecondary),
         bodySmall: TextStyle(color: AppColors.textTertiary),
+      ),
+      useMaterial3: true,
+    );
+  }
+
+  static ThemeData _buildNeoCyberpunkTerminalTheme() {
+    const primaryFontFamily = 'Rajdhani';
+
+    return ThemeData(
+      brightness: Brightness.dark,
+      fontFamily: primaryFontFamily,
+      scaffoldBackgroundColor: AppColors.bgTerminalDeep,
+      primaryColor: AppColors.accentTerminalPrimary,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.accentTerminalPrimary,
+        secondary: AppColors.accentTerminalDim,
+        surface: AppColors.bgTerminalSurface,
+        onPrimary: AppColors.bgVoid,
+        onSurface: AppColors.textPrimary,
+        error: AppColors.accentTerminalFiatMain,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.bgTerminalDeep,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: AppColors.accentTerminalPrimary),
+        titleTextStyle: TextStyle(
+          color: AppColors.accentTerminalPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          fontFamily: primaryFontFamily,
+          letterSpacing: 2.0,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.bgTerminalSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: const BorderSide(color: AppColors.accentTerminalDim, width: 1),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.bgTerminalDeep,
+          foregroundColor: AppColors.accentTerminalPrimary,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: const BorderSide(
+                color: AppColors.accentTerminalPrimary, width: 1),
+          ),
+          padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.md,
+            horizontal: AppSpacing.lg,
+          ),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            fontFamily: primaryFontFamily,
+            letterSpacing: 1.5,
+          ),
+        ),
+      ),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+            color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+        displayMedium: TextStyle(
+            color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+        displaySmall: TextStyle(
+            color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+        headlineMedium: TextStyle(
+            color: AppColors.accentTerminalPrimary,
+            fontWeight: FontWeight.w600),
+        headlineSmall: TextStyle(
+            color: AppColors.accentTerminalPrimary,
+            fontWeight: FontWeight.w600),
+        titleLarge: TextStyle(
+            color: AppColors.accentTerminalPrimary,
+            fontWeight: FontWeight.w600),
+        titleMedium: TextStyle(
+            color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+        titleSmall: TextStyle(
+            color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+        bodyLarge: TextStyle(color: AppColors.textPrimary),
+        bodyMedium: TextStyle(color: AppColors.textSecondary),
+        bodySmall: TextStyle(color: AppColors.accentTerminalDim),
       ),
       useMaterial3: true,
     );
