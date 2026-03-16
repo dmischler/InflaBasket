@@ -12,6 +12,7 @@ Personal inflation tracking app that compares user's custom basket against offic
 - **Database:** `drift` & `sqlite3_flutter_libs` (type-safe SQLite)
 - **Charts:** `fl_chart`
 - **Loading States:** `shimmer`
+- **Illustrations:** `lottie`
 - **Icons/Fonts:** `lucide_icons`, `google_fonts`
 - **Device Features:** `camera`, `image_picker`, `image_cropper`, `mobile_scanner`
 - **Subscriptions:** `purchases_flutter` (RevenueCat)
@@ -373,6 +374,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Added touch-highlight interactions with dashed guide lines, glow-dot emphasis, debounced haptics, and safer timer-based reset handling
 - Category bars now briefly brighten and pop on tap while preserving built-in tooltips and smooth implicit fl_chart transitions
 
+**v1.16.0 Animated Empty States**
+- Added bundled Lottie-based empty, loading, and error illustrations with localized accessibility labels and icon fallbacks in `StateMessageCard`
+- Rolled the new illustration system across dashboard, scanner, product detail, templates, paywall, alerts, and price-update empty states using a shared asset registry for future theming
+- Preserved offline reliability with local animation assets and one-shot error playback while keeping future fiat/bitcoin illustration swapping centralized
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
@@ -407,7 +413,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Speed dial FAB expansion
 - Theme customization (accent color, density)
 - Matrix Neo-Cyberpunk Terminal theme
-- Empty state illustrations (Lottie/Rive)
 - Onboarding flow (3 screens)
 
 **Sprint 5 – Code Refactor**

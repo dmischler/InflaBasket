@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -48,12 +49,15 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
       body: entriesAsync.when(
         loading: () => StateMessageCard(
           icon: Icons.notifications_active_outlined,
+          animationAsset: StateIllustrations.loadingMinimal,
           title: l10n.priceAlertLoadingAlerts,
           message: l10n.priceAlertLoadingAlertsMessage,
           isLoading: true,
         ),
         error: (error, _) => StateMessageCard(
           icon: Icons.error_outline,
+          animationAsset: StateIllustrations.error,
+          loop: false,
           title: l10n.priceAlertLoadError,
           message: error.toString(),
           accentColor: Theme.of(context).colorScheme.error,
@@ -63,6 +67,7 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
           if (products.isEmpty) {
             return StateMessageCard(
               icon: Icons.price_change_outlined,
+              animationAsset: StateIllustrations.emptySearch,
               title: l10n.priceAlertNoProducts,
               message: l10n.priceAlertNoProductsMessage,
             );
@@ -74,6 +79,7 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return StateMessageCard(
                   icon: Icons.tune,
+                  animationAsset: StateIllustrations.loadingMinimal,
                   title: l10n.priceAlertLoadingSettings,
                   message: l10n.priceAlertLoadingSettingsMessage,
                   isLoading: true,
@@ -82,6 +88,8 @@ class _PriceAlertsScreenState extends ConsumerState<PriceAlertsScreen> {
               if (snapshot.hasError) {
                 return StateMessageCard(
                   icon: Icons.error_outline,
+                  animationAsset: StateIllustrations.error,
+                  loop: false,
                   title: l10n.priceAlertLoadSettingsError,
                   message: snapshot.error.toString(),
                   accentColor: Theme.of(context).colorScheme.error,

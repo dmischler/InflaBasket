@@ -15,6 +15,7 @@ import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
@@ -129,12 +130,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
       body: productAsync.when(
         loading: () => StateMessageCard(
           icon: Icons.inventory_2_outlined,
+          animationAsset: StateIllustrations.loadingMinimal,
           title: l10n.loading,
           message: l10n.loading,
           isLoading: true,
         ),
         error: (error, _) => StateMessageCard(
           icon: Icons.error_outline,
+          animationAsset: StateIllustrations.error,
+          loop: false,
           title: l10n.errorGeneric,
           message: error.toString(),
         ),
@@ -142,6 +146,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
           if (productData == null) {
             return StateMessageCard(
               icon: Icons.inventory_2_outlined,
+              animationAsset: StateIllustrations.emptyGeneral,
               title: l10n.productDetailMissingTitle,
               message: l10n.productDetailMissingMessage,
             );
@@ -158,12 +163,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
           return entriesAsync.when(
             loading: () => StateMessageCard(
               icon: Icons.receipt_long,
+              animationAsset: StateIllustrations.loadingMinimal,
               title: l10n.loading,
               message: l10n.loading,
               isLoading: true,
             ),
             error: (error, _) => StateMessageCard(
               icon: Icons.error_outline,
+              animationAsset: StateIllustrations.error,
+              loop: false,
               title: l10n.errorGeneric,
               message: error.toString(),
             ),
@@ -672,6 +680,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
         context,
         StateMessageCard(
           icon: Icons.receipt_long,
+          animationAsset: StateIllustrations.emptyGeneral,
           title: l10n.productDetailNoEntriesTitle,
           message: l10n.productDetailNoEntriesMessage,
         ),

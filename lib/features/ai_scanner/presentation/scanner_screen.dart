@@ -12,6 +12,7 @@ import 'package:path/path.dart' as path;
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/ai_scanner/data/vision_client.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
@@ -249,6 +250,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final body = _isProcessing
         ? StateMessageCard(
             icon: Icons.auto_awesome,
+            animationAsset: StateIllustrations.loadingMinimal,
             title: l10n.scannerAnalyzingTitle,
             message: l10n.scannerAnalyzingMessage,
             isLoading: true,

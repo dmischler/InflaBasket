@@ -67,6 +67,9 @@
   "loadingStillMessage": "This might take a moment due to a slow connection.",
   "@loadingStillMessage": { "description": "Message shown when chart loading takes longer than expected" },
 
+  "emptyStateAnimationDescription": "Empty state illustration",
+  "@emptyStateAnimationDescription": { "description": "Accessibility label for empty state animations" },
+
   "errorGeneric": "An error occurred. Please try again.",
   "@errorGeneric": { "description": "Generic error message" },
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -29,6 +30,7 @@ class PaywallScreen extends ConsumerWidget {
       body: debugPremium
           ? StateMessageCard(
               icon: Icons.bug_report_outlined,
+              animationAsset: StateIllustrations.emptyGeneral,
               title: l10n.paywallDebugTitle,
               message: l10n.paywallDebugMessage,
               actionLabel: l10n.paywallBackToApp,
@@ -38,6 +40,7 @@ class PaywallScreen extends ConsumerWidget {
           : !subscriptionsSupported
               ? StateMessageCard(
                   icon: Icons.phone_iphone,
+                  animationAsset: StateIllustrations.emptyGeneral,
                   title: l10n.paywallMobileOnlyTitle,
                   message: l10n.paywallMobileOnlyMessage,
                 )
@@ -46,6 +49,7 @@ class PaywallScreen extends ConsumerWidget {
                     if (offerings.isEmpty) {
                       return StateMessageCard(
                         icon: Icons.inventory_2_outlined,
+                        animationAsset: StateIllustrations.emptyGeneral,
                         title: l10n.paywallNoOffersTitle,
                         message: l10n.paywallNoOffersMessage,
                       );
@@ -209,12 +213,15 @@ class PaywallScreen extends ConsumerWidget {
                   },
                   loading: () => StateMessageCard(
                     icon: Icons.hourglass_top,
+                    animationAsset: StateIllustrations.loadingMinimal,
                     title: l10n.paywallLoadingOffersTitle,
                     message: l10n.paywallLoadingOffersMessage,
                     isLoading: true,
                   ),
                   error: (e, st) => StateMessageCard(
                     icon: Icons.error_outline,
+                    animationAsset: StateIllustrations.error,
+                    loop: false,
                     title: l10n.paywallLoadOffersError,
                     message: e.toString(),
                     accentColor: Theme.of(context).colorScheme.error,

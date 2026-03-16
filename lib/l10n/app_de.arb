@@ -23,6 +23,7 @@
   "loadingChart": "Diagramm wird geladen",
   "loadingStillTitle": "Lädt immer noch...",
   "loadingStillMessage": "Das kann wegen einer langsamen Verbindung etwas länger dauern.",
+  "emptyStateAnimationDescription": "Leere-Zustands-Illustration",
   "errorGeneric": "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
   "fieldRequired": "Dieses Feld ist erforderlich",
   "fieldInvalidNumber": "Bitte eine gültige Zahl eingeben",

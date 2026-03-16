@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/widgets/shimmer/list_tile_skeleton.dart';
 import 'package:inflabasket/core/widgets/shimmer/shimmer_container.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
@@ -63,6 +64,7 @@ class _ChartSkeletonState extends State<ChartSkeleton> {
           ? StateMessageCard(
               key: const ValueKey('chart-timeout'),
               icon: Icons.hourglass_empty,
+              animationAsset: StateIllustrations.loadingMinimal,
               title: l10n.loadingStillTitle,
               message: l10n.loadingStillMessage,
               isLoading: true,

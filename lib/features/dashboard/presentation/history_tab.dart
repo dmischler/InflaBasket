@@ -6,6 +6,7 @@ import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -67,6 +68,9 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
           (filter.searchQuery != null && filter.searchQuery!.isNotEmpty);
       return StateMessageCard(
         icon: hasActiveFilter ? Icons.filter_alt_off : Icons.receipt_long,
+        animationAsset: hasActiveFilter
+            ? StateIllustrations.emptySearch
+            : StateIllustrations.emptyGeneral,
         title:
             hasActiveFilter ? l10n.historyNoMatchingTitle : l10n.noEntriesYet,
         message: hasActiveFilter

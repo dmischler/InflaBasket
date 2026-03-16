@@ -11,6 +11,7 @@ import 'package:inflabasket/core/api/cpi_client.dart';
 import 'package:inflabasket/core/api/cpi_provider.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/theme/chart_animations.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
@@ -78,6 +79,8 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
             ? StateMessageCard(
                 key: const ValueKey('overview-error'),
                 icon: Icons.error_outline,
+                animationAsset: StateIllustrations.error,
+                loop: false,
                 title: l.errorGeneric,
                 message: coreError.toString(),
               )
@@ -623,8 +626,13 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     final validHistory = history.where((h) => h.index.isFinite).toList();
     if (validHistory.isEmpty) {
       return SizedBox(
-        height: 200,
-        child: Center(child: Text(l.overviewNoData)),
+        height: 260,
+        child: StateMessageCard(
+          icon: Icons.show_chart,
+          animationAsset: StateIllustrations.emptyGeneral,
+          title: l.overviewTitle,
+          message: l.overviewNoData,
+        ),
       );
     }
 
@@ -843,7 +851,13 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
   Widget _buildTopInflators(BuildContext context, AppLocalizations l,
       dynamic items, AppSettings settings, bool isBitcoinMode) {
     if (items.isEmpty) {
-      return Text(l.overviewNoData);
+      return StateMessageCard(
+        icon: Icons.trending_up,
+        animationAsset: StateIllustrations.emptyGeneral,
+        animationHeight: 140,
+        title: l.overviewTopInflators,
+        message: l.overviewNoData,
+      );
     }
 
     final isLuxeMode =
@@ -916,7 +930,13 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
   Widget _buildTopDeflators(BuildContext context, AppLocalizations l,
       dynamic items, AppSettings settings, bool isBitcoinMode) {
     if (items.isEmpty) {
-      return Text(l.overviewNoData);
+      return StateMessageCard(
+        icon: Icons.trending_down,
+        animationAsset: StateIllustrations.emptyGeneral,
+        animationHeight: 140,
+        title: l.overviewTopDeflators,
+        message: l.overviewNoData,
+      );
     }
 
     final isLuxeMode =

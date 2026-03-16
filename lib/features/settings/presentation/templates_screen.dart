@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -27,12 +28,15 @@ class TemplatesScreen extends ConsumerWidget {
       body: templatesAsync.when(
         loading: () => StateMessageCard(
           icon: Icons.bookmarks_outlined,
+          animationAsset: StateIllustrations.loadingMinimal,
           title: l10n.templatesLoadingTitle,
           message: l10n.templatesLoadingMessage,
           isLoading: true,
         ),
         error: (e, _) => StateMessageCard(
           icon: Icons.error_outline,
+          animationAsset: StateIllustrations.error,
+          loop: false,
           title: l10n.templatesLoadError,
           message: e.toString(),
           accentColor: Theme.of(context).colorScheme.error,
@@ -41,6 +45,7 @@ class TemplatesScreen extends ConsumerWidget {
           if (templates.isEmpty) {
             return StateMessageCard(
               icon: Icons.repeat,
+              animationAsset: StateIllustrations.emptyGeneral,
               title: l10n.templatesTitle,
               message: l10n.templatesEmpty,
             );

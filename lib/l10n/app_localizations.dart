@@ -230,6 +230,12 @@ abstract class AppLocalizations {
   /// **'This might take a moment due to a slow connection.'**
   String get loadingStillMessage;
 
+  /// Accessibility label for empty state animations
+  ///
+  /// In en, this message translates to:
+  /// **'Empty state illustration'**
+  String get emptyStateAnimationDescription;
+
   /// Generic error message
   ///
   /// In en, this message translates to:

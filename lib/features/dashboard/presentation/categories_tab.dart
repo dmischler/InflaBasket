@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/mixins/chart_touch_state.dart';
 import 'package:inflabasket/core/theme/chart_animations.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
@@ -54,6 +55,8 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
         child: StateMessageCard(
           key: const ValueKey('categories-error'),
           icon: Icons.error_outline,
+          animationAsset: StateIllustrations.error,
+          loop: false,
           title: l10n.errorGeneric,
           message: entriesAsync.error.toString(),
         ),
@@ -61,7 +64,12 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
     }
 
     if (categoriesInflation.isEmpty) {
-      return Center(child: Text(l10n.categoryNoCategoryData));
+      return StateMessageCard(
+        icon: Icons.category_outlined,
+        animationAsset: StateIllustrations.emptyGeneral,
+        title: l10n.categoriesTitle,
+        message: l10n.categoryNoCategoryData,
+      );
     }
 
     return AnimatedSwitcher(

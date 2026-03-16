@@ -76,6 +76,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das kann wegen einer langsamen Verbindung etwas länger dauern.';
 
   @override
+  String get emptyStateAnimationDescription => 'Leere-Zustands-Illustration';
+
+  @override
   String get errorGeneric =>
       'Ein Fehler ist aufgetreten. Bitte versuche es erneut.';
 

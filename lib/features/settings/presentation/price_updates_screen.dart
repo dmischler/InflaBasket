@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/core/services/price_history_service.dart';
 import 'package:inflabasket/core/services/price_update_reminder_service.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
+import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/barcode/presentation/price_prompt_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -275,33 +277,13 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.check_circle_outline,
-            size: 80,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(context)!.priceUpdatesAllCurrent,
-            style: theme.textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            AppLocalizations.of(context)!.priceUpdatesAllCurrentDesc,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return StateMessageCard(
+      icon: Icons.check_circle_outline,
+      animationAsset: StateIllustrations.emptyGeneral,
+      title: l10n.priceUpdatesAllCurrent,
+      message: l10n.priceUpdatesAllCurrentDesc,
     );
   }
 }
