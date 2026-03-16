@@ -87,11 +87,16 @@ class NotificationService {
             );
         return result ?? false;
       } else if (defaultTargetPlatform == TargetPlatform.android) {
-        final result = await _plugin
-            .resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>()
-            ?.requestNotificationsPermission();
-        return result ?? false;
+        final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+        final notificationsGranted =
+            await androidPlugin?.requestNotificationsPermission();
+        if (!(notificationsGranted ?? false)) {
+          return false;
+        }
+
+        await androidPlugin?.requestExactAlarmsPermission();
+        return true;
       }
       return true;
     } catch (e) {

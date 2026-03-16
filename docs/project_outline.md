@@ -350,6 +350,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Regenerated missing root `android/` files and missing iOS `Flutter` xcconfig files required by the Runner target
 - Preserved the checked-in iOS `AppIcon.appiconset` and stopped CI from recreating `ios/`, which could strip custom icon assets from iOS builds
 
+**v1.13.8 Android Build Hardening**
+- Raised Android minSdk to 24 for `image_picker_android` compatibility and enabled multidex/desugaring for a stable plugin build
+- Added scheduled-notification manifest receivers, alarm reboot permissions, and camera hardware declarations for Android Studio builds
+- Added release ProGuard rules for `flutter_local_notifications` and requested exact-alarm permission alongside notification permission on Android
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
@@ -363,7 +368,9 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### 🔄 In Progress / Partially Complete
 
-*(None currently)*
+**Android Release Signing Setup**
+- Android Studio debug/release builds now have the required manifest and Gradle plumbing
+- Production Play Store signing config still needs to be added locally before shipping Android releases
 
 ---
 
