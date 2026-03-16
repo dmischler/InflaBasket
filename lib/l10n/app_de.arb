@@ -722,5 +722,68 @@
   "@priceUpdatePopupDismiss": { "description": "Button to dismiss the popup" },
 
   "priceUpdatePermissionDenied": "Benachrichtigungsberechtigung verweigert. Aktivieren Sie sie in den Einstellungen.",
-  "@priceUpdatePermissionDenied": { "description": "Message when notification permission is denied" }
+  "@priceUpdatePermissionDenied": { "description": "Message when notification permission is denied" },
+
+  "productDetailTitle": "Produktdetails",
+  "@productDetailTitle": { "description": "AppBar title for the product detail screen" },
+
+  "productDetailDeleteProduct": "Produkt löschen",
+  "@productDetailDeleteProduct": { "description": "Delete action label for the product detail screen" },
+
+  "productDetailMissingTitle": "Produkt nicht gefunden",
+  "@productDetailMissingTitle": { "description": "Title shown when a product detail record no longer exists" },
+
+  "productDetailMissingMessage": "Dieses Produkt wurde möglicherweise bereits gelöscht.",
+  "@productDetailMissingMessage": { "description": "Message shown when a product detail record no longer exists" },
+
+  "productDetailEntries": "Einträge",
+  "@productDetailEntries": { "description": "Label for the number of entries in product details" },
+
+  "productDetailFirstPurchase": "Erster Kauf",
+  "@productDetailFirstPurchase": { "description": "Label for the first purchase date in product details" },
+
+  "productDetailLatestPurchase": "Letzter Kauf",
+  "@productDetailLatestPurchase": { "description": "Label for the latest purchase date in product details" },
+
+  "productDetailInflation": "Produktinflation",
+  "@productDetailInflation": { "description": "Label for the product-specific inflation metric" },
+
+  "productDetailPartialPeriod": "Berechnet ab dem ersten verfügbaren Preis im Zeitraum.",
+  "@productDetailPartialPeriod": { "description": "Helper text when product inflation uses a partial period baseline" },
+
+  "productDetailNoEntriesTitle": "Keine Einträge mehr",
+  "@productDetailNoEntriesTitle": { "description": "Title shown when a product has no purchase entries" },
+
+  "productDetailNoEntriesMessage": "Dieses Produkt hat derzeit keine Preiseinträge.",
+  "@productDetailNoEntriesMessage": { "description": "Message shown when a product has no purchase entries" },
+
+  "productDetailPriceHistory": "Preisverlauf",
+  "@productDetailPriceHistory": { "description": "Section title for the product detail history list" },
+
+  "productDetailDuplicateNameMessage": "Ein anderes Produkt verwendet bereits diesen Namen.",
+  "@productDetailDuplicateNameMessage": { "description": "Snackbar shown when renaming a product to an existing name" },
+
+  "productDetailDeleteProductMessage": "\"{name}\" und alle {count} verknüpften Einträge löschen?",
+  "@productDetailDeleteProductMessage": {
+    "description": "Confirmation message when deleting a product and its entries",
+    "placeholders": {
+      "name": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "productDetailDeleted": "Produkt gelöscht.",
+  "@productDetailDeleted": { "description": "Snackbar shown after deleting a product" },
+
+  "productDetailRange1m": "1M",
+  "@productDetailRange1m": { "description": "One month time range label for product detail chart" },
+
+  "productDetailRange3m": "3M",
+  "@productDetailRange3m": { "description": "Three month time range label for product detail chart" },
+
+  "productDetailRange6m": "6M",
+  "@productDetailRange6m": { "description": "Six month time range label for product detail chart" },
+
+  "productDetailViewAction": "Details anzeigen",
+  "@productDetailViewAction": { "description": "Bottom sheet action to open product details from history" }
 }

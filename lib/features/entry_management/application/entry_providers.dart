@@ -343,6 +343,7 @@ class AddEntryController extends _$AddEntryController {
     String? notes,
     int? existingEntryId,
     String? barcode,
+    int? forcedProductId,
   }) async {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
@@ -371,7 +372,9 @@ class AddEntryController extends _$AddEntryController {
         existingNamedProduct = await repo.getProductByName(productName);
       }
 
-      final candidateProduct = barcodeProduct ?? existingNamedProduct;
+      final candidateProduct = forcedProductId != null
+          ? await (_resolveForcedProduct(repo, forcedProductId))
+          : barcodeProduct ?? existingNamedProduct;
 
       // 2. Check for duplicate entries (only for new entries)
       if (existingEntryId == null) {
@@ -403,7 +406,8 @@ class AddEntryController extends _$AddEntryController {
 
       // 3. Resolve or create product (prefer barcode when available)
       Product? product = candidateProduct;
-      final productId = product?.id ??
+      final productId = forcedProductId ??
+          product?.id ??
           await repo.addProduct(productName, catId, barcode: normalizedBarcode);
 
       // Normalise: store null for count (default)
@@ -446,5 +450,12 @@ class AddEntryController extends _$AddEntryController {
             );
       }
     });
+  }
+
+  Future<Product?> _resolveForcedProduct(
+    EntryRepository repo,
+    int productId,
+  ) async {
+    return repo.getProductById(productId);
   }
 }

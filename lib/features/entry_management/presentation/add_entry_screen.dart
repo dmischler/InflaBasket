@@ -22,11 +22,13 @@ import 'package:inflabasket/l10n/app_localizations.dart';
 class AddEntryScreen extends ConsumerStatefulWidget {
   final EntryWithDetails? entryToEdit;
   final ProductInfo? productInfoFromBarcode;
+  final bool lockSharedFields;
 
   const AddEntryScreen({
     super.key,
     this.entryToEdit,
     this.productInfoFromBarcode,
+    this.lockSharedFields = false,
   });
 
   @override
@@ -266,6 +268,8 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 : _notesController.text.trim(),
             existingEntryId: widget.entryToEdit?.entry.id,
             barcode: widget.productInfoFromBarcode?.barcode,
+            forcedProductId:
+                widget.lockSharedFields ? widget.entryToEdit?.product.id : null,
           );
 
       if (!mounted) return;
@@ -552,6 +556,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     final repo = ref.read(entryRepositoryProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final isEditing = widget.entryToEdit != null;
+    final lockSharedFields = widget.lockSharedFields;
     final units = availableUnits(settings.isMetric);
     final isPremium =
         ref.watch(subscriptionControllerProvider).valueOrNull ?? false;
@@ -579,6 +584,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                       labelText: l10n.product,
                       controller: _productController,
                       suggestionsCallback: repo.searchProductNames,
+                      enabled: !lockSharedFields,
                       minChars: 3,
                       validator: (value) => value == null || value.isEmpty
                           ? l10n.fieldRequired
@@ -587,7 +593,8 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   ),
                   const SizedBox(width: 8),
                   // Barcode scan button (always visible, no premium gate)
-                  if (supportsBarcodeScannerOnCurrentPlatform)
+                  if (!lockSharedFields &&
+                      supportsBarcodeScannerOnCurrentPlatform)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: IconButton.filledTonal(
@@ -612,7 +619,8 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                       labelText: l10n.category,
                       border: const OutlineInputBorder(),
                     ),
-                    onTap: _beginCategorySearch,
+                    onTap: lockSharedFields ? null : _beginCategorySearch,
+                    enabled: !lockSharedFields,
                     validator: (value) => value == null || value.isEmpty
                         ? l10n.fieldRequired
                         : null,
@@ -642,6 +650,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 labelText: l10n.store,
                 controller: _storeController,
                 suggestionsCallback: repo.searchStoreNames,
+                enabled: !lockSharedFields,
                 validator: (value) =>
                     value == null || value.isEmpty ? l10n.fieldRequired : null,
               ),
@@ -740,7 +749,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 maxLines: 2,
                 textCapitalization: TextCapitalization.sentences,
               ),
-              if (isEditing) ...[
+              if (isEditing && !lockSharedFields) ...[
                 const SizedBox(height: 24),
                 const Divider(),
                 const SizedBox(height: 16),

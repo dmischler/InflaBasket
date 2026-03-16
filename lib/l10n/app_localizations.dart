@@ -2001,6 +2001,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notification permission denied. Enable in Settings.'**
   String get priceUpdatePermissionDenied;
+
+  /// AppBar title for the product detail screen
+  ///
+  /// In en, this message translates to:
+  /// **'Product Details'**
+  String get productDetailTitle;
+
+  /// Delete action label for the product detail screen
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Product'**
+  String get productDetailDeleteProduct;
+
+  /// Title shown when a product detail record no longer exists
+  ///
+  /// In en, this message translates to:
+  /// **'Product not found'**
+  String get productDetailMissingTitle;
+
+  /// Message shown when a product detail record no longer exists
+  ///
+  /// In en, this message translates to:
+  /// **'This product may have been deleted already.'**
+  String get productDetailMissingMessage;
+
+  /// Label for the number of entries in product details
+  ///
+  /// In en, this message translates to:
+  /// **'Entries'**
+  String get productDetailEntries;
+
+  /// Label for the first purchase date in product details
+  ///
+  /// In en, this message translates to:
+  /// **'First purchase'**
+  String get productDetailFirstPurchase;
+
+  /// Label for the latest purchase date in product details
+  ///
+  /// In en, this message translates to:
+  /// **'Latest purchase'**
+  String get productDetailLatestPurchase;
+
+  /// Label for the product-specific inflation metric
+  ///
+  /// In en, this message translates to:
+  /// **'Product inflation'**
+  String get productDetailInflation;
+
+  /// Helper text when product inflation uses a partial period baseline
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated from the first available in-range price.'**
+  String get productDetailPartialPeriod;
+
+  /// Title shown when a product has no purchase entries
+  ///
+  /// In en, this message translates to:
+  /// **'No entries left'**
+  String get productDetailNoEntriesTitle;
+
+  /// Message shown when a product has no purchase entries
+  ///
+  /// In en, this message translates to:
+  /// **'This product currently has no price history entries.'**
+  String get productDetailNoEntriesMessage;
+
+  /// Section title for the product detail history list
+  ///
+  /// In en, this message translates to:
+  /// **'Price History'**
+  String get productDetailPriceHistory;
+
+  /// Snackbar shown when renaming a product to an existing name
+  ///
+  /// In en, this message translates to:
+  /// **'Another product already uses this name.'**
+  String get productDetailDuplicateNameMessage;
+
+  /// Confirmation message when deleting a product and its entries
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\" and all {count} linked entries?'**
+  String productDetailDeleteProductMessage(String name, int count);
+
+  /// Snackbar shown after deleting a product
+  ///
+  /// In en, this message translates to:
+  /// **'Product deleted.'**
+  String get productDetailDeleted;
+
+  /// One month time range label for product detail chart
+  ///
+  /// In en, this message translates to:
+  /// **'1M'**
+  String get productDetailRange1m;
+
+  /// Three month time range label for product detail chart
+  ///
+  /// In en, this message translates to:
+  /// **'3M'**
+  String get productDetailRange3m;
+
+  /// Six month time range label for product detail chart
+  ///
+  /// In en, this message translates to:
+  /// **'6M'**
+  String get productDetailRange6m;
+
+  /// Bottom sheet action to open product details from history
+  ///
+  /// In en, this message translates to:
+  /// **'View Details'**
+  String get productDetailViewAction;
 }
 
 class _AppLocalizationsDelegate

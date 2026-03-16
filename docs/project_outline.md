@@ -94,6 +94,7 @@ lib/
 | `/` | Splash | Initialize DB, check RevenueCat |
 | `/home` | Dashboard | 4 tabs: Overview, History, Categories, Settings |
 | `/home/add` | Add Entry | Manual entry form |
+| `/home/product/:productId` | Product Detail | Product-level view with inline shared-field edits, chart, and history |
 | `/scanner` | Scanner | Camera/Gallery → AI processing → Review |
 | `/paywall` | Paywall | Premium upgrade (mobile only) |
 | `/settings` | Settings | Subscription, categories, templates, alerts, export |
@@ -359,6 +360,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Exact duplicates are now auto-discarded for new entries when product, store, and price match within the last 30 days
 - Barcode-based matching is prioritized, then product identity/name matching, before fallback fuzzy matching
 - Receipt bulk import now skips exact duplicates and reports how many rows were saved vs skipped
+
+**v1.13.10 Product Detail View**
+- Added `/home/product/:productId` with product-specific chart, price-history list, and fiat/bitcoin-aware inflation facts
+- History entries now expose a dedicated long-press action sheet with View Details alongside edit/delete
+- Product detail supports inline editing for shared product fields (name, category, canonical store) and propagates store edits across linked entries/templates without a schema migration
+- Product price-history rows reuse swipe gestures: right to edit entry-specific values, left to delete a single price entry
+- Top-level product deletion removes linked entries, templates, alerts, and cached price-history rows after confirmation
 
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API

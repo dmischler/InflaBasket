@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
 import 'package:inflabasket/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:inflabasket/features/dashboard/presentation/product_detail_screen.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
 import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart';
@@ -32,10 +33,24 @@ GoRouter appRouter(AppRouterRef ref) {
               if (extra is EntryWithDetails) {
                 return AddEntryScreen(entryToEdit: extra);
               }
+              if (extra is EntryEditRequest) {
+                return AddEntryScreen(
+                  entryToEdit: extra.entry,
+                  lockSharedFields: extra.lockSharedFields,
+                );
+              }
               if (extra is ProductInfo) {
                 return AddEntryScreen(productInfoFromBarcode: extra);
               }
               return const AddEntryScreen();
+            },
+          ),
+          GoRoute(
+            path: 'product/:productId',
+            builder: (context, state) {
+              final productId =
+                  int.parse(state.pathParameters['productId'] ?? '0');
+              return ProductDetailScreen(productId: productId);
             },
           ),
         ],

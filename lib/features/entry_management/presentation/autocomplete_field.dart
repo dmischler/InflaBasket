@@ -7,6 +7,8 @@ class AsyncAutocompleteField extends StatelessWidget {
   final Future<List<String>> Function(String) suggestionsCallback;
   final String? Function(String?)? validator;
   final int minChars;
+  final bool enabled;
+  final ValueChanged<String>? onFieldSubmitted;
 
   const AsyncAutocompleteField({
     super.key,
@@ -15,6 +17,8 @@ class AsyncAutocompleteField extends StatelessWidget {
     required this.suggestionsCallback,
     this.validator,
     this.minChars = 0,
+    this.enabled = true,
+    this.onFieldSubmitted,
   });
 
   Future<List<String>> _wrapSuggestions(String search) async {
@@ -34,11 +38,13 @@ class AsyncAutocompleteField extends StatelessWidget {
         return TextFormField(
           controller: textController,
           focusNode: focusNode,
+          enabled: enabled,
           decoration: InputDecoration(
             labelText: labelText,
             border: const OutlineInputBorder(),
           ),
           validator: validator,
+          onFieldSubmitted: onFieldSubmitted,
         );
       },
       itemBuilder: (context, itemData) {

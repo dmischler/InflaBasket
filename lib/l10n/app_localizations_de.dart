@@ -1071,4 +1071,67 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get priceUpdatePermissionDenied =>
       'Benachrichtigungsberechtigung verweigert. Aktivieren Sie sie in den Einstellungen.';
+
+  @override
+  String get productDetailTitle => 'Produktdetails';
+
+  @override
+  String get productDetailDeleteProduct => 'Produkt löschen';
+
+  @override
+  String get productDetailMissingTitle => 'Produkt nicht gefunden';
+
+  @override
+  String get productDetailMissingMessage =>
+      'Dieses Produkt wurde möglicherweise bereits gelöscht.';
+
+  @override
+  String get productDetailEntries => 'Einträge';
+
+  @override
+  String get productDetailFirstPurchase => 'Erster Kauf';
+
+  @override
+  String get productDetailLatestPurchase => 'Letzter Kauf';
+
+  @override
+  String get productDetailInflation => 'Produktinflation';
+
+  @override
+  String get productDetailPartialPeriod =>
+      'Berechnet ab dem ersten verfügbaren Preis im Zeitraum.';
+
+  @override
+  String get productDetailNoEntriesTitle => 'Keine Einträge mehr';
+
+  @override
+  String get productDetailNoEntriesMessage =>
+      'Dieses Produkt hat derzeit keine Preiseinträge.';
+
+  @override
+  String get productDetailPriceHistory => 'Preisverlauf';
+
+  @override
+  String get productDetailDuplicateNameMessage =>
+      'Ein anderes Produkt verwendet bereits diesen Namen.';
+
+  @override
+  String productDetailDeleteProductMessage(String name, int count) {
+    return '\"$name\" und alle $count verknüpften Einträge löschen?';
+  }
+
+  @override
+  String get productDetailDeleted => 'Produkt gelöscht.';
+
+  @override
+  String get productDetailRange1m => '1M';
+
+  @override
+  String get productDetailRange3m => '3M';
+
+  @override
+  String get productDetailRange6m => '6M';
+
+  @override
+  String get productDetailViewAction => 'Details anzeigen';
 }

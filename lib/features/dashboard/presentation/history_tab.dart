@@ -245,6 +245,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
         Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
 
     final content = ListTile(
+      onLongPress: () => _showEntryActions(context, entryDetails, l10n),
       leading: CircleAvatar(
         backgroundColor: isLuxeMode ? AppColors.bgElevated : null,
         foregroundColor: isLuxeMode ? AppColors.textPrimary : null,
@@ -317,6 +318,87 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     }
 
     return content;
+  }
+
+  Future<void> _showEntryActions(
+    BuildContext context,
+    EntryWithDetails entryDetails,
+    AppLocalizations l10n,
+  ) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.visibility_outlined),
+                title: Text(l10n.productDetailViewAction),
+                onTap: () => Navigator.of(sheetContext).pop('view'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: Text(l10n.edit),
+                onTap: () => Navigator.of(sheetContext).pop('edit'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: Text(
+                  l10n.delete,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop('delete'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (!context.mounted || action == null) return;
+
+    switch (action) {
+      case 'view':
+        context.push('/home/product/${entryDetails.product.id}');
+        break;
+      case 'edit':
+        context.push('/home/add', extra: entryDetails);
+        break;
+      case 'delete':
+        final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (dialogContext) => AlertDialog(
+                title: Text(l10n.deleteEntryConfirm),
+                content: Text(l10n.deleteEntryMessage),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                    child: Text(l10n.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(true),
+                    child: Text(
+                      l10n.delete,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+            ) ??
+            false;
+
+        if (!confirmed || !context.mounted) return;
+        await ref
+            .read(entryRepositoryProvider)
+            .deletePurchaseEntry(entryDetails.entry.id);
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.entryDeleted)),
+        );
+        break;
+    }
   }
 
   Widget _buildUnitPriceLabel(PurchaseEntry entry, String currency) {

@@ -29,6 +29,23 @@ class EntryWithDetails {
       {required this.entry, required this.product, required this.category});
 }
 
+class EntryEditRequest {
+  final EntryWithDetails entry;
+  final bool lockSharedFields;
+
+  const EntryEditRequest({
+    required this.entry,
+    this.lockSharedFields = false,
+  });
+}
+
+class ProductWithCategory {
+  final Product product;
+  final Category category;
+
+  const ProductWithCategory({required this.product, required this.category});
+}
+
 /// A lightweight version for duplicate detection - only includes product name.
 class PurchaseEntryWithProduct {
   final PurchaseEntry entry;
@@ -167,6 +184,24 @@ class EntryRepository {
         .getSingleOrNull();
   }
 
+  Future<Product?> getProductById(int productId) {
+    return (_db.select(_db.products)..where((p) => p.id.equals(productId)))
+        .getSingleOrNull();
+  }
+
+  Future<bool> hasOtherProductWithName({
+    required String name,
+    required int excludedProductId,
+  }) async {
+    final products = await _db.select(_db.products).get();
+    final normalizedName = name.trim().toLowerCase();
+    return products.any(
+      (product) =>
+          product.id != excludedProductId &&
+          product.name.trim().toLowerCase() == normalizedName,
+    );
+  }
+
   /// Returns the product with the given barcode, or null if not found.
   Future<Product?> getProductByBarcode(String barcode) async {
     return (_db.select(_db.products)..where((p) => p.barcode.equals(barcode)))
@@ -184,13 +219,61 @@ class EntryRepository {
   Future<int> addProduct(String name, int categoryId,
       {String? barcode, String? brand}) {
     return _db.into(_db.products).insert(
-          ProductsCompanion.insert(
-            name: name,
-            categoryId: categoryId,
+          ProductsCompanion(
+            name: Value(name),
+            categoryId: Value(categoryId),
             barcode: Value(barcode),
             brand: Value(brand),
           ),
         );
+  }
+
+  Stream<ProductWithCategory?> watchProductWithCategory(int productId) {
+    final query = _db.select(_db.products).join([
+      innerJoin(
+        _db.categories,
+        _db.categories.id.equalsExp(_db.products.categoryId),
+      ),
+    ])
+      ..where(_db.products.id.equals(productId))
+      ..limit(1);
+
+    return query.watchSingleOrNull().map((row) {
+      if (row == null) return null;
+      return ProductWithCategory(
+        product: row.readTable(_db.products),
+        category: row.readTable(_db.categories),
+      );
+    });
+  }
+
+  Future<void> updateProductDetailFields({
+    required int productId,
+    required String name,
+    required int categoryId,
+    required String storeName,
+  }) async {
+    await _db.transaction(() async {
+      await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
+          .write(
+        ProductsCompanion(
+          name: Value(name),
+          categoryId: Value(categoryId),
+        ),
+      );
+
+      await (_db.update(_db.purchaseEntries)
+            ..where((e) => e.productId.equals(productId)))
+          .write(
+        PurchaseEntriesCompanion(storeName: Value(storeName)),
+      );
+
+      await (_db.update(_db.entryTemplates)
+            ..where((t) => t.productId.equals(productId)))
+          .write(
+        EntryTemplatesCompanion(storeName: Value(storeName)),
+      );
+    });
   }
 
   Future<void> updateProductBrand(int productId, String brand) async {
@@ -215,6 +298,34 @@ class EntryRepository {
       innerJoin(
           _db.categories, _db.categories.id.equalsExp(_db.products.categoryId)),
     ]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        return EntryWithDetails(
+          entry: row.readTable(_db.purchaseEntries),
+          product: row.readTable(_db.products),
+          category: row.readTable(_db.categories),
+        );
+      }).toList();
+    });
+  }
+
+  Stream<List<EntryWithDetails>> watchEntriesWithDetailsForProduct(
+      int productId) {
+    final query = _db.select(_db.purchaseEntries).join([
+      innerJoin(
+        _db.products,
+        _db.products.id.equalsExp(_db.purchaseEntries.productId),
+      ),
+      innerJoin(
+        _db.categories,
+        _db.categories.id.equalsExp(_db.products.categoryId),
+      ),
+    ])
+      ..where(_db.purchaseEntries.productId.equals(productId))
+      ..orderBy([
+        OrderingTerm.desc(_db.purchaseEntries.purchaseDate),
+      ]);
 
     return query.watch().map((rows) {
       return rows.map((row) {
@@ -397,6 +508,26 @@ class EntryRepository {
   Future<int> deletePurchaseEntry(int entryId) {
     return (_db.delete(_db.purchaseEntries)..where((e) => e.id.equals(entryId)))
         .go();
+  }
+
+  Future<void> deleteProductAndRelatedData(int productId) async {
+    await _db.transaction(() async {
+      await (_db.delete(_db.priceAlerts)
+            ..where((alert) => alert.productId.equals(productId)))
+          .go();
+      await (_db.delete(_db.entryTemplates)
+            ..where((template) => template.productId.equals(productId)))
+          .go();
+      await _db.customStatement(
+        'DELETE FROM price_histories WHERE product_id = ?',
+        [productId],
+      );
+      await (_db.delete(_db.purchaseEntries)
+            ..where((entry) => entry.productId.equals(productId)))
+          .go();
+      await (_db.delete(_db.products)..where((p) => p.id.equals(productId)))
+          .go();
+    });
   }
 
   /// Saves a list of receipt items atomically. If any item fails, the entire

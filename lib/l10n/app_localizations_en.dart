@@ -1074,4 +1074,67 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get priceUpdatePermissionDenied =>
       'Notification permission denied. Enable in Settings.';
+
+  @override
+  String get productDetailTitle => 'Product Details';
+
+  @override
+  String get productDetailDeleteProduct => 'Delete Product';
+
+  @override
+  String get productDetailMissingTitle => 'Product not found';
+
+  @override
+  String get productDetailMissingMessage =>
+      'This product may have been deleted already.';
+
+  @override
+  String get productDetailEntries => 'Entries';
+
+  @override
+  String get productDetailFirstPurchase => 'First purchase';
+
+  @override
+  String get productDetailLatestPurchase => 'Latest purchase';
+
+  @override
+  String get productDetailInflation => 'Product inflation';
+
+  @override
+  String get productDetailPartialPeriod =>
+      'Calculated from the first available in-range price.';
+
+  @override
+  String get productDetailNoEntriesTitle => 'No entries left';
+
+  @override
+  String get productDetailNoEntriesMessage =>
+      'This product currently has no price history entries.';
+
+  @override
+  String get productDetailPriceHistory => 'Price History';
+
+  @override
+  String get productDetailDuplicateNameMessage =>
+      'Another product already uses this name.';
+
+  @override
+  String productDetailDeleteProductMessage(String name, int count) {
+    return 'Delete \"$name\" and all $count linked entries?';
+  }
+
+  @override
+  String get productDetailDeleted => 'Product deleted.';
+
+  @override
+  String get productDetailRange1m => '1M';
+
+  @override
+  String get productDetailRange3m => '3M';
+
+  @override
+  String get productDetailRange6m => '6M';
+
+  @override
+  String get productDetailViewAction => 'View Details';
 }
