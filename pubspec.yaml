@@ -2,7 +2,7 @@ name: inflabasket
 description: Personal Basket Inflation Tracker
 publish_to: 'none'
 
-version: 1.17.0
+version: 1.18.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -43,6 +43,7 @@ dependencies:
   openfoodfacts: ^3.30.2
   shimmer: ^3.0.0
   lottie: ^3.3.2
+  cached_network_image: ^3.4.0
 
 dev_dependencies:
   flutter_test:

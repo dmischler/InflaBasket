@@ -12,6 +12,7 @@ import 'package:path/path.dart' as path;
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/services/store_logo_cache.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/ai_scanner/data/vision_client.dart';
@@ -137,6 +138,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   void _showReviewDialog(Map<String, dynamic> result) {
     final l10n = AppLocalizations.of(context)!;
     final storeName = result['storeName'] as String? ?? l10n.unknownStore;
+    final storeWebsite = result['storeWebsite'] as String? ?? '';
     final dateStr = result['date'] as String?;
     final receiptDate =
         (dateStr != null ? DateTime.tryParse(dateStr) : null) ?? DateTime.now();
@@ -157,6 +159,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       builder: (dialogContext) {
         Widget child = _ReceiptReviewDialog(
           storeName: storeName,
+          storeWebsite: storeWebsite,
           receiptDate: receiptDate,
           items: items,
           categories: categories,
@@ -169,6 +172,11 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                         receiptDate: receiptDate,
                         items: selectedItems,
                       );
+              if (storeWebsite.isNotEmpty) {
+                await ref
+                    .read(storeLogoCacheProvider)
+                    .setWebsite(storeName, storeWebsite);
+              }
               if (!dialogContext.mounted) return;
               final sl10n = AppLocalizations.of(dialogContext)!;
               ScaffoldMessenger.of(dialogContext).showSnackBar(
@@ -381,6 +389,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 /// category dropdowns, and unit pickers. Only checked items are saved.
 class _ReceiptReviewDialog extends StatefulWidget {
   final String storeName;
+  final String storeWebsite;
   final DateTime receiptDate;
   final List<dynamic> items;
   final List<Category> categories;
@@ -389,6 +398,7 @@ class _ReceiptReviewDialog extends StatefulWidget {
 
   const _ReceiptReviewDialog({
     required this.storeName,
+    required this.storeWebsite,
     required this.receiptDate,
     required this.items,
     required this.categories,

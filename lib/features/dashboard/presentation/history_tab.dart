@@ -8,6 +8,7 @@ import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
+import 'package:inflabasket/core/widgets/store_logo_widget.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -260,12 +261,10 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
 
     final content = ListTile(
       onLongPress: () => _showEntryActions(context, entryDetails, l10n),
-      leading: CircleAvatar(
-        backgroundColor: isLuxeMode ? AppColors.bgElevated : null,
-        foregroundColor: isLuxeMode ? AppColors.textPrimary : null,
-        child: Text(
-          categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '?',
-        ),
+      leading: StoreLogoWidget(
+        storeName: entry.storeName,
+        fallbackLetter: categoryName,
+        isLuxeMode: isLuxeMode,
       ),
       title: Text(product.name,
           style:

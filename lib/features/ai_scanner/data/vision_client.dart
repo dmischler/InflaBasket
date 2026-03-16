@@ -32,6 +32,9 @@ class VisionClient {
           properties: {
             'storeName': Schema.string(
                 description: 'Store name or empty string if unknown'),
+            'storeWebsite': Schema.string(
+                description:
+                    'Store website URL if visible on receipt (e.g., www.migros.ch), or empty string if not found'),
             'date': Schema.string(
                 description:
                     'Date in YYYY-MM-DD format or empty string if unknown'),
@@ -168,11 +171,13 @@ Rules you MUST follow:
    ${availableCategories.join(', ')}
 7. confidence = how certain you are this is a real product line (0.0–1.0)
 8. storeName: Capitalize the first letter (e.g., 'Coop' not 'coop', 'Migros' not 'migros')
+9. storeWebsite: Extract the store's website URL if visible on the receipt header/footer (e.g., 'www.migros.ch', 'migros.ch'). Remove 'https://' prefix if present. Return empty string if not found.
 
 Return ONLY this JSON structure:
 
 {
   "storeName": "string or ''",
+  "storeWebsite": "string or ''",
   "date": "YYYY-MM-DD or ''",
   "items": [
     {
@@ -190,6 +195,7 @@ Return ONLY this JSON structure:
 Example correct output:
 {
   "storeName": "REWE",
+  "storeWebsite": "www.rewe.de",
   "date": "2026-03-09",
   "items": [
     {
@@ -276,8 +282,12 @@ Note in the examples:
           ? rawStoreName[0].toUpperCase() + rawStoreName.substring(1)
           : '';
 
+      final rawStoreWebsite = parsed['storeWebsite'] as String? ?? '';
+      final storeWebsite = rawStoreWebsite.trim();
+
       return {
         'storeName': storeName,
+        'storeWebsite': storeWebsite,
         'date': parsed['date'] as String? ?? '',
         'items': items,
       };

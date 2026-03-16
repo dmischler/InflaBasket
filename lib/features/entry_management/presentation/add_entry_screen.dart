@@ -9,6 +9,7 @@ import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/barcode_assignment_service.dart';
 import 'package:inflabasket/core/services/price_history_service.dart';
+import 'package:inflabasket/core/services/store_logo_cache.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/autocomplete_field.dart';
@@ -41,6 +42,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   late final TextEditingController _categoryController;
   late final FocusNode _categoryFocusNode;
   late final TextEditingController _storeController;
+  late final TextEditingController _websiteController;
   late final TextEditingController _priceController;
   late final TextEditingController _quantityController;
   late final TextEditingController _notesController;
@@ -85,6 +87,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               : barcodeInfo?.brand) ??
           '',
     );
+    _websiteController = TextEditingController();
     _priceController =
         TextEditingController(text: edit?.entry.price.toString() ?? '');
     _quantityController =
@@ -92,6 +95,20 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     _notesController = TextEditingController(text: edit?.entry.notes ?? '');
     _selectedDate = edit?.entry.purchaseDate ?? DateTime.now();
     _selectedUnit = unitTypeFromString(edit?.entry.unit);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadWebsiteFromCache();
+    });
+  }
+
+  Future<void> _loadWebsiteFromCache() async {
+    final storeName = _storeController.text.trim();
+    if (storeName.isEmpty) return;
+    final website =
+        await ref.read(storeLogoCacheProvider).getWebsite(storeName);
+    if (website != null && website.isNotEmpty && mounted) {
+      _websiteController.text = website;
+    }
   }
 
   @override
@@ -113,6 +130,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     _categoryController.dispose();
     _categoryFocusNode.dispose();
     _storeController.dispose();
+    _websiteController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
     _notesController.dispose();
@@ -653,6 +671,26 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 enabled: !lockSharedFields,
                 validator: (value) =>
                     value == null || value.isEmpty ? l10n.fieldRequired : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _websiteController,
+                decoration: InputDecoration(
+                  labelText: 'Store Website (optional)',
+                  hintText: 'e.g., www.migros.ch',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: _websiteController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _websiteController.clear();
+                            setState(() {});
+                          },
+                        )
+                      : null,
+                ),
+                keyboardType: TextInputType.url,
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               ListTile(

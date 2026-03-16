@@ -17,6 +17,7 @@ Personal inflation tracking app that compares user's custom basket against offic
 - **Device Features:** `camera`, `image_picker`, `image_cropper`, `mobile_scanner`
 - **Subscriptions:** `purchases_flutter` (RevenueCat)
 - **Network:** `dio`, `retrofit`, `openfoodfacts` (official package)
+- **Images:** `cached_network_image` (favicon/logo loading with caching)
 
 ---
 
@@ -409,9 +410,17 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Removed theme selection UI (settings dropdown)
 - Consolidated to single Luxe Dark theme with Fiat/Bitcoin accent colors
 - Theme toggle now controlled by `isBitcoinMode` setting
-- Removed cyberpunk terminal theme and light/dark standard themes
-- Added migration for legacy theme index to Bitcoin mode flag
 - Removed unused AppThemeType enum and color tokens
+
+**v1.18.0 Store Logo Display**
+- Added store logo display in history tab using favicons from store websites
+- Created `StoreLogoCache` service (SharedPreferences-based) for caching store website URLs
+- Created `StoreLogoWidget` with fallback chain: DuckDuckGo favicon → Vemetric API → category letter
+- Added `storeWebsite` extraction to AI receipt scanner schema
+- Added optional website field to entry add/edit screen
+- User can manually add store website URL once, applies to all entries with same store name
+- Built-in mapping for ~30 common stores (Migros, Coop, Aldi, Lidl, etc.)
+- Fallback to category letter when no website available
 
 ---
 
