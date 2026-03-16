@@ -133,40 +133,35 @@ lib/
 
 ---
 
-## 6. AI Receipt Prompt (Gemini 3.1 Flash Lite)
+## 6. AI Receipt Prompt (Gemini 2.5 Flash)
 
-```
-You are an expert receipt parser. Analyze the provided receipt image.
-Extract ONLY actual purchased product items - exclude ALL non-product lines.
+**Key Price Handling Rule:** The `price` field MUST ALWAYS contain the actual amount paid as shown on the receipt — never a normalized per-unit price. The app calculates per-unit prices internally for inflation comparisons.
 
-STRICTLY EXCLUDE:
-- Tax lines (VAT, sales tax, GST)
-- Summary lines (subtotal, total, grand total)
-- Discount/coupon lines
-- Payment lines (cash, card, change)
-- Store metadata
-- Promotional text
+**Weighted Items Examples:**
+- Receipt shows "Bananas 1.2kg €2.39" → `price: 2.39`, `quantity: 1.2`, `total: 2.39`
+- Receipt shows "Apples €1.99/kg 500g" → `price: 0.995`, `quantity: 0.5`, `total: 0.995`
+- Receipt shows "Milk €1.49" → `price: 1.49`, `quantity: 1`, `total: 1.49`
 
-INCLUDE ONLY:
-- Individual product items with name AND price
-
-Return JSON:
+**JSON Schema:**
+```json
 {
-  "storeName": "string",
-  "date": "YYYY-MM-DD",
+  "storeName": "string or ''",
+  "date": "YYYY-MM-DD or ''",
   "items": [
     {
       "productName": "string",
       "price": number,
       "quantity": number,
-      "suggestedCategory": "string",
-      "confidence": number (0.0 to 1.0)
+      "unit": "count|gram|kilogram|ounce|pound|milliliter|liter|fluidOunce|pack|piece|bottle|can",
+      "total": number,
+      "suggestedCategory": "exact category from list",
+      "confidence": number (0.0-1.0)
     }
   ]
 }
 ```
 
-Categories: `[Food & Groceries, Dairy, Meat, Beverages, Household, Personal Care, Electronics, Fuel/Transportation, Dining Out]` + custom categories.
+**Categories:** Default categories (Food & Groceries, Restaurants & Dining Out, etc.) + user-defined custom categories.
 
 ---
 

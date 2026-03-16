@@ -134,9 +134,27 @@ Rules you MUST follow:
    - Store info (address, phone, website, opening hours, return policy)
    - Headers, footers, thank you notes, barcodes, cashier name
 3. Each product line appears exactly once.
-4. If quantity > 1 is shown (×2, 3 pcs, 4×, 500g×3), use unit price in "price" and line total in "total".
-5. Infer quantity from text (default = 1 if not specified).
-6. Infer unit intelligently — use ONLY these exact strings:
+
+4. CRITICAL PRICE RULES FOR WEIGHT/QUANTITY ITEMS:
+   - "price" MUST ALWAYS be the ACTUAL AMOUNT PAID as shown on the receipt — NEVER normalize to per-unit.
+   - For items with weight (e.g., "Bananas 1.2kg €2.39"):
+     * price = 2.39 (the total you pay)
+     * quantity = 1.2 (the weight purchased)
+     * total = 2.39 (same as price)
+   - For multi-packs (e.g., "Yogurt 4× €0.50 = €2.00"):
+     * price = 2.00 (line total)
+     * quantity = 4
+     * total = 2.00
+   - For per-unit pricing (e.g., "Apples €1.99/kg 500g"):
+     * price = 0.995 (calculate: 1.99 × 0.5)
+     * quantity = 0.5
+     * total = 0.995
+   - For single items without explicit weight (e.g., "Milk €1.49"):
+     * price = 1.49
+     * quantity = 1
+     * total = 1.49
+
+5. Infer unit intelligently — use ONLY these exact strings:
    count | gram | kilogram | ounce | pound | milliliter | liter | fluidOunce | pack | piece | bottle | can
    IMPORTANT volume conversions:
    - "50cl", "50 cl", "50 cL" → unit: "milliliter", quantity: 500
@@ -145,10 +163,11 @@ Rules you MUST follow:
    - "1.5L", "1.5 L" → unit: "milliliter", quantity: 1500
    - "750ml", "750 ml", "0.75L" → unit: "milliliter", quantity: 750
    - "250ml", "250 ml", "0.25L" → unit: "milliliter", quantity: 250
-7. suggestedCategory MUST be one of these exact values (case-sensitive):
+
+6. suggestedCategory MUST be one of these exact values (case-sensitive):
    ${availableCategories.join(', ')}
-8. confidence = how certain you are this is a real product line (0.0–1.0)
-9. storeName: Capitalize the first letter (e.g., 'Coop' not 'coop', 'Migros' not 'migros')
+7. confidence = how certain you are this is a real product line (0.0–1.0)
+8. storeName: Capitalize the first letter (e.g., 'Coop' not 'coop', 'Migros' not 'migros')
 
 Return ONLY this JSON structure:
 
@@ -184,15 +203,28 @@ Example correct output:
     },
     {
       "productName": "Bananas",
-      "price": 1.99,
+      "price": 2.39,
       "quantity": 1.2,
       "unit": "kilogram",
       "total": 2.39,
       "suggestedCategory": "fruits",
       "confidence": 0.95
+    },
+    {
+      "productName": "Apples",
+      "price": 1.99,
+      "quantity": 0.5,
+      "unit": "kilogram",
+      "total": 1.99,
+      "suggestedCategory": "fruits",
+      "confidence": 0.92
     }
   ]
 }
+
+Note in the examples:
+- Bananas: Receipt showed "Bananas 1.2kg €2.39" → price is the total paid (€2.39), NOT the per-kg rate
+- Apples: Receipt showed "Apples €1.99/kg 500g" → price is calculated (€1.99 × 0.5 = €0.995)
 ''';
 
       final response = await _generateWithFallback(
