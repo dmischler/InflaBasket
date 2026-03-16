@@ -11,6 +11,7 @@ import 'package:inflabasket/core/router/app_router.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
 import 'package:inflabasket/core/services/price_update_reminder_service.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/settings/presentation/price_update_reminder_dialog.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -74,6 +75,7 @@ class InflaBasketApp extends ConsumerStatefulWidget {
 class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
     with WidgetsBindingObserver {
   bool _didRunInitialReminderSync = false;
+  bool _didRunInitialSatsRepair = false;
   bool _isShowingReminderPopup = false;
 
   @override
@@ -86,11 +88,15 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
     };
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted || _didRunInitialReminderSync) {
+      if (!mounted || _didRunInitialReminderSync || _didRunInitialSatsRepair) {
         return;
       }
+      _didRunInitialSatsRepair = true;
       _didRunInitialReminderSync = true;
-      await _syncReminderSchedule();
+      await Future.wait([
+        _repairMissingEntrySats(),
+        _syncReminderSchedule(),
+      ]);
 
       if (NotificationService.consumeDidLaunchFromPriceUpdateNotification()) {
         await ref
@@ -130,6 +136,16 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
   Future<void> _syncReminderSchedule() async {
     final reminderService = ref.read(priceUpdateReminderServiceProvider);
     await reminderService.syncReminderSchedule();
+  }
+
+  Future<void> _repairMissingEntrySats() async {
+    try {
+      final repo = ref.read(entryRepositoryProvider);
+      await repo.updateMissingPriceSats();
+    } catch (error, stackTrace) {
+      debugPrint('Failed to repair missing sats values: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 
   void _checkPendingPopup() {

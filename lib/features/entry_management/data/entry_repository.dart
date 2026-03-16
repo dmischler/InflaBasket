@@ -229,6 +229,23 @@ class EntryRepository {
     return sats;
   }
 
+  PurchaseEntry _copyEntryWithPriceSats(
+    PurchaseEntry entry,
+    int? priceSats,
+  ) {
+    return PurchaseEntry(
+      id: entry.id,
+      productId: entry.productId,
+      storeName: entry.storeName,
+      purchaseDate: entry.purchaseDate,
+      price: entry.price,
+      quantity: entry.quantity,
+      unit: entry.unit,
+      notes: entry.notes,
+      priceSats: priceSats,
+    );
+  }
+
   Future<int> addPurchaseEntry({
     required int productId,
     required String storeName,
@@ -303,8 +320,41 @@ class EntryRepository {
     }).toList();
   }
 
-  Future<bool> updatePurchaseEntry(PurchaseEntry entry) {
-    return _db.update(_db.purchaseEntries).replace(entry);
+  Future<int> updateMissingPriceSats({String currency = 'CHF'}) async {
+    final entriesMissingSats = await (_db.select(_db.purchaseEntries)
+          ..where((entry) => entry.priceSats.isNull()))
+        .get();
+
+    var updatedEntries = 0;
+
+    for (final entry in entriesMissingSats) {
+      final priceSats =
+          await calculatePriceSats(entry.price, currency, entry.purchaseDate);
+
+      if (priceSats == null) {
+        continue;
+      }
+
+      final updated = await _db
+          .update(_db.purchaseEntries)
+          .replace(_copyEntryWithPriceSats(entry, priceSats));
+
+      if (updated) {
+        updatedEntries++;
+      }
+    }
+
+    return updatedEntries;
+  }
+
+  Future<bool> updatePurchaseEntry(
+    PurchaseEntry entry, {
+    String currency = 'CHF',
+  }) async {
+    final priceSats =
+        await calculatePriceSats(entry.price, currency, entry.purchaseDate);
+    final updatedEntry = _copyEntryWithPriceSats(entry, priceSats);
+    return _db.update(_db.purchaseEntries).replace(updatedEntry);
   }
 
   Future<int> deletePurchaseEntry(int entryId) {

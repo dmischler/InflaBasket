@@ -49,6 +49,7 @@ class PurchaseEntries extends Table {
   RealColumn get quantity => real().withDefault(const Constant(1.0))();
   TextColumn get unit => text().nullable()();
   TextColumn get notes => text().nullable()();
+  IntColumn get priceSats => integer().nullable()();
 }
 ```
 
@@ -334,6 +335,10 @@ final isPremiumProvider = Provider<bool>((ref) {
 - 8-second timeout fallback to `StateMessageCard`
 - Fade transitions into loaded content
 - Accessible loading semantics with dark/light shimmer palettes
+
+**v1.13.3 Sats Backfill Reliability**
+- App startup repairs entries with missing `priceSats` values automatically
+- Editing an entry now recalculates sats instead of dropping the stored value
 
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
