@@ -391,6 +391,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 **v1.16.3 History Tab Scrollbar**
 - Added scrollbar to history tab for better navigation through long entry lists
 
+**v1.16.5 History Search Header Fix**
+- Fixed bug where clicking search icon in history tab caused the entire header (title + filter icons) to disappear
+- Restructured build method to always render the header row at the top
+- Empty state now shows below the header instead of replacing it entirely
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
