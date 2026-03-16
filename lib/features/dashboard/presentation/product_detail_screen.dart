@@ -3,14 +3,17 @@ import 'dart:math' show max, min;
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/mixins/chart_touch_state.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
+import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
@@ -33,7 +36,8 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
       _ProductDetailScreenState();
 }
 
-class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
+class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
+    with ChartTouchState {
   final _nameController = TextEditingController();
   final _categoryController = TextEditingController();
   final _categoryFocusNode = FocusNode();
@@ -532,6 +536,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final chartMinY = minY == maxY ? minY * 0.9 : minY;
     final chartMaxY = minY == maxY ? maxY * 1.1 : maxY;
     final color = Theme.of(context).colorScheme.primary;
+    final shouldAnimate = animationsEnabled(
+      context,
+      pointCount: points.length,
+    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glowOpacity = isDark ? 0.6 : 0.35;
 
     final chart = SizedBox(
       height: 260,
@@ -548,7 +558,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               color: color,
               barWidth: 3,
               isStrokeCapRound: true,
-              dotData: const FlDotData(show: true),
+              dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
                 color: color.withValues(alpha: 0.18),
@@ -579,6 +589,38 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             ),
           ),
           lineTouchData: LineTouchData(
+            enabled: true,
+            touchCallback: (event, response) {
+              if (event is! FlTapUpEvent || response?.lineBarSpots == null) {
+                return;
+              }
+              if (!handleTouchDebounce()) return;
+              HapticFeedback.lightImpact();
+            },
+            getTouchedSpotIndicator: (barData, spotIndexes) {
+              return spotIndexes.map((index) {
+                final indicatorColor = barData.color ?? color;
+                return TouchedSpotIndicatorData(
+                  FlLine(
+                    color: indicatorColor.withValues(alpha: 0.6),
+                    strokeWidth: 2,
+                    dashArray: [4, 3],
+                  ),
+                  FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, bar, spotIndex) {
+                      return GlowDotPainter(
+                        color: indicatorColor,
+                        radius: 8,
+                        glowColor:
+                            indicatorColor.withValues(alpha: glowOpacity),
+                        glowRadius: 12,
+                      );
+                    },
+                  ),
+                );
+              }).toList();
+            },
             touchTooltipData: LineTouchTooltipData(
               fitInsideHorizontally: true,
               fitInsideVertically: true,
@@ -605,6 +647,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             ),
           ),
         ),
+        duration: shouldAnimate
+            ? ChartAnimations.entranceDurationFor(points.length)
+            : Duration.zero,
+        curve: ChartAnimations.entranceCurve,
       ),
     );
 

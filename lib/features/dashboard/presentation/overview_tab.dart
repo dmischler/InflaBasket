@@ -1,13 +1,16 @@
 import 'dart:math' show min, max;
 
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:inflabasket/core/mixins/chart_touch_state.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/api/cpi_client.dart';
 import 'package:inflabasket/core/api/cpi_provider.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
@@ -18,11 +21,17 @@ import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
 
-class OverviewTab extends ConsumerWidget {
+class OverviewTab extends ConsumerStatefulWidget {
   const OverviewTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OverviewTab> createState() => _OverviewTabState();
+}
+
+class _OverviewTabState extends ConsumerState<OverviewTab>
+    with ChartTouchState {
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final entriesAsync = ref.watch(entriesWithDetailsProvider);
     final settings = ref.watch(settingsControllerProvider);
@@ -620,6 +629,10 @@ class OverviewTab extends ConsumerWidget {
     }
 
     final aggregatedHistory = _aggregateByPeriod(validHistory, timeRange);
+    final shouldAnimate = animationsEnabled(
+      context,
+      pointCount: aggregatedHistory.length,
+    );
 
     final spots = aggregatedHistory
         .map((e) => FlSpot(
@@ -681,6 +694,8 @@ class OverviewTab extends ConsumerWidget {
     final primaryColor = Theme.of(context).colorScheme.primary;
     final isLuxeMode =
         Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glowOpacity = isDark ? 0.6 : 0.35;
 
     final barData = <LineChartBarData>[
       LineChartBarData(
@@ -692,7 +707,7 @@ class OverviewTab extends ConsumerWidget {
         shadow: isLuxeMode
             ? Shadow(color: primaryColor.withValues(alpha: 0.8), blurRadius: 8)
             : const Shadow(color: Colors.transparent),
-        dotData: const FlDotData(show: true),
+        dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(
           show: true,
           gradient: isLuxeMode
@@ -755,6 +770,38 @@ class OverviewTab extends ConsumerWidget {
           borderData: FlBorderData(show: false),
           lineBarsData: barData,
           lineTouchData: LineTouchData(
+            enabled: true,
+            touchCallback: (event, response) {
+              if (event is! FlTapUpEvent || response?.lineBarSpots == null) {
+                return;
+              }
+              if (!handleTouchDebounce()) return;
+              HapticFeedback.lightImpact();
+            },
+            getTouchedSpotIndicator: (barData, spotIndexes) {
+              return spotIndexes.map((index) {
+                final indicatorColor = barData.color ?? primaryColor;
+                return TouchedSpotIndicatorData(
+                  FlLine(
+                    color: indicatorColor.withValues(alpha: 0.6),
+                    strokeWidth: 2,
+                    dashArray: [4, 3],
+                  ),
+                  FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, bar, spotIndex) {
+                      return GlowDotPainter(
+                        color: indicatorColor,
+                        radius: 8,
+                        glowColor:
+                            indicatorColor.withValues(alpha: glowOpacity),
+                        glowRadius: 12,
+                      );
+                    },
+                  ),
+                );
+              }).toList();
+            },
             touchTooltipData: LineTouchTooltipData(
               fitInsideHorizontally: true,
               fitInsideVertically: true,
@@ -785,6 +832,10 @@ class OverviewTab extends ConsumerWidget {
             ),
           ),
         ),
+        duration: shouldAnimate
+            ? ChartAnimations.entranceDurationFor(aggregatedHistory.length)
+            : Duration.zero,
+        curve: ChartAnimations.entranceCurve,
       ),
     );
   }

@@ -368,6 +368,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Product price-history rows reuse swipe gestures: right to edit entry-specific values, left to delete a single price entry
 - Top-level product deletion removes linked entries, templates, alerts, and cached price-history rows after confirmation
 
+**v1.15.0 Animated Charts & Touch Highlights**
+- Added 600ms chart entrance animations with reduced-motion and single-point fallbacks across dashboard overview, categories, and product detail charts
+- Added touch-highlight interactions with dashed guide lines, glow-dot emphasis, debounced haptics, and safer timer-based reset handling
+- Category bars now briefly brighten and pop on tap while preserving built-in tooltips and smooth implicit fl_chart transitions
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
@@ -399,7 +404,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 **Sprint 4 – UI Design**
 - Glassmorphism cards and blur overlays
-- Animated charts with touch highlights
 - Speed dial FAB expansion
 - Theme customization (accent color, density)
 - Matrix Neo-Cyberpunk Terminal theme

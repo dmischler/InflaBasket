@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/mixins/chart_touch_state.dart';
+import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
@@ -13,11 +16,17 @@ import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
-class CategoriesTab extends ConsumerWidget {
+class CategoriesTab extends ConsumerStatefulWidget {
   const CategoriesTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CategoriesTab> createState() => _CategoriesTabState();
+}
+
+class _CategoriesTabState extends ConsumerState<CategoriesTab>
+    with ChartTouchState {
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final entriesAsync = ref.watch(entriesWithDetailsProvider);
     final categoriesInflation = ref.watch(categoryInflationListProvider);
@@ -122,6 +131,11 @@ class CategoriesTab extends ConsumerWidget {
 
     final isLuxeMode =
         Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final shouldAnimate = animationsEnabled(
+      context,
+      pointCount: chartData.length,
+    );
+    final baseWidth = isLuxeMode ? 16.0 : 20.0;
 
     return SizedBox(
       height: 300,
@@ -180,13 +194,53 @@ class CategoriesTab extends ConsumerWidget {
                   ),
                 ),
           borderData: FlBorderData(show: false),
+          barTouchData: BarTouchData(
+            enabled: true,
+            handleBuiltInTouches: true,
+            touchTooltipData: BarTouchTooltipData(
+              fitInsideHorizontally: true,
+              fitInsideVertically: true,
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                final item = chartData[groupIndex];
+                final isPositive = item.inflationPercent >= 0;
+                final amountColor = isLuxeMode
+                    ? (isPositive
+                        ? AppColors.accentBtcMain
+                        : AppColors.accentFiatMain)
+                    : (isPositive
+                        ? Colors.red.shade400
+                        : Colors.green.shade400);
+                final label = CategoryLocalization.displayNameForContext(
+                  context,
+                  item.category.name,
+                );
+                return BarTooltipItem(
+                  '$label\n${item.inflationPercent.toStringAsFixed(1)}%',
+                  TextStyle(
+                    color: amountColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+            touchCallback: (event, response) {
+              if (event is! FlTapUpEvent || response?.spot == null) return;
+              final touchedIndex = response!.spot!.touchedBarGroupIndex;
+              final handled =
+                  handleBarTouch(touchedIndex, () => setState(() {}));
+              if (!handled) return;
+              HapticFeedback.lightImpact();
+            },
+          ),
           barGroups: chartData.asMap().entries.map((e) {
             final index = e.key;
             final item = e.value;
+            final isTouched = index == touchedBarIndex;
             final isPositive = item.inflationPercent >= 0;
             // Clamp individual bar values as a secondary defence against
             // out-of-range values slipping through to fl_chart's painter.
-            final toY = item.inflationPercent.clamp(-100.0, 1000.0).toDouble();
+            final baseToY =
+                item.inflationPercent.clamp(-100.0, 1000.0).toDouble();
 
             final color = isLuxeMode
                 ? (isPositive
@@ -198,9 +252,21 @@ class CategoriesTab extends ConsumerWidget {
               x: index,
               barRods: [
                 BarChartRodData(
-                  toY: toY,
-                  color: color,
-                  width: isLuxeMode ? 16 : 20,
+                  toY: isTouched ? baseToY * 1.06 : baseToY,
+                  color: isTouched ? null : color,
+                  gradient: isTouched
+                      ? LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            color.withValues(alpha: 0.75),
+                            color,
+                          ],
+                        )
+                      : null,
+                  width: isTouched
+                      ? (baseWidth * 1.12).roundToDouble()
+                      : baseWidth,
                   borderRadius: BorderRadius.circular(4),
                   backDrawRodData: isLuxeMode
                       ? BackgroundBarChartRodData(
@@ -214,6 +280,10 @@ class CategoriesTab extends ConsumerWidget {
             );
           }).toList(),
         ),
+        duration: shouldAnimate
+            ? ChartAnimations.entranceDurationFor(chartData.length)
+            : Duration.zero,
+        curve: ChartAnimations.entranceCurve,
       ),
     );
   }
