@@ -49,30 +49,10 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         : const AsyncData<List<ItemInflationSats>>(<ItemInflationSats>[]);
 
     final hasEntriesData = entriesAsync.valueOrNull != null;
-    final isInitialLoading = (!hasEntriesData && entriesAsync.isLoading) ||
-        (isBitcoinMode &&
-            ((historySatsAsync.valueOrNull == null &&
-                    historySatsAsync.isLoading) ||
-                (allHistorySatsAsync.valueOrNull == null &&
-                    allHistorySatsAsync.isLoading) ||
-                (topInflatorsSatsAsync.valueOrNull == null &&
-                    topInflatorsSatsAsync.isLoading)));
+    final isInitialLoading = !hasEntriesData && entriesAsync.isLoading;
 
-    final coreError = entriesAsync.hasError && !hasEntriesData
-        ? entriesAsync.error
-        : isBitcoinMode &&
-                historySatsAsync.hasError &&
-                historySatsAsync.valueOrNull == null
-            ? historySatsAsync.error
-            : isBitcoinMode &&
-                    allHistorySatsAsync.hasError &&
-                    allHistorySatsAsync.valueOrNull == null
-                ? allHistorySatsAsync.error
-                : isBitcoinMode &&
-                        topInflatorsSatsAsync.hasError &&
-                        topInflatorsSatsAsync.valueOrNull == null
-                    ? topInflatorsSatsAsync.error
-                    : null;
+    final coreError =
+        entriesAsync.hasError && !hasEntriesData ? entriesAsync.error : null;
 
     final loadingChild = isInitialLoading
         ? const ChartSkeleton.overview(key: ValueKey('overview-loading'))
@@ -127,63 +107,54 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         ? topInflatorsSatsAsync.valueOrNull ?? <ItemInflationSats>[]
         : ref.watch(itemInflationListProvider);
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
-      transitionBuilder: (child, animation) =>
-          FadeTransition(opacity: animation, child: child),
-      child: SingleChildScrollView(
-        key: const ValueKey('overview-content'),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSummaryCard(context, l, overallInflation, isBitcoinMode),
-            const SizedBox(height: 24),
-            _buildTimeRangeSelector(
-              context,
-              l,
-              ref,
-              timeFilter,
-              availableTimeRangeOptions,
-              firstDataPoint,
-            ),
-            const SizedBox(height: 16),
-            _buildChartHeader(
-              context,
-              l,
-              ref,
-              availableTypes,
-              overlayType,
-              showCpi,
-              overlayAsync.isLoading,
-            ),
+    return SingleChildScrollView(
+      key: const ValueKey('overview-content'),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSummaryCard(context, l, overallInflation, isBitcoinMode),
+          const SizedBox(height: 24),
+          _buildTimeRangeSelector(
+            context,
+            l,
+            ref,
+            timeFilter,
+            availableTimeRangeOptions,
+            firstDataPoint,
+          ),
+          const SizedBox(height: 16),
+          _buildChartHeader(
+            context,
+            l,
+            ref,
+            availableTypes,
+            overlayType,
+            showCpi,
+            overlayAsync.isLoading,
+          ),
+          const SizedBox(height: 8),
+          _buildLineChart(
+              context, l, history, showCpi, overlayPoints, timeFilter.range),
+          if (showCpi && hasOverlaySource) ...[
             const SizedBox(height: 8),
-            _buildLineChart(
-                context, l, history, showCpi, overlayPoints, timeFilter.range),
-            if (showCpi && hasOverlaySource) ...[
-              const SizedBox(height: 8),
-              _buildOverlayStatus(context, l, overlayAsync, hasOverlayData),
-            ],
-            if (showCpi && hasOverlayData && overlayType != null) ...[
-              const SizedBox(height: 8),
-              _buildChartLegend(context, l, overlayType, isLuxeMode),
-            ],
-            const SizedBox(height: 24),
-            Text(l.overviewTopInflators,
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            _buildTopInflators(
-                context, l, topInflators, settings, isBitcoinMode),
-            const SizedBox(height: 24),
-            Text(l.overviewTopDeflators,
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            _buildTopDeflators(
-                context, l, topInflators, settings, isBitcoinMode),
+            _buildOverlayStatus(context, l, overlayAsync, hasOverlayData),
           ],
-        ),
+          if (showCpi && hasOverlayData && overlayType != null) ...[
+            const SizedBox(height: 8),
+            _buildChartLegend(context, l, overlayType, isLuxeMode),
+          ],
+          const SizedBox(height: 24),
+          Text(l.overviewTopInflators,
+              style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 16),
+          _buildTopInflators(context, l, topInflators, settings, isBitcoinMode),
+          const SizedBox(height: 24),
+          Text(l.overviewTopDeflators,
+              style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 16),
+          _buildTopDeflators(context, l, topInflators, settings, isBitcoinMode),
+        ],
       ),
     );
   }

@@ -436,6 +436,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Date format changed to d.M.yy (e.g., 13.3.26)
 - Store icon now displays in place of category letter using StoreLogoWidget
 
+**v1.18.6 Smooth Fiat/Bitcoin Mode Toggle**
+- Removed provider invalidation on mode switch (providers auto-refresh via dependency)
+- Removed AnimatedSwitcher from overview tab to prevent content flicker
+- Simplified loading logic - only triggers on initial app load, not mode changes
+- Content now stays stable while data updates in background
+
 ---
 
 ### 🔄 In Progress / Partially Complete

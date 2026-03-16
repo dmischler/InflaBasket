@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
-import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
 
 class FiatBitcoinToggle extends ConsumerWidget {
@@ -20,12 +19,6 @@ class FiatBitcoinToggle extends ConsumerWidget {
         ref
             .read(settingsControllerProvider.notifier)
             .setBitcoinMode(newBitcoinMode);
-
-        if (newBitcoinMode) {
-          ref.invalidate(btcPriceCacheProvider);
-          ref.invalidate(itemInflationListSatsProvider);
-          ref.invalidate(basketInflationSatsProvider);
-        }
       },
       child: Container(
         width: 60,
