@@ -8,7 +8,6 @@ import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/barcode_assignment_service.dart';
-import 'package:inflabasket/core/services/price_history_service.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -426,69 +425,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     );
   }
 
-  Widget _buildPriceHistorySection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final entry = widget.entryToEdit;
-    if (entry == null) return const SizedBox.shrink();
-
-    final priceHistoryStream = ref
-        .watch(priceHistoryServiceProvider)
-        .watchPriceHistoryForProduct(entry.product.id);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Preisverlauf',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: colorScheme.primary,
-              ),
-        ),
-        const SizedBox(height: 12),
-        StreamBuilder<List<PriceHistory>>(
-          stream: priceHistoryStream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final prices = snapshot.data ?? [];
-            if (prices.isEmpty) {
-              return Text(
-                'Noch keine Preise erfasst',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-              );
-            }
-            return Column(
-              children: prices.take(6).map((price) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        PriceHistoryService.formatGermanMonth(price.monthYear),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      Text(
-                        'CHF ${price.price.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.primary,
-                            ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
   Future<void> _assignBarcode(BuildContext context, int productId) async {
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
@@ -792,8 +728,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 const Divider(),
                 const SizedBox(height: 16),
                 _buildBarcodeSection(context),
-                const SizedBox(height: 16),
-                _buildPriceHistorySection(context),
               ],
               const SizedBox(height: 24),
               ElevatedButton.icon(
