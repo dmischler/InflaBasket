@@ -206,7 +206,8 @@ List<EntryWithDetails> filteredEntries(FilteredEntriesRef ref) {
       final productName = entry.product.name.toLowerCase();
       final query = searchQuery!.toLowerCase();
       final score = tokenSetRatio(query, productName);
-      matchesSearch = score >= 70;
+      final substringMatch = productName.contains(query);
+      matchesSearch = score >= 70 || substringMatch;
     }
 
     return matchesDate && matchesCategory && matchesSearch;

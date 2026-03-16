@@ -15,11 +15,46 @@ import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
 
-class HistoryTab extends ConsumerWidget {
+class HistoryTab extends ConsumerStatefulWidget {
   const HistoryTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HistoryTab> createState() => _HistoryTabState();
+}
+
+class _HistoryTabState extends ConsumerState<HistoryTab> {
+  bool _isSearchExpanded = false;
+  final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    ref.read(historyFilterControllerProvider.notifier).setSearchQuery(
+        _searchController.text.isEmpty ? null : _searchController.text);
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearchExpanded = !_isSearchExpanded;
+      if (!_isSearchExpanded) {
+        _searchController.clear();
+        ref.read(historyFilterControllerProvider.notifier).setSearchQuery(null);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final entries = ref.watch(filteredEntriesProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
@@ -40,7 +75,6 @@ class HistoryTab extends ConsumerWidget {
       );
     }
 
-    // Sort entries by date descending
     final sortedEntries = List.of(entries)
       ..sort((a, b) => b.entry.purchaseDate.compareTo(a.entry.purchaseDate));
 
@@ -50,35 +84,58 @@ class HistoryTab extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              Text(
-                l10n.navHistory,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const Spacer(),
-              Stack(
-                children: [
-                  IconButton(
-                    tooltip: l10n.search,
-                    icon: const Icon(Icons.search),
-                    onPressed: () =>
-                        _showSearchSheet(context, l10n, ref, filter),
-                  ),
-                  if (filter.searchQuery != null &&
-                      filter.searchQuery!.isNotEmpty)
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          shape: BoxShape.circle,
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 200),
+                crossFadeState: _isSearchExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                firstChild: Text(
+                  l10n.navHistory,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                secondChild: SizedBox(
+                  height: 48,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            hintText: l10n.searchHint,
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: _searchController.text.isNotEmpty
+                                ? IconButton(
+                                    tooltip: l10n.searchClear,
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                    },
+                                  )
+                                : null,
+                            border: const OutlineInputBorder(),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 12),
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        tooltip: l10n.close,
+                        onPressed: _toggleSearch,
+                      ),
+                    ],
+                  ),
+                ),
               ),
+              if (!_isSearchExpanded) ...[
+                const Spacer(),
+                IconButton(
+                  tooltip: l10n.search,
+                  icon: const Icon(Icons.search),
+                  onPressed: _toggleSearch,
+                ),
+              ],
               IconButton(
                 tooltip: l10n.filter,
                 icon: const Icon(Icons.filter_list),
@@ -262,11 +319,8 @@ class HistoryTab extends ConsumerWidget {
     return content;
   }
 
-  /// Shows a small per-unit price label below the total price.
-  /// For count units with qty = 1, nothing is shown (no useful extra info).
   Widget _buildUnitPriceLabel(PurchaseEntry entry, String currency) {
     final unit = unitTypeFromString(entry.unit);
-    // Hide label when it's trivially 'same as price' (count, qty=1)
     if (unit == UnitType.count && entry.quantity == 1.0) {
       return const SizedBox.shrink();
     }
@@ -378,76 +432,6 @@ class HistoryTab extends ConsumerWidget {
                   child: Text(sheetL10n.close),
                 ),
               ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showSearchSheet(
-    BuildContext context,
-    AppLocalizations l10n,
-    WidgetRef ref,
-    HistoryFilter currentFilter,
-  ) {
-    final controller = TextEditingController(text: currentFilter.searchQuery);
-
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (context) {
-        final sheetL10n = AppLocalizations.of(context)!;
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(sheetL10n.searchTitle,
-                  style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 16),
-              TextField(
-                controller: controller,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: sheetL10n.searchHint,
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: controller.text.isNotEmpty
-                      ? IconButton(
-                          tooltip: sheetL10n.searchClear,
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            controller.clear();
-                            ref
-                                .read(historyFilterControllerProvider.notifier)
-                                .setSearchQuery(null);
-                          },
-                        )
-                      : null,
-                  border: const OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  ref
-                      .read(historyFilterControllerProvider.notifier)
-                      .setSearchQuery(value);
-                  (context as Element).markNeedsBuild();
-                },
-                onSubmitted: (_) => Navigator.pop(context),
-              ),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(sheetL10n.close),
-                ),
-              )
             ],
           ),
         );
