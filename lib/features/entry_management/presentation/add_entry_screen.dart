@@ -37,6 +37,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _productController;
   late final TextEditingController _categoryController;
+  late final FocusNode _categoryFocusNode;
   late final TextEditingController _storeController;
   late final TextEditingController _priceController;
   late final TextEditingController _quantityController;
@@ -44,6 +45,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   late DateTime _selectedDate;
   String? _selectedCategoryName;
   UnitType _selectedUnit = UnitType.count;
+  bool _isEditingCategorySearch = false;
 
   // When the user taps "Link to Existing" in the duplicate dialog we record
   // the canonical product name so the repository resolves the right product.
@@ -65,6 +67,18 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
         barcodeInfo?.suggestedCategory ??
         'Food & Groceries';
     _categoryController = TextEditingController();
+    _categoryFocusNode = FocusNode();
+    _categoryFocusNode.addListener(() {
+      if (_categoryFocusNode.hasFocus) return;
+      if (!_isEditingCategorySearch || _selectedCategoryName == null) return;
+      setState(() {
+        _isEditingCategorySearch = false;
+        _categoryController.text = CategoryLocalization.displayNameForContext(
+          context,
+          _selectedCategoryName!,
+        );
+      });
+    });
     _storeController = TextEditingController(
       text: edit?.entry.storeName ??
           (barcodeInfo?.stores.isNotEmpty == true
@@ -84,19 +98,39 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _categoryController.text = CategoryLocalization.displayNameForContext(
-        context, _selectedCategoryName!);
+    if (_selectedCategoryName == null || _isEditingCategorySearch) return;
+    final displayName = CategoryLocalization.displayNameForContext(
+      context,
+      _selectedCategoryName!,
+    );
+    if (_categoryController.text != displayName) {
+      _categoryController.text = displayName;
+    }
   }
 
   @override
   void dispose() {
     _productController.dispose();
     _categoryController.dispose();
+    _categoryFocusNode.dispose();
     _storeController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  void _beginCategorySearch() {
+    if (_selectedCategoryName == null || _isEditingCategorySearch) return;
+
+    final displayName = CategoryLocalization.displayNameForContext(
+        context, _selectedCategoryName!);
+    if (_categoryController.text == displayName) {
+      setState(() {
+        _isEditingCategorySearch = true;
+        _categoryController.clear();
+      });
+    }
   }
 
   // ─── Barcode scan ──────────────────────────────────────────────────────────
@@ -555,16 +589,19 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               ),
               const SizedBox(height: 16),
               TypeAheadField<String>(
+                controller: _categoryController,
+                focusNode: _categoryFocusNode,
                 suggestionsCallback: (search) =>
                     repo.searchCategoryNames(search),
                 builder: (context, textController, focusNode) {
                   return TextFormField(
-                    controller: _categoryController,
+                    controller: textController,
                     focusNode: focusNode,
                     decoration: InputDecoration(
                       labelText: l10n.category,
                       border: const OutlineInputBorder(),
                     ),
+                    onTap: _beginCategorySearch,
                     validator: (value) => value == null || value.isEmpty
                         ? l10n.fieldRequired
                         : null,
@@ -581,7 +618,10 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   _categoryController.text =
                       CategoryLocalization.displayNameForContext(
                           context, selection);
-                  setState(() => _selectedCategoryName = selection);
+                  setState(() {
+                    _selectedCategoryName = selection;
+                    _isEditingCategorySearch = false;
+                  });
                 },
                 debounceDuration: const Duration(milliseconds: 300),
                 hideOnEmpty: false,

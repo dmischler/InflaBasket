@@ -27,11 +27,12 @@ class AsyncAutocompleteField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TypeAheadField<String>(
+      controller: controller,
       suggestionsCallback: _wrapSuggestions,
       hideOnEmpty: true,
       builder: (context, textController, focusNode) {
         return TextFormField(
-          controller: controller,
+          controller: textController,
           focusNode: focusNode,
           decoration: InputDecoration(
             labelText: labelText,

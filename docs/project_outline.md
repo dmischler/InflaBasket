@@ -340,6 +340,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - App startup repairs entries with missing `priceSats` values automatically
 - Editing an entry now recalculates sats instead of dropping the stored value
 
+**v1.13.5 Manual Entry Search Reliability**
+- Fixed manual-mode product and store autocomplete so TypeAhead suggestions open again
+- Category field now keeps the selected default visible until the user starts searching
+- Leaving category search without a new selection restores the current category label
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
