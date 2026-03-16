@@ -422,6 +422,10 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Built-in mapping for ~30 common stores (Migros, Coop, Aldi, Lidl, etc.)
 - Fallback to category letter when no website available
 
+**v1.18.4 History Search Layout Fix**
+- Fixed RenderFlex error when clicking search icon in history tab
+- Wrapped AnimatedCrossFade in Expanded to provide bounded width constraints to inner Row with Expanded widget
+
 **v1.18.3 History Search Layout Fix**
 - Fixed RenderFlex error when clicking search icon in history tab
 - Added mainAxisSize.min to outer Row to provide bounded constraints for inner Expanded widget

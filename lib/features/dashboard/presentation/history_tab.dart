@@ -68,60 +68,59 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              AnimatedCrossFade(
-                duration: const Duration(milliseconds: 200),
-                crossFadeState: _isSearchExpanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                firstChild: Text(
-                  l10n.navHistory,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                secondChild: SizedBox(
-                  height: 48,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          autofocus: true,
-                          decoration: InputDecoration(
-                            hintText: l10n.searchHint,
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: _searchController.text.isNotEmpty
-                                ? IconButton(
-                                    tooltip: l10n.searchClear,
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                    },
-                                  )
-                                : null,
-                            border: const OutlineInputBorder(),
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 12),
+              Expanded(
+                child: AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 200),
+                  crossFadeState: _isSearchExpanded
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  firstChild: Text(
+                    l10n.navHistory,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  secondChild: SizedBox(
+                    height: 48,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            autofocus: true,
+                            decoration: InputDecoration(
+                              hintText: l10n.searchHint,
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      tooltip: l10n.searchClear,
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                      },
+                                    )
+                                  : null,
+                              border: const OutlineInputBorder(),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                            ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        tooltip: l10n.close,
-                        onPressed: _toggleSearch,
-                      ),
-                    ],
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          tooltip: l10n.close,
+                          onPressed: _toggleSearch,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              if (!_isSearchExpanded) ...[
-                const Spacer(),
+              if (!_isSearchExpanded)
                 IconButton(
                   tooltip: l10n.search,
                   icon: const Icon(Icons.search),
                   onPressed: _toggleSearch,
                 ),
-              ],
               IconButton(
                 tooltip: l10n.filter,
                 icon: const Icon(Icons.filter_list),
