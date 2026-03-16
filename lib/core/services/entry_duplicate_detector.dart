@@ -1,13 +1,20 @@
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
+enum DuplicateMatchType {
+  exact,
+  similar,
+}
+
 class EntryDuplicateMatch {
   final PurchaseEntryWithProduct existingEntry;
   final double similarityScore;
+  final DuplicateMatchType matchType;
 
   const EntryDuplicateMatch({
     required this.existingEntry,
     required this.similarityScore,
+    required this.matchType,
   });
 }
 
@@ -36,26 +43,77 @@ class EntryDuplicateDetectorService {
     return tokenSetRatio(normalizedNew, normalizedExisting);
   }
 
+  String _normalizeStore(String storeName) {
+    return storeName.toLowerCase().trim().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  bool _hasExactPrice(double left, double right) {
+    return left.toStringAsFixed(2) == right.toStringAsFixed(2);
+  }
+
   Future<EntryDuplicateMatch?> findDuplicate({
     required String productName,
     required double price,
+    required String storeName,
     required EntryRepository repository,
+    String? barcode,
+    int? existingProductId,
     int days = _defaultDaysLookback,
   }) async {
     final recentEntries = await repository.getRecentEntriesWithProduct(
       days: days,
-      price: price,
     );
 
     if (recentEntries.isEmpty) return null;
 
     final normalizedNewName = _normalizeName(productName);
+    final normalizedStore = _normalizeStore(storeName);
+    final normalizedBarcode = barcode?.trim();
+    final candidates = recentEntries.where((entry) {
+      final sameStore = _normalizeStore(entry.storeName) == normalizedStore;
+      final samePrice = _hasExactPrice(entry.price, price);
+      return sameStore && samePrice;
+    }).toList();
+
+    if (candidates.isEmpty) return null;
+
+    if (normalizedBarcode != null && normalizedBarcode.isNotEmpty) {
+      for (final entry in candidates) {
+        final existingBarcode = entry.product.barcode?.trim();
+        if (existingBarcode == normalizedBarcode) {
+          return EntryDuplicateMatch(
+            existingEntry: entry,
+            similarityScore: 1.0,
+            matchType: DuplicateMatchType.exact,
+          );
+        }
+      }
+    }
+
+    if (existingProductId != null) {
+      for (final entry in candidates) {
+        if (entry.product.id == existingProductId) {
+          return EntryDuplicateMatch(
+            existingEntry: entry,
+            similarityScore: 1.0,
+            matchType: DuplicateMatchType.exact,
+          );
+        }
+      }
+    }
+
     EntryDuplicateMatch? bestMatch;
     int bestScore = 0;
 
-    for (final entry in recentEntries) {
+    for (final entry in candidates) {
       final normalizedExistingName = _normalizeName(entry.productName);
-      if (normalizedNewName == normalizedExistingName) continue;
+      if (normalizedNewName == normalizedExistingName) {
+        return EntryDuplicateMatch(
+          existingEntry: entry,
+          similarityScore: 1.0,
+          matchType: DuplicateMatchType.exact,
+        );
+      }
 
       final score = _calculateSimilarity(productName, entry.productName);
 
@@ -64,6 +122,7 @@ class EntryDuplicateDetectorService {
         bestMatch = EntryDuplicateMatch(
           existingEntry: entry,
           similarityScore: score / 100.0,
+          matchType: DuplicateMatchType.similar,
         );
       }
     }

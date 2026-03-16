@@ -1,14 +1,16 @@
 # Task Plan
 
-- [x] Review the regenerated Android scaffold and confirm the missing release-build requirements.
-- [x] Harden Android Gradle and manifest config for Android Studio builds and scheduled notifications.
-- [x] Add Android release ProGuard rules for notification support.
-- [x] Update project docs and bump the patch version.
-- [ ] Run verification commands, review the diff, and commit the Android build prep.
+- [x] Re-analyze duplicate detection flow and confirm required behavior (same store, exact price, 30-day window).
+- [x] Implement exact duplicate auto-discard for manual and barcode-based entry paths.
+- [x] Extend receipt bulk import to skip exact duplicates and report skipped counts.
+- [x] Add localization messages for duplicate discard and skipped receipt duplicates.
+- [x] Update project documentation with the duplicate detection strategy change.
+- [x] Run generation/verification commands, bump patch version, and commit.
 
 # Review
 
-- Raised Android `minSdk` to 24 and enabled desugaring plus multidex so the checked-in plugin set builds cleanly from Android Studio.
-- Added the notification scheduling receivers, reboot reschedule support, and camera capability declarations required for reliable Android runtime behavior.
-- Added `proguard-rules.pro` for `flutter_local_notifications` and updated the Android permission flow to also request exact-alarm access when needed.
-- Documented the Android hardening work in `docs/project_outline.md` and prepared the patch version bump for this release.
+- Fixed duplicate detection logic so exact matches are no longer skipped; exact duplicates now resolve by prioritized checks: barcode first, then existing product identity, then normalized name.
+- Applied required duplicate criteria: same store + same price (exact to 2 decimals) + within last 30 days.
+- Updated add-entry flow to surface exact duplicates as an intentional non-error outcome and notify the user that the new entry was discarded.
+- Updated receipt bulk save to skip duplicates both against existing data and within the same scanned batch, then report saved/skipped counts in localized feedback.
+- Documented the behavior change in `docs/project_outline.md` under v1.13.9.

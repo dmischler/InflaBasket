@@ -646,6 +646,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String scannerSavedItemsWithSkippedDuplicates(
+      int savedCount, int skippedCount) {
+    return '$savedCount Artikel gespeichert, $skippedCount Duplikate übersprungen.';
+  }
+
+  @override
   String get weightEditorResetWeights => 'Gewichte zurücksetzen';
 
   @override
@@ -1030,6 +1036,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get entryDuplicateSaveAnyway => 'Trotzdem speichern';
+
+  @override
+  String get entryExactDuplicateDiscarded =>
+      'Eintrag verworfen: Ein identischer Eintrag für diesen Laden und Preis existiert bereits.';
 
   @override
   String get priceUpdateNotificationTitle => 'Preisaktualisierungs-Erinnerung';

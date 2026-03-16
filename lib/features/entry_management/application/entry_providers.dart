@@ -13,6 +13,10 @@ import 'package:inflabasket/core/services/entry_duplicate_detector.dart';
 
 part 'entry_providers.g.dart';
 
+class ExactDuplicateDiscardedException implements Exception {
+  const ExactDuplicateDiscardedException();
+}
+
 @riverpod
 Stream<List<PurchaseEntry>> purchaseEntries(PurchaseEntriesRef ref) {
   final repo = ref.watch(entryRepositoryProvider);
@@ -356,21 +360,36 @@ class AddEntryController extends _$AddEntryController {
         catId = await repo.addCategory(categoryName);
       }
 
-      // 2. Resolve or create product
-      Product? product = await repo.getProductByName(productName);
-      final productId = product?.id ??
-          await repo.addProduct(productName, catId, barcode: barcode);
+      final normalizedBarcode = barcode?.trim();
+      Product? barcodeProduct;
+      if (normalizedBarcode != null && normalizedBarcode.isNotEmpty) {
+        barcodeProduct = await repo.getProductByBarcode(normalizedBarcode);
+      }
 
-      // 2.5. Check for duplicate entries (only for new entries)
+      Product? existingNamedProduct;
+      if (barcodeProduct == null) {
+        existingNamedProduct = await repo.getProductByName(productName);
+      }
+
+      final candidateProduct = barcodeProduct ?? existingNamedProduct;
+
+      // 2. Check for duplicate entries (only for new entries)
       if (existingEntryId == null) {
         final detector = EntryDuplicateDetectorService();
         final duplicate = await detector.findDuplicate(
           productName: productName,
           price: price,
+          storeName: storeName,
           repository: repo,
+          barcode: normalizedBarcode,
+          existingProductId: candidateProduct?.id,
         );
 
         if (duplicate != null && context.mounted) {
+          if (duplicate.matchType == DuplicateMatchType.exact) {
+            throw const ExactDuplicateDiscardedException();
+          }
+
           final action = await showEntryDuplicateDialog(
             context: context,
             existingEntry: duplicate.existingEntry,
@@ -382,13 +401,18 @@ class AddEntryController extends _$AddEntryController {
         }
       }
 
+      // 3. Resolve or create product (prefer barcode when available)
+      Product? product = candidateProduct;
+      final productId = product?.id ??
+          await repo.addProduct(productName, catId, barcode: normalizedBarcode);
+
       // Normalise: store null for count (default)
       final storedUnit = (unit == null || unit == UnitType.count) ? null : unit;
       final previousEntry = existingEntryId == null
           ? await repo.getLatestEntryForProduct(productId)
           : null;
 
-      // 3. Update or Add purchase entry
+      // 4. Update or Add purchase entry
       if (existingEntryId != null) {
         await repo.updatePurchaseEntry(
           PurchaseEntry(

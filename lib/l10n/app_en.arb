@@ -636,6 +636,15 @@
     "placeholders": { "count": { "type": "int" } }
   },
 
+  "scannerSavedItemsWithSkippedDuplicates": "{savedCount, plural, =0 {No new items saved. {skippedCount} duplicates skipped.} =1 {1 item saved. {skippedCount} duplicates skipped.} other {{savedCount} items saved. {skippedCount} duplicates skipped.}}",
+  "@scannerSavedItemsWithSkippedDuplicates": {
+    "description": "Snackbar message when receipt items are saved and duplicates are skipped",
+    "placeholders": {
+      "savedCount": { "type": "int" },
+      "skippedCount": { "type": "int" }
+    }
+  },
+
   "weightEditorResetWeights": "Reset Weights",
   "@weightEditorResetWeights": { "description": "Button to reset category weights" },
 
@@ -1048,6 +1057,11 @@
 
   "entryDuplicateSaveAnyway": "Save Anyway",
   "@entryDuplicateSaveAnyway": { "description": "Button to save the entry despite duplicate" },
+
+  "entryExactDuplicateDiscarded": "Entry discarded: an identical entry already exists for this store and price.",
+  "@entryExactDuplicateDiscarded": {
+    "description": "Snackbar shown when an exact duplicate entry is automatically discarded"
+  },
 
   "priceUpdateNotificationTitle": "Price Update Reminder",
   "@priceUpdateNotificationTitle": { "description": "Notification title for price update reminder" },

@@ -644,6 +644,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String scannerSavedItemsWithSkippedDuplicates(
+      int savedCount, int skippedCount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      savedCount,
+      locale: localeName,
+      other: '$savedCount items saved. $skippedCount duplicates skipped.',
+      one: '1 item saved. $skippedCount duplicates skipped.',
+      zero: 'No new items saved. $skippedCount duplicates skipped.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get weightEditorResetWeights => 'Reset Weights';
 
   @override
@@ -1026,6 +1039,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get entryDuplicateSaveAnyway => 'Save Anyway';
+
+  @override
+  String get entryExactDuplicateDiscarded =>
+      'Entry discarded: an identical entry already exists for this store and price.';
 
   @override
   String get priceUpdateNotificationTitle => 'Price Update Reminder';

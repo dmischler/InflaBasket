@@ -1269,6 +1269,13 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1 {1 item saved successfully!} other {{count} items saved successfully!}}'**
   String scannerSavedItems(int count);
 
+  /// Snackbar message when receipt items are saved and duplicates are skipped
+  ///
+  /// In en, this message translates to:
+  /// **'{savedCount, plural, =0 {No new items saved. {skippedCount} duplicates skipped.} =1 {1 item saved. {skippedCount} duplicates skipped.} other {{savedCount} items saved. {skippedCount} duplicates skipped.}}'**
+  String scannerSavedItemsWithSkippedDuplicates(
+      int savedCount, int skippedCount);
+
   /// Button to reset category weights
   ///
   /// In en, this message translates to:
@@ -1946,6 +1953,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save Anyway'**
   String get entryDuplicateSaveAnyway;
+
+  /// Snackbar shown when an exact duplicate entry is automatically discarded
+  ///
+  /// In en, this message translates to:
+  /// **'Entry discarded: an identical entry already exists for this store and price.'**
+  String get entryExactDuplicateDiscarded;
 
   /// Notification title for price update reminder
   ///

@@ -162,16 +162,24 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           isMetric: settings.isMetric,
           onSave: (selectedItems) async {
             try {
-              await ref.read(entryRepositoryProvider).bulkAddFromReceipt(
-                    storeName: storeName,
-                    receiptDate: receiptDate,
-                    items: selectedItems,
-                  );
+              final result =
+                  await ref.read(entryRepositoryProvider).bulkAddFromReceipt(
+                        storeName: storeName,
+                        receiptDate: receiptDate,
+                        items: selectedItems,
+                      );
               if (!dialogContext.mounted) return;
               final sl10n = AppLocalizations.of(dialogContext)!;
               ScaffoldMessenger.of(dialogContext).showSnackBar(
                 SnackBar(
-                  content: Text(sl10n.scannerSavedItems(selectedItems.length)),
+                  content: Text(
+                    result.skippedDuplicateCount > 0
+                        ? sl10n.scannerSavedItemsWithSkippedDuplicates(
+                            result.savedCount,
+                            result.skippedDuplicateCount,
+                          )
+                        : sl10n.scannerSavedItems(result.savedCount),
+                  ),
                 ),
               );
               Navigator.of(dialogContext).pop(true);

@@ -271,6 +271,14 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
       if (!mounted) return;
       final state = ref.read(addEntryControllerProvider);
       if (state is AsyncError) {
+        if (state.error is ExactDuplicateDiscardedException) {
+          final l10n = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.entryExactDuplicateDiscarded)),
+          );
+          return;
+        }
+
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

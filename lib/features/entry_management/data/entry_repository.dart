@@ -51,6 +51,16 @@ class TemplateWithDetails {
       {required this.template, required this.product, required this.category});
 }
 
+class ReceiptBulkSaveResult {
+  final int savedCount;
+  final int skippedDuplicateCount;
+
+  const ReceiptBulkSaveResult({
+    required this.savedCount,
+    required this.skippedDuplicateCount,
+  });
+}
+
 class EntryRepository {
   final AppDatabase _db;
   EntryRepository(this._db);
@@ -60,6 +70,37 @@ class EntryRepository {
   static const metricCpi = 'cpi';
   static const metricMoneySupplyM2 = 'money_supply_m2';
   static const metricSnbCoreInflation1 = 'snb_core_inflation_1';
+
+  String _normalizeDuplicateProductName(String name) {
+    return name
+        .toLowerCase()
+        .trim()
+        .replaceAll(
+            RegExp(
+                r'\d+(?:\.\d+)?\s*(g|kg|ml|l|cl|oz|lb|stück|pc|pcs|pack|-piece)'),
+            '')
+        .replaceAll(
+            RegExp(r'\b(bio|öko|eco|organic)\b', caseSensitive: false), '')
+        .replaceAll(RegExp(r'[^\w\säöüéèà]'), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  String _normalizeDuplicateStoreName(String storeName) {
+    return storeName.toLowerCase().trim().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  String _buildDuplicateKey({
+    required String productName,
+    required String storeName,
+    required double price,
+  }) {
+    return [
+      _normalizeDuplicateProductName(productName),
+      _normalizeDuplicateStoreName(storeName),
+      price.toStringAsFixed(2),
+    ].join('|');
+  }
 
   // ─── Categories ─────────────────────────────────────────────────────────────
 
@@ -359,13 +400,35 @@ class EntryRepository {
   }
 
   /// Saves a list of receipt items atomically. If any item fails, the entire
-  /// batch is rolled back. Each [items] entry must have keys:
+  /// batch is rolled back. Duplicate entries (same product, store, price within
+  /// 30 days) are skipped. Each [items] entry must have keys:
   /// `productName`, `categoryName`, `price`, `quantity`, `unit` (optional).
-  Future<void> bulkAddFromReceipt({
+  Future<ReceiptBulkSaveResult> bulkAddFromReceipt({
     required String storeName,
     required DateTime receiptDate,
     required List<Map<String, dynamic>> items,
   }) async {
+    final cutoffDate = DateTime.now().subtract(const Duration(days: 30));
+    var savedCount = 0;
+    var skippedDuplicateCount = 0;
+
+    final existingRows = await (_db.select(_db.purchaseEntries).join([
+      innerJoin(_db.products,
+          _db.products.id.equalsExp(_db.purchaseEntries.productId)),
+    ])
+          ..where(_db.purchaseEntries.purchaseDate
+              .isBiggerOrEqualValue(cutoffDate)))
+        .get();
+
+    final duplicateKeys = <String>{
+      for (final row in existingRows)
+        _buildDuplicateKey(
+          productName: row.readTable(_db.products).name,
+          storeName: row.readTable(_db.purchaseEntries).storeName,
+          price: row.readTable(_db.purchaseEntries).price,
+        ),
+    };
+
     await _db.transaction(() async {
       for (final item in items) {
         final categoryName =
@@ -375,6 +438,16 @@ class EntryRepository {
         final quantity = (item['quantity'] as num?)?.toDouble() ?? 1.0;
         final unitStr = item['unit'] as String?;
         final unit = unitTypeFromString(unitStr);
+
+        final duplicateKey = _buildDuplicateKey(
+          productName: productName,
+          storeName: storeName,
+          price: price,
+        );
+        if (duplicateKeys.contains(duplicateKey)) {
+          skippedDuplicateCount++;
+          continue;
+        }
 
         // Resolve or create category
         final allCategories = await _db.select(_db.categories).get();
@@ -417,8 +490,15 @@ class EntryRepository {
                 unit: Value(unit == UnitType.count ? null : unit.name),
               ),
             );
+        savedCount++;
+        duplicateKeys.add(duplicateKey);
       }
     });
+
+    return ReceiptBulkSaveResult(
+      savedCount: savedCount,
+      skippedDuplicateCount: skippedDuplicateCount,
+    );
   }
 
   // ─── Templates ───────────────────────────────────────────────────────────────

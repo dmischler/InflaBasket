@@ -355,6 +355,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Added scheduled-notification manifest receivers, alarm reboot permissions, and camera hardware declarations for Android Studio builds
 - Added release ProGuard rules for `flutter_local_notifications` and requested exact-alarm permission alongside notification permission on Android
 
+**v1.13.9 Duplicate Entry Auto-Discard**
+- Exact duplicates are now auto-discarded for new entries when product, store, and price match within the last 30 days
+- Barcode-based matching is prioritized, then product identity/name matching, before fallback fuzzy matching
+- Receipt bulk import now skips exact duplicates and reports how many rows were saved vs skipped
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
