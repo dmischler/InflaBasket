@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
+import 'package:inflabasket/core/utils/chart_sizing.dart';
 import 'package:inflabasket/core/widgets/shimmer/list_tile_skeleton.dart';
 import 'package:inflabasket/core/widgets/shimmer/shimmer_container.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
@@ -123,7 +124,12 @@ class _ChartSkeletonContent extends StatelessWidget {
               const SizedBox(height: 12),
               _SkeletonPanel(
                 child: SizedBox(
-                  height: variant == ChartSkeletonVariant.line ? 280 : 300,
+                  height: responsiveChartHeight(
+                    context,
+                    type: variant == ChartSkeletonVariant.line
+                        ? ChartType.line
+                        : ChartType.bar,
+                  ),
                   child: _ChartCanvasSkeleton(variant: variant),
                 ),
               ),

@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/mixins/chart_touch_state.dart';
+import 'package:inflabasket/core/utils/chart_sizing.dart';
 import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
@@ -116,7 +117,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
 
     if (validData.isEmpty) {
       return SizedBox(
-        height: 300,
+        height: responsiveChartHeight(context, type: ChartType.bar),
         child: Center(child: Text(l10n.categoryNoChartData)),
       );
     }
@@ -146,7 +147,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
     final baseWidth = isLuxeMode ? 16.0 : 20.0;
 
     return SizedBox(
-      height: 300,
+      height: responsiveChartHeight(context, type: ChartType.bar),
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,

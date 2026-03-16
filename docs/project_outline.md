@@ -380,10 +380,18 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Added touch-highlight interactions with dashed guide lines, glow-dot emphasis, debounced haptics, and safer timer-based reset handling
 - Category bars now briefly brighten and pop on tap while preserving built-in tooltips and smooth implicit fl_chart transitions
 
-**v1.16.0 Animated Empty States**
+**v1.16.1 Animated Empty States**
 - Added bundled Lottie-based empty, loading, and error illustrations with localized accessibility labels and icon fallbacks in `StateMessageCard`
 - Rolled the new illustration system across dashboard, scanner, product detail, templates, paywall, alerts, and price-update empty states using a shared asset registry for future theming
 - Preserved offline reliability with local animation assets and one-shot error playback while keeping future fiat/bitcoin illustration swapping centralized
+
+**v1.16.2 Responsive Chart Sizing**
+- Replaced fixed-height chart containers with responsive sizing based on screen height
+- Created shared `chart_sizing.dart` utility for consistent chart heights across app
+- Charts now adapt to phone/tablet screen sizes with clamped min/max bounds
+- Line chart (overview): 180-240px on phones, 220-320px on tablets
+- Bar chart (categories): 200-280px on phones, 220-320px on tablets
+- Fixed overflow issues on smaller screens
 
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API

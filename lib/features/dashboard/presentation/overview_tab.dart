@@ -14,6 +14,7 @@ import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
+import 'package:inflabasket/core/utils/chart_sizing.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
@@ -626,7 +627,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     final validHistory = history.where((h) => h.index.isFinite).toList();
     if (validHistory.isEmpty) {
       return SizedBox(
-        height: 260,
+        height: responsiveChartHeight(context, type: ChartType.line),
         child: StateMessageCard(
           icon: Icons.show_chart,
           animationAsset: StateIllustrations.emptyGeneral,
@@ -745,7 +746,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     ];
 
     return SizedBox(
-      height: 280,
+      height: responsiveChartHeight(context, type: ChartType.line),
       child: LineChart(
         LineChartData(
           minY: chartMinY,
