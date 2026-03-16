@@ -14,3 +14,5 @@
 - Verified with `flutter analyze`; remaining findings are pre-existing warnings/info outside this change.
 - Follow-up cleanup removed low-risk debug `print` calls, an unused import, and an unused bottom-sheet parameter.
 - Re-ran `flutter analyze`; findings dropped from 108 to 76, with remaining issues largely in generated files or broader async/deprecation refactors.
+- Second cleanup pass migrated deprecated `DropdownButtonFormField.value` usages to `initialValue`, fixed several async-context warnings, and removed a redundant non-null assertion.
+- Re-ran `flutter analyze`; findings dropped further to 53, and the remaining items are confined to generated `*.g.dart` files / generated Drift output.

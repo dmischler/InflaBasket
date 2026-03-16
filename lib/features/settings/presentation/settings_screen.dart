@@ -61,44 +61,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
     );
 
+    if (!mounted) return;
+
     if (result != null) {
       switch (result) {
         case ExportFormat.sqlite:
-          _handleExport(context, ref);
+          await _handleExport(context, ref);
           break;
         case ExportFormat.csv:
           ref.read(exportServiceProvider.notifier).exportData();
           break;
         case ExportFormat.json:
-          _handleExportJson(context, ref);
+          await _handleExportJson(context, ref);
           break;
       }
     }
   }
 
   Future<void> _handleExport(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       final filename = await ref
           .read(databaseBackupServiceProvider.notifier)
           .exportDatabase();
-      if (context.mounted) {
-        HapticFeedback.mediumImpact();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  AppLocalizations.of(context)!.backupExportSuccess(filename))),
-        );
-      }
+      if (!mounted) return;
+      HapticFeedback.mediumImpact();
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.backupExportSuccess(filename))),
+      );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.errorGeneric)),
-        );
-      }
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
     }
   }
 
   Future<void> _handleImport(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
@@ -124,44 +124,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final result = await ref
           .read(databaseBackupServiceProvider.notifier)
           .importDatabase();
-      if (result != null && context.mounted) {
-        HapticFeedback.heavyImpact();
-        showCupertinoDialog(
-          context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: Text(AppLocalizations.of(context)!.backupImportSuccess),
-            content: Text(AppLocalizations.of(context)!.backupRestartRequired),
-            actions: [
-              CupertinoDialogAction(
-                onPressed: () => Navigator.pop(context),
-                child: Text(MaterialLocalizations.of(context).okButtonLabel),
-              ),
-            ],
-          ),
-        );
-      }
+      if (!mounted || result == null) return;
+      HapticFeedback.heavyImpact();
+      if (!context.mounted) return;
+      await showCupertinoDialog<void>(
+        context: context,
+        builder: (dialogContext) => CupertinoAlertDialog(
+          title: Text(l10n.backupImportSuccess),
+          content: Text(l10n.backupRestartRequired),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(dialogContext),
+              child:
+                  Text(MaterialLocalizations.of(dialogContext).okButtonLabel),
+            ),
+          ],
+        ),
+      );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!.backupInvalidFile)),
-        );
-      }
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.backupInvalidFile)));
     }
   }
 
   Future<void> _handleExportJson(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       await ref.read(databaseBackupServiceProvider.notifier).exportAsJson();
-      if (context.mounted) {
-        HapticFeedback.mediumImpact();
-      }
+      if (!mounted) return;
+      HapticFeedback.mediumImpact();
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.errorGeneric)),
-        );
-      }
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
     }
   }
 

@@ -153,8 +153,8 @@ Rules you MUST follow:
 Return ONLY this JSON structure:
 
 {
-  "storeName": "string or \"\"",
-  "date": "YYYY-MM-DD or \"\"",
+  "storeName": "string or ''",
+  "date": "YYYY-MM-DD or ''",
   "items": [
     {
       "productName": "cleaned product name",

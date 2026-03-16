@@ -204,7 +204,7 @@ List<EntryWithDetails> filteredEntries(FilteredEntriesRef ref) {
     bool matchesSearch = true;
     if (useFuzzySearch) {
       final productName = entry.product.name.toLowerCase();
-      final query = searchQuery!.toLowerCase();
+      final query = searchQuery.toLowerCase();
       final score = tokenSetRatio(query, productName);
       final substringMatch = productName.contains(query);
       matchesSearch = score >= 70 || substringMatch;

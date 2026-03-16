@@ -460,6 +460,8 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   }
 
   Future<void> _assignBarcode(BuildContext context, int productId) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
     final barcode = await showBarcodeInputDialog(context);
     if (barcode == null || !mounted) return;
 
@@ -470,14 +472,15 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     if (!mounted) return;
 
     if (result.status == BarcodeAssignmentStatus.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text('Barcode zugewiesen: $barcode')),
       );
-      context.pop();
-      context.push('/home/add', extra: widget.entryToEdit);
+      router.pop();
+      router.push('/home/add', extra: widget.entryToEdit);
     } else if (result.status == BarcodeAssignmentStatus.conflict) {
       final conflicting = result.conflictingProduct!;
-      showDialog(
+      if (!context.mounted) return;
+      await showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Barcode bereits vergeben'),
@@ -493,7 +496,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
         ),
       );
     } else if (result.status == BarcodeAssignmentStatus.alreadyAssigned) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(
             content:
                 Text('Diesem Produkt ist dieser Barcode bereits zugewiesen.')),
@@ -502,6 +505,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   }
 
   Future<void> _removeBarcode(BuildContext context, int productId) async {
+    final router = GoRouter.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -521,12 +525,14 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
       ),
     );
 
-    if (confirmed == true && mounted) {
-      final service = ref.read(barcodeAssignmentServiceProvider);
-      await service.removeBarcode(productId);
-      context.pop();
-      context.push('/home/add', extra: widget.entryToEdit);
-    }
+    if (confirmed != true || !mounted) return;
+
+    final service = ref.read(barcodeAssignmentServiceProvider);
+    await service.removeBarcode(productId);
+    if (!mounted) return;
+
+    router.pop();
+    router.push('/home/add', extra: widget.entryToEdit);
   }
 
   // ─── Build ─────────────────────────────────────────────────────────────────
@@ -695,7 +701,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                   SizedBox(
                     width: 130,
                     child: DropdownButtonFormField<UnitType>(
-                      value: units.contains(_selectedUnit)
+                      initialValue: units.contains(_selectedUnit)
                           ? _selectedUnit
                           : UnitType.count,
                       decoration: InputDecoration(

@@ -478,7 +478,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<int>(
-                  value: startYear,
+                  initialValue: startYear,
                   decoration: InputDecoration(labelText: widget.l.filterYear),
                   items: _availableStartYears
                       .map((y) => DropdownMenuItem(value: y, child: Text('$y')))
@@ -503,7 +503,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
               const SizedBox(width: 8),
               Expanded(
                 child: DropdownButtonFormField<int>(
-                  value: startMonth,
+                  initialValue: startMonth,
                   decoration: InputDecoration(labelText: widget.l.filterMonth),
                   items: _availableStartMonths
                       .map((m) => DropdownMenuItem(
@@ -532,7 +532,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<int>(
-                  value: endYear,
+                  initialValue: endYear,
                   decoration: InputDecoration(labelText: widget.l.filterYear),
                   items: _availableEndYears
                       .map((y) => DropdownMenuItem(value: y, child: Text('$y')))
@@ -552,7 +552,7 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
               const SizedBox(width: 8),
               Expanded(
                 child: DropdownButtonFormField<int>(
-                  value: endMonth,
+                  initialValue: endMonth,
                   decoration: InputDecoration(labelText: widget.l.filterMonth),
                   items: _availableEndMonths
                       .map((m) => DropdownMenuItem(
