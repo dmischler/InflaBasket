@@ -41,9 +41,6 @@ class FiatBitcoinToggle extends ConsumerWidget {
           ref.invalidate(itemInflationListSatsProvider);
           ref.invalidate(basketInflationSatsProvider);
         }
-
-        print(
-            '[DEBUG] FiatBitcoinToggle: isBitcoinMode=${settings.isBitcoinMode}, newTheme=$newTheme, setting bitcoinMode=$newBitcoinMode');
       },
       child: Container(
         width: 60,

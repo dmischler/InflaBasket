@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -207,8 +206,6 @@ class OpenFoodFactsClient {
   Future<ProductInfo?> lookupBarcode(String barcode,
       {String locale = 'en'}) async {
     try {
-      print('🔍 [OpenFoodFacts] Looking up barcode: $barcode');
-
       final config = ProductQueryConfiguration(
         barcode.trim(),
         fields: [
@@ -228,13 +225,10 @@ class OpenFoodFactsClient {
 
       if (result.status != ProductResultV3.statusSuccess ||
           result.product == null) {
-        print('❌ [OpenFoodFacts] Product not found or error: ${result.status}');
         return null;
       }
 
       final product = result.product!;
-
-      print('📦 [OpenFoodFacts] Product data retrieved');
 
       // Extract all name variants
       final nameEn =
@@ -254,7 +248,6 @@ class OpenFoodFactsClient {
           defaultName?.trim();
 
       if (resolvedName == null || resolvedName.isEmpty) {
-        print('❌ [OpenFoodFacts] No product name in response');
         return null;
       }
 
@@ -287,17 +280,8 @@ class OpenFoodFactsClient {
         locale: locale,
       );
 
-      print('✅ [OpenFoodFacts] Found product: ${productInfo.name}');
-      print(
-          '   Name variants: EN=${productInfo.nameEn}, DE=${productInfo.nameDe}, FR=${productInfo.nameFr}');
-      print('   Brand: ${productInfo.brand}');
-      print('   Category: ${productInfo.suggestedCategory}');
-      print('   Image: ${productInfo.imageUrl}');
-      print('   Stores: ${productInfo.stores.map((s) => s.name).toList()}');
-
       return productInfo;
-    } catch (e) {
-      print('❌ [OpenFoodFacts] Error: $e');
+    } catch (_) {
       return null;
     }
   }

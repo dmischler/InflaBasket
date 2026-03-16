@@ -218,14 +218,10 @@ class EntryRepository {
       double fiatPrice, String currency, DateTime date) async {
     final btcClient = BtcPriceClient(db: _db);
     final btcPrice = await btcClient.fetchBtcPrice(currency, date);
-    print(
-        '[DEBUG BTC] Converting $fiatPrice $currency at $date -> BTC price: $btcPrice');
     if (btcPrice == null || btcPrice <= 0) {
-      print('[DEBUG BTC] Failed to get BTC price, returning null');
       return null;
     }
     final sats = SatsConverter.fiatToSats(fiatPrice, btcPrice);
-    print('[DEBUG BTC] Result: $sats sats');
     return sats;
   }
 

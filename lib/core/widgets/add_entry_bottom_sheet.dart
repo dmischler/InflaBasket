@@ -138,7 +138,6 @@ class _OptionRow extends StatelessWidget {
   final String title;
   final Widget? trailing;
   final VoidCallback? onTap;
-  final bool isDisabled;
 
   const _OptionRow({
     required this.icon,
@@ -147,7 +146,6 @@ class _OptionRow extends StatelessWidget {
     required this.title,
     this.trailing,
     this.onTap,
-    this.isDisabled = false,
   });
 
   @override
@@ -169,22 +167,14 @@ class _OptionRow extends StatelessWidget {
         title,
         style: theme.textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.w500,
-          color:
-              isDisabled ? colorScheme.onSurface.withValues(alpha: 0.5) : null,
         ),
       ),
       trailing: trailing ??
-          (isDisabled
-              ? Icon(
-                  Icons.computer,
-                  size: 20,
-                  color: colorScheme.onSurface.withValues(alpha: 0.5),
-                )
-              : Icon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                )),
-      enabled: !isDisabled,
+          Icon(
+            Icons.chevron_right,
+            color: colorScheme.onSurfaceVariant,
+          ),
+      enabled: true,
       onTap: onTap,
     );
   }

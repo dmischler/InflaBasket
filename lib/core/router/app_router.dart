@@ -29,13 +29,10 @@ GoRouter appRouter(AppRouterRef ref) {
             path: 'add',
             builder: (context, state) {
               final extra = state.extra;
-              print(
-                  '🔍 Router /home/add: extra=$extra, type=${extra?.runtimeType}');
               if (extra is EntryWithDetails) {
                 return AddEntryScreen(entryToEdit: extra);
               }
               if (extra is ProductInfo) {
-                print('🔍 Router: passing ProductInfo with name=${extra.name}');
                 return AddEntryScreen(productInfoFromBarcode: extra);
               }
               return const AddEntryScreen();

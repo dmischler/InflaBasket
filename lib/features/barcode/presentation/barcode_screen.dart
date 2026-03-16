@@ -161,14 +161,12 @@ class _BarcodeScreenState extends ConsumerState<BarcodeScreen> {
 
         if (variants.length > 1) {
           final selectedName = await ProductNameDialog.show(context, info);
-          print('🔍 Dialog returned: "$selectedName"');
           if (selectedName == null) {
             // User cancelled - return to input screen
             return;
           }
           // Update product info with selected name using copyWith
           info = info.copyWith(name: selectedName);
-          print('🔍 ProductInfo after copyWith: name=${info.name}');
         }
 
         // Stage 2: Check for similar products in local database using fuzzy matching
@@ -216,7 +214,6 @@ class _BarcodeScreenState extends ConsumerState<BarcodeScreen> {
           // If createNew, proceed with new product from Open Food Facts
         }
 
-        print('🔍 Navigating to AddEntryScreen with: $info');
         if (mounted) {
           context.push('/home/add', extra: info);
         }

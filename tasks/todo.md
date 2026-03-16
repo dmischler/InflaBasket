@@ -12,3 +12,5 @@
 - Updated category search UX to clear the visible default only when the user starts searching, then restore it if no new category is chosen.
 - Updated `docs/project_outline.md` and bumped the app version to `1.13.5`.
 - Verified with `flutter analyze`; remaining findings are pre-existing warnings/info outside this change.
+- Follow-up cleanup removed low-risk debug `print` calls, an unused import, and an unused bottom-sheet parameter.
+- Re-ran `flutter analyze`; findings dropped from 108 to 76, with remaining issues largely in generated files or broader async/deprecation refactors.

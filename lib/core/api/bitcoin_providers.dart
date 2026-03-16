@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:inflabasket/core/api/bitcoin_price_client.dart';
 
@@ -123,7 +124,8 @@ class BinanceProvider implements BitcoinPriceProvider {
   void _logError(String method, DioException e, String context) {
     final statusCode = e.response?.statusCode;
     final message = e.message ?? 'unknown';
-    print('[BinanceProvider] $method error ($context): $statusCode - $message');
+    debugPrint(
+        '[BinanceProvider] $method error ($context): $statusCode - $message');
   }
 }
 
@@ -245,7 +247,8 @@ class OkxProvider implements BitcoinPriceProvider {
   void _logError(String method, DioException e, String context) {
     final statusCode = e.response?.statusCode;
     final message = e.message ?? 'unknown';
-    print('[OkxProvider] $method error ($context): $statusCode - $message');
+    debugPrint(
+        '[OkxProvider] $method error ($context): $statusCode - $message');
   }
 }
 
@@ -317,7 +320,7 @@ class CoinPaprikaProvider implements BitcoinPriceProvider {
   void _logError(String method, DioException e, String context) {
     final statusCode = e.response?.statusCode;
     final message = e.message ?? 'unknown';
-    print(
+    debugPrint(
         '[CoinPaprikaProvider] $method error ($context): $statusCode - $message');
   }
 }
@@ -393,7 +396,7 @@ class FiatExchangeProvider {
   void _logError(String method, DioException e, String context) {
     final statusCode = e.response?.statusCode;
     final message = e.message ?? 'unknown';
-    print(
+    debugPrint(
         '[FiatExchangeProvider] $method error ($context): $statusCode - $message');
   }
 }
@@ -434,7 +437,8 @@ class FallbackBitcoinPriceClient {
       }
     }
 
-    print('[FallbackBitcoinPriceClient] All providers failed for $currency');
+    debugPrint(
+        '[FallbackBitcoinPriceClient] All providers failed for $currency');
     return null;
   }
 
@@ -466,7 +470,7 @@ class FallbackBitcoinPriceClient {
       }
     }
 
-    print(
+    debugPrint(
         '[FallbackBitcoinPriceClient] All providers failed for range $currency');
     return [];
   }
@@ -475,7 +479,7 @@ class FallbackBitcoinPriceClient {
       String provider, String method, String currency, DateTime? date) {
     final dateStr =
         date != null ? '${date.year}-${date.month}-${date.day}' : 'live';
-    print(
+    debugPrint(
         '[FallbackBitcoinPriceClient] $provider succeeded: $method($currency, $dateStr)');
   }
 }

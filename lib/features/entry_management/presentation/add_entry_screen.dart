@@ -57,9 +57,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     final edit = widget.entryToEdit;
     final barcodeInfo = widget.productInfoFromBarcode;
 
-    print('🔍 AddEntryScreen initState: barcodeInfo=$barcodeInfo');
-    print('🔍 AddEntryScreen: barcodeInfo.name=${barcodeInfo?.name}');
-
     _productController = TextEditingController(
       text: edit?.product.name ?? barcodeInfo?.name ?? '',
     );
