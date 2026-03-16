@@ -150,84 +150,86 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: sortedEntries.length,
-            itemBuilder: (context, index) {
-              final entryDetails = sortedEntries[index];
-              final entry = entryDetails.entry;
-              final category = entryDetails.category;
+          child: Scrollbar(
+            child: ListView.builder(
+              itemCount: sortedEntries.length,
+              itemBuilder: (context, index) {
+                final entryDetails = sortedEntries[index];
+                final entry = entryDetails.entry;
+                final category = entryDetails.category;
 
-              final dateFormat = DateFormat.yMMMd();
-              final currencyFormat =
-                  NumberFormat.simpleCurrency(name: settings.currency);
-              final categoryName = CategoryLocalization.displayNameForContext(
-                context,
-                category.name,
-              );
+                final dateFormat = DateFormat.yMMMd();
+                final currencyFormat =
+                    NumberFormat.simpleCurrency(name: settings.currency);
+                final categoryName = CategoryLocalization.displayNameForContext(
+                  context,
+                  category.name,
+                );
 
-              return Dismissible(
-                key: ValueKey(entry.id),
-                direction: DismissDirection.horizontal,
-                background: Container(
-                  color: Theme.of(context).colorScheme.primary,
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.only(left: 20.0),
-                  child: Icon(Icons.edit,
-                      color: Theme.of(context).colorScheme.onPrimary),
-                ),
-                secondaryBackground: Container(
-                  color: Colors.red,
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20.0),
-                  child: const Icon(Icons.delete, color: Colors.white),
-                ),
-                confirmDismiss: (direction) async {
-                  if (direction == DismissDirection.startToEnd) {
-                    context.push('/home/add', extra: entryDetails);
-                    return false;
-                  } else {
-                    return await showDialog<bool>(
-                      context: context,
-                      builder: (ctx) {
-                        final dl10n = AppLocalizations.of(ctx)!;
-                        return AlertDialog(
-                          title: Text(dl10n.deleteEntryConfirm),
-                          content: Text(dl10n.deleteEntryMessage),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(false),
-                              child: Text(dl10n.cancel),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(true),
-                              child: Text(dl10n.delete,
-                                  style: const TextStyle(color: Colors.red)),
-                            ),
-                          ],
-                        );
-                      },
+                return Dismissible(
+                  key: ValueKey(entry.id),
+                  direction: DismissDirection.horizontal,
+                  background: Container(
+                    color: Theme.of(context).colorScheme.primary,
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Icon(Icons.edit,
+                        color: Theme.of(context).colorScheme.onPrimary),
+                  ),
+                  secondaryBackground: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  confirmDismiss: (direction) async {
+                    if (direction == DismissDirection.startToEnd) {
+                      context.push('/home/add', extra: entryDetails);
+                      return false;
+                    } else {
+                      return await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) {
+                          final dl10n = AppLocalizations.of(ctx)!;
+                          return AlertDialog(
+                            title: Text(dl10n.deleteEntryConfirm),
+                            content: Text(dl10n.deleteEntryMessage),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(false),
+                                child: Text(dl10n.cancel),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(true),
+                                child: Text(dl10n.delete,
+                                    style: const TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                  onDismissed: (direction) {
+                    ref
+                        .read(entryRepositoryProvider)
+                        .deletePurchaseEntry(entry.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.entryDeleted)),
                     );
-                  }
-                },
-                onDismissed: (direction) {
-                  ref
-                      .read(entryRepositoryProvider)
-                      .deletePurchaseEntry(entry.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.entryDeleted)),
-                  );
-                },
-                child: _buildReceiptStrip(
-                  context: context,
-                  entryDetails: entryDetails,
-                  l10n: l10n,
-                  settings: settings,
-                  dateFormat: dateFormat,
-                  currencyFormat: currencyFormat,
-                  categoryName: categoryName,
-                ),
-              );
-            },
+                  },
+                  child: _buildReceiptStrip(
+                    context: context,
+                    entryDetails: entryDetails,
+                    l10n: l10n,
+                    settings: settings,
+                    dateFormat: dateFormat,
+                    currencyFormat: currencyFormat,
+                    categoryName: categoryName,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],

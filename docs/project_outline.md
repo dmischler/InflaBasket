@@ -393,6 +393,9 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Bar chart (categories): 200-280px on phones, 220-320px on tablets
 - Fixed overflow issues on smaller screens
 
+**v1.16.3 History Tab Scrollbar**
+- Added scrollbar to history tab for better navigation through long entry lists
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility
