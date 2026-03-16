@@ -345,6 +345,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Category field now keeps the selected default visible until the user starts searching
 - Leaving category search without a new selection restores the current category label
 
+**v1.13.7 Platform Scaffold Repair**
+- Removed an accidental nested Flutter project from `ios/` and restored the expected iOS-only project layout
+- Regenerated missing root `android/` files and missing iOS `Flutter` xcconfig files required by the Runner target
+- Preserved the checked-in iOS `AppIcon.appiconset` and stopped CI from recreating `ios/`, which could strip custom icon assets from iOS builds
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility

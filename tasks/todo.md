@@ -1,18 +1,15 @@
 # Task Plan
 
-- [ ] Fix manual entry autocomplete controller wiring for product and store fields.
-- [ ] Fix category search UX so the default category clears only when the user starts searching.
-- [ ] Update project documentation and bump patch version.
-- [ ] Run formatting and analysis.
-- [ ] Review results and commit changes.
+- [ ] Remove the stray nested Flutter project files from `ios/`.
+- [ ] Regenerate the real root `android/` and missing iOS scaffold files from the workspace root.
+- [ ] Verify the iOS `AppIcon.appiconset` remains wired into the Runner target after cleanup.
+- [ ] Update project docs, capture the lesson learned, and bump the patch version.
+- [ ] Run verification commands, review the diff, and commit if the platform fix is in place.
 
 # Review
 
-- Fixed manual-mode autocomplete by wiring `flutter_typeahead` fields to the package-managed controller.
-- Updated category search UX to clear the visible default only when the user starts searching, then restore it if no new category is chosen.
-- Updated `docs/project_outline.md` and bumped the app version to `1.13.5`.
-- Verified with `flutter analyze`; remaining findings are pre-existing warnings/info outside this change.
-- Follow-up cleanup removed low-risk debug `print` calls, an unused import, and an unused bottom-sheet parameter.
-- Re-ran `flutter analyze`; findings dropped from 108 to 76, with remaining issues largely in generated files or broader async/deprecation refactors.
-- Second cleanup pass migrated deprecated `DropdownButtonFormField.value` usages to `initialValue`, fixed several async-context warnings, and removed a redundant non-null assertion.
-- Re-ran `flutter analyze`; findings dropped further to 53, and the remaining items are confined to generated `*.g.dart` files / generated Drift output.
+- Removed an accidental nested Flutter project from `ios/` that had polluted the platform folder with unrelated Android/Linux/macOS/Web/Windows files.
+- Regenerated the missing root `android/` scaffold and the missing iOS `Flutter/*.xcconfig` files from the real workspace root.
+- Verified the existing custom iOS `AppIcon.appiconset` stayed intact and is still referenced by the Runner target as `AppIcon`.
+- Fixed CI so `codemagic.yaml` no longer deletes and recreates `ios/`, which would otherwise drop the checked-in iOS icon assets during remote builds.
+- Realigned regenerated Android/iOS identifiers to `com.inflabasket.inflabasket`, captured the lesson, and bumped the app version to `1.13.7`.

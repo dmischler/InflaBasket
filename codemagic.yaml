@@ -27,17 +27,12 @@ workflows:
           set -e
           dart run build_runner build -d
 
-      - name: Generate iOS project
+      - name: Verify checked-in iOS project
         script: |
           set -e
-          rm -rf ios/
-          flutter create --platforms=ios --org com.inflabasket .
-          
-          # Verify and fix bundle ID in project.pbxproj
-          if [ -f ios/Runner.xcodeproj/project.pbxproj ]; then
-            sed -i '' 's/com\.example\.inflabasket/com.inflabasket.inflabasket/g' ios/Runner.xcodeproj/project.pbxproj
-            echo "Bundle ID set to com.inflabasket.inflabasket"
-          fi
+          test -f ios/Runner.xcodeproj/project.pbxproj
+          test -d ios/Runner/Assets.xcassets/AppIcon.appiconset
+          echo "Using checked-in iOS project and AppIcon assets"
 
       - name: Copy iOS Info.plist template
         script: |
