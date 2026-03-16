@@ -177,10 +177,12 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         ? VaultCard(
             isActive: true,
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(title, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
@@ -209,10 +211,12 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(title,
                           style: Theme.of(context).textTheme.titleMedium),

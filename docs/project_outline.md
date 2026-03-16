@@ -441,6 +441,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Removed AnimatedSwitcher from overview tab to prevent content flicker
 - Simplified loading logic - only triggers on initial app load, not mode changes
 - Content now stays stable while data updates in background
+- Fixed RenderFlex overflow in summary card during AnimatedContainer animation by adding mainAxisSize.min to Row
 
 ---
 
