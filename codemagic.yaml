@@ -50,11 +50,11 @@ workflows:
           if [ -f ios/Podfile ]; then
             # Ensure platform line exists with correct target
             if grep -q "platform :ios" ios/Podfile; then
-              sed -i '' "s/platform :ios, '[^']*'/platform :ios, '12.0'/" ios/Podfile
-              sed -i '' 's/platform :ios, "[^"]*"/platform :ios, "12.0"/' ios/Podfile
+              sed -i '' "s/platform :ios, '[^']*'/platform :ios, '13.0'/" ios/Podfile
+              sed -i '' 's/platform :ios, "[^"]*"/platform :ios, "13.0"/' ios/Podfile
             else
               # Add platform line if missing
-              sed -i '' "1s/^/platform :ios, '12.0'\\n/" ios/Podfile
+              sed -i '' "1s/^/platform :ios, '13.0'\\n/" ios/Podfile
             fi
           fi
 
