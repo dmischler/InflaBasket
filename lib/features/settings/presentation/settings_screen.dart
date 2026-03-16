@@ -9,7 +9,6 @@ import 'package:inflabasket/features/settings/application/settings_provider.dart
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
-import 'package:inflabasket/core/theme/app_theme.dart';
 
 enum ExportFormat { sqlite, csv, json }
 
@@ -266,48 +265,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onChanged: (val) => ref
                       .read(settingsControllerProvider.notifier)
                       .setMetric(val),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.color_lens_outlined),
-                  title: const Text('App Theme'),
-                  trailing: DropdownButton<AppThemeType>(
-                    value: settings.themeType,
-                    underline: const SizedBox(),
-                    items: AppThemeType.values.map(
-                      (theme) {
-                        String label;
-                        switch (theme) {
-                          case AppThemeType.standardLight:
-                            label = 'Light';
-                            break;
-                          case AppThemeType.standardDark:
-                            label = 'Dark';
-                            break;
-                          case AppThemeType.luxeDarkFiat:
-                            label = 'Fiat (Luxe)';
-                            break;
-                          case AppThemeType.luxeDarkBitcoin:
-                            label = 'Bitcoin (Luxe)';
-                            break;
-                          case AppThemeType.neoCyberpunkTerminal:
-                            label = 'Matrix Terminal';
-                            break;
-                        }
-                        return DropdownMenuItem<AppThemeType>(
-                          value: theme,
-                          child: Text(label),
-                        );
-                      },
-                    ).toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        ref
-                            .read(settingsControllerProvider.notifier)
-                            .setThemeType(val);
-                      }
-                    },
-                  ),
                 ),
                 const Divider(height: 1),
                 SwitchListTile.adaptive(

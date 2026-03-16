@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
-import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
 class CustomBottomNav extends ConsumerWidget {
@@ -27,7 +26,7 @@ class CustomBottomNav extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsControllerProvider);
-    final isBitcoin = settings.themeType == AppThemeType.luxeDarkBitcoin;
+    final isBitcoin = settings.isBitcoinMode;
     final accentColor =
         isBitcoin ? AppColors.accentBtcMain : AppColors.accentFiatMain;
     final glowColor =

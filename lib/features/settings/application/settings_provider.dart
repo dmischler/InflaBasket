@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
 import 'package:inflabasket/core/services/price_update_reminder_service.dart';
-import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
@@ -26,7 +25,6 @@ class AppSettings {
   final String currency;
   final bool isMetric;
   final String locale;
-  final AppThemeType themeType;
   final bool isBitcoinMode;
   final bool priceUpdateReminderEnabled;
   final int priceUpdateReminderMonths;
@@ -35,7 +33,6 @@ class AppSettings {
     this.currency = 'CHF',
     this.isMetric = true,
     this.locale = 'en',
-    this.themeType = AppThemeType.luxeDarkFiat,
     this.isBitcoinMode = false,
     this.priceUpdateReminderEnabled = false,
     this.priceUpdateReminderMonths = 6,
@@ -45,7 +42,6 @@ class AppSettings {
     String? currency,
     bool? isMetric,
     String? locale,
-    AppThemeType? themeType,
     bool? isBitcoinMode,
     bool? priceUpdateReminderEnabled,
     int? priceUpdateReminderMonths,
@@ -54,7 +50,6 @@ class AppSettings {
       currency: currency ?? this.currency,
       isMetric: isMetric ?? this.isMetric,
       locale: locale ?? this.locale,
-      themeType: themeType ?? this.themeType,
       isBitcoinMode: isBitcoinMode ?? this.isBitcoinMode,
       priceUpdateReminderEnabled:
           priceUpdateReminderEnabled ?? this.priceUpdateReminderEnabled,
@@ -76,7 +71,6 @@ class SettingsController extends _$SettingsController {
   static const _currencyKey = 'settings_currency';
   static const _metricKey = 'settings_is_metric';
   static const _localeKey = 'settings_locale';
-  static const _themeKey = 'settings_theme_type';
   static const _bitcoinModeKey = 'settings_bitcoin_mode';
   static const hasCompletedOnboardingKey = 'has_completed_onboarding';
   static const _priceUpdateReminderKey =
@@ -84,21 +78,32 @@ class SettingsController extends _$SettingsController {
   static const _priceUpdateReminderMonthsKey =
       'settings_price_update_reminder_months';
 
+  // Legacy key - kept for migration
+  static const _themeKey = 'settings_theme_type';
+
   @override
   AppSettings build() {
     final prefs = ref.watch(sharedPreferencesProvider);
+
+    // Migration: Convert old theme index to isBitcoinMode
+    // Old indices: 0=standardLight, 1=standardDark, 2=luxeDarkFiat, 3=luxeDarkBitcoin, 4=neoCyberpunkTerminal
+    // If user had luxeDarkBitcoin (index 3), set isBitcoinMode=true
     final savedThemeIndex = prefs.getInt(_themeKey);
-    final themeType =
-        savedThemeIndex != null && savedThemeIndex < AppThemeType.values.length
-            ? AppThemeType.values[savedThemeIndex]
-            : AppThemeType.luxeDarkFiat;
+    bool isBitcoinMode = false;
+    if (savedThemeIndex != null) {
+      // Index 3 was luxeDarkBitcoin
+      isBitcoinMode = savedThemeIndex == 3;
+      // Clean up legacy key
+      prefs.remove(_themeKey);
+    } else {
+      isBitcoinMode = prefs.getBool(_bitcoinModeKey) ?? false;
+    }
 
     return AppSettings(
       currency: prefs.getString(_currencyKey) ?? 'CHF',
       isMetric: prefs.getBool(_metricKey) ?? true,
       locale: resolveAppLanguageCode(prefs.getString(_localeKey)),
-      themeType: themeType,
-      isBitcoinMode: prefs.getBool(_bitcoinModeKey) ?? false,
+      isBitcoinMode: isBitcoinMode,
       priceUpdateReminderEnabled:
           prefs.getBool(_priceUpdateReminderKey) ?? false,
       priceUpdateReminderMonths:
@@ -123,12 +128,6 @@ class SettingsController extends _$SettingsController {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setString(_localeKey, normalizedLocale);
     state = state.copyWith(locale: normalizedLocale);
-  }
-
-  Future<void> setThemeType(AppThemeType type) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setInt(_themeKey, type.index);
-    state = state.copyWith(themeType: type);
   }
 
   Future<void> setBitcoinMode(bool isBitcoinMode) async {

@@ -405,6 +405,14 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Auto-fetch historical BTC prices
 - Provider invalidation on mode switch
 
+**v1.17.0 Theme Simplification**
+- Removed theme selection UI (settings dropdown)
+- Consolidated to single Luxe Dark theme with Fiat/Bitcoin accent colors
+- Theme toggle now controlled by `isBitcoinMode` setting
+- Removed cyberpunk terminal theme and light/dark standard themes
+- Added migration for legacy theme index to Bitcoin mode flag
+- Removed unused AppThemeType enum and color tokens
+
 ---
 
 ### 🔄 In Progress / Partially Complete
@@ -428,8 +436,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 **Sprint 4 – UI Design**
 - Glassmorphism cards and blur overlays
 - Speed dial FAB expansion
-- Theme customization (accent color, density)
-- Matrix Neo-Cyberpunk Terminal theme
 - Onboarding flow (3 screens)
 
 **Sprint 5 – Code Refactor**
