@@ -509,6 +509,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 **v1.20.5 Layout Alignment**
 - Removed "Zeitraum" / "Time Range" label from range selector dropdown to align with M2 toggle
 
+**v1.20.6 Inflation Chart Recovery + Sparse Data Smoothing**
+- Fixed flat/empty overview charts by rebuilding tracked product histories from full entry history (not only in-range rows)
+- Reworked cumulative inflation line generation to monthly points with per-product forward-fill for sparse, uneven price updates
+- Added 65% coverage gating for chart baseline so the first visible point starts at a representative 0% and avoids misleading low-coverage starts
+- Applied the same full-history fix to Bitcoin mode chart generation and hardened range start calculations with safe month subtraction
+
 ---
 
 ### 🔄 In Progress / Partially Complete

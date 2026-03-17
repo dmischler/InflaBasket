@@ -64,6 +64,32 @@ class InflationCalculator {
     return sorted.lastWhereOrNull((e) => !e.date.isAfter(target));
   }
 
+  static PriceEntry? _firstEntryOnOrAfter(
+      List<PriceEntry> sorted, DateTime target) {
+    return sorted.firstWhereOrNull((e) => !e.date.isBefore(target));
+  }
+
+  static List<DateTime> _monthlyChartDates(DateTime start, DateTime end) {
+    if (start.isAfter(end)) return const [];
+
+    final dates = <DateTime>[start];
+    var cursor = DateTime(start.year, start.month, 1);
+    final endMonth = DateTime(end.year, end.month, 1);
+
+    while (!cursor.isAfter(endMonth)) {
+      if (cursor.isAfter(start) && !cursor.isAfter(end)) {
+        dates.add(cursor);
+      }
+      cursor = DateTime(cursor.year, cursor.month + 1, 1);
+    }
+
+    if (!dates.last.isAtSameMomentAs(end)) {
+      dates.add(end);
+    }
+
+    return dates;
+  }
+
   static double? productPercentChange(
     TrackedProduct p,
     DateTime start,
@@ -118,58 +144,92 @@ class InflationCalculator {
     List<TrackedProduct> products,
   ) {
     if (baseline.isAfter(endDate)) return const [];
-    final activeProducts = products.where((p) => p.isActive).toList();
-    final dateSet = <DateTime>{baseline, endDate};
+    final dates = _monthlyChartDates(baseline, endDate);
+    if (dates.isEmpty) return const [];
 
-    for (final product in activeProducts) {
-      for (final entry in product.priceHistory) {
-        if (!entry.date.isBefore(baseline) && !entry.date.isAfter(endDate)) {
-          dateSet.add(entry.date);
-        }
-      }
+    final prepared = <({
+      String name,
+      List<PriceEntry> history,
+      PriceEntry base,
+    })>[];
+
+    for (final product in products.where((p) => p.isActive)) {
+      final history = product.priceHistory
+          .where((e) => e.price.isFinite && e.price > 0)
+          .toList()
+        ..sort((a, b) => a.date.compareTo(b.date));
+      if (history.isEmpty) continue;
+
+      final base = _firstEntryOnOrAfter(history, baseline);
+      if (base == null || base.date.isAfter(endDate)) continue;
+
+      prepared.add((name: product.name, history: history, base: base));
     }
 
-    final dates = dateSet.toList()..sort();
+    if (prepared.isEmpty) return const [];
 
-    int productsAtBaseline = 0;
-    for (final p in activeProducts) {
-      final hasAtOrBeforeBaseline =
-          p.priceHistory.any((e) => !e.date.isAfter(baseline));
-      if (hasAtOrBeforeBaseline) productsAtBaseline++;
-    }
+    final rawPoints = <({
+      DateTime date,
+      double avgInflation,
+      double coverage,
+      int contributing,
+      List<String> jumpDrivers,
+    })>[];
 
-    final points = <ChartPoint>[];
     for (final d in dates) {
       final changes = <double>[];
       final jumpDrivers = <String>[];
-      for (final p in activeProducts) {
-        final c = productPercentChange(p, baseline, d);
-        if (c != null) {
-          changes.add(c);
+
+      for (final product in prepared) {
+        final current = _lastEntryOnOrBefore(product.history, d);
+        if (current == null || current.date.isBefore(product.base.date)) {
+          continue;
         }
-        final changedToday = p.priceHistory.any((e) =>
+
+        final change =
+            ((current.price - product.base.price) / product.base.price) * 100;
+        changes.add(change);
+
+        final changedToday = product.history.any((e) =>
             e.date.year == d.year &&
             e.date.month == d.month &&
             e.date.day == d.day);
-        if (changedToday) jumpDrivers.add(p.name);
+        if (changedToday) jumpDrivers.add(product.name);
       }
 
-      final inflation = d == baseline
-          ? 0.0
-          : (changes.isEmpty
-              ? points.lastOrNull?.inflationPct ?? 0.0
-              : changes.average);
+      if (changes.isEmpty) continue;
 
-      points.add(ChartPoint(
+      rawPoints.add((
         date: d,
-        inflationPct: inflation,
-        contributingProducts: changes.length,
-        productsAtBaseline: productsAtBaseline,
+        avgInflation: changes.average,
+        coverage: changes.length / prepared.length,
+        contributing: changes.length,
         jumpDrivers: jumpDrivers,
       ));
     }
 
-    return points;
+    if (rawPoints.isEmpty) return const [];
+
+    const minCoverage = 0.65;
+    final baselinePoint = rawPoints.firstWhereOrNull(
+          (p) => p.coverage >= minCoverage,
+        ) ??
+        rawPoints.first;
+
+    final baselineInflation = baselinePoint.avgInflation;
+
+    return rawPoints
+        .where((p) => !p.date.isBefore(baselinePoint.date))
+        .map((p) {
+      final shifted = p.avgInflation - baselineInflation;
+      return ChartPoint(
+        date: p.date,
+        inflationPct: shifted.abs() < 1e-9 ? 0.0 : shifted,
+        contributingProducts: p.contributing,
+        productsAtBaseline: prepared.length,
+        jumpDrivers: p.jumpDrivers,
+      );
+    }).toList();
   }
 
   static List<TrackedProduct> importReceiptMonth(

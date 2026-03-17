@@ -241,6 +241,13 @@ class ChartTimeFilter {
     this.customEnd,
   });
 
+  static DateTime _subtractMonths(DateTime date, int months) {
+    final totalMonths = date.year * 12 + date.month - 1 - months;
+    final year = totalMonths ~/ 12;
+    final month = totalMonths % 12 + 1;
+    return DateTime(year, month, 1);
+  }
+
   ChartTimeFilter copyWith({
     ChartTimeRange? range,
     DateTime? customStart,
@@ -258,17 +265,17 @@ class ChartTimeFilter {
     final now = DateTime.now();
     switch (range) {
       case ChartTimeRange.sixMonths:
-        return DateTime(now.year, now.month - 6, 1);
+        return _subtractMonths(now, 6);
       case ChartTimeRange.oneYear:
-        return DateTime(now.year - 1, now.month, 1);
+        return _subtractMonths(now, 12);
       case ChartTimeRange.twoYears:
-        return DateTime(now.year - 2, now.month, 1);
+        return _subtractMonths(now, 24);
       case ChartTimeRange.threeYears:
-        return DateTime(now.year - 3, now.month, 1);
+        return _subtractMonths(now, 36);
       case ChartTimeRange.fiveYears:
-        return DateTime(now.year - 5, now.month, 1);
+        return _subtractMonths(now, 60);
       case ChartTimeRange.tenYears:
-        return DateTime(now.year - 10, now.month, 1);
+        return _subtractMonths(now, 120);
       case ChartTimeRange.custom:
         return customStart ?? firstDataPoint;
     }

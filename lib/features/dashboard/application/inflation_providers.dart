@@ -184,7 +184,7 @@ List<EntryWithDetails> entriesInActiveRange(EntriesInActiveRangeRef ref) {
 
 @riverpod
 List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
-  final entries = ref.watch(entriesInActiveRangeProvider);
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return const [];
 
   final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
@@ -518,7 +518,7 @@ Future<List<MonthlyIndex>> dynamicLaspeyresIndexSats(
   if (!isBitcoin) return [];
 
   final range = ref.watch(activeInflationRangeProvider);
-  final entries = ref.watch(entriesInActiveRangeProvider);
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return [];
   final btc = await ref.watch(btcPriceCacheProvider.future);
 
