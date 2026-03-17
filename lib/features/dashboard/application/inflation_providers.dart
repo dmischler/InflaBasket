@@ -205,28 +205,27 @@ List<YearlyInflationEntry> entriesForYearlyInflation(
   final result = <YearlyInflationEntry>[];
 
   for (final productEntries in grouped.values) {
-    final sorted = List<EntryWithDetails>.from(productEntries)
+    final inRange = productEntries
+        .where((e) =>
+            !e.entry.purchaseDate.isBefore(range.start) &&
+            !e.entry.purchaseDate.isAfter(range.end))
+        .toList()
       ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
 
-    EntryWithDetails? baseline;
-    EntryWithDetails? current;
+    if (inRange.length < 2) continue;
 
-    for (final entry in sorted) {
-      if (entry.entry.purchaseDate.isBefore(range.start)) {
-        baseline = entry;
-      } else if (!entry.entry.purchaseDate.isAfter(range.end)) {
-        current = entry;
-      }
-    }
+    final baseline = inRange.first;
+    final current = inRange.last;
 
-    if (baseline != null && current != null && baseline != current) {
-      result.add(YearlyInflationEntry(
-        product: baseline.product,
-        category: baseline.category,
-        baselineEntry: baseline,
-        currentEntry: current,
-      ));
-    }
+    if (baseline.entry.purchaseDate == current.entry.purchaseDate) continue;
+    if (!_compatible(baseline.entry, current.entry)) continue;
+
+    result.add(YearlyInflationEntry(
+      product: baseline.product,
+      category: baseline.category,
+      baselineEntry: baseline,
+      currentEntry: current,
+    ));
   }
 
   return result;

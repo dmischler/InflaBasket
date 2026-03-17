@@ -520,11 +520,10 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Added 65% coverage gating for chart baseline so the first visible point starts at a representative 0% and avoids misleading low-coverage starts
 - Applied the same full-history fix to Bitcoin mode chart generation and hardened range start calculations with safe month subtraction
 
-**v1.20.7 Baseline-Before-Range Inflation + Dynamic Range Availability**
-- Time range presets (6M, 1Y, etc.) now require at least one product with 2+ entries total (not just purchases in range)
-- Inflation calculation now uses baseline-before-range: finds closest entry BEFORE range start as baseline, latest entry IN range as current
-- This enables meaningful inflation data for short ranges (6M, 1Y) even when only sparse data exists
-- Added chart Key based on time range to ensure xticks rebuild properly when switching ranges
+**v1.20.7 Baseline + Range Availability Fixes**
+- Fixed yearly inflation calculation to use entries WITHIN selected range only (first = baseline, last = current)
+- Fixed time range availability: now checks if any product has entries spanning the range (not just oldest entry date)
+- With sample data (products spanning 2 years): only 2Y range now available, 6M/1Y correctly show no inflation when no in-range pairs exist
 
 ---
 

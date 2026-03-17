@@ -313,9 +313,8 @@ ChartTimeRange resolveTimeRangeSelection(
 
 /// Returns which time range options are available based on purchase activity.
 ///
-/// A fixed range is shown only when:
-/// 1. The oldest purchase predates that range, AND
-/// 2. At least one product has 2+ entries (needed for inflation calculation)
+/// A fixed range is shown only when at least one product has entries
+/// that span that time range (earliest entry is at least that old).
 /// Custom is always available.
 List<ChartTimeRange> availableTimeRanges(Iterable<EntryWithDetails> entries) {
   final entryList = entries.toList();
@@ -325,35 +324,35 @@ List<ChartTimeRange> availableTimeRanges(Iterable<EntryWithDetails> entries) {
 
   final grouped =
       groupBy<EntryWithDetails, int>(entryList, (e) => e.product.id);
-  final hasMultipleEntriesPerProduct =
-      grouped.values.any((list) => list.length >= 2);
 
-  if (!hasMultipleEntriesPerProduct) {
-    return [ChartTimeRange.custom];
+  bool hasSpan(double years) {
+    for (final productEntries in grouped.values) {
+      final sorted = productEntries.map((e) => e.entry.purchaseDate).toList()
+        ..sort();
+      if (sorted.length < 2) continue;
+      final span = sorted.last.difference(sorted.first).inDays / 365.25;
+      if (span >= years) return true;
+    }
+    return false;
   }
-
-  final dates = entryList.map((e) => e.entry.purchaseDate).toList();
-  final oldestDate = dates.reduce((a, b) => a.isBefore(b) ? a : b);
-  final now = DateTime.now();
-  final yearsBack = now.difference(oldestDate).inDays / 365.25;
 
   final available = <ChartTimeRange>[];
-  if (yearsBack >= 0.5) {
+  if (hasSpan(0.5)) {
     available.add(ChartTimeRange.sixMonths);
   }
-  if (yearsBack >= 1) {
+  if (hasSpan(1)) {
     available.add(ChartTimeRange.oneYear);
   }
-  if (yearsBack >= 2) {
+  if (hasSpan(2)) {
     available.add(ChartTimeRange.twoYears);
   }
-  if (yearsBack >= 3) {
+  if (hasSpan(3)) {
     available.add(ChartTimeRange.threeYears);
   }
-  if (yearsBack >= 5) {
+  if (hasSpan(5)) {
     available.add(ChartTimeRange.fiveYears);
   }
-  if (yearsBack >= 10) {
+  if (hasSpan(10)) {
     available.add(ChartTimeRange.tenYears);
   }
   available.add(ChartTimeRange.custom);
