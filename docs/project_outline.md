@@ -443,11 +443,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Content now stays stable while data updates in background
 - Fixed RenderFlex overflow in summary card during AnimatedContainer animation by adding mainAxisSize.min to Row
 
-**v1.18.8 Smooth Overview Mode Switching**
-- Disabled Material theme animation during fiat/bitcoin toggles to eliminate transient overview layout overflows
-- Overview now keeps the last stable fiat dataset visible until sats history and lists are ready instead of flashing into an empty chart state
-- Summary card layout now uses flexible text sizing so the headline value stays inside the card during mode switches
-- Overview chart bottom ticks now adapt to visible date span and chart width, use shorter labels when dense, and are clamped inside the plot bounds
+**v1.18.9 Inflation Calculation Fix**
+- Fixed inflation calculation to exclude products with only 1 price entry in the selected time range (previously counted as 0%, diluting actual inflation)
+- Fixed chart to use selected time range as baseline instead of global earliest entry (chart now correctly starts at 100 for the selected period)
+- Chart time frame selector now properly updates the chart view
+- Both fiat and bitcoin modes fixed
 
 ---
 

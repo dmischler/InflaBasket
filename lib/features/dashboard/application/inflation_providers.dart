@@ -172,14 +172,15 @@ List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
 
 @riverpod
 List<MonthlyIndex> basketIndexHistory(BasketIndexHistoryRef ref) {
+  final range = ref.watch(activeInflationRangeProvider);
   final products = ref.watch(trackedProductsProvider);
   if (products.isEmpty) return [];
-  final baseline =
-      products.expand((p) => p.priceHistory).map((e) => e.date).minOrNull;
-  if (baseline == null) return [];
-  final now = DateTime.now();
+
+  final baseline = range.start;
+  final endDate = range.end;
+
   final points =
-      InflationCalculator.generateInflationChart(baseline, now, products);
+      InflationCalculator.generateInflationChart(baseline, endDate, products);
   return points
       .map((p) => MonthlyIndex(
             month: p.date,
@@ -196,20 +197,9 @@ List<MonthlyIndex> filteredBasketIndexHistory(
   if (all.isEmpty) return [];
 
   final range = ref.watch(activeInflationRangeProvider);
-  final filtered = all
+  return all
       .where(
           (p) => !p.month.isBefore(range.start) && !p.month.isAfter(range.end))
-      .toList();
-  if (filtered.isEmpty) return [];
-
-  final base = filtered.first.index;
-  if (!base.isFinite || base == 0) return filtered;
-  return filtered
-      .map((p) => MonthlyIndex(
-            month: p.month,
-            index: (p.index / base) * 100,
-            chartPoint: p.chartPoint,
-          ))
       .toList();
 }
 
@@ -412,6 +402,7 @@ Future<List<MonthlyIndex>> dynamicLaspeyresIndexSats(
   final isBitcoin = ref.watch(isBitcoinModeProvider);
   if (!isBitcoin) return [];
 
+  final range = ref.watch(activeInflationRangeProvider);
   final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return [];
   final btc = await ref.watch(btcPriceCacheProvider.future);
@@ -439,12 +430,10 @@ Future<List<MonthlyIndex>> dynamicLaspeyresIndexSats(
   }
 
   if (products.isEmpty) return [];
-  final baseline =
-      products.expand((p) => p.priceHistory).map((e) => e.date).minOrNull;
-  if (baseline == null) return [];
-  final now = DateTime.now();
+  final baseline = range.start;
+  final endDate = range.end;
   final points =
-      InflationCalculator.generateInflationChart(baseline, now, products);
+      InflationCalculator.generateInflationChart(baseline, endDate, products);
   return points
       .map((p) => MonthlyIndex(
           month: p.date, index: 100 + p.inflationPct, chartPoint: p))
@@ -461,20 +450,9 @@ Future<List<MonthlyIndex>> filteredDynamicIndexSats(
   if (all.isEmpty) return [];
 
   final range = ref.watch(activeInflationRangeProvider);
-  final filtered = all
+  return all
       .where(
           (p) => !p.month.isBefore(range.start) && !p.month.isAfter(range.end))
-      .toList();
-  if (filtered.isEmpty) return [];
-
-  final base = filtered.first.index;
-  if (!base.isFinite || base == 0) return filtered;
-  return filtered
-      .map((p) => MonthlyIndex(
-            month: p.month,
-            index: (p.index / base) * 100,
-            chartPoint: p.chartPoint,
-          ))
       .toList();
 }
 

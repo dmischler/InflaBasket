@@ -100,7 +100,7 @@ class InflationCalculator {
       return null;
     }
 
-    if (isPartial && startEntry == endEntry) return 0.0;
+    if (isPartial && startEntry == endEntry) return null;
 
     return ((endPrice - startPrice) / startPrice) * 100;
   }
