@@ -502,6 +502,10 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Changed time range selector from segmented button to pill + dropdown for cleaner UI
 - Changed "overviewTitle" from "Average yearly inflation" / "Durchschnittliche Jahresinflation" to "Ø Jahresinflation"
 
+**v1.20.4 Layout Consolidation**
+- Combined time range selector and M2 toggle into single Row (range left, M2 right)
+- Removed "Compare with" / "Vergleichen mit" label from M2 dropdown
+
 ---
 
 ### 🔄 In Progress / Partially Complete

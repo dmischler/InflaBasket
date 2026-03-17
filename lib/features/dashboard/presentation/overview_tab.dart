@@ -169,24 +169,28 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         children: [
           _buildSummaryCard(context, l, yearlySummary),
           const SizedBox(height: 24),
-          _buildTimeRangeSelector(
-            context,
-            l,
-            ref,
-            timeFilter,
-            selectedRange,
-            availableTimeRangeOptions,
-            firstDataPoint,
-          ),
-          const SizedBox(height: 16),
-          _buildChartHeader(
-            context,
-            l,
-            ref,
-            availableTypes,
-            overlayType,
-            showCpi,
-            overlayAsync.isLoading,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildTimeRangeSelector(
+                context,
+                l,
+                ref,
+                timeFilter,
+                selectedRange,
+                availableTimeRangeOptions,
+                firstDataPoint,
+              ),
+              _buildChartHeader(
+                context,
+                l,
+                ref,
+                availableTypes,
+                overlayType,
+                showCpi,
+                overlayAsync.isLoading,
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           _buildLineChart(
@@ -465,9 +469,6 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
             ),
             icon: const Icon(Icons.info_outline, size: 20),
           ),
-        Text(l.showComparisonOverlay,
-            style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(width: 8),
         if (overlayType != null)
           DropdownButtonHideUnderline(
             child: DropdownButton<ComparisonOverlayType>(
