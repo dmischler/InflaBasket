@@ -772,6 +772,13 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         );
       }).toList()
         ..sort((a, b) => a.x.compareTo(b.x));
+
+      // Offset comparison curve so first tooltip starts at exactly 0%
+      if (comparisonSpots.isNotEmpty) {
+        final offset = comparisonSpots.first.y;
+        comparisonSpots =
+            comparisonSpots.map((s) => FlSpot(s.x, s.y - offset)).toList();
+      }
     }
 
     // Compute explicit Y bounds

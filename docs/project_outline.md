@@ -463,7 +463,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 **v1.19.4 Chart Overlay Alignment Fix**
 - Fixed M2/inflation overlay chart offset so both curves start at exactly 0% (index 100) at the same baseline date
 - Changed comparisonOverlayData to use activeInflationRangeProvider.start as baseline instead of filteredHistory.first.month
-- Now finds the exact M2/inflation value at baseline date to ensure proper rebasing
+- Now finds the exact M2/inflation value at baseline date for proper rebasing
+
+**v1.19.5 Chart Overlay Offset Fix**
+- Added offset calculation in chart rendering to ensure first tooltip always starts at exactly 0%
+- Offsets comparison curve so first point is always at 0%, regardless of data rebasing
 
 **v1.20.0 FAB Redesign (X/Twitter Style)**
 - Removed FAB from inside bottom navigation pill
