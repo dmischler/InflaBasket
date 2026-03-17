@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/widgets/add_entry_bottom_sheet.dart';
 import 'package:inflabasket/core/widgets/custom_bottom_nav.dart';
 import 'package:inflabasket/core/widgets/fiat_bitcoin_toggle.dart';
 import 'package:inflabasket/features/dashboard/presentation/overview_tab.dart';
 import 'package:inflabasket/features/dashboard/presentation/history_tab.dart';
 import 'package:inflabasket/features/dashboard/presentation/categories_tab.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/settings/presentation/settings_screen.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
@@ -23,6 +25,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final settings = ref.watch(settingsControllerProvider);
+    final isBitcoin = settings.isBitcoinMode;
+    final accentColor =
+        isBitcoin ? AppColors.accentBtcMain : AppColors.accentFiatMain;
+    final glowColor =
+        isBitcoin ? AppColors.accentBtcGlow : AppColors.accentFiatGlow;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.appTitle),
@@ -40,16 +49,46 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           SettingsScreen(),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          AddEntryBottomSheet.show(context);
+        },
+        backgroundColor: accentColor,
+        elevation: 0,
+        shape: const CircleBorder(),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: glowColor,
+                blurRadius: 20,
+                spreadRadius: 4,
+              ),
+              BoxShadow(
+                color: glowColor.withValues(alpha: 0.3),
+                blurRadius: 40,
+                spreadRadius: 8,
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.add,
+            color: AppColors.bgVoid,
+            size: 32,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: CustomBottomNav(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
-        },
-        onFabPressed: () {
-          HapticFeedback.lightImpact();
-          AddEntryBottomSheet.show(context);
         },
       ),
     );

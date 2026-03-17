@@ -465,6 +465,14 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Changed comparisonOverlayData to use activeInflationRangeProvider.start as baseline instead of filteredHistory.first.month
 - Now finds the exact M2/inflation value at baseline date to ensure proper rebasing
 
+**v1.20.0 FAB Redesign (X/Twitter Style)**
+- Removed FAB from inside bottom navigation pill
+- Added standalone floating action button positioned at bottom-right (floating above nav bar)
+- FAB now has stronger glow effect (blur: 20, spread: 4) compared to selected tab (blur: 12, spread: 2)
+- Uses accent color that switches between fiat green and bitcoin orange based on mode
+- 56px size vs 46px pill tabs for visual hierarchy
+- 4 slots instead of 5 in bottom navigation
+
 ---
 
 ### 🔄 In Progress / Partially Complete

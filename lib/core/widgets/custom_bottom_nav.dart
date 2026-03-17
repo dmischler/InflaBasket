@@ -8,20 +8,17 @@ import 'package:inflabasket/features/settings/application/settings_provider.dart
 class CustomBottomNav extends ConsumerWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
-  final VoidCallback onFabPressed;
 
   const CustomBottomNav({
     super.key,
     required this.currentIndex,
     required this.onTap,
-    required this.onFabPressed,
   });
 
   static const _barHeight = 60.0;
   static const _outerMargin = 12.0;
   static const _pillSize = 46.0;
-  static const _fabSize = 46.0;
-  static const _slotCount = 5;
+  static const _slotCount = 4;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -108,26 +105,6 @@ class CustomBottomNav extends ConsumerWidget {
                                 onTap: () => onTap(1),
                               ),
                             ),
-                            SizedBox(
-                              width: slotWidth,
-                              child: Center(
-                                child: SizedBox(
-                                  width: _fabSize,
-                                  height: _fabSize,
-                                  child: FloatingActionButton(
-                                    heroTag: 'custom_bottom_nav_fab',
-                                    onPressed: onFabPressed,
-                                    backgroundColor: accentColor,
-                                    elevation: 4,
-                                    shape: const CircleBorder(),
-                                    child: const Icon(
-                                      Icons.add,
-                                      color: AppColors.bgVoid,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                             _NavSlot(
                               width: slotWidth,
                               child: _NavItem(
@@ -161,8 +138,7 @@ class CustomBottomNav extends ConsumerWidget {
   }
 
   double _slotLeftForIndex(int index, double slotWidth) {
-    final visualIndex = index >= 2 ? index + 1 : index;
-    return visualIndex * slotWidth;
+    return index * slotWidth;
   }
 }
 
