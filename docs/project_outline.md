@@ -460,6 +460,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Overview chart: reduced target labels from 6 to 5, added minInterval calculation for better spacing
 - Product detail chart: replaced fixed intervals with dynamic interval calculation based on actual data range
 
+**v1.19.4 Chart Overlay Alignment Fix**
+- Fixed M2/inflation overlay chart offset so both curves start at exactly 0% (index 100) at the same baseline date
+- Changed comparisonOverlayData to use activeInflationRangeProvider.start as baseline instead of filteredHistory.first.month
+- Now finds the exact M2/inflation value at baseline date to ensure proper rebasing
+
 ---
 
 ### 🔄 In Progress / Partially Complete

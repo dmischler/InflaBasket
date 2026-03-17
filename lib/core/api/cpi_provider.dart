@@ -183,13 +183,12 @@ Future<List<ComparisonDataPoint>> comparisonOverlayData(
   final selected = ref.watch(effectiveComparisonOverlayTypeProvider);
   if (selected == null) return [];
 
-  // Use the filtered basket history to determine the date range
-  final filteredHistory = ref.watch(filteredBasketIndexHistoryProvider);
-  if (filteredHistory.isEmpty) return [];
+  // Use the actual inflation range baseline for proper alignment
+  final range = ref.watch(activeInflationRangeProvider);
+  final baselineDate = range.start;
+  final endDate = range.end;
 
-  final startDate = filteredHistory.first.month;
-  final endDate = filteredHistory.last.month;
-
+  // Get raw M2/inflation data
   List<(DateTime, double)> rawPoints = [];
   switch (selected) {
     case ComparisonOverlayType.moneySupply:
@@ -200,11 +199,40 @@ Future<List<ComparisonDataPoint>> comparisonOverlayData(
       rawPoints = points.map((p) => (p.month, p.index)).toList();
   }
 
-  // Filter to the same date range as the basket, then rebase so index = 100 at that date.
-  final filtered = rawPoints
-      .where((p) => !p.$1.isBefore(startDate) && !p.$1.isAfter(endDate))
+  if (rawPoints.isEmpty) return [];
+
+  // Sort by date
+  final sorted = [...rawPoints]..sort((a, b) => a.$1.compareTo(b.$1));
+
+  // Find the baseline value at or immediately before baselineDate
+  // This ensures both curves start at index 100 at the same date
+  double? baselineValue;
+  for (final point in sorted) {
+    if (!point.$1.isAfter(baselineDate)) {
+      baselineValue = point.$2;
+    }
+  }
+
+  // If no baseline value found before/at baselineDate, use the first available
+  if (baselineValue == null && sorted.isNotEmpty) {
+    baselineValue = sorted.first.$2;
+  }
+
+  if (baselineValue == null || !baselineValue.isFinite || baselineValue == 0) {
+    return [];
+  }
+
+  // Filter to the date range and rebase using the found baseline
+  final filtered = sorted
+      .where((p) => !p.$1.isBefore(baselineDate) && !p.$1.isAfter(endDate))
       .toList();
-  return rebaseComparisonSeries(filtered);
+
+  return filtered
+      .map((point) => ComparisonDataPoint(
+            month: point.$1,
+            index: (point.$2 / baselineValue!) * 100,
+          ))
+      .toList();
 }
 
 Future<List<T>> _loadCachedSeries<T>({
