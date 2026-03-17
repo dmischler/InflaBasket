@@ -530,6 +530,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Yearly inflation now always shows average across all products' full data span, regardless of chart range selection
 - Same fix applied to Bitcoin mode (overallYearlyInflationSummarySatsProvider)
 
+**v1.20.11 Overall Item Inflation Lists**
+- Created overallItemInflationList provider using all entries (not range-filtered)
+- Created overallItemInflationListSatsProvider for Bitcoin mode
+- Top inflators/deflators now show data from full product history, independent of selected chart range
+
 ---
 
 ### 🔄 In Progress / Partially Complete

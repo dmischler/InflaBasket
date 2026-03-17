@@ -388,6 +388,54 @@ YearlyInflationSummary yearlyBasketInflationSummary(
 }
 
 @riverpod
+List<ItemInflation> overallItemInflationList(OverallItemInflationListRef ref) {
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return [];
+
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final result = <ItemInflation>[];
+
+  for (final list in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(list)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    if (sorted.length < 2) continue;
+
+    final first = sorted.first;
+    final base = sorted.first;
+    final current = sorted.last;
+
+    if (base.entry.purchaseDate == current.entry.purchaseDate ||
+        !_compatible(base.entry, current.entry)) {
+      continue;
+    }
+
+    final basePrice = _normalizedUnitPrice(base.entry);
+    final currentPrice = _normalizedUnitPrice(current.entry);
+    if (basePrice <= 0 || !basePrice.isFinite || !currentPrice.isFinite) {
+      continue;
+    }
+
+    final inflationPct = (base == current)
+        ? 0.0
+        : ((currentPrice - basePrice) / basePrice) * 100;
+
+    result.add(ItemInflation(
+      product: first.product,
+      category: first.category,
+      baseUnitPrice: basePrice,
+      currentUnitPrice: currentPrice,
+      baseUnit: unitTypeFromString(base.entry.unit),
+      inflationPercent: inflationPct,
+      isPartialPeriod: false,
+      baseDate: base.entry.purchaseDate,
+    ));
+  }
+
+  result.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
+  return result;
+}
+
+@riverpod
 List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
   final entries = ref.watch(entriesInActiveRangeProvider);
   if (entries.isEmpty) return [];
@@ -473,6 +521,67 @@ List<CategoryInflation> categoryInflationList(CategoryInflationListRef ref) {
 double? _getBtcPriceForDate(Map<String, double> cache, DateTime date) {
   final key = '${date.year}-${date.month}';
   return cache[key];
+}
+
+@riverpod
+Future<List<ItemInflationSats>> overallItemInflationListSats(
+    OverallItemInflationListSatsRef ref) async {
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return [];
+  final btc = await ref.watch(btcPriceCacheProvider.future);
+
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final out = <ItemInflationSats>[];
+  for (final list in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(list)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    if (sorted.length < 2) continue;
+
+    final first = sorted.first;
+
+    final base = sorted.first;
+    final current = sorted.last;
+
+    if (base.entry.purchaseDate == current.entry.purchaseDate ||
+        !_compatible(base.entry, current.entry)) {
+      continue;
+    }
+
+    final baseBtc = _getBtcPriceForDate(btc, base.entry.purchaseDate);
+    final currentBtc = _getBtcPriceForDate(btc, current.entry.purchaseDate);
+    if (baseBtc == null ||
+        currentBtc == null ||
+        baseBtc <= 0 ||
+        currentBtc <= 0) {
+      continue;
+    }
+
+    final baseNorm = _normalizedUnitPrice(base.entry);
+    final currentNorm = _normalizedUnitPrice(current.entry);
+    if (baseNorm <= 0 || !baseNorm.isFinite || !currentNorm.isFinite) continue;
+
+    final baseSats = SatsConverter.fiatToSats(baseNorm, baseBtc);
+    final currentSats = SatsConverter.fiatToSats(currentNorm, currentBtc);
+    if (baseSats <= 0) continue;
+
+    final inflationPct =
+        (base == current) ? 0.0 : ((currentSats - baseSats) / baseSats) * 100;
+
+    out.add(ItemInflationSats(
+      product: first.product,
+      category: first.category,
+      baseSatsPrice: baseSats,
+      currentSatsPrice: currentSats,
+      baseUnit: unitTypeFromString(base.entry.unit),
+      inflationPercent: inflationPct,
+      btcPriceAtBase: baseBtc,
+      btcPriceAtCurrent: currentBtc,
+      isPartialPeriod: false,
+    ));
+  }
+
+  out.sort((a, b) => b.inflationPercent.compareTo(a.inflationPercent));
+  return out;
 }
 
 @riverpod
