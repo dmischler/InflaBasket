@@ -157,9 +157,7 @@ InflationRange activeInflationRange(ActiveInflationRangeRef ref) {
   final sorted = List<EntryWithDetails>.from(entries)
     ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
   final first = sorted.first.entry.purchaseDate;
-  final availableRanges = availableTimeRanges(
-    sorted.map((entry) => entry.entry.purchaseDate),
-  );
+  final availableRanges = availableTimeRanges(sorted);
   final resolvedRange = resolveTimeRangeSelection(filter, availableRanges);
   final effectiveFilter = resolvedRange == filter.range
       ? filter
@@ -180,6 +178,58 @@ List<EntryWithDetails> entriesInActiveRange(EntriesInActiveRangeRef ref) {
           !entry.entry.purchaseDate.isBefore(range.start) &&
           !entry.entry.purchaseDate.isAfter(range.end))
       .toList();
+}
+
+class YearlyInflationEntry {
+  YearlyInflationEntry({
+    required this.product,
+    required this.category,
+    required this.baselineEntry,
+    required this.currentEntry,
+  });
+
+  final Product product;
+  final Category category;
+  final EntryWithDetails baselineEntry;
+  final EntryWithDetails currentEntry;
+}
+
+@riverpod
+List<YearlyInflationEntry> entriesForYearlyInflation(
+    EntriesForYearlyInflationRef ref) {
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return [];
+
+  final range = ref.watch(activeInflationRangeProvider);
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final result = <YearlyInflationEntry>[];
+
+  for (final productEntries in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(productEntries)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+
+    EntryWithDetails? baseline;
+    EntryWithDetails? current;
+
+    for (final entry in sorted) {
+      if (entry.entry.purchaseDate.isBefore(range.start)) {
+        baseline = entry;
+      } else if (!entry.entry.purchaseDate.isAfter(range.end)) {
+        current = entry;
+      }
+    }
+
+    if (baseline != null && current != null && baseline != current) {
+      result.add(YearlyInflationEntry(
+        product: baseline.product,
+        category: baseline.category,
+        baselineEntry: baseline,
+        currentEntry: current,
+      ));
+    }
+  }
+
+  return result;
 }
 
 @riverpod
@@ -260,19 +310,15 @@ double basketInflation(BasketInflationRef ref) {
 @riverpod
 YearlyInflationSummary yearlyBasketInflationSummary(
     YearlyBasketInflationSummaryRef ref) {
-  final entries = ref.watch(entriesInActiveRangeProvider);
+  final entries = ref.watch(entriesForYearlyInflationProvider);
   if (entries.isEmpty) return const YearlyInflationSummary.empty();
 
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
   final yearlyRates = <double>[];
 
-  for (final list in grouped.values) {
-    final sorted = List<EntryWithDetails>.from(list)
-      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
-    if (sorted.length < 2) continue;
+  for (final entry in entries) {
+    final base = entry.baselineEntry;
+    final current = entry.currentEntry;
 
-    final base = sorted.first;
-    final current = sorted.last;
     if (base.entry.purchaseDate == current.entry.purchaseDate ||
         !_compatible(base.entry, current.entry)) {
       continue;
@@ -458,20 +504,16 @@ double basketInflationSats(BasketInflationSatsRef ref) {
 @riverpod
 Future<YearlyInflationSummary> yearlyBasketInflationSummarySats(
     YearlyBasketInflationSummarySatsRef ref) async {
-  final entries = ref.watch(entriesInActiveRangeProvider);
+  final entries = ref.watch(entriesForYearlyInflationProvider);
   if (entries.isEmpty) return const YearlyInflationSummary.empty();
 
   final btc = await ref.watch(btcPriceCacheProvider.future);
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
   final yearlyRates = <double>[];
 
-  for (final list in grouped.values) {
-    final sorted = List<EntryWithDetails>.from(list)
-      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
-    if (sorted.length < 2) continue;
+  for (final entry in entries) {
+    final base = entry.baselineEntry;
+    final current = entry.currentEntry;
 
-    final base = sorted.first;
-    final current = sorted.last;
     if (base.entry.purchaseDate == current.entry.purchaseDate ||
         !_compatible(base.entry, current.entry)) {
       continue;

@@ -214,10 +214,10 @@
   "nationalCpi": "National CPI",
   "@nationalCpi": { "description": "Legend label for CPI line" },
 
-  "moneySupplyM2": "M2 Money Supply",
+  "moneySupplyM2": "Money Supply (M2)",
   "@moneySupplyM2": { "description": "Legend label for M2 money supply overlay" },
 
-  "coreInflationSnb": "Core Inflation 1",
+  "coreInflationSnb": "Core Inflation",
   "@coreInflationSnb": { "description": "Legend label for SNB Core Inflation 1 overlay" },
 
   "categoriesTitle": "Category Breakdown",

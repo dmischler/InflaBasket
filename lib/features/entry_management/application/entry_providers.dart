@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -312,14 +313,26 @@ ChartTimeRange resolveTimeRangeSelection(
 
 /// Returns which time range options are available based on purchase activity.
 ///
-/// A fixed range is shown only when the oldest purchase predates that range.
+/// A fixed range is shown only when:
+/// 1. The oldest purchase predates that range, AND
+/// 2. At least one product has 2+ entries (needed for inflation calculation)
 /// Custom is always available.
-List<ChartTimeRange> availableTimeRanges(Iterable<DateTime> purchaseDates) {
-  final dates = purchaseDates.toList();
-  if (dates.isEmpty) {
+List<ChartTimeRange> availableTimeRanges(Iterable<EntryWithDetails> entries) {
+  final entryList = entries.toList();
+  if (entryList.isEmpty) {
     return [ChartTimeRange.custom];
   }
 
+  final grouped =
+      groupBy<EntryWithDetails, int>(entryList, (e) => e.product.id);
+  final hasMultipleEntriesPerProduct =
+      grouped.values.any((list) => list.length >= 2);
+
+  if (!hasMultipleEntriesPerProduct) {
+    return [ChartTimeRange.custom];
+  }
+
+  final dates = entryList.map((e) => e.entry.purchaseDate).toList();
   final oldestDate = dates.reduce((a, b) => a.isBefore(b) ? a : b);
   final now = DateTime.now();
   final yearsBack = now.difference(oldestDate).inDays / 365.25;

@@ -41,8 +41,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
             .map<DateTime>((entry) => entry.entry.purchaseDate)
             .reduce((a, b) => a.isBefore(b) ? a : b)
         : (allHistory.isNotEmpty ? allHistory.first.month : null);
-    final availableTimeRangeOptions = availableTimeRanges(
-        entries.map<DateTime>((entry) => entry.entry.purchaseDate));
+    final availableTimeRangeOptions = availableTimeRanges(entries);
     final selectedRange =
         resolveTimeRangeSelection(timeFilter, availableTimeRangeOptions);
 

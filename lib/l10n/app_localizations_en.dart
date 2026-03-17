@@ -186,7 +186,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearFilters => 'Clear';
 
   @override
-  String get overviewTitle => 'Average yearly inflation';
+  String get overviewTitle => 'Ø Yearly inflation';
 
   @override
   String get overviewBasketIndex => 'Basket Index';
@@ -224,10 +224,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nationalCpi => 'National CPI';
 
   @override
-  String get moneySupplyM2 => 'M2 Money Supply';
+  String get moneySupplyM2 => 'Money Supply (M2)';
 
   @override
-  String get coreInflationSnb => 'Core Inflation 1';
+  String get coreInflationSnb => 'Core Inflation';
 
   @override
   String get categoriesTitle => 'Category Breakdown';

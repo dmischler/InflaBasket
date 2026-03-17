@@ -113,13 +113,16 @@ lib/
 - Inflation summary is the **simple average of yearly product inflation rates**.
 - No basket-cost index and no quantity weighting in basket-level inflation math.
 - Selected range is shared across overview, categories, and chart logic.
-- A product qualifies only if it has **at least 2 entries inside the selected range** with compatible units.
+- A product qualifies only if it has:
+  - **Baseline**: closest entry BEFORE the selected range start
+  - **Current**: latest entry INSIDE the selected range
+  - Both entries must have compatible units.
 
 `normalizedUnitPrice = price / (quantity × toBaseMultiplier)`
 
-`productChangePct = ((lastPriceInRange - firstPriceInRange) / firstPriceInRange) × 100`
+`productChangePct = ((currentPrice - baselinePrice) / baselinePrice) × 100`
 
-`yearsBetween = (lastDateInRange - firstDateInRange) / 365.25`
+`yearsBetween = (currentDate - baselineDate) / 365.25`
 
 `productYearlyPct = productChangePct / yearsBetween`
 
@@ -128,7 +131,9 @@ lib/
 ### Time Range Filter
 
 - Available presets: **6M, 1Y, 2Y, 3Y, 5Y, 10Y, Custom**.
-- Presets are shown only if there is at least one purchase in that period.
+- Presets are shown only if:
+  1. There is at least one purchase older than the range start, AND
+  2. At least one product has 2+ entries total (needed for baseline + current calculation).
 - Custom range always remains available and uses a start/end month picker.
 - Custom end date is normalized to month-end (capped at now) so full selected month is included.
 
@@ -142,7 +147,7 @@ lib/
 ### Bitcoin Mode
 
 - Same unweighted yearly-rate algorithm and same qualifying-product rule.
-- Uses sats converted at first/last in-range entry dates via cached BTC prices.
+- Uses sats converted at baseline/current entry dates via cached BTC prices.
 
 ---
 
@@ -514,6 +519,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Reworked cumulative inflation line generation to monthly points with per-product forward-fill for sparse, uneven price updates
 - Added 65% coverage gating for chart baseline so the first visible point starts at a representative 0% and avoids misleading low-coverage starts
 - Applied the same full-history fix to Bitcoin mode chart generation and hardened range start calculations with safe month subtraction
+
+**v1.20.7 Baseline-Before-Range Inflation + Dynamic Range Availability**
+- Time range presets (6M, 1Y, etc.) now require at least one product with 2+ entries total (not just purchases in range)
+- Inflation calculation now uses baseline-before-range: finds closest entry BEFORE range start as baseline, latest entry IN range as current
+- This enables meaningful inflation data for short ranges (6M, 1Y) even when only sparse data exists
+- Added chart Key based on time range to ensure xticks rebuild properly when switching ranges
 
 ---
 

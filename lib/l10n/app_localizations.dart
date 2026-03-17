@@ -521,13 +521,13 @@ abstract class AppLocalizations {
   /// Legend label for M2 money supply overlay
   ///
   /// In en, this message translates to:
-  /// **'M2 Money Supply'**
+  /// **'Money Supply (M2)'**
   String get moneySupplyM2;
 
   /// Legend label for SNB Core Inflation 1 overlay
   ///
   /// In en, this message translates to:
-  /// **'Core Inflation 1'**
+  /// **'Core Inflation'**
   String get coreInflationSnb;
 
   /// Section title for categories tab

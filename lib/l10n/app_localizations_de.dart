@@ -190,7 +190,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get clearFilters => 'Löschen';
 
   @override
-  String get overviewTitle => 'Durchschnittliche Jahresinflation';
+  String get overviewTitle => 'Ø Jahresinflation';
 
   @override
   String get overviewBasketIndex => 'Warenkorb-Index';
@@ -230,10 +230,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get nationalCpi => 'Nationaler KPI';
 
   @override
-  String get moneySupplyM2 => 'M2-Geldmenge';
+  String get moneySupplyM2 => 'Geldmenge (M2)';
 
   @override
-  String get coreInflationSnb => 'Kerninflation 1';
+  String get coreInflationSnb => 'Kerninflation';
 
   @override
   String get categoriesTitle => 'Kategorienübersicht';
@@ -927,7 +927,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get timeRangeAll => 'Alle';
 
   @override
-  String get timeRangeCustom => 'Benutzerdefiniert';
+  String get timeRangeCustom => 'Custom';
 
   @override
   String get filterDateFrom => 'Von';

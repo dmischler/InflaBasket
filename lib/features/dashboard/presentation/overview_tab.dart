@@ -150,8 +150,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
             .map<DateTime>((entry) => entry.entry.purchaseDate)
             .reduce((a, b) => a.isBefore(b) ? a : b)
         : null;
-    final availableTimeRangeOptions = availableTimeRanges(
-        entries.map<DateTime>((entry) => entry.entry.purchaseDate));
+    final availableTimeRangeOptions = availableTimeRanges(entries);
     final selectedRange = resolveTimeRangeSelection(
       timeFilter,
       availableTimeRangeOptions,
@@ -858,6 +857,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     ];
 
     return SizedBox(
+      key: ValueKey('linechart-container-${timeRange.name}'),
       height: chartHeight,
       child: LayoutBuilder(
         builder: (context, constraints) {
