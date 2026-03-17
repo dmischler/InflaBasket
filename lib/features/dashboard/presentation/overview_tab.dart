@@ -782,6 +782,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       LineChartBarData(
         spots: spots,
         isCurved: true,
+        preventCurveOverShooting: true,
         color: primaryColor,
         barWidth: isLuxeMode ? 3 : 4,
         isStrokeCapRound: true,
@@ -808,6 +809,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         LineChartBarData(
           spots: comparisonSpots,
           isCurved: true,
+          preventCurveOverShooting: true,
           color: isLuxeMode ? AppColors.textSecondary : Colors.orange,
           barWidth: 2,
           isStrokeCapRound: true,
