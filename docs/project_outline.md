@@ -397,6 +397,10 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Restructured build method to always render the header row at the top
 - Empty state now shows below the header instead of replacing it entirely
 
+**v1.16.6 Chart Tooltip Improvements**
+- Increased touch detection threshold from 10px to 35px for easier tooltip activation on overview chart
+- Added tooltip margin to display tooltip above touch point, preventing finger from blocking the data
+
 **Bitcoin Standard Mode (v1.2.1)**
 - CoinGecko BTC price API
 - Sats converter utility

@@ -886,6 +886,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
               lineBarsData: barData,
               lineTouchData: LineTouchData(
                 enabled: true,
+                touchSpotThreshold: 35,
                 touchCallback: (event, response) {
                   if (event is! FlTapUpEvent ||
                       response?.lineBarSpots == null) {
@@ -919,6 +920,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
                   }).toList();
                 },
                 touchTooltipData: LineTouchTooltipData(
+                  tooltipMargin: 20,
                   fitInsideHorizontally: true,
                   fitInsideVertically: true,
                   getTooltipItems: (touchedSpots) {
