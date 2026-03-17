@@ -525,6 +525,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Fixed time range availability: now checks if any product has entries spanning the range (not just oldest entry date)
 - With sample data (products spanning 2 years): only 2Y range now available, 6M/1Y correctly show no inflation when no in-range pairs exist
 
+**v1.20.9 Overall Yearly Inflation**
+- Created overallYearlyInflationSummary provider independent of selected time range
+- Yearly inflation now always shows average across all products' full data span, regardless of chart range selection
+- Same fix applied to Bitcoin mode (overallYearlyInflationSummarySatsProvider)
+
 ---
 
 ### 🔄 In Progress / Partially Complete

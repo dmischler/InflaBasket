@@ -307,6 +307,49 @@ double basketInflation(BasketInflationRef ref) {
 }
 
 @riverpod
+YearlyInflationSummary overallYearlyInflationSummary(
+    OverallYearlyInflationSummaryRef ref) {
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return const YearlyInflationSummary.empty();
+
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final yearlyRates = <double>[];
+
+  for (final productEntries in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(productEntries)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    if (sorted.length < 2) continue;
+
+    final base = sorted.first;
+    final current = sorted.last;
+
+    if (base.entry.purchaseDate == current.entry.purchaseDate ||
+        !_compatible(base.entry, current.entry)) {
+      continue;
+    }
+
+    final basePrice = _normalizedUnitPrice(base.entry);
+    final currentPrice = _normalizedUnitPrice(current.entry);
+    if (basePrice <= 0 || !basePrice.isFinite || !currentPrice.isFinite) {
+      continue;
+    }
+
+    final years =
+        _yearsBetween(base.entry.purchaseDate, current.entry.purchaseDate);
+    if (years <= 0) continue;
+
+    final totalInflationPct = ((currentPrice - basePrice) / basePrice) * 100;
+    yearlyRates.add(totalInflationPct / years);
+  }
+
+  if (yearlyRates.isEmpty) return const YearlyInflationSummary.empty();
+  return YearlyInflationSummary(
+    yearlyInflationPercent: yearlyRates.average,
+    qualifyingProducts: yearlyRates.length,
+  );
+}
+
+@riverpod
 YearlyInflationSummary yearlyBasketInflationSummary(
     YearlyBasketInflationSummaryRef ref) {
   final entries = ref.watch(entriesForYearlyInflationProvider);
@@ -498,6 +541,63 @@ double basketInflationSats(BasketInflationSatsRef ref) {
   final items = ref.watch(itemInflationListSatsProvider).valueOrNull ?? [];
   if (items.isEmpty) return 0.0;
   return items.map((e) => e.inflationPercent).average;
+}
+
+@riverpod
+Future<YearlyInflationSummary> overallYearlyInflationSummarySats(
+    OverallYearlyInflationSummarySatsRef ref) async {
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return const YearlyInflationSummary.empty();
+
+  final btc = await ref.watch(btcPriceCacheProvider.future);
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final yearlyRates = <double>[];
+
+  for (final productEntries in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(productEntries)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    if (sorted.length < 2) continue;
+
+    final base = sorted.first;
+    final current = sorted.last;
+
+    if (base.entry.purchaseDate == current.entry.purchaseDate ||
+        !_compatible(base.entry, current.entry)) {
+      continue;
+    }
+
+    final baseBtc = _getBtcPriceForDate(btc, base.entry.purchaseDate);
+    final currentBtc = _getBtcPriceForDate(btc, current.entry.purchaseDate);
+    if (baseBtc == null ||
+        currentBtc == null ||
+        baseBtc <= 0 ||
+        currentBtc <= 0) {
+      continue;
+    }
+
+    final baseNorm = _normalizedUnitPrice(base.entry);
+    final currentNorm = _normalizedUnitPrice(current.entry);
+    if (baseNorm <= 0 || !baseNorm.isFinite || !currentNorm.isFinite) {
+      continue;
+    }
+
+    final baseSats = SatsConverter.fiatToSats(baseNorm, baseBtc);
+    final currentSats = SatsConverter.fiatToSats(currentNorm, currentBtc);
+    if (baseSats <= 0) continue;
+
+    final years =
+        _yearsBetween(base.entry.purchaseDate, current.entry.purchaseDate);
+    if (years <= 0) continue;
+
+    final totalInflationPct = ((currentSats - baseSats) / baseSats) * 100;
+    yearlyRates.add(totalInflationPct / years);
+  }
+
+  if (yearlyRates.isEmpty) return const YearlyInflationSummary.empty();
+  return YearlyInflationSummary(
+    yearlyInflationPercent: yearlyRates.average,
+    qualifyingProducts: yearlyRates.length,
+  );
 }
 
 @riverpod

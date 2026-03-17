@@ -65,7 +65,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         ? ref.watch(itemInflationListSatsProvider)
         : const AsyncData<List<ItemInflationSats>>(<ItemInflationSats>[]);
     final yearlySummarySatsAsync = isBitcoinMode
-        ? ref.watch(yearlyBasketInflationSummarySatsProvider)
+        ? ref.watch(overallYearlyInflationSummarySatsProvider)
         : const AsyncData<YearlyInflationSummary>(
             YearlyInflationSummary.empty());
     final bitcoinHistory = historySatsAsync.valueOrNull;
@@ -121,7 +121,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       );
     }
 
-    final fiatYearlySummary = ref.watch(yearlyBasketInflationSummaryProvider);
+    final fiatYearlySummary = ref.watch(overallYearlyInflationSummaryProvider);
     final fiatHistory = ref.watch(filteredDynamicIndexProvider);
     final fiatTopInflators = ref.watch(itemInflationListProvider);
     final displayBitcoinData =
