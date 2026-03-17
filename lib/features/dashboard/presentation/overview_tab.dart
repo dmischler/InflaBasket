@@ -355,47 +355,40 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     List<ChartTimeRange> availableOptions,
     DateTime? firstDataPoint,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l.timeRangeLabel, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: DropdownButton<ChartTimeRange>(
-            value: availableOptions.contains(selectedRange)
-                ? selectedRange
-                : availableOptions.first,
-            underline: const SizedBox(),
-            isDense: true,
-            icon: const Icon(Icons.arrow_drop_down),
-            items: availableOptions.map((range) {
-              return DropdownMenuItem(
-                value: range,
-                child: Text(
-                  range == ChartTimeRange.custom
-                      ? l.timeRangeCustom
-                      : _timeRangeLabel(l, range),
-                ),
-              );
-            }).toList(),
-            onChanged: (range) {
-              if (range == null) return;
-              if (range == ChartTimeRange.custom) {
-                _showCustomDatePicker(context, ref, timeFilter, firstDataPoint);
-              } else {
-                ref
-                    .read(chartTimeFilterControllerProvider.notifier)
-                    .setRange(range);
-              }
-            },
-          ),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: DropdownButton<ChartTimeRange>(
+        value: availableOptions.contains(selectedRange)
+            ? selectedRange
+            : availableOptions.first,
+        underline: const SizedBox(),
+        isDense: true,
+        icon: const Icon(Icons.arrow_drop_down),
+        items: availableOptions.map((range) {
+          return DropdownMenuItem(
+            value: range,
+            child: Text(
+              range == ChartTimeRange.custom
+                  ? l.timeRangeCustom
+                  : _timeRangeLabel(l, range),
+            ),
+          );
+        }).toList(),
+        onChanged: (range) {
+          if (range == null) return;
+          if (range == ChartTimeRange.custom) {
+            _showCustomDatePicker(context, ref, timeFilter, firstDataPoint);
+          } else {
+            ref
+                .read(chartTimeFilterControllerProvider.notifier)
+                .setRange(range);
+          }
+        },
+      ),
     );
   }
 

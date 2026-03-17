@@ -506,6 +506,9 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Combined time range selector and M2 toggle into single Row (range left, M2 right)
 - Removed "Compare with" / "Vergleichen mit" label from M2 dropdown
 
+**v1.20.5 Layout Alignment**
+- Removed "Zeitraum" / "Time Range" label from range selector dropdown to align with M2 toggle
+
 ---
 
 ### 🔄 In Progress / Partially Complete
