@@ -583,16 +583,31 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 32,
+                reservedSize: 38,
+                maxIncluded: false,
+                minIncluded: false,
                 getTitlesWidget: (value, meta) {
                   final date =
                       DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(DateFormat(_dateFormat(range)).format(date)),
+                  return SideTitleWidget(
+                    meta: meta,
+                    fitInside: SideTitleFitInsideData.fromTitleMeta(
+                      meta,
+                      distanceFromEdge: 8,
+                      enabled: true,
+                    ),
+                    child: Text(
+                      DateFormat(_dateFormat(range)).format(date),
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 11,
+                          ),
+                    ),
                   );
                 },
-                interval: _tickInterval(range, points.length),
+                interval: _dynamicTickInterval(points),
               ),
             ),
           ),
@@ -998,15 +1013,28 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
     };
   }
 
-  double _tickInterval(ProductDetailRange range, int points) {
-    final base = switch (range) {
-      ProductDetailRange.oneMonth => const Duration(days: 7),
-      ProductDetailRange.threeMonths => const Duration(days: 21),
-      ProductDetailRange.sixMonths => const Duration(days: 30),
-      ProductDetailRange.oneYear => const Duration(days: 60),
-      ProductDetailRange.all => const Duration(days: 120),
-    };
-    return base.inMilliseconds.toDouble();
+  // Helper to calculate dynamic interval based on actual data
+  double _dynamicTickInterval(List<ProductPricePoint> points) {
+    if (points.length < 2) {
+      return const Duration(days: 30).inMilliseconds.toDouble();
+    }
+
+    final firstDate = points.first.date;
+    final lastDate = points.last.date;
+    final rangeDays = lastDate.difference(firstDate).inDays;
+    if (rangeDays <= 0) {
+      return const Duration(days: 30).inMilliseconds.toDouble();
+    }
+
+    // Aim for 4-6 labels max
+    const targetLabels = 5;
+    final intervalDays = (rangeDays / targetLabels).ceil();
+
+    // Round to nice intervals (never less than 7 days)
+    final niceDays = [7, 14, 21, 28, 56, 84, 112, 168, 252, 365]
+        .firstWhere((d) => d >= intervalDays, orElse: () => 365);
+
+    return Duration(days: niceDays).inMilliseconds.toDouble();
   }
 }
 

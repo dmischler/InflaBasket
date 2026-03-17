@@ -449,6 +449,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Chart time frame selector now properly updates the chart view
 - Both fiat and bitcoin modes fixed
 
+**v1.18.10 Chart X-Tick Overlap Fix**
+- Smart X-axis tick intervals: now never show daily ticks, only months/years based on selected date range
+- Added edge handling (minIncluded/maxIncluded: false) to prevent first/last labels from overflowing chart boundaries
+- Improved SideTitleFitInsideData configuration to keep labels within visible area
+- Overview chart: reduced target labels from 6 to 5, added minInterval calculation for better spacing
+- Product detail chart: replaced fixed intervals with dynamic interval calculation based on actual data range
+
 ---
 
 ### 🔄 In Progress / Partially Complete

@@ -28,11 +28,13 @@ class _ChartTickConfig {
   const _ChartTickConfig({
     required this.format,
     required this.interval,
+    required this.minInterval,
     required this.reservedSize,
   });
 
   final String format;
   final double interval;
+  final double minInterval;
   final double reservedSize;
 }
 
@@ -599,6 +601,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       return const _ChartTickConfig(
         format: 'MMM',
         interval: 2629800000,
+        minInterval: 2629800000,
         reservedSize: 32,
       );
     }
@@ -617,15 +620,24 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       ChartTimeRange.fiveYears || ChartTimeRange.allTime => 42.0,
       ChartTimeRange.custom => totalMonths <= 18 ? 44.0 : 64.0,
     };
+    // Use fewer target labels (max 5) to prevent overlap
     final targetLabels =
-        max(2, min(6, (chartWidth / estimatedLabelWidth).floor()));
+        max(2, min(5, (chartWidth / estimatedLabelWidth).floor()));
     final rawStepMonths = max(1, (totalMonths / targetLabels).ceil());
     final stepMonths = _niceMonthStep(rawStepMonths);
     final format = _tickDateFormat(totalMonths, stepMonths);
 
+    // Calculate min interval to prevent too-frequent ticks (based on label width)
+    final totalRangeMs = end.difference(start).inMilliseconds.toDouble();
+    final minInterval = (totalRangeMs / targetLabels * 0.8).clamp(
+      stepMonths * 20 * Duration.millisecondsPerDay.toDouble(),
+      double.infinity,
+    );
+
     return _ChartTickConfig(
       format: format,
       interval: stepMonths * 30.4375 * Duration.millisecondsPerDay,
+      minInterval: minInterval,
       reservedSize: format == 'yyyy' ? 30 : 38,
     );
   }
@@ -838,6 +850,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
                     reservedSize: tickConfig.reservedSize,
                     interval: tickConfig.interval,
                     maxIncluded: false,
+                    minIncluded: false,
                     getTitlesWidget: (value, meta) {
                       final date =
                           DateTime.fromMillisecondsSinceEpoch(value.toInt());
@@ -846,6 +859,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
                         fitInside: SideTitleFitInsideData.fromTitleMeta(
                           meta,
                           distanceFromEdge: 8,
+                          enabled: true,
                         ),
                         child: Text(
                           DateFormat(tickConfig.format).format(date),
