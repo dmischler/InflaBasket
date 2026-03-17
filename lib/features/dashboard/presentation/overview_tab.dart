@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/mixins/chart_touch_state.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -982,30 +983,33 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         final unitLabel =
             _unitPriceLabel(item, settings.currency, isBitcoinMode);
 
-        final listTile = ListTile(
-          contentPadding: isLuxeMode
-              ? const EdgeInsets.symmetric(horizontal: 16)
-              : EdgeInsets.zero,
-          title: Text(item.product.name,
-              style: isLuxeMode
-                  ? const TextStyle(fontWeight: FontWeight.w600)
-                  : null),
-          subtitle: Text(unitLabel),
-          trailing: isLuxeMode
-              ? TabularAmountText(
-                  '+${item.inflationPercent.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                      color: AppColors.accentBtcMain,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                )
-              : Text(
-                  '+${item.inflationPercent.toStringAsFixed(1)}%',
-                  style: const TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
+        final listTile = InkWell(
+          onTap: () => context.push('/home/product/${item.product.id}'),
+          child: ListTile(
+            contentPadding: isLuxeMode
+                ? const EdgeInsets.symmetric(horizontal: 16)
+                : EdgeInsets.zero,
+            title: Text(item.product.name,
+                style: isLuxeMode
+                    ? const TextStyle(fontWeight: FontWeight.w600)
+                    : null),
+            subtitle: Text(unitLabel),
+            trailing: isLuxeMode
+                ? TabularAmountText(
+                    '+${item.inflationPercent.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                        color: AppColors.accentBtcMain,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  )
+                : Text(
+                    '+${item.inflationPercent.toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+          ),
         );
 
         if (isLuxeMode) {
@@ -1067,30 +1071,33 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         final unitLabel =
             _unitPriceLabel(item, settings.currency, isBitcoinMode);
 
-        final listTile = ListTile(
-          contentPadding: isLuxeMode
-              ? const EdgeInsets.symmetric(horizontal: 16)
-              : EdgeInsets.zero,
-          title: Text(item.product.name,
-              style: isLuxeMode
-                  ? const TextStyle(fontWeight: FontWeight.w600)
-                  : null),
-          subtitle: Text(unitLabel),
-          trailing: isLuxeMode
-              ? TabularAmountText(
-                  '${item.inflationPercent.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                      color: AppColors.accentFiatMain,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                )
-              : Text(
-                  '${item.inflationPercent.toStringAsFixed(1)}%',
-                  style: const TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
+        final listTile = InkWell(
+          onTap: () => context.push('/home/product/${item.product.id}'),
+          child: ListTile(
+            contentPadding: isLuxeMode
+                ? const EdgeInsets.symmetric(horizontal: 16)
+                : EdgeInsets.zero,
+            title: Text(item.product.name,
+                style: isLuxeMode
+                    ? const TextStyle(fontWeight: FontWeight.w600)
+                    : null),
+            subtitle: Text(unitLabel),
+            trailing: isLuxeMode
+                ? TabularAmountText(
+                    '${item.inflationPercent.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                        color: AppColors.accentFiatMain,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  )
+                : Text(
+                    '${item.inflationPercent.toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+          ),
         );
 
         if (isLuxeMode) {
