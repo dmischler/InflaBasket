@@ -165,6 +165,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
       ..sort((a, b) => b.entry.purchaseDate.compareTo(a.entry.purchaseDate));
 
     return Scrollbar(
+      thumbVisibility: true,
       child: ListView.builder(
         itemCount: sortedEntries.length,
         itemBuilder: (context, index) {
