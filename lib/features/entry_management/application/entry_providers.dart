@@ -305,39 +305,35 @@ ChartTimeRange resolveTimeRangeSelection(
 
 /// Returns which time range options are available based on purchase activity.
 ///
-/// A fixed range is shown only when there is at least one purchase in that
-/// period. Custom is always available.
+/// A fixed range is shown only when the oldest purchase predates that range.
+/// Custom is always available.
 List<ChartTimeRange> availableTimeRanges(Iterable<DateTime> purchaseDates) {
   final dates = purchaseDates.toList();
   if (dates.isEmpty) {
     return [ChartTimeRange.custom];
   }
 
+  final oldestDate = dates.reduce((a, b) => a.isBefore(b) ? a : b);
   final now = DateTime.now();
-
-  bool hasPurchaseInRange(DateTime start) {
-    return dates.any(
-      (date) => !date.isBefore(start) && !date.isAfter(now),
-    );
-  }
+  final yearsBack = now.difference(oldestDate).inDays / 365.25;
 
   final available = <ChartTimeRange>[];
-  if (hasPurchaseInRange(DateTime(now.year, now.month - 6, 1))) {
+  if (yearsBack >= 0.5) {
     available.add(ChartTimeRange.sixMonths);
   }
-  if (hasPurchaseInRange(DateTime(now.year - 1, now.month, 1))) {
+  if (yearsBack >= 1) {
     available.add(ChartTimeRange.oneYear);
   }
-  if (hasPurchaseInRange(DateTime(now.year - 2, now.month, 1))) {
+  if (yearsBack >= 2) {
     available.add(ChartTimeRange.twoYears);
   }
-  if (hasPurchaseInRange(DateTime(now.year - 3, now.month, 1))) {
+  if (yearsBack >= 3) {
     available.add(ChartTimeRange.threeYears);
   }
-  if (hasPurchaseInRange(DateTime(now.year - 5, now.month, 1))) {
+  if (yearsBack >= 5) {
     available.add(ChartTimeRange.fiveYears);
   }
-  if (hasPurchaseInRange(DateTime(now.year - 10, now.month, 1))) {
+  if (yearsBack >= 10) {
     available.add(ChartTimeRange.tenYears);
   }
   available.add(ChartTimeRange.custom);

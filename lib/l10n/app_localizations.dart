@@ -449,7 +449,7 @@ abstract class AppLocalizations {
   /// Title card on overview tab
   ///
   /// In en, this message translates to:
-  /// **'Average yearly inflation'**
+  /// **'Ø Yearly inflation'**
   String get overviewTitle;
 
   /// Chart section header

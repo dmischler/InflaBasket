@@ -178,7 +178,7 @@
   "clearFilters": "Clear",
   "@clearFilters": { "description": "Button to clear filters" },
 
-  "overviewTitle": "Average yearly inflation",
+  "overviewTitle": "Ø Yearly inflation",
   "@overviewTitle": { "description": "Title card on overview tab" },
 
   "overviewBasketIndex": "Basket Index",

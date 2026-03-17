@@ -64,11 +64,6 @@ class InflationCalculator {
     return sorted.lastWhereOrNull((e) => !e.date.isAfter(target));
   }
 
-  static PriceEntry? _firstEntryAtOrAfter(
-      List<PriceEntry> sorted, DateTime target) {
-    return sorted.firstWhereOrNull((e) => !e.date.isBefore(target));
-  }
-
   static double? productPercentChange(
     TrackedProduct p,
     DateTime start,
@@ -80,12 +75,9 @@ class InflationCalculator {
     final history = List<PriceEntry>.from(p.priceHistory)
       ..sort((a, b) => a.date.compareTo(b.date));
 
-    var startEntry = _lastEntryOnOrBefore(history, start);
-    var isPartial = false;
+    final startEntry = _lastEntryOnOrBefore(history, start);
     if (startEntry == null) {
-      startEntry = _firstEntryAtOrAfter(history, start);
-      if (startEntry == null) return null;
-      isPartial = true;
+      return null;
     }
 
     final endEntry = _lastEntryOnOrBefore(history, end);
@@ -100,7 +92,7 @@ class InflationCalculator {
       return null;
     }
 
-    if (isPartial && startEntry == endEntry) return null;
+    if (startEntry == endEntry) return null;
 
     return ((endPrice - startPrice) / startPrice) * 100;
   }

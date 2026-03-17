@@ -402,39 +402,45 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
     List<ChartTimeRange> availableOptions,
     DateTime? firstDataPoint,
   ) {
-    final segments = <ButtonSegment<ChartTimeRange>>[];
-    for (final option in availableOptions) {
-      if (option == ChartTimeRange.custom) continue;
-      segments.add(ButtonSegment(
-        value: option,
-        label: Text(_timeRangeLabel(l, option)),
-      ));
-    }
-    segments.add(ButtonSegment(
-      value: ChartTimeRange.custom,
-      label: Text(l.timeRangeCustom),
-      enabled: true,
-    ));
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l.timeRangeLabel, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 8),
-        SegmentedButton<ChartTimeRange>(
-          segments: segments,
-          selected: {selectedRange},
-          onSelectionChanged: (selected) {
-            final range = selected.first;
-            if (range == ChartTimeRange.custom) {
-              _showCustomDatePicker(context, ref, timeFilter, firstDataPoint);
-            } else {
-              ref
-                  .read(chartTimeFilterControllerProvider.notifier)
-                  .setRange(range);
-            }
-          },
-          showSelectedIcon: false,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: DropdownButton<ChartTimeRange>(
+            value: availableOptions.contains(selectedRange)
+                ? selectedRange
+                : availableOptions.first,
+            underline: const SizedBox(),
+            isDense: true,
+            icon: const Icon(Icons.arrow_drop_down),
+            items: availableOptions.map((range) {
+              return DropdownMenuItem(
+                value: range,
+                child: Text(
+                  range == ChartTimeRange.custom
+                      ? l.timeRangeCustom
+                      : _timeRangeLabel(l, range),
+                ),
+              );
+            }).toList(),
+            onChanged: (range) {
+              if (range == null) return;
+              if (range == ChartTimeRange.custom) {
+                _showCustomDatePicker(context, ref, timeFilter, firstDataPoint);
+              } else {
+                ref
+                    .read(chartTimeFilterControllerProvider.notifier)
+                    .setRange(range);
+              }
+            },
+          ),
         ),
       ],
     );

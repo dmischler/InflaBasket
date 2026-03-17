@@ -59,7 +59,7 @@
   "filterAllCategories": "Alle Kategorien",
   "applyFilters": "Anwenden",
   "clearFilters": "Löschen",
-  "overviewTitle": "Durchschnittliche Jahresinflation",
+  "overviewTitle": "Ø Jahresinflation",
   "overviewBasketIndex": "Warenkorb-Index",
   "overviewTopInflators": "Grösste Preisanstiege",
   "overviewTopDeflators": "Grösste Preisrückgänge",
@@ -582,7 +582,7 @@
   "timeRangeAll": "Alle",
   "@timeRangeAll": { "description": "All time range option" },
 
-  "timeRangeCustom": "Benutzerdefiniert",
+  "timeRangeCustom": "Custom",
   "@timeRangeCustom": { "description": "Custom time range option" },
 
   "filterDateFrom": "Von",

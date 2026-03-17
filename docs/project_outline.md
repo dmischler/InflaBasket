@@ -496,6 +496,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Updated dashboard preset ranges to 6M/1Y/2Y/3Y/5Y/10Y + Custom, with dynamic availability by purchase presence
 - Overview summary insufficient-data state now uses animated empty-state Lottie via `StateMessageCard`
 
+**v1.20.3 Time Range + Inflation Baseline Fixes**
+- Fixed time range availability logic: now shows ranges based on how far back oldest purchase spans (not just if any purchase exists in that period)
+- Fixed inflation calculation: products now only count if they have a price PRIOR to the selected time range start (removed partial period fallback)
+- Changed time range selector from segmented button to pill + dropdown for cleaner UI
+- Changed "overviewTitle" from "Average yearly inflation" / "Durchschnittliche Jahresinflation" to "Ø Jahresinflation"
+
 ---
 
 ### 🔄 In Progress / Partially Complete
