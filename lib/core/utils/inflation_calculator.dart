@@ -64,11 +64,6 @@ class InflationCalculator {
     return sorted.lastWhereOrNull((e) => !e.date.isAfter(target));
   }
 
-  static PriceEntry? _firstEntryOnOrAfter(
-      List<PriceEntry> sorted, DateTime target) {
-    return sorted.firstWhereOrNull((e) => !e.date.isBefore(target));
-  }
-
   static List<DateTime> _monthlyChartDates(DateTime start, DateTime end) {
     if (start.isAfter(end)) return const [];
 
@@ -160,8 +155,8 @@ class InflationCalculator {
         ..sort((a, b) => a.date.compareTo(b.date));
       if (history.isEmpty) continue;
 
-      final base = _firstEntryOnOrAfter(history, baseline);
-      if (base == null || base.date.isAfter(endDate)) continue;
+      final base = history.first;
+      if (base.date.isAfter(endDate)) continue;
 
       prepared.add((name: product.name, history: history, base: base));
     }
