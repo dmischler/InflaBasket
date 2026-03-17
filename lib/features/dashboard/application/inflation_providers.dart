@@ -437,7 +437,7 @@ List<ItemInflation> overallItemInflationList(OverallItemInflationListRef ref) {
 
 @riverpod
 List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
-  final entries = ref.watch(entriesInActiveRangeProvider);
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return [];
 
   final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
@@ -486,7 +486,7 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
 @riverpod
 List<CategoryInflation> categoryInflationList(CategoryInflationListRef ref) {
   final items = ref.watch(itemInflationListProvider);
-  final entries = ref.watch(entriesInActiveRangeProvider);
+  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (items.isEmpty || entries.isEmpty) return [];
 
   final spendByProduct = <int, double>{};

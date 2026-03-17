@@ -242,6 +242,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Receipt date parsing
 - Per-item receipt review dialog
 - Dynamic app version
+- Category overview empty state (use all entries, not time-filtered)
 
 **Sprint 4A-4B**
 - Desktop drag & drop for receipts
