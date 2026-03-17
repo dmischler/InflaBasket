@@ -1,14 +1,16 @@
 # Task Plan
 
-- [x] Review dashboard and product detail chart implementations plus current fl_chart APIs.
-- [x] Add shared chart animation and touch-state helpers for consistent debounce, reduce-motion, and timer cleanup behavior.
-- [x] Implement animated line and bar chart touch highlights across overview, categories, and product detail surfaces.
-- [x] Run verification, update final review notes, and prepare commit.
+- [x] Replace dashboard time-range model with 6M/1Y/2Y/3Y/5Y/10Y/Custom and make availability depend on purchases in each period.
+- [x] Update inflation providers to use only in-range entries and compute average yearly inflation (fiat + sats) from first/last entry inside range.
+- [x] Update Overview and Categories tabs for new range labels, dynamic option sets, and Lottie-based insufficient-data state in the summary card.
+- [x] Regenerate localization/codegen artifacts, update docs/project_outline.md, bump app version, and run verification commands.
 
 # Review
 
-- Added shared chart animation utilities and a reusable touch-state mixin to keep haptics, debounce, and touch reset behavior consistent.
-- Upgraded overview and product-detail line charts with 600ms entrance animations, glow-dot touch indicators, dashed guide lines, and debounced touch haptics.
-- Upgraded category bars with animated tap highlights, brighter gradients, width/height pop feedback, and built-in tooltips.
-- Updated project documentation and bumped the app version for the chart interaction polish release.
-- Verification completed with `flutter analyze` on the touched files and the full `flutter test` suite passing.
+- Replaced dashboard preset ranges with 6M/1Y/2Y/3Y/5Y/10Y plus Custom, and switched availability checks to "has at least one purchase inside that period".
+- Added range-aware entry filtering provider and rewired inflation/list/category/chart providers to only use entries inside the selected window.
+- Implemented `YearlyInflationSummary` providers for fiat and sats modes using first/last in-range entries and unweighted yearly-rate averaging across qualifying products.
+- Updated Overview/Categories selectors to use resolved valid range selections and updated custom range picker to include full selected end month.
+- Switched overview summary card to "Average yearly inflation" and show Lottie empty-state card when insufficient qualifying data exists.
+- Regenerated Riverpod and l10n outputs, ran `flutter analyze` (passes with existing generated-file deprecation infos), and bumped app version to `1.20.2`.
+- Verified behavior with `flutter test` (all tests passing).

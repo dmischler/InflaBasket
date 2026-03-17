@@ -92,6 +92,20 @@ class MonthlyIndex {
   final ChartPoint? chartPoint;
 }
 
+class YearlyInflationSummary {
+  const YearlyInflationSummary({
+    required this.yearlyInflationPercent,
+    required this.qualifyingProducts,
+  });
+
+  const YearlyInflationSummary.empty()
+      : yearlyInflationPercent = 0,
+        qualifyingProducts = 0;
+
+  final double yearlyInflationPercent;
+  final int qualifyingProducts;
+}
+
 double _normalizedUnitPrice(PurchaseEntry e) {
   final price = e.price;
   final quantity = e.quantity;
@@ -103,6 +117,12 @@ double _normalizedUnitPrice(PurchaseEntry e) {
 
 bool _compatible(PurchaseEntry a, PurchaseEntry b) {
   return unitTypeFromString(a.unit).compatibleWith(unitTypeFromString(b.unit));
+}
+
+double _yearsBetween(DateTime start, DateTime end) {
+  final diffMs = end.difference(start).inMilliseconds;
+  if (diffMs <= 0) return 0;
+  return diffMs / Duration.millisecondsPerDay / 365.25;
 }
 
 @riverpod
@@ -137,14 +157,34 @@ InflationRange activeInflationRange(ActiveInflationRangeRef ref) {
   final sorted = List<EntryWithDetails>.from(entries)
     ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
   final first = sorted.first.entry.purchaseDate;
-  final start = filter.getStartDate(first) ?? first;
-  final end = filter.getEndDate();
+  final availableRanges = availableTimeRanges(
+    sorted.map((entry) => entry.entry.purchaseDate),
+  );
+  final resolvedRange = resolveTimeRangeSelection(filter, availableRanges);
+  final effectiveFilter = resolvedRange == filter.range
+      ? filter
+      : filter.copyWith(range: resolvedRange);
+  final start = effectiveFilter.getStartDate(first) ?? first;
+  final end = effectiveFilter.getEndDate();
   return InflationRange(start: start, end: end);
 }
 
 @riverpod
-List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
+List<EntryWithDetails> entriesInActiveRange(EntriesInActiveRangeRef ref) {
   final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  if (entries.isEmpty) return const [];
+
+  final range = ref.watch(activeInflationRangeProvider);
+  return entries
+      .where((entry) =>
+          !entry.entry.purchaseDate.isBefore(range.start) &&
+          !entry.entry.purchaseDate.isAfter(range.end))
+      .toList();
+}
+
+@riverpod
+List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
+  final entries = ref.watch(entriesInActiveRangeProvider);
   if (entries.isEmpty) return const [];
 
   final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
@@ -159,6 +199,8 @@ List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
         .where((e) => e.price > 0 && e.price.isFinite)
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
+    if (priceHistory.length < 2) continue;
+    if (priceHistory.first.date == priceHistory.last.date) continue;
 
     products.add(TrackedProduct(
       name: first.product.name,
@@ -216,10 +258,51 @@ double basketInflation(BasketInflationRef ref) {
 }
 
 @riverpod
+YearlyInflationSummary yearlyBasketInflationSummary(
+    YearlyBasketInflationSummaryRef ref) {
+  final entries = ref.watch(entriesInActiveRangeProvider);
+  if (entries.isEmpty) return const YearlyInflationSummary.empty();
+
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final yearlyRates = <double>[];
+
+  for (final list in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(list)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    if (sorted.length < 2) continue;
+
+    final base = sorted.first;
+    final current = sorted.last;
+    if (base.entry.purchaseDate == current.entry.purchaseDate ||
+        !_compatible(base.entry, current.entry)) {
+      continue;
+    }
+
+    final basePrice = _normalizedUnitPrice(base.entry);
+    final currentPrice = _normalizedUnitPrice(current.entry);
+    if (basePrice <= 0 || !basePrice.isFinite || !currentPrice.isFinite) {
+      continue;
+    }
+
+    final years =
+        _yearsBetween(base.entry.purchaseDate, current.entry.purchaseDate);
+    if (years <= 0) continue;
+
+    final totalInflationPct = ((currentPrice - basePrice) / basePrice) * 100;
+    yearlyRates.add(totalInflationPct / years);
+  }
+
+  if (yearlyRates.isEmpty) return const YearlyInflationSummary.empty();
+  return YearlyInflationSummary(
+    yearlyInflationPercent: yearlyRates.average,
+    qualifyingProducts: yearlyRates.length,
+  );
+}
+
+@riverpod
 List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
-  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  final entries = ref.watch(entriesInActiveRangeProvider);
   if (entries.isEmpty) return [];
-  final range = ref.watch(activeInflationRangeProvider);
 
   final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
   final result = <ItemInflation>[];
@@ -227,25 +310,13 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
   for (final list in grouped.values) {
     final sorted = List<EntryWithDetails>.from(list)
       ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    if (sorted.length < 2) continue;
+
     final first = sorted.first;
+    final base = sorted.first;
+    final current = sorted.last;
 
-    var base = sorted.lastWhereOrNull(
-      (e) => !e.entry.purchaseDate.isAfter(range.start),
-    );
-    var isPartialPeriod = false;
-    if (base == null) {
-      base = sorted.firstWhereOrNull(
-        (e) => !e.entry.purchaseDate.isBefore(range.start),
-      );
-      isPartialPeriod = base != null;
-    }
-
-    final current = sorted.lastWhereOrNull(
-      (e) => !e.entry.purchaseDate.isAfter(range.end),
-    );
-
-    if (base == null ||
-        current == null ||
+    if (base.entry.purchaseDate == current.entry.purchaseDate ||
         !_compatible(base.entry, current.entry)) {
       continue;
     }
@@ -267,7 +338,7 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
       currentUnitPrice: currentPrice,
       baseUnit: unitTypeFromString(base.entry.unit),
       inflationPercent: inflationPct,
-      isPartialPeriod: isPartialPeriod,
+      isPartialPeriod: false,
       baseDate: base.entry.purchaseDate,
     ));
   }
@@ -279,7 +350,7 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
 @riverpod
 List<CategoryInflation> categoryInflationList(CategoryInflationListRef ref) {
   final items = ref.watch(itemInflationListProvider);
-  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  final entries = ref.watch(entriesInActiveRangeProvider);
   if (items.isEmpty || entries.isEmpty) return [];
 
   final spendByProduct = <int, double>{};
@@ -319,9 +390,8 @@ double? _getBtcPriceForDate(Map<String, double> cache, DateTime date) {
 @riverpod
 Future<List<ItemInflationSats>> itemInflationListSats(
     ItemInflationListSatsRef ref) async {
-  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  final entries = ref.watch(entriesInActiveRangeProvider);
   if (entries.isEmpty) return [];
-  final range = ref.watch(activeInflationRangeProvider);
   final btc = await ref.watch(btcPriceCacheProvider.future);
 
   final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
@@ -329,25 +399,14 @@ Future<List<ItemInflationSats>> itemInflationListSats(
   for (final list in grouped.values) {
     final sorted = List<EntryWithDetails>.from(list)
       ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    if (sorted.length < 2) continue;
+
     final first = sorted.first;
 
-    var base = sorted.lastWhereOrNull(
-      (e) => !e.entry.purchaseDate.isAfter(range.start),
-    );
-    var isPartialPeriod = false;
-    if (base == null) {
-      base = sorted.firstWhereOrNull(
-        (e) => !e.entry.purchaseDate.isBefore(range.start),
-      );
-      isPartialPeriod = base != null;
-    }
+    final base = sorted.first;
+    final current = sorted.last;
 
-    final current = sorted.lastWhereOrNull(
-      (e) => !e.entry.purchaseDate.isAfter(range.end),
-    );
-
-    if (base == null ||
-        current == null ||
+    if (base.entry.purchaseDate == current.entry.purchaseDate ||
         !_compatible(base.entry, current.entry)) {
       continue;
     }
@@ -381,7 +440,7 @@ Future<List<ItemInflationSats>> itemInflationListSats(
       inflationPercent: inflationPct,
       btcPriceAtBase: baseBtc,
       btcPriceAtCurrent: currentBtc,
-      isPartialPeriod: isPartialPeriod,
+      isPartialPeriod: false,
     ));
   }
 
@@ -397,13 +456,69 @@ double basketInflationSats(BasketInflationSatsRef ref) {
 }
 
 @riverpod
+Future<YearlyInflationSummary> yearlyBasketInflationSummarySats(
+    YearlyBasketInflationSummarySatsRef ref) async {
+  final entries = ref.watch(entriesInActiveRangeProvider);
+  if (entries.isEmpty) return const YearlyInflationSummary.empty();
+
+  final btc = await ref.watch(btcPriceCacheProvider.future);
+  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final yearlyRates = <double>[];
+
+  for (final list in grouped.values) {
+    final sorted = List<EntryWithDetails>.from(list)
+      ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
+    if (sorted.length < 2) continue;
+
+    final base = sorted.first;
+    final current = sorted.last;
+    if (base.entry.purchaseDate == current.entry.purchaseDate ||
+        !_compatible(base.entry, current.entry)) {
+      continue;
+    }
+
+    final baseBtc = _getBtcPriceForDate(btc, base.entry.purchaseDate);
+    final currentBtc = _getBtcPriceForDate(btc, current.entry.purchaseDate);
+    if (baseBtc == null ||
+        currentBtc == null ||
+        baseBtc <= 0 ||
+        currentBtc <= 0) {
+      continue;
+    }
+
+    final baseNorm = _normalizedUnitPrice(base.entry);
+    final currentNorm = _normalizedUnitPrice(current.entry);
+    if (baseNorm <= 0 || !baseNorm.isFinite || !currentNorm.isFinite) {
+      continue;
+    }
+
+    final baseSats = SatsConverter.fiatToSats(baseNorm, baseBtc);
+    final currentSats = SatsConverter.fiatToSats(currentNorm, currentBtc);
+    if (baseSats <= 0) continue;
+
+    final years =
+        _yearsBetween(base.entry.purchaseDate, current.entry.purchaseDate);
+    if (years <= 0) continue;
+
+    final totalInflationPct = ((currentSats - baseSats) / baseSats) * 100;
+    yearlyRates.add(totalInflationPct / years);
+  }
+
+  if (yearlyRates.isEmpty) return const YearlyInflationSummary.empty();
+  return YearlyInflationSummary(
+    yearlyInflationPercent: yearlyRates.average,
+    qualifyingProducts: yearlyRates.length,
+  );
+}
+
+@riverpod
 Future<List<MonthlyIndex>> dynamicLaspeyresIndexSats(
     DynamicLaspeyresIndexSatsRef ref) async {
   final isBitcoin = ref.watch(isBitcoinModeProvider);
   if (!isBitcoin) return [];
 
   final range = ref.watch(activeInflationRangeProvider);
-  final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
+  final entries = ref.watch(entriesInActiveRangeProvider);
   if (entries.isEmpty) return [];
   final btc = await ref.watch(btcPriceCacheProvider.future);
 
@@ -425,6 +540,9 @@ Future<List<MonthlyIndex>> dynamicLaspeyresIndexSats(
         .whereType<PriceEntry>()
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
+    if (history.length < 2) continue;
+    if (history.first.date == history.last.date) continue;
+
     products.add(TrackedProduct(
         name: first.product.name, isActive: true, priceHistory: history));
   }

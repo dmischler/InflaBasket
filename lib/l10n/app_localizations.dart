@@ -449,7 +449,7 @@ abstract class AppLocalizations {
   /// Title card on overview tab
   ///
   /// In en, this message translates to:
-  /// **'Your Inflation'**
+  /// **'Average yearly inflation'**
   String get overviewTitle;
 
   /// Chart section header
@@ -1702,29 +1702,47 @@ abstract class AppLocalizations {
   /// **'Time Range'**
   String get timeRangeLabel;
 
-  /// Year to date time range option
+  /// 6 month time range option
   ///
   /// In en, this message translates to:
-  /// **'YTD'**
-  String get timeRangeYtd;
+  /// **'6M'**
+  String get timeRange6m;
 
   /// 1 year time range option
   ///
   /// In en, this message translates to:
-  /// **'1y'**
+  /// **'1Y'**
   String get timeRange1y;
 
   /// 2 years time range option
   ///
   /// In en, this message translates to:
-  /// **'2y'**
+  /// **'2Y'**
   String get timeRange2y;
+
+  /// 3 years time range option
+  ///
+  /// In en, this message translates to:
+  /// **'3Y'**
+  String get timeRange3y;
 
   /// 5 years time range option
   ///
   /// In en, this message translates to:
-  /// **'5y'**
+  /// **'5Y'**
   String get timeRange5y;
+
+  /// 10 years time range option
+  ///
+  /// In en, this message translates to:
+  /// **'10Y'**
+  String get timeRange10y;
+
+  /// Year to date time range option
+  ///
+  /// In en, this message translates to:
+  /// **'YTD'**
+  String get timeRangeYtd;
 
   /// All time range option
   ///

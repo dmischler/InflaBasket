@@ -108,17 +108,29 @@ lib/
 
 ## 5. Inflation Calculation
 
-**Current Method: Product-Level Personal Inflation (Unweighted Mean)**
+**Current Method: Product-Level Average Yearly Inflation (Unweighted Mean)**
 
-- Inflation is defined as the **simple average of individual active product price changes**.
-- No basket-cost index, no quantity weighting in inflation math.
-- Each product uses sparse/irregular updates with **latest known price <= target date**.
+- Inflation summary is the **simple average of yearly product inflation rates**.
+- No basket-cost index and no quantity weighting in basket-level inflation math.
+- Selected range is shared across overview, categories, and chart logic.
+- A product qualifies only if it has **at least 2 entries inside the selected range** with compatible units.
 
 `normalizedUnitPrice = price / (quantity × toBaseMultiplier)`
 
-`productChangePct = ((price_at_end - price_at_start) / price_at_start) × 100`
+`productChangePct = ((lastPriceInRange - firstPriceInRange) / firstPriceInRange) × 100`
 
-`overallInflationPct = mean(productChangePct for all active products with valid data)`
+`yearsBetween = (lastDateInRange - firstDateInRange) / 365.25`
+
+`productYearlyPct = productChangePct / yearsBetween`
+
+`overallYearlyInflationPct = mean(productYearlyPct for all qualifying products)`
+
+### Time Range Filter
+
+- Available presets: **6M, 1Y, 2Y, 3Y, 5Y, 10Y, Custom**.
+- Presets are shown only if there is at least one purchase in that period.
+- Custom range always remains available and uses a start/end month picker.
+- Custom end date is normalized to month-end (capped at now) so full selected month is included.
 
 ### Chart Semantics
 
@@ -129,8 +141,8 @@ lib/
 
 ### Bitcoin Mode
 
-- Same unweighted product-change algorithm.
-- Prices are converted to sats at each product update date using cached BTC prices.
+- Same unweighted yearly-rate algorithm and same qualifying-product rule.
+- Uses sats converted at first/last in-range entry dates via cached BTC prices.
 
 ---
 
@@ -476,6 +488,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Uses accent color that switches between fiat green and bitcoin orange based on mode
 - 56px size vs 46px pill tabs for visual hierarchy
 - 4 slots instead of 5 in bottom navigation
+
+**v1.20.2 Simple Yearly Inflation + Dynamic Ranges**
+- Replaced overview summary metric with "Average yearly inflation" based on first/last in-range entries per product
+- Added sats-mode yearly summary using BTC price cache at entry dates
+- Range filtering now works on in-range entries only; products with fewer than two in-range entries are excluded
+- Updated dashboard preset ranges to 6M/1Y/2Y/3Y/5Y/10Y + Custom, with dynamic availability by purchase presence
+- Overview summary insufficient-data state now uses animated empty-state Lottie via `StateMessageCard`
 
 ---
 

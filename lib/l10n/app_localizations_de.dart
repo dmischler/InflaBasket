@@ -190,7 +190,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get clearFilters => 'Löschen';
 
   @override
-  String get overviewTitle => 'Deine Inflation';
+  String get overviewTitle => 'Durchschnittliche Jahresinflation';
 
   @override
   String get overviewBasketIndex => 'Warenkorb-Index';
@@ -903,7 +903,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get timeRangeLabel => 'Zeitraum';
 
   @override
-  String get timeRangeYtd => 'JTD';
+  String get timeRange6m => '6M';
 
   @override
   String get timeRange1y => '1J';
@@ -912,7 +912,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get timeRange2y => '2J';
 
   @override
+  String get timeRange3y => '3J';
+
+  @override
   String get timeRange5y => '5J';
+
+  @override
+  String get timeRange10y => '10J';
+
+  @override
+  String get timeRangeYtd => 'JTD';
 
   @override
   String get timeRangeAll => 'Alle';

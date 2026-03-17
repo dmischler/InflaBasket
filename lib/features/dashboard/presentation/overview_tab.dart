@@ -19,6 +19,7 @@ import 'package:inflabasket/core/utils/chart_sizing.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
@@ -53,6 +54,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     final entriesAsync = ref.watch(entriesWithDetailsProvider);
     final settings = ref.watch(settingsControllerProvider);
     final isBitcoinMode = settings.isBitcoinMode;
+    final entries = entriesAsync.valueOrNull ?? const <EntryWithDetails>[];
     final historySatsAsync = isBitcoinMode
         ? ref.watch(filteredDynamicIndexSatsProvider)
         : const AsyncData<List<MonthlyIndex>>(<MonthlyIndex>[]);
@@ -62,16 +64,22 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     final topInflatorsSatsAsync = isBitcoinMode
         ? ref.watch(itemInflationListSatsProvider)
         : const AsyncData<List<ItemInflationSats>>(<ItemInflationSats>[]);
+    final yearlySummarySatsAsync = isBitcoinMode
+        ? ref.watch(yearlyBasketInflationSummarySatsProvider)
+        : const AsyncData<YearlyInflationSummary>(
+            YearlyInflationSummary.empty());
     final bitcoinHistory = historySatsAsync.valueOrNull;
     final bitcoinAllHistory = allHistorySatsAsync.valueOrNull;
     final bitcoinTopInflators = topInflatorsSatsAsync.valueOrNull;
+    final bitcoinYearlySummary = yearlySummarySatsAsync.valueOrNull;
 
     final hasEntriesData = entriesAsync.valueOrNull != null;
     final isInitialLoading = !hasEntriesData && entriesAsync.isLoading;
     final bitcoinLoading = isBitcoinMode &&
         ((historySatsAsync.isLoading && bitcoinHistory == null) ||
             (allHistorySatsAsync.isLoading && bitcoinAllHistory == null) ||
-            (topInflatorsSatsAsync.isLoading && bitcoinTopInflators == null));
+            (topInflatorsSatsAsync.isLoading && bitcoinTopInflators == null) ||
+            (yearlySummarySatsAsync.isLoading && bitcoinYearlySummary == null));
 
     final coreError = entriesAsync.hasError && !hasEntriesData
         ? entriesAsync.error
@@ -84,7 +92,10 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
                     : topInflatorsSatsAsync.hasError &&
                             bitcoinTopInflators == null
                         ? topInflatorsSatsAsync.error
-                        : null;
+                        : yearlySummarySatsAsync.hasError &&
+                                bitcoinYearlySummary == null
+                            ? yearlySummarySatsAsync.error
+                            : null;
 
     final loadingChild = isInitialLoading
         ? const ChartSkeleton.overview(key: ValueKey('overview-loading'))
@@ -110,25 +121,19 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       );
     }
 
-    final fiatOverallInflation = ref.watch(basketInflationProvider);
+    final fiatYearlySummary = ref.watch(yearlyBasketInflationSummaryProvider);
     final fiatHistory = ref.watch(filteredDynamicIndexProvider);
-    final fiatAllHistory = ref.watch(dynamicLaspeyresIndexProvider);
     final fiatTopInflators = ref.watch(itemInflationListProvider);
     final displayBitcoinData =
         isBitcoinMode && !bitcoinLoading && coreError == null;
 
-    final overallInflation = displayBitcoinData
-        ? _averageSatsInflation(
-            bitcoinTopInflators ?? const <ItemInflationSats>[],
-          )
-        : fiatOverallInflation;
+    final yearlySummary = displayBitcoinData
+        ? bitcoinYearlySummary ?? const YearlyInflationSummary.empty()
+        : fiatYearlySummary;
 
     final history = displayBitcoinData
         ? bitcoinHistory ?? const <MonthlyIndex>[]
         : fiatHistory;
-    final allHistory = displayBitcoinData
-        ? bitcoinAllHistory ?? const <MonthlyIndex>[]
-        : fiatAllHistory;
     final showCpi = ref.watch(showCpiOverlayProvider);
     final overlayType = ref.watch(effectiveComparisonOverlayTypeProvider);
     final overlayAsync = ref.watch(comparisonOverlayDataProvider);
@@ -140,9 +145,17 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     final isLuxeMode =
         Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
     final timeFilter = ref.watch(chartTimeFilterControllerProvider);
-    final firstDataPoint =
-        allHistory.isNotEmpty ? allHistory.first.month : null;
-    final availableTimeRangeOptions = availableTimeRanges(firstDataPoint);
+    final firstDataPoint = entries.isNotEmpty
+        ? entries
+            .map<DateTime>((entry) => entry.entry.purchaseDate)
+            .reduce((a, b) => a.isBefore(b) ? a : b)
+        : null;
+    final availableTimeRangeOptions = availableTimeRanges(
+        entries.map<DateTime>((entry) => entry.entry.purchaseDate));
+    final selectedRange = resolveTimeRangeSelection(
+      timeFilter,
+      availableTimeRangeOptions,
+    );
 
     final topInflators = displayBitcoinData
         ? bitcoinTopInflators ?? const <ItemInflationSats>[]
@@ -154,13 +167,14 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSummaryCard(context, l, overallInflation, displayBitcoinData),
+          _buildSummaryCard(context, l, yearlySummary),
           const SizedBox(height: 24),
           _buildTimeRangeSelector(
             context,
             l,
             ref,
             timeFilter,
+            selectedRange,
             availableTimeRangeOptions,
             firstDataPoint,
           ),
@@ -176,7 +190,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
           ),
           const SizedBox(height: 8),
           _buildLineChart(
-              context, l, history, showCpi, overlayPoints, timeFilter.range),
+              context, l, history, showCpi, overlayPoints, selectedRange),
           if (showCpi && hasOverlaySource) ...[
             const SizedBox(height: 8),
             _buildOverlayStatus(context, l, overlayAsync, hasOverlayData),
@@ -212,17 +226,20 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     );
   }
 
-  double _averageSatsInflation(List<ItemInflationSats> items) {
-    if (items.isEmpty) return 0.0;
-    final total = items.fold<double>(
-      0,
-      (sum, item) => sum + item.inflationPercent,
-    );
-    return total / items.length;
-  }
-
   Widget _buildSummaryCard(BuildContext context, AppLocalizations l,
-      double inflation, bool isBitcoinMode) {
+      YearlyInflationSummary summary) {
+    final title = l.overviewTitle;
+    if (summary.qualifyingProducts <= 0) {
+      return StateMessageCard(
+        icon: Icons.show_chart,
+        animationAsset: StateIllustrations.emptyGeneral,
+        animationHeight: 140,
+        title: title,
+        message: l.overviewNoData,
+      );
+    }
+
+    final inflation = summary.yearlyInflationPercent;
     final color = inflation > 0
         ? Colors.red
         : (inflation < 0 ? Colors.green : Colors.grey);
@@ -232,8 +249,6 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
 
     final isLuxeMode =
         Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
-
-    final title = isBitcoinMode ? 'Sats Inflation' : l.overviewTitle;
 
     return isLuxeMode
         ? VaultCard(
@@ -332,6 +347,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     AppLocalizations l,
     WidgetRef ref,
     ChartTimeFilter timeFilter,
+    ChartTimeRange selectedRange,
     List<ChartTimeRange> availableOptions,
     DateTime? firstDataPoint,
   ) {
@@ -346,7 +362,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     // Always add custom option
     segments.add(ButtonSegment(
       value: ChartTimeRange.custom,
-      label: const Text('…'),
+      label: Text(l.timeRangeCustom),
       enabled: true,
     ));
 
@@ -357,7 +373,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         const SizedBox(height: 8),
         SegmentedButton<ChartTimeRange>(
           segments: segments,
-          selected: {timeFilter.range},
+          selected: {selectedRange},
           onSelectionChanged: (selected) {
             final range = selected.first;
             if (range == ChartTimeRange.custom) {
@@ -376,12 +392,13 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
 
   String _timeRangeLabel(AppLocalizations l, ChartTimeRange range) {
     return switch (range) {
-      ChartTimeRange.ytd => l.timeRangeYtd,
+      ChartTimeRange.sixMonths => l.timeRange6m,
       ChartTimeRange.oneYear => l.timeRange1y,
       ChartTimeRange.twoYears => l.timeRange2y,
+      ChartTimeRange.threeYears => l.timeRange3y,
       ChartTimeRange.fiveYears => l.timeRange5y,
-      ChartTimeRange.allTime => l.timeRangeAll,
-      ChartTimeRange.custom => '…',
+      ChartTimeRange.tenYears => l.timeRange10y,
+      ChartTimeRange.custom => l.timeRangeCustom,
     };
   }
 
@@ -615,9 +632,9 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
           1,
     );
     final estimatedLabelWidth = switch (range) {
-      ChartTimeRange.ytd || ChartTimeRange.oneYear => 44.0,
-      ChartTimeRange.twoYears => 64.0,
-      ChartTimeRange.fiveYears || ChartTimeRange.allTime => 42.0,
+      ChartTimeRange.sixMonths || ChartTimeRange.oneYear => 44.0,
+      ChartTimeRange.twoYears || ChartTimeRange.threeYears => 64.0,
+      ChartTimeRange.fiveYears || ChartTimeRange.tenYears => 42.0,
       ChartTimeRange.custom => totalMonths <= 18 ? 44.0 : 64.0,
     };
     // Use fewer target labels (max 5) to prevent overlap
@@ -668,15 +685,16 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
 
     DateTime periodStart(DateTime date) {
       switch (range) {
-        case ChartTimeRange.ytd:
+        case ChartTimeRange.sixMonths:
         case ChartTimeRange.oneYear:
         case ChartTimeRange.custom:
           return DateTime(date.year, date.month, 1);
         case ChartTimeRange.twoYears:
+        case ChartTimeRange.threeYears:
           final quarter = (date.month - 1) ~/ 3;
           return DateTime(date.year, quarter * 3 + 1, 1);
         case ChartTimeRange.fiveYears:
-        case ChartTimeRange.allTime:
+        case ChartTimeRange.tenYears:
           return DateTime(date.year, 1, 1);
       }
     }
@@ -738,15 +756,16 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     if (showCpi && overlayPoints.isNotEmpty) {
       DateTime periodStart(DateTime date) {
         switch (timeRange) {
-          case ChartTimeRange.ytd:
+          case ChartTimeRange.sixMonths:
           case ChartTimeRange.oneYear:
           case ChartTimeRange.custom:
             return DateTime(date.year, date.month, 1);
           case ChartTimeRange.twoYears:
+          case ChartTimeRange.threeYears:
             final quarter = (date.month - 1) ~/ 3;
             return DateTime(date.year, quarter * 3 + 1, 1);
           case ChartTimeRange.fiveYears:
-          case ChartTimeRange.allTime:
+          case ChartTimeRange.tenYears:
             return DateTime(date.year, 1, 1);
         }
       }
@@ -1346,7 +1365,10 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
         FilledButton(
           onPressed: () {
             final start = DateTime(startYear, startMonth, 1);
-            final end = DateTime(endYear, endMonth, 1);
+            final monthEnd =
+                DateTime(endYear, endMonth + 1, 0, 23, 59, 59, 999);
+            final now = DateTime.now();
+            final end = monthEnd.isAfter(now) ? now : monthEnd;
             Navigator.of(context).pop((start, end));
           },
           child: Text(widget.l.apply),

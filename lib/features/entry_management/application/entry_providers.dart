@@ -221,11 +221,12 @@ List<EntryWithDetails> filteredEntries(FilteredEntriesRef ref) {
 // ─── Chart Time Filter ────────────────────────────────────────────────────────
 
 enum ChartTimeRange {
-  ytd,
+  sixMonths,
   oneYear,
   twoYears,
+  threeYears,
   fiveYears,
-  allTime,
+  tenYears,
   custom,
 }
 
@@ -235,7 +236,7 @@ class ChartTimeFilter {
   final DateTime? customEnd;
 
   const ChartTimeFilter({
-    this.range = ChartTimeRange.allTime,
+    this.range = ChartTimeRange.oneYear,
     this.customStart,
     this.customEnd,
   });
@@ -256,16 +257,18 @@ class ChartTimeFilter {
   DateTime? getStartDate(DateTime firstDataPoint) {
     final now = DateTime.now();
     switch (range) {
-      case ChartTimeRange.ytd:
-        return DateTime(now.year, 1, 1);
+      case ChartTimeRange.sixMonths:
+        return DateTime(now.year, now.month - 6, 1);
       case ChartTimeRange.oneYear:
         return DateTime(now.year - 1, now.month, 1);
       case ChartTimeRange.twoYears:
         return DateTime(now.year - 2, now.month, 1);
+      case ChartTimeRange.threeYears:
+        return DateTime(now.year - 3, now.month, 1);
       case ChartTimeRange.fiveYears:
         return DateTime(now.year - 5, now.month, 1);
-      case ChartTimeRange.allTime:
-        return firstDataPoint;
+      case ChartTimeRange.tenYears:
+        return DateTime(now.year - 10, now.month, 1);
       case ChartTimeRange.custom:
         return customStart ?? firstDataPoint;
     }
@@ -284,25 +287,59 @@ int monthsBetween(DateTime start, DateTime end) {
   return (end.year - start.year) * 12 + end.month - start.month;
 }
 
-/// Returns which time range options are available based on data range
-List<ChartTimeRange> availableTimeRanges(DateTime? firstDataPoint) {
-  if (firstDataPoint == null) {
-    return [ChartTimeRange.allTime, ChartTimeRange.custom];
+ChartTimeRange resolveTimeRangeSelection(
+  ChartTimeFilter filter,
+  List<ChartTimeRange> available,
+) {
+  if (filter.range == ChartTimeRange.custom) {
+    return ChartTimeRange.custom;
+  }
+  if (available.contains(filter.range)) {
+    return filter.range;
+  }
+  return available.firstWhere(
+    (range) => range != ChartTimeRange.custom,
+    orElse: () => ChartTimeRange.custom,
+  );
+}
+
+/// Returns which time range options are available based on purchase activity.
+///
+/// A fixed range is shown only when there is at least one purchase in that
+/// period. Custom is always available.
+List<ChartTimeRange> availableTimeRanges(Iterable<DateTime> purchaseDates) {
+  final dates = purchaseDates.toList();
+  if (dates.isEmpty) {
+    return [ChartTimeRange.custom];
   }
 
   final now = DateTime.now();
-  final monthsOfData = monthsBetween(firstDataPoint, now);
+
+  bool hasPurchaseInRange(DateTime start) {
+    return dates.any(
+      (date) => !date.isBefore(start) && !date.isAfter(now),
+    );
+  }
 
   final available = <ChartTimeRange>[];
-
-  // YTD available if we have any data this year or at least 1 month
-  if (firstDataPoint.year <= now.year && monthsOfData >= 1) {
-    available.add(ChartTimeRange.ytd);
+  if (hasPurchaseInRange(DateTime(now.year, now.month - 6, 1))) {
+    available.add(ChartTimeRange.sixMonths);
   }
-  if (monthsOfData >= 12) available.add(ChartTimeRange.oneYear);
-  if (monthsOfData >= 24) available.add(ChartTimeRange.twoYears);
-  if (monthsOfData >= 60) available.add(ChartTimeRange.fiveYears);
-  available.add(ChartTimeRange.allTime);
+  if (hasPurchaseInRange(DateTime(now.year - 1, now.month, 1))) {
+    available.add(ChartTimeRange.oneYear);
+  }
+  if (hasPurchaseInRange(DateTime(now.year - 2, now.month, 1))) {
+    available.add(ChartTimeRange.twoYears);
+  }
+  if (hasPurchaseInRange(DateTime(now.year - 3, now.month, 1))) {
+    available.add(ChartTimeRange.threeYears);
+  }
+  if (hasPurchaseInRange(DateTime(now.year - 5, now.month, 1))) {
+    available.add(ChartTimeRange.fiveYears);
+  }
+  if (hasPurchaseInRange(DateTime(now.year - 10, now.month, 1))) {
+    available.add(ChartTimeRange.tenYears);
+  }
   available.add(ChartTimeRange.custom);
 
   return available;

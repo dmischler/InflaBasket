@@ -35,9 +35,16 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
     final settings = ref.watch(settingsControllerProvider);
     final timeFilter = ref.watch(chartTimeFilterControllerProvider);
     final allHistory = ref.watch(basketIndexHistoryProvider);
-    final firstDataPoint =
-        allHistory.isNotEmpty ? allHistory.first.month : null;
-    final availableTimeRangeOptions = availableTimeRanges(firstDataPoint);
+    final entries = entriesAsync.valueOrNull ?? const [];
+    final firstDataPoint = entries.isNotEmpty
+        ? entries
+            .map<DateTime>((entry) => entry.entry.purchaseDate)
+            .reduce((a, b) => a.isBefore(b) ? a : b)
+        : (allHistory.isNotEmpty ? allHistory.first.month : null);
+    final availableTimeRangeOptions = availableTimeRanges(
+        entries.map<DateTime>((entry) => entry.entry.purchaseDate));
+    final selectedRange =
+        resolveTimeRangeSelection(timeFilter, availableTimeRangeOptions);
 
     if (entriesAsync.isLoading && entriesAsync.valueOrNull == null) {
       return const AnimatedSwitcher(
@@ -90,6 +97,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
               l10n,
               ref,
               timeFilter,
+              selectedRange,
               availableTimeRangeOptions,
               firstDataPoint,
             ),
@@ -390,6 +398,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
     AppLocalizations l,
     WidgetRef ref,
     ChartTimeFilter timeFilter,
+    ChartTimeRange selectedRange,
     List<ChartTimeRange> availableOptions,
     DateTime? firstDataPoint,
   ) {
@@ -403,7 +412,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
     }
     segments.add(ButtonSegment(
       value: ChartTimeRange.custom,
-      label: const Text('…'),
+      label: Text(l.timeRangeCustom),
       enabled: true,
     ));
 
@@ -414,7 +423,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
         const SizedBox(height: 8),
         SegmentedButton<ChartTimeRange>(
           segments: segments,
-          selected: {timeFilter.range},
+          selected: {selectedRange},
           onSelectionChanged: (selected) {
             final range = selected.first;
             if (range == ChartTimeRange.custom) {
@@ -433,12 +442,13 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
 
   String _timeRangeLabel(AppLocalizations l, ChartTimeRange range) {
     return switch (range) {
-      ChartTimeRange.ytd => l.timeRangeYtd,
+      ChartTimeRange.sixMonths => l.timeRange6m,
       ChartTimeRange.oneYear => l.timeRange1y,
       ChartTimeRange.twoYears => l.timeRange2y,
+      ChartTimeRange.threeYears => l.timeRange3y,
       ChartTimeRange.fiveYears => l.timeRange5y,
-      ChartTimeRange.allTime => l.timeRangeAll,
-      ChartTimeRange.custom => '…',
+      ChartTimeRange.tenYears => l.timeRange10y,
+      ChartTimeRange.custom => l.timeRangeCustom,
     };
   }
 
@@ -660,7 +670,10 @@ class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
         FilledButton(
           onPressed: () {
             final start = DateTime(startYear, startMonth, 1);
-            final end = DateTime(endYear, endMonth, 1);
+            final monthEnd =
+                DateTime(endYear, endMonth + 1, 0, 23, 59, 59, 999);
+            final now = DateTime.now();
+            final end = monthEnd.isAfter(now) ? now : monthEnd;
             Navigator.of(context).pop((start, end));
           },
           child: Text(widget.l.apply),

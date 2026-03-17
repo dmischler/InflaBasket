@@ -59,7 +59,7 @@
   "filterAllCategories": "Alle Kategorien",
   "applyFilters": "Anwenden",
   "clearFilters": "Löschen",
-  "overviewTitle": "Deine Inflation",
+  "overviewTitle": "Durchschnittliche Jahresinflation",
   "overviewBasketIndex": "Warenkorb-Index",
   "overviewTopInflators": "Grösste Preisanstiege",
   "overviewTopDeflators": "Grösste Preisrückgänge",
@@ -558,8 +558,8 @@
   "timeRangeLabel": "Zeitraum",
   "@timeRangeLabel": { "description": "Label for time range selector" },
 
-  "timeRangeYtd": "JTD",
-  "@timeRangeYtd": { "description": "Year to date time range option" },
+  "timeRange6m": "6M",
+  "@timeRange6m": { "description": "6 month time range option" },
 
   "timeRange1y": "1J",
   "@timeRange1y": { "description": "1 year time range option" },
@@ -567,8 +567,17 @@
   "timeRange2y": "2J",
   "@timeRange2y": { "description": "2 years time range option" },
 
+  "timeRange3y": "3J",
+  "@timeRange3y": { "description": "3 years time range option" },
+
   "timeRange5y": "5J",
   "@timeRange5y": { "description": "5 years time range option" },
+
+  "timeRange10y": "10J",
+  "@timeRange10y": { "description": "10 years time range option" },
+
+  "timeRangeYtd": "JTD",
+  "@timeRangeYtd": { "description": "Year to date time range option" },
 
   "timeRangeAll": "Alle",
   "@timeRangeAll": { "description": "All time range option" },

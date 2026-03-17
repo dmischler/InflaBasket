@@ -186,7 +186,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearFilters => 'Clear';
 
   @override
-  String get overviewTitle => 'Your Inflation';
+  String get overviewTitle => 'Average yearly inflation';
 
   @override
   String get overviewBasketIndex => 'Basket Index';
@@ -906,16 +906,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timeRangeLabel => 'Time Range';
 
   @override
+  String get timeRange6m => '6M';
+
+  @override
+  String get timeRange1y => '1Y';
+
+  @override
+  String get timeRange2y => '2Y';
+
+  @override
+  String get timeRange3y => '3Y';
+
+  @override
+  String get timeRange5y => '5Y';
+
+  @override
+  String get timeRange10y => '10Y';
+
+  @override
   String get timeRangeYtd => 'YTD';
-
-  @override
-  String get timeRange1y => '1y';
-
-  @override
-  String get timeRange2y => '2y';
-
-  @override
-  String get timeRange5y => '5y';
 
   @override
   String get timeRangeAll => 'All';
