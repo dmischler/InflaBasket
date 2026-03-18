@@ -20,6 +20,12 @@ EntryRepository entryRepository(EntryRepositoryRef ref) {
   return EntryRepository(ref.watch(appDatabaseProvider));
 }
 
+@riverpod
+Future<List<String>> allStores(AllStoresRef ref) async {
+  final repo = ref.watch(entryRepositoryProvider);
+  return repo.getAllStores();
+}
+
 class EntryWithDetails {
   final PurchaseEntry entry;
   final Product product;
@@ -284,6 +290,20 @@ class EntryRepository {
   Future<void> updateProductBarcode(int productId, String barcode) async {
     await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
         .write(ProductsCompanion(barcode: Value(barcode)));
+  }
+
+  Future<List<String>> getAllStores() async {
+    final query = _db.selectOnly(_db.products, distinct: true)
+      ..addColumns([_db.products.storeName])
+      ..where(_db.products.storeName.isNotNull());
+    final stores =
+        await query.map((row) => row.read(_db.products.storeName)).get();
+    return stores.whereType<String>().toSet().toList()..sort();
+  }
+
+  Future<void> updateProductStore(int productId, String storeName) async {
+    await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
+        .write(ProductsCompanion(storeName: Value(storeName)));
   }
 
   // ─── Entries ─────────────────────────────────────────────────────────────────

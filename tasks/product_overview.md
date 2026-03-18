@@ -3,8 +3,8 @@
 ## Progress
 
 - [x] **Phase 1: Database Schema Changes** - COMPLETE
-- [ ] Phase 2: Store Autocomplete Service
-- [ ] Phase 3: Repository Updates
+- [x] **Phase 2: Store Autocomplete Service** - COMPLETE
+- [x] **Phase 3: Repository Updates** - COMPLETE
 - [ ] Phase 4: Product Detail Provider
 - [ ] Phase 5: Product Detail Screen UI
 - [ ] Phase 6: Add Entry Screen Enhancement
