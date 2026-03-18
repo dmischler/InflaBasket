@@ -37,6 +37,12 @@ Stream<List<Category>> categories(CategoriesRef ref) {
   return repo.watchCategories();
 }
 
+@riverpod
+Future<List<String>> allStores(AllStoresRef ref) async {
+  final repo = ref.watch(entryRepositoryProvider);
+  return repo.getAllStores();
+}
+
 // ─── Template providers ───────────────────────────────────────────────────────
 
 @riverpod
@@ -430,13 +436,19 @@ class AddEntryController extends _$AddEntryController {
           ? await (_resolveForcedProduct(repo, forcedProductId))
           : barcodeProduct ?? existingNamedProduct;
 
+      // When forcedProductId is set (quick-add from product detail),
+      // use the product's storeName for the new entry
+      final entryStoreName = forcedProductId != null && candidateProduct != null
+          ? candidateProduct.storeName ?? storeName
+          : storeName;
+
       // 2. Check for duplicate entries (only for new entries)
       if (existingEntryId == null) {
         final detector = EntryDuplicateDetectorService();
         final duplicate = await detector.findDuplicate(
           productName: productName,
           price: price,
-          storeName: storeName,
+          storeName: entryStoreName,
           repository: repo,
           barcode: normalizedBarcode,
           existingProductId: candidateProduct?.id,
@@ -476,7 +488,7 @@ class AddEntryController extends _$AddEntryController {
           PurchaseEntry(
             id: existingEntryId,
             productId: productId,
-            storeName: storeName,
+            storeName: entryStoreName,
             purchaseDate: date,
             price: price,
             quantity: quantity,
@@ -487,7 +499,7 @@ class AddEntryController extends _$AddEntryController {
       } else {
         await repo.addPurchaseEntry(
           productId: productId,
-          storeName: storeName,
+          storeName: entryStoreName,
           purchaseDate: date,
           price: price,
           quantity: quantity,
@@ -506,7 +518,7 @@ class AddEntryController extends _$AddEntryController {
         if (storeWebsite != null && storeWebsite.trim().isNotEmpty) {
           await ref
               .read(storeLogoCacheProvider)
-              .setWebsite(storeName, storeWebsite);
+              .setWebsite(entryStoreName, storeWebsite);
         }
       }
     });

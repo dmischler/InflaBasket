@@ -156,6 +156,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
             productData,
             facts: buildProductDetailFacts(
               entriesAsync.valueOrNull ?? const <EntryWithDetails>[],
+              productData.product,
             ),
             context: context,
           );
@@ -178,7 +179,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
             data: (entries) {
               final btcCache =
                   btcCacheAsync.valueOrNull ?? const <String, double>{};
-              final facts = buildProductDetailFacts(entries);
+              final facts =
+                  buildProductDetailFacts(entries, productData.product);
               final inflation = buildProductInflation(
                 entries: entries,
                 product: productData.product,

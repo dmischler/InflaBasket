@@ -145,27 +145,27 @@ double normalizedUnitPrice(PurchaseEntry entry) {
   return unitTypeFromString(entry.unit).normalizedPrice(price, quantity);
 }
 
-ProductDetailFacts buildProductDetailFacts(List<EntryWithDetails> entries) {
+ProductDetailFacts buildProductDetailFacts(
+  List<EntryWithDetails> entries,
+  Product product,
+) {
   if (entries.isEmpty) {
-    return const ProductDetailFacts(
+    return ProductDetailFacts(
       entryCount: 0,
       firstPurchase: null,
       latestPurchase: null,
-      canonicalStore: '',
+      canonicalStore: product.storeName ?? '',
     );
   }
 
   final sorted = List<EntryWithDetails>.from(entries)
     ..sort((a, b) => a.entry.purchaseDate.compareTo(b.entry.purchaseDate));
-  final latest = entries.reduce(
-    (a, b) => a.entry.purchaseDate.isAfter(b.entry.purchaseDate) ? a : b,
-  );
 
   return ProductDetailFacts(
     entryCount: entries.length,
     firstPurchase: sorted.first.entry.purchaseDate,
     latestPurchase: sorted.last.entry.purchaseDate,
-    canonicalStore: latest.entry.storeName,
+    canonicalStore: product.storeName ?? '',
   );
 }
 
