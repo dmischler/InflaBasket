@@ -29,8 +29,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final isBitcoin = settings.isBitcoinMode;
     final accentColor =
         isBitcoin ? AppColors.accentBtcMain : AppColors.accentFiatMain;
-    final glowColor =
-        isBitcoin ? AppColors.accentBtcGlow : AppColors.accentFiatGlow;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,29 +55,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         backgroundColor: accentColor,
         elevation: 0,
         shape: const CircleBorder(),
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: glowColor,
-                blurRadius: 12,
-                spreadRadius: 2,
-              ),
-              BoxShadow(
-                color: glowColor.withValues(alpha: 0.3),
-                blurRadius: 24,
-                spreadRadius: 4,
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.add,
-            color: AppColors.bgVoid,
-            size: 32,
-          ),
+        child: const Icon(
+          Icons.add,
+          color: AppColors.bgVoid,
+          size: 32,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
