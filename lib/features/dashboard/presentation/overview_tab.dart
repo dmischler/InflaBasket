@@ -451,17 +451,6 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       mainAxisSize: MainAxisSize.min,
       children: [
         if (overlayType != null)
-          IconButton(
-            tooltip: l.comparisonSourceDetails,
-            onPressed: () => _showOverlaySourceInfo(
-              context,
-              l,
-              overlayType,
-              ref.read(settingsControllerProvider).currency,
-            ),
-            icon: const Icon(Icons.info_outline, size: 20),
-          ),
-        if (overlayType != null)
           DropdownButtonHideUnderline(
             child: DropdownButton<ComparisonOverlayType>(
               value: overlayType,
