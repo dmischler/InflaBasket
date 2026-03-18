@@ -28,6 +28,12 @@ class Products extends Table {
   /// Brand name for this product (optional).
   /// Used for fuzzy matching when scanning new products.
   TextColumn get brand => text().nullable()();
+
+  /// Store name for this product (optional).
+  /// In v12+, store is attached to product (not per-entry).
+  /// Kept nullable for migration; will become non-nullable in v13.
+  /// Note: PurchaseEntries.storeName is kept for historical entries.
+  TextColumn get storeName => text().nullable()();
 }
 
 @DataClassName('PurchaseEntry')
@@ -122,7 +128,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -196,6 +202,25 @@ class AppDatabase extends _$AppDatabase {
               'CREATE UNIQUE INDEX IF NOT EXISTS idx_price_histories_product_month '
               'ON price_histories(product_id, month_year)',
             );
+          }
+          if (from < 12) {
+            // v12: Add storeName column to products table
+            // Backfill storeName from latest entry for each product
+            await m.addColumn(products, products.storeName);
+            await customStatement('''
+              UPDATE products
+              SET storeName = (
+                SELECT pe.storeName
+                FROM purchase_entries pe
+                WHERE pe.product_id = products.id
+                ORDER BY pe.purchase_date DESC, pe.id DESC
+                LIMIT 1
+              )
+              WHERE EXISTS (
+                SELECT 1 FROM purchase_entries pe
+                WHERE pe.product_id = products.id
+              );
+            ''');
           }
         },
       );
