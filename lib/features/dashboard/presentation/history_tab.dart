@@ -27,6 +27,7 @@ class HistoryTab extends ConsumerStatefulWidget {
 class _HistoryTabState extends ConsumerState<HistoryTab> {
   bool _isSearchExpanded = false;
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -37,6 +38,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -165,8 +167,10 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
       ..sort((a, b) => b.entry.purchaseDate.compareTo(a.entry.purchaseDate));
 
     return Scrollbar(
+      controller: _scrollController,
       thumbVisibility: true,
       child: ListView.builder(
+        controller: _scrollController,
         itemCount: sortedEntries.length,
         itemBuilder: (context, index) {
           final entryDetails = sortedEntries[index];
