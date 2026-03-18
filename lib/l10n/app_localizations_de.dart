@@ -326,19 +326,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get factoryResetConfirmMessage =>
-      'Alle Ihre Daten werden gelöscht, einschließlich Kaufhistorie, Kategorien, Vorlagen und Einstellungen. Diese Aktion kann nicht rückgängig gemacht werden.';
+      'Alle Ihre Daten werden gelöscht, einschließlich Kaufhistorie, Kategorien und Einstellungen. Diese Aktion kann nicht rückgängig gemacht werden.';
 
   @override
   String get factoryResetButton => 'Zurücksetzen';
 
   @override
   String get factoryResetCompleted => 'Auf Werkseinstellung zurückgesetzt';
-
-  @override
-  String get settingsCategoryWeights => 'Kategoriegewichtungen';
-
-  @override
-  String get settingsTemplates => 'Wiederkehrende Einkäufe';
 
   @override
   String get settingsAbout => 'Über die App';
@@ -378,47 +372,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deleteCategoryHasProducts =>
       'Kann nicht gelöscht werden: Diese Kategorie hat bestehende Produkte.';
-
-  @override
-  String get weightEditorTitle => 'Kategoriegewichtungen';
-
-  @override
-  String get weightEditorSubtitle =>
-      'Lege fest, wie stark jede Kategorie zur Warenkorbinflation beiträgt. Die Gewichtungen müssen 100 % ergeben.';
-
-  @override
-  String weightEditorTotal(int percent) {
-    return 'Gesamt: $percent%';
-  }
-
-  @override
-  String get weightEditorResetEqual => 'Gleichmässig zurücksetzen';
-
-  @override
-  String get weightEditorSaveError =>
-      'Gewichtungen müssen 100 % ergeben, bevor gespeichert werden kann.';
-
-  @override
-  String get templatesTitle => 'Wiederkehrende Einkäufe';
-
-  @override
-  String get templatesEmpty =>
-      'Noch keine Vorlagen. Füge eine Vorlage hinzu, um regelmässige Einkäufe schnell zu erfassen.';
-
-  @override
-  String get templateAdd => 'Vorlage hinzufügen';
-
-  @override
-  String get templateDelete => 'Vorlage löschen?';
-
-  @override
-  String get templateUseButton => 'Verwenden';
-
-  @override
-  String get templateSaved => 'Vorlage gespeichert.';
-
-  @override
-  String get templateDeleted => 'Vorlage gelöscht.';
 
   @override
   String get duplicateDetectionTitle => 'Ähnliches Produkt gefunden';
@@ -574,11 +527,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get overviewNoPriceDecreases => 'Noch keine Preisreduktionen erkannt.';
 
   @override
-  String templateSaveError(String error) {
-    return 'Fehler beim Speichern der Vorlage: $error';
-  }
-
-  @override
   String get duplicateProductFound => 'Ähnliches Produkt gefunden';
 
   @override
@@ -636,14 +584,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Gespeicherte Schwellenwerte für deine verfolgten Produkte werden abgerufen.';
 
   @override
-  String templateDeleteMessage(String name) {
-    return '\"$name\" aus wiederkehrenden Einkäufen entfernen?';
-  }
-
-  @override
-  String get addEntrySaveAsTemplate => 'Als Vorlage speichern';
-
-  @override
   String scannerSavedItems(int count) {
     return '$count Artikel erfolgreich gespeichert!';
   }
@@ -653,12 +593,6 @@ class AppLocalizationsDe extends AppLocalizations {
       int savedCount, int skippedCount) {
     return '$savedCount Artikel gespeichert, $skippedCount Duplikate übersprungen.';
   }
-
-  @override
-  String get weightEditorResetWeights => 'Gewichte zurücksetzen';
-
-  @override
-  String get weightEditorUseSpendWeighted => 'Ausgaben-basiert verwenden';
 
   @override
   String get categoryManagementEmpty => 'Keine Kategorien gefunden.';
@@ -752,16 +686,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get settingsMobileOnlySubtitle =>
       'Abonnements sind nur unter iOS und Android verfügbar.';
-
-  @override
-  String get templatesLoadingTitle => 'Vorlagen werden geladen';
-
-  @override
-  String get templatesLoadingMessage =>
-      'Deine wiederkehrenden Einkäufe werden abgerufen.';
-
-  @override
-  String get templatesLoadError => 'Vorlagen konnten nicht geladen werden';
 
   @override
   String get paywallTitle => 'Premium werden';
@@ -858,19 +782,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get moneySupplySourceUnavailableDescription =>
       'Für die gewählte Währung ist keine Geldmengendatenquelle verfügbar.';
-
-  @override
-  String get weightEditorSaved => 'Gewichtungen gespeichert.';
-
-  @override
-  String get weightEditorResetMessage =>
-      'Alle Kategoriegewichtungen auf gleiche Verteilung zurücksetzen?';
-
-  @override
-  String get weightEditorTotalLabel => 'Gesamt';
-
-  @override
-  String get weightEditorMustEqual100 => 'Gewichtungen müssen 100 % ergeben.';
 
   @override
   String priceAlertLatestPrice(String price) {
@@ -1174,4 +1085,8 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return 'Dieses Produkt hat $_temp0. Das Ändern des Geschäfts wird das Standardgeschäft für zukünftige Schnell hinzufügen aktualisieren. Historische Einträge behalten ihr ursprüngliches Geschäft. Fortfahren?';
   }
+
+  @override
+  String get migrationV12Complete =>
+      'Produkte haben jetzt ein festes Geschäft — Schnell hinzufügen aktiviert!';
 }

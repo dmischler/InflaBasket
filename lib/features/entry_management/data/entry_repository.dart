@@ -65,15 +65,6 @@ class PurchaseEntryWithProduct {
   String get storeName => entry.storeName;
 }
 
-class TemplateWithDetails {
-  final EntryTemplate template;
-  final Product product;
-  final Category category;
-
-  TemplateWithDetails(
-      {required this.template, required this.product, required this.category});
-}
-
 class ReceiptBulkSaveResult {
   final int savedCount;
   final int skippedDuplicateCount;
@@ -155,33 +146,6 @@ class EntryRepository {
     return (_db.delete(_db.categories)..where((c) => c.id.equals(categoryId)))
         .go();
   }
-
-  // ─── Category Weights ────────────────────────────────────────────────────────
-
-  /// Returns a map of categoryId → weight for all stored weights.
-  Future<Map<int, double>> getCategoryWeights() async {
-    final rows = await _db.select(_db.categoryWeights).get();
-    return {for (final r in rows) r.categoryId: r.weight};
-  }
-
-  /// Persists the full set of category weights, replacing any existing ones.
-  /// [weights] maps categoryId → weight (values should sum to 1.0).
-  Future<void> saveCategoryWeights(Map<int, double> weights) async {
-    await _db.transaction(() async {
-      await _db.delete(_db.categoryWeights).go();
-      for (final entry in weights.entries) {
-        await _db.into(_db.categoryWeights).insert(
-              CategoryWeightsCompanion.insert(
-                categoryId: Value(entry.key),
-                weight: entry.value,
-              ),
-            );
-      }
-    });
-  }
-
-  /// Clears all custom weights so the basket reverts to spend-weighted averaging.
-  Future<void> clearCategoryWeights() => _db.delete(_db.categoryWeights).go();
 
   // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -272,12 +236,6 @@ class EntryRepository {
             ..where((e) => e.productId.equals(productId)))
           .write(
         PurchaseEntriesCompanion(storeName: Value(storeName)),
-      );
-
-      await (_db.update(_db.entryTemplates)
-            ..where((t) => t.productId.equals(productId)))
-          .write(
-        EntryTemplatesCompanion(storeName: Value(storeName)),
       );
     });
   }
@@ -550,9 +508,6 @@ class EntryRepository {
       await (_db.delete(_db.priceAlerts)
             ..where((alert) => alert.productId.equals(productId)))
           .go();
-      await (_db.delete(_db.entryTemplates)
-            ..where((template) => template.productId.equals(productId)))
-          .go();
       await _db.customStatement(
         'DELETE FROM price_histories WHERE product_id = ?',
         [productId],
@@ -665,51 +620,6 @@ class EntryRepository {
       savedCount: savedCount,
       skippedDuplicateCount: skippedDuplicateCount,
     );
-  }
-
-  // ─── Templates ───────────────────────────────────────────────────────────────
-
-  Stream<List<TemplateWithDetails>> watchTemplatesWithDetails() {
-    final query = _db.select(_db.entryTemplates).join([
-      innerJoin(_db.products,
-          _db.products.id.equalsExp(_db.entryTemplates.productId)),
-      innerJoin(
-          _db.categories, _db.categories.id.equalsExp(_db.products.categoryId)),
-    ]);
-
-    return query.watch().map((rows) {
-      return rows.map((row) {
-        return TemplateWithDetails(
-          template: row.readTable(_db.entryTemplates),
-          product: row.readTable(_db.products),
-          category: row.readTable(_db.categories),
-        );
-      }).toList();
-    });
-  }
-
-  Future<int> addTemplate({
-    required int productId,
-    required String storeName,
-    double quantity = 1.0,
-    UnitType? unit,
-    String? notes,
-  }) {
-    return _db.into(_db.entryTemplates).insert(
-          EntryTemplatesCompanion.insert(
-            productId: productId,
-            storeName: storeName,
-            quantity: Value(quantity),
-            unit: Value(unit == UnitType.count ? null : unit?.name),
-            notes: Value(notes),
-          ),
-        );
-  }
-
-  Future<int> deleteTemplate(int templateId) {
-    return (_db.delete(_db.entryTemplates)
-          ..where((t) => t.id.equals(templateId)))
-        .go();
   }
 
   // ─── Price Alerts ────────────────────────────────────────────────────────────

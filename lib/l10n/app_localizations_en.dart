@@ -320,19 +320,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get factoryResetConfirmMessage =>
-      'This will delete all your data including purchase history, categories, templates, and settings. This action cannot be undone.';
+      'This will delete all your data including purchase history, categories, and settings. This action cannot be undone.';
 
   @override
   String get factoryResetButton => 'Reset';
 
   @override
   String get factoryResetCompleted => 'Factory reset completed';
-
-  @override
-  String get settingsCategoryWeights => 'Category Weights';
-
-  @override
-  String get settingsTemplates => 'Recurring Purchases';
 
   @override
   String get settingsAbout => 'About';
@@ -372,46 +366,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteCategoryHasProducts =>
       'Cannot delete: this category has existing products.';
-
-  @override
-  String get weightEditorTitle => 'Category Weights';
-
-  @override
-  String get weightEditorSubtitle =>
-      'Adjust how much each category contributes to your basket inflation. Weights must sum to 100%.';
-
-  @override
-  String weightEditorTotal(int percent) {
-    return 'Total: $percent%';
-  }
-
-  @override
-  String get weightEditorResetEqual => 'Reset to Equal';
-
-  @override
-  String get weightEditorSaveError => 'Weights must sum to 100% before saving.';
-
-  @override
-  String get templatesTitle => 'Recurring Purchases';
-
-  @override
-  String get templatesEmpty =>
-      'No templates yet. Add a template to quickly re-enter regular purchases.';
-
-  @override
-  String get templateAdd => 'Add Template';
-
-  @override
-  String get templateDelete => 'Delete template?';
-
-  @override
-  String get templateUseButton => 'Use';
-
-  @override
-  String get templateSaved => 'Template saved.';
-
-  @override
-  String get templateDeleted => 'Template deleted.';
 
   @override
   String get duplicateDetectionTitle => 'Similar Product Found';
@@ -566,11 +520,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get overviewNoPriceDecreases => 'No price decreases detected yet.';
 
   @override
-  String templateSaveError(String error) {
-    return 'Error saving template: $error';
-  }
-
-  @override
   String get duplicateProductFound => 'Similar Product Found';
 
   @override
@@ -628,14 +577,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Fetching saved thresholds for your tracked items.';
 
   @override
-  String templateDeleteMessage(String name) {
-    return 'Remove \"$name\" from recurring purchases?';
-  }
-
-  @override
-  String get addEntrySaveAsTemplate => 'Save as Template';
-
-  @override
   String scannerSavedItems(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -658,12 +599,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get weightEditorResetWeights => 'Reset Weights';
-
-  @override
-  String get weightEditorUseSpendWeighted => 'Use Spend-Weighted';
 
   @override
   String get categoryManagementEmpty => 'No categories found.';
@@ -757,15 +692,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsMobileOnlySubtitle =>
       'Subscriptions are only available on iOS and Android.';
-
-  @override
-  String get templatesLoadingTitle => 'Loading Templates';
-
-  @override
-  String get templatesLoadingMessage => 'Fetching your recurring purchases.';
-
-  @override
-  String get templatesLoadError => 'Could Not Load Templates';
 
   @override
   String get paywallTitle => 'Go Premium';
@@ -862,19 +788,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get moneySupplySourceUnavailableDescription =>
       'No money supply data source is available for the selected currency.';
-
-  @override
-  String get weightEditorSaved => 'Weights saved.';
-
-  @override
-  String get weightEditorResetMessage =>
-      'Reset all category weights to equal distribution?';
-
-  @override
-  String get weightEditorTotalLabel => 'Total';
-
-  @override
-  String get weightEditorMustEqual100 => 'Weights must sum to 100%.';
 
   @override
   String priceAlertLatestPrice(String price) {
@@ -1177,4 +1090,8 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return 'This product has $_temp0. Changing the store will update this product\'s default store for future quick-adds. Historical entries keep their original store. Continue?';
   }
+
+  @override
+  String get migrationV12Complete =>
+      'Products now have a fixed store — quick-add enabled!';
 }

@@ -10,8 +10,6 @@ import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart
 import 'package:inflabasket/features/barcode/presentation/barcode_screen.dart';
 import 'package:inflabasket/features/settings/presentation/category_management_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_alerts_screen.dart';
-import 'package:inflabasket/features/settings/presentation/weight_editor_screen.dart';
-import 'package:inflabasket/features/settings/presentation/templates_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_updates_screen.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
@@ -85,16 +83,8 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (context, state) => const CategoryManagementScreen(),
       ),
       GoRoute(
-        path: '/settings/weights',
-        builder: (context, state) => const WeightEditorScreen(),
-      ),
-      GoRoute(
         path: '/settings/price-alerts',
         builder: (context, state) => const PriceAlertsScreen(),
-      ),
-      GoRoute(
-        path: '/settings/templates',
-        builder: (context, state) => const TemplatesScreen(),
       ),
       GoRoute(
         path: '/settings/price-updates',

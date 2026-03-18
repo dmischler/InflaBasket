@@ -125,14 +125,12 @@
   "@settingsFactoryReset": { "description": "List tile label for factory reset" },
   "factoryResetConfirmTitle": "App zurücksetzen?",
   "@factoryResetConfirmTitle": { "description": "Dialog title for factory reset confirmation" },
-  "factoryResetConfirmMessage": "Alle Ihre Daten werden gelöscht, einschließlich Kaufhistorie, Kategorien, Vorlagen und Einstellungen. Diese Aktion kann nicht rückgängig gemacht werden.",
+  "factoryResetConfirmMessage": "Alle Ihre Daten werden gelöscht, einschließlich Kaufhistorie, Kategorien und Einstellungen. Diese Aktion kann nicht rückgängig gemacht werden.",
   "@factoryResetConfirmMessage": { "description": "Warning message in factory reset dialog" },
   "factoryResetButton": "Zurücksetzen",
   "@factoryResetButton": { "description": "Confirm button for factory reset" },
   "factoryResetCompleted": "Auf Werkseinstellung zurückgesetzt",
   "@factoryResetCompleted": { "description": "Snackbar message after factory reset" },
-  "settingsCategoryWeights": "Kategoriegewichtungen",
-  "settingsTemplates": "Wiederkehrende Einkäufe",
   "settingsAbout": "Über die App",
   "settingsVersion": "Version",
   "settingsPrivacyPolicy": "Datenschutzrichtlinie",
@@ -145,18 +143,6 @@
   "addCategoryHint": "Kategoriename",
   "deleteCategoryConfirm": "\"{name}\" löschen?",
   "deleteCategoryHasProducts": "Kann nicht gelöscht werden: Diese Kategorie hat bestehende Produkte.",
-  "weightEditorTitle": "Kategoriegewichtungen",
-  "weightEditorSubtitle": "Lege fest, wie stark jede Kategorie zur Warenkorbinflation beiträgt. Die Gewichtungen müssen 100 % ergeben.",
-  "weightEditorTotal": "Gesamt: {percent}%",
-  "weightEditorResetEqual": "Gleichmässig zurücksetzen",
-  "weightEditorSaveError": "Gewichtungen müssen 100 % ergeben, bevor gespeichert werden kann.",
-  "templatesTitle": "Wiederkehrende Einkäufe",
-  "templatesEmpty": "Noch keine Vorlagen. Füge eine Vorlage hinzu, um regelmässige Einkäufe schnell zu erfassen.",
-  "templateAdd": "Vorlage hinzufügen",
-  "templateDelete": "Vorlage löschen?",
-  "templateUseButton": "Verwenden",
-  "templateSaved": "Vorlage gespeichert.",
-  "templateDeleted": "Vorlage gelöscht.",
   "duplicateDetectionTitle": "Ähnliches Produkt gefunden",
   "duplicateDetectionMessage": "\"{newName}\" sieht ähnlich aus wie ein bestehendes Produkt: \"{existing}\". Mit bestehendem Produkt verknüpfen oder neues erstellen?",
   "duplicateDetectionLinkExisting": "Mit Bestehendem verknüpfen",
@@ -233,12 +219,6 @@
   "overviewNoPriceDecreases": "Noch keine Preisreduktionen erkannt.",
   "@overviewNoPriceDecreases": { "description": "Empty state when no price decreases found" },
 
-  "templateSaveError": "Fehler beim Speichern der Vorlage: {error}",
-  "@templateSaveError": {
-    "description": "Error when template save fails",
-    "placeholders": { "error": { "type": "String" } }
-  },
-
   "duplicateProductFound": "Ähnliches Produkt gefunden",
   "@duplicateProductFound": { "description": "Dialog title for duplicate product detection" },
 
@@ -296,15 +276,6 @@
   "priceAlertLoadingSettingsMessage": "Gespeicherte Schwellenwerte für deine verfolgten Produkte werden abgerufen.",
   "@priceAlertLoadingSettingsMessage": { "description": "Loading message while fetching settings" },
 
-  "templateDeleteMessage": "\"{name}\" aus wiederkehrenden Einkäufen entfernen?",
-  "@templateDeleteMessage": {
-    "description": "Confirmation message when deleting a template",
-    "placeholders": { "name": { "type": "String" } }
-  },
-
-  "addEntrySaveAsTemplate": "Als Vorlage speichern",
-  "@addEntrySaveAsTemplate": { "description": "Button to save entry as template" },
-
   "scannerSavedItems": "{count} Artikel erfolgreich gespeichert!",
   "@scannerSavedItems": {
     "description": "Snackbar message when receipt items are saved",
@@ -319,12 +290,6 @@
       "skippedCount": { "type": "int" }
     }
   },
-
-  "weightEditorResetWeights": "Gewichte zurücksetzen",
-  "@weightEditorResetWeights": { "description": "Button to reset category weights" },
-
-  "weightEditorUseSpendWeighted": "Ausgaben-basiert verwenden",
-  "@weightEditorUseSpendWeighted": { "description": "Button to use spend-weighted distribution" },
 
   "categoryManagementEmpty": "Keine Kategorien gefunden.",
   "@categoryManagementEmpty": { "description": "Empty state on category management screen" },
@@ -419,15 +384,6 @@
   "settingsMobileOnlySubtitle": "Abonnements sind nur unter iOS und Android verfügbar.",
   "@settingsMobileOnlySubtitle": { "description": "Unsupported-platform subtitle on the subscription card" },
 
-  "templatesLoadingTitle": "Vorlagen werden geladen",
-  "@templatesLoadingTitle": { "description": "Loading title for templates screen" },
-
-  "templatesLoadingMessage": "Deine wiederkehrenden Einkäufe werden abgerufen.",
-  "@templatesLoadingMessage": { "description": "Loading message for templates screen" },
-
-  "templatesLoadError": "Vorlagen konnten nicht geladen werden",
-  "@templatesLoadError": { "description": "Error title for templates screen" },
-
   "paywallTitle": "Premium werden",
   "@paywallTitle": { "description": "AppBar title for paywall screen" },
 
@@ -511,18 +467,6 @@
 
   "moneySupplySourceUnavailableDescription": "Für die gewählte Währung ist keine Geldmengendatenquelle verfügbar.",
   "@moneySupplySourceUnavailableDescription": { "description": "Money-supply source description fallback" },
-
-  "weightEditorSaved": "Gewichtungen gespeichert.",
-  "@weightEditorSaved": { "description": "Snackbar after category weights are saved" },
-
-  "weightEditorResetMessage": "Alle Kategoriegewichtungen auf gleiche Verteilung zurücksetzen?",
-  "@weightEditorResetMessage": { "description": "Message for reset-weights confirmation dialog" },
-
-  "weightEditorTotalLabel": "Gesamt",
-  "@weightEditorTotalLabel": { "description": "Label for the weights total row" },
-
-  "weightEditorMustEqual100": "Gewichtungen müssen 100 % ergeben.",
-  "@weightEditorMustEqual100": { "description": "Validation hint when weights do not sum to 100%" },
 
   "priceAlertLatestPrice": "Aktueller Preis: {price}",
   "@priceAlertLatestPrice": {
@@ -821,5 +765,8 @@
         "type": "int"
       }
     }
-  }
+  },
+
+  "migrationV12Complete": "Produkte haben jetzt ein festes Geschäft — Schnell hinzufügen aktiviert!",
+  "@migrationV12Complete": { "description": "SnackBar message after v12 migration" }
 }

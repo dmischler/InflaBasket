@@ -356,20 +356,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.balance_outlined),
-                  title: Text(l10n.settingsCategoryWeights),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/settings/weights'),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.repeat_outlined),
-                  title: Text(l10n.settingsTemplates),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/settings/templates'),
-                ),
-                const Divider(height: 1),
-                ListTile(
                   leading: const Icon(Icons.notifications_active_outlined),
                   title: Text(l10n.priceAlerts),
                   trailing: const Icon(Icons.chevron_right),

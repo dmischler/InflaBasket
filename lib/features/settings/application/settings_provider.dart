@@ -6,7 +6,6 @@ import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
 import 'package:inflabasket/core/services/price_update_reminder_service.dart';
 import 'package:inflabasket/core/database/database.dart';
-import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'settings_provider.g.dart';
 
@@ -176,41 +175,5 @@ class SettingsController extends _$SettingsController {
     await prefs.clear();
     await prefs.setBool(hasCompletedOnboardingKey, false);
     ref.invalidate(settingsControllerProvider);
-    ref.invalidate(categoryWeightsControllerProvider);
-  }
-}
-
-/// Manages the user-defined category basket weights.
-///
-/// The map is keyed by categoryId. Values are fractions 0.0–1.0 that sum
-/// to 1.0 when all categories are covered. An empty map means "use
-/// spend-weighted averaging" (the default behaviour).
-@riverpod
-class CategoryWeightsController extends _$CategoryWeightsController {
-  @override
-  Future<Map<int, double>> build() async {
-    final repo = ref.watch(entryRepositoryProvider);
-    return repo.getCategoryWeights();
-  }
-
-  /// Persists [weights] (categoryId → fraction). Caller must ensure they
-  /// sum to 1.0 before calling.
-  Future<void> saveWeights(Map<int, double> weights) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      final repo = ref.read(entryRepositoryProvider);
-      await repo.saveCategoryWeights(weights);
-      return weights;
-    });
-  }
-
-  /// Removes all custom weights; basket reverts to spend-weighted averaging.
-  Future<void> clearWeights() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      final repo = ref.read(entryRepositoryProvider);
-      await repo.clearCategoryWeights();
-      return <int, double>{};
-    });
   }
 }

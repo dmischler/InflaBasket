@@ -707,7 +707,7 @@ abstract class AppLocalizations {
   /// Warning message in factory reset dialog
   ///
   /// In en, this message translates to:
-  /// **'This will delete all your data including purchase history, categories, templates, and settings. This action cannot be undone.'**
+  /// **'This will delete all your data including purchase history, categories, and settings. This action cannot be undone.'**
   String get factoryResetConfirmMessage;
 
   /// Confirm button for factory reset
@@ -721,18 +721,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Factory reset completed'**
   String get factoryResetCompleted;
-
-  /// List tile label for custom basket weights
-  ///
-  /// In en, this message translates to:
-  /// **'Category Weights'**
-  String get settingsCategoryWeights;
-
-  /// List tile label for purchase templates
-  ///
-  /// In en, this message translates to:
-  /// **'Recurring Purchases'**
-  String get settingsTemplates;
 
   /// Settings section header
   ///
@@ -805,78 +793,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cannot delete: this category has existing products.'**
   String get deleteCategoryHasProducts;
-
-  /// Screen title for weight editor
-  ///
-  /// In en, this message translates to:
-  /// **'Category Weights'**
-  String get weightEditorTitle;
-
-  /// Explanation text on weight editor screen
-  ///
-  /// In en, this message translates to:
-  /// **'Adjust how much each category contributes to your basket inflation. Weights must sum to 100%.'**
-  String get weightEditorSubtitle;
-
-  /// Shows current sum of all weights
-  ///
-  /// In en, this message translates to:
-  /// **'Total: {percent}%'**
-  String weightEditorTotal(int percent);
-
-  /// Button to reset all weights to equal distribution
-  ///
-  /// In en, this message translates to:
-  /// **'Reset to Equal'**
-  String get weightEditorResetEqual;
-
-  /// Error when trying to save weights that don't sum to 100
-  ///
-  /// In en, this message translates to:
-  /// **'Weights must sum to 100% before saving.'**
-  String get weightEditorSaveError;
-
-  /// Screen title for templates
-  ///
-  /// In en, this message translates to:
-  /// **'Recurring Purchases'**
-  String get templatesTitle;
-
-  /// Empty state for templates screen
-  ///
-  /// In en, this message translates to:
-  /// **'No templates yet. Add a template to quickly re-enter regular purchases.'**
-  String get templatesEmpty;
-
-  /// FAB label on templates screen
-  ///
-  /// In en, this message translates to:
-  /// **'Add Template'**
-  String get templateAdd;
-
-  /// Confirmation title when deleting a template
-  ///
-  /// In en, this message translates to:
-  /// **'Delete template?'**
-  String get templateDelete;
-
-  /// Button to apply a template as a new entry
-  ///
-  /// In en, this message translates to:
-  /// **'Use'**
-  String get templateUseButton;
-
-  /// Snackbar when template is saved
-  ///
-  /// In en, this message translates to:
-  /// **'Template saved.'**
-  String get templateSaved;
-
-  /// Snackbar when template is deleted
-  ///
-  /// In en, this message translates to:
-  /// **'Template deleted.'**
-  String get templateDeleted;
 
   /// Dialog title for duplicate product detection
   ///
@@ -1155,12 +1071,6 @@ abstract class AppLocalizations {
   /// **'No price decreases detected yet.'**
   String get overviewNoPriceDecreases;
 
-  /// Error when template save fails
-  ///
-  /// In en, this message translates to:
-  /// **'Error saving template: {error}'**
-  String templateSaveError(String error);
-
   /// Dialog title for duplicate product detection
   ///
   /// In en, this message translates to:
@@ -1257,18 +1167,6 @@ abstract class AppLocalizations {
   /// **'Fetching saved thresholds for your tracked items.'**
   String get priceAlertLoadingSettingsMessage;
 
-  /// Confirmation message when deleting a template
-  ///
-  /// In en, this message translates to:
-  /// **'Remove \"{name}\" from recurring purchases?'**
-  String templateDeleteMessage(String name);
-
-  /// Button to save entry as template
-  ///
-  /// In en, this message translates to:
-  /// **'Save as Template'**
-  String get addEntrySaveAsTemplate;
-
   /// Snackbar message when receipt items are saved
   ///
   /// In en, this message translates to:
@@ -1281,18 +1179,6 @@ abstract class AppLocalizations {
   /// **'{savedCount, plural, =0 {No new items saved. {skippedCount} duplicates skipped.} =1 {1 item saved. {skippedCount} duplicates skipped.} other {{savedCount} items saved. {skippedCount} duplicates skipped.}}'**
   String scannerSavedItemsWithSkippedDuplicates(
       int savedCount, int skippedCount);
-
-  /// Button to reset category weights
-  ///
-  /// In en, this message translates to:
-  /// **'Reset Weights'**
-  String get weightEditorResetWeights;
-
-  /// Button to use spend-weighted distribution
-  ///
-  /// In en, this message translates to:
-  /// **'Use Spend-Weighted'**
-  String get weightEditorUseSpendWeighted;
 
   /// Empty state on category management screen
   ///
@@ -1456,24 +1342,6 @@ abstract class AppLocalizations {
   /// **'Subscriptions are only available on iOS and Android.'**
   String get settingsMobileOnlySubtitle;
 
-  /// Loading title for templates screen
-  ///
-  /// In en, this message translates to:
-  /// **'Loading Templates'**
-  String get templatesLoadingTitle;
-
-  /// Loading message for templates screen
-  ///
-  /// In en, this message translates to:
-  /// **'Fetching your recurring purchases.'**
-  String get templatesLoadingMessage;
-
-  /// Error title for templates screen
-  ///
-  /// In en, this message translates to:
-  /// **'Could Not Load Templates'**
-  String get templatesLoadError;
-
   /// AppBar title for paywall screen
   ///
   /// In en, this message translates to:
@@ -1635,30 +1503,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No money supply data source is available for the selected currency.'**
   String get moneySupplySourceUnavailableDescription;
-
-  /// Snackbar after category weights are saved
-  ///
-  /// In en, this message translates to:
-  /// **'Weights saved.'**
-  String get weightEditorSaved;
-
-  /// Message for reset-weights confirmation dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Reset all category weights to equal distribution?'**
-  String get weightEditorResetMessage;
-
-  /// Label for the weights total row
-  ///
-  /// In en, this message translates to:
-  /// **'Total'**
-  String get weightEditorTotalLabel;
-
-  /// Validation hint when weights do not sum to 100%
-  ///
-  /// In en, this message translates to:
-  /// **'Weights must sum to 100%.'**
-  String get weightEditorMustEqual100;
 
   /// Latest known price label for a product alert
   ///
@@ -2163,6 +2007,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This product has {count, plural, one{1 entry} other{{count} entries}}. Changing the store will update this product\'s default store for future quick-adds. Historical entries keep their original store. Continue?'**
   String productDetailStoreChangeConfirm(int count);
+
+  /// SnackBar message after v12 migration
+  ///
+  /// In en, this message translates to:
+  /// **'Products now have a fixed store — quick-add enabled!'**
+  String get migrationV12Complete;
 }
 
 class _AppLocalizationsDelegate

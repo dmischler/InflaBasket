@@ -54,31 +54,6 @@ class PurchaseEntries extends Table {
   IntColumn get priceSats => integer().nullable()();
 }
 
-/// Stores user-defined basket weights per category.
-/// Weight is a fraction 0.0–1.0; all weights should sum to 1.0.
-/// If no weights are stored, the basket uses equal (spend-weighted) averaging.
-@DataClassName('CategoryWeight')
-class CategoryWeights extends Table {
-  IntColumn get categoryId => integer().references(Categories, #id)();
-  RealColumn get weight => real()();
-
-  @override
-  Set<Column> get primaryKey => {categoryId};
-}
-
-/// A saved template for a recurring purchase.
-/// Stores all fields needed to pre-fill [AddEntryScreen] — only the price
-/// and date are supplied fresh at use-time.
-@DataClassName('EntryTemplate')
-class EntryTemplates extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  IntColumn get productId => integer().references(Products, #id)();
-  TextColumn get storeName => text()();
-  RealColumn get quantity => real().withDefault(const Constant(1.0))();
-  TextColumn get unit => text().nullable()();
-  TextColumn get notes => text().nullable()();
-}
-
 /// Per-product price-change alert configuration.
 /// When a new entry is saved and the price rise exceeds [thresholdPercent],
 /// a local notification is triggered (Premium only).
@@ -118,8 +93,6 @@ class ExternalSeriesCache extends Table {
   Categories,
   Products,
   PurchaseEntries,
-  CategoryWeights,
-  EntryTemplates,
   PriceAlerts,
   ExternalSeriesCache,
   PriceHistories,
@@ -128,7 +101,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -141,8 +114,6 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(purchaseEntries, purchaseEntries.unit);
           }
           if (from < 3) {
-            await m.createTable(categoryWeights);
-            await m.createTable(entryTemplates);
             await m.createTable(priceAlerts);
           }
           if (from < 4) {
@@ -245,6 +216,10 @@ class AppDatabase extends _$AppDatabase {
               AND store_name IS NULL;
             ''');
           }
+          if (from < 13) {
+            await customStatement('DROP TABLE IF EXISTS category_weights');
+            await customStatement('DROP TABLE IF EXISTS entry_templates');
+          }
         },
       );
 
@@ -252,9 +227,7 @@ class AppDatabase extends _$AppDatabase {
     await transaction(() async {
       await delete(purchaseEntries).go();
       await delete(products).go();
-      await delete(entryTemplates).go();
       await delete(priceAlerts).go();
-      await delete(categoryWeights).go();
       await delete(externalSeriesCache).go();
       await delete(categories).go();
     });

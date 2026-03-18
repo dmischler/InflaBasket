@@ -307,7 +307,7 @@
   "factoryResetConfirmTitle": "Reset App?",
   "@factoryResetConfirmTitle": { "description": "Dialog title for factory reset confirmation" },
 
-  "factoryResetConfirmMessage": "This will delete all your data including purchase history, categories, templates, and settings. This action cannot be undone.",
+  "factoryResetConfirmMessage": "This will delete all your data including purchase history, categories, and settings. This action cannot be undone.",
   "@factoryResetConfirmMessage": { "description": "Warning message in factory reset dialog" },
 
   "factoryResetButton": "Reset",
@@ -315,12 +315,6 @@
 
   "factoryResetCompleted": "Factory reset completed",
   "@factoryResetCompleted": { "description": "Snackbar message after factory reset" },
-
-  "settingsCategoryWeights": "Category Weights",
-  "@settingsCategoryWeights": { "description": "List tile label for custom basket weights" },
-
-  "settingsTemplates": "Recurring Purchases",
-  "@settingsTemplates": { "description": "List tile label for purchase templates" },
 
   "settingsAbout": "About",
   "@settingsAbout": { "description": "Settings section header" },
@@ -360,45 +354,6 @@
 
   "deleteCategoryHasProducts": "Cannot delete: this category has existing products.",
   "@deleteCategoryHasProducts": { "description": "Error when deleting category with products" },
-
-  "weightEditorTitle": "Category Weights",
-  "@weightEditorTitle": { "description": "Screen title for weight editor" },
-
-  "weightEditorSubtitle": "Adjust how much each category contributes to your basket inflation. Weights must sum to 100%.",
-  "@weightEditorSubtitle": { "description": "Explanation text on weight editor screen" },
-
-  "weightEditorTotal": "Total: {percent}%",
-  "@weightEditorTotal": {
-    "description": "Shows current sum of all weights",
-    "placeholders": { "percent": { "type": "int" } }
-  },
-
-  "weightEditorResetEqual": "Reset to Equal",
-  "@weightEditorResetEqual": { "description": "Button to reset all weights to equal distribution" },
-
-  "weightEditorSaveError": "Weights must sum to 100% before saving.",
-  "@weightEditorSaveError": { "description": "Error when trying to save weights that don't sum to 100" },
-
-  "templatesTitle": "Recurring Purchases",
-  "@templatesTitle": { "description": "Screen title for templates" },
-
-  "templatesEmpty": "No templates yet. Add a template to quickly re-enter regular purchases.",
-  "@templatesEmpty": { "description": "Empty state for templates screen" },
-
-  "templateAdd": "Add Template",
-  "@templateAdd": { "description": "FAB label on templates screen" },
-
-  "templateDelete": "Delete template?",
-  "@templateDelete": { "description": "Confirmation title when deleting a template" },
-
-  "templateUseButton": "Use",
-  "@templateUseButton": { "description": "Button to apply a template as a new entry" },
-
-  "templateSaved": "Template saved.",
-  "@templateSaved": { "description": "Snackbar when template is saved" },
-
-  "templateDeleted": "Template deleted.",
-  "@templateDeleted": { "description": "Snackbar when template is deleted" },
 
   "duplicateDetectionTitle": "Similar Product Found",
   "@duplicateDetectionTitle": { "description": "Dialog title for duplicate product detection" },
@@ -561,12 +516,6 @@
   "overviewNoPriceDecreases": "No price decreases detected yet.",
   "@overviewNoPriceDecreases": { "description": "Empty state when no price decreases found" },
 
-  "templateSaveError": "Error saving template: {error}",
-  "@templateSaveError": {
-    "description": "Error when template save fails",
-    "placeholders": { "error": { "type": "String" } }
-  },
-
   "duplicateProductFound": "Similar Product Found",
   "@duplicateProductFound": { "description": "Dialog title for duplicate product detection" },
 
@@ -624,15 +573,6 @@
   "priceAlertLoadingSettingsMessage": "Fetching saved thresholds for your tracked items.",
   "@priceAlertLoadingSettingsMessage": { "description": "Loading message while fetching settings" },
 
-  "templateDeleteMessage": "Remove \"{name}\" from recurring purchases?",
-  "@templateDeleteMessage": {
-    "description": "Confirmation message when deleting a template",
-    "placeholders": { "name": { "type": "String" } }
-  },
-
-  "addEntrySaveAsTemplate": "Save as Template",
-  "@addEntrySaveAsTemplate": { "description": "Button to save entry as template" },
-
   "scannerSavedItems": "{count, plural, =1 {1 item saved successfully!} other {{count} items saved successfully!}}",
   "@scannerSavedItems": {
     "description": "Snackbar message when receipt items are saved",
@@ -647,12 +587,6 @@
       "skippedCount": { "type": "int" }
     }
   },
-
-  "weightEditorResetWeights": "Reset Weights",
-  "@weightEditorResetWeights": { "description": "Button to reset category weights" },
-
-  "weightEditorUseSpendWeighted": "Use Spend-Weighted",
-  "@weightEditorUseSpendWeighted": { "description": "Button to use spend-weighted distribution" },
 
   "categoryManagementEmpty": "No categories found.",
   "@categoryManagementEmpty": { "description": "Empty state on category management screen" },
@@ -747,15 +681,6 @@
   "settingsMobileOnlySubtitle": "Subscriptions are only available on iOS and Android.",
   "@settingsMobileOnlySubtitle": { "description": "Unsupported-platform subtitle on the subscription card" },
 
-  "templatesLoadingTitle": "Loading Templates",
-  "@templatesLoadingTitle": { "description": "Loading title for templates screen" },
-
-  "templatesLoadingMessage": "Fetching your recurring purchases.",
-  "@templatesLoadingMessage": { "description": "Loading message for templates screen" },
-
-  "templatesLoadError": "Could Not Load Templates",
-  "@templatesLoadError": { "description": "Error title for templates screen" },
-
   "paywallTitle": "Go Premium",
   "@paywallTitle": { "description": "AppBar title for paywall screen" },
 
@@ -839,18 +764,6 @@
 
   "moneySupplySourceUnavailableDescription": "No money supply data source is available for the selected currency.",
   "@moneySupplySourceUnavailableDescription": { "description": "Money-supply source description fallback" },
-
-  "weightEditorSaved": "Weights saved.",
-  "@weightEditorSaved": { "description": "Snackbar after category weights are saved" },
-
-  "weightEditorResetMessage": "Reset all category weights to equal distribution?",
-  "@weightEditorResetMessage": { "description": "Message for reset-weights confirmation dialog" },
-
-  "weightEditorTotalLabel": "Total",
-  "@weightEditorTotalLabel": { "description": "Label for the weights total row" },
-
-  "weightEditorMustEqual100": "Weights must sum to 100%.",
-  "@weightEditorMustEqual100": { "description": "Validation hint when weights do not sum to 100%" },
 
   "priceAlertLatestPrice": "Latest price: {price}",
   "@priceAlertLatestPrice": {
@@ -1150,5 +1063,8 @@
         "type": "int"
       }
     }
-  }
+  },
+
+  "migrationV12Complete": "Products now have a fixed store — quick-add enabled!",
+  "@migrationV12Complete": { "description": "SnackBar message after v12 migration" }
 }

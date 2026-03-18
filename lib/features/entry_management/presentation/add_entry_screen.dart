@@ -321,40 +321,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     }
   }
 
-  Future<void> _saveTemplate() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    await ref.read(addTemplateControllerProvider.notifier).addTemplateFromForm(
-          productName: (_resolvedProductName ?? _productController.text).trim(),
-          categoryName: _selectedCategoryName!,
-          storeName: _storeController.text.trim(),
-          quantity: double.parse(_quantityController.text),
-          unit: _selectedUnit,
-          notes: _notesController.text.trim().isEmpty
-              ? null
-              : _notesController.text.trim(),
-        );
-
-    if (!mounted) return;
-
-    final state = ref.read(addTemplateControllerProvider);
-    if (state is AsyncError) {
-      final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.templateSaveError(state.error.toString())),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-      return;
-    }
-
-    final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.templateSaved)),
-    );
-  }
-
   Widget _buildBarcodeSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final entry = widget.entryToEdit;
@@ -741,14 +707,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     minimumSize: const Size.fromHeight(50)),
               ),
               const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: _saveTemplate,
-                icon: const Icon(Icons.bookmark_add_outlined),
-                label: Text(l10n.templateAdd),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                ),
-              ),
               if (!isEditing) ...[
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
