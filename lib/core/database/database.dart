@@ -209,8 +209,8 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(products, products.storeName);
             await customStatement('''
               UPDATE products
-              SET storeName = (
-                SELECT pe.storeName
+              SET store_name = (
+                SELECT pe.store_name
                 FROM purchase_entries pe
                 WHERE pe.product_id = products.id
                 ORDER BY pe.purchase_date DESC, pe.id DESC
