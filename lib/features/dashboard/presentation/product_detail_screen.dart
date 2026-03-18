@@ -235,6 +235,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showQuickAddPriceDialog(context, l10n),
+        tooltip: l10n.quickAddPriceTitle,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -886,6 +891,37 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
       return;
     }
 
+    final productData =
+        ref.read(productWithCategoryProvider(widget.productId)).valueOrNull;
+    if (productData == null) return;
+
+    final currentStore = productData.product.storeName ?? '';
+    final entries =
+        ref.read(productEntriesProvider(widget.productId)).valueOrNull ?? [];
+    final hasExistingEntries = entries.isNotEmpty;
+    final storeIsChanging = store != currentStore;
+
+    if (storeIsChanging && hasExistingEntries) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(l10n.productDetailStoreChangeTitle),
+          content: Text(l10n.productDetailStoreChangeConfirm(entries.length)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(l10n.confirm),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+
     final repo = ref.read(entryRepositoryProvider);
     final hasConflict = await repo.hasOtherProductWithName(
       name: name,
@@ -1013,6 +1049,105 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
       ProductDetailRange.oneYear => 'MMM',
       ProductDetailRange.all => 'MMM yy',
     };
+  }
+
+  Future<void> _showQuickAddPriceDialog(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    final productData =
+        ref.read(productWithCategoryProvider(widget.productId)).valueOrNull;
+    if (productData == null) return;
+
+    final priceController = TextEditingController();
+    DateTime selectedDate = DateTime.now();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(l10n.quickAddPriceTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: priceController,
+                decoration: InputDecoration(
+                  labelText: l10n.price,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.date),
+                subtitle: Text(DateFormat.yMMMd().format(selectedDate)),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now(),
+                  );
+                  if (date != null) {
+                    setState(() => selectedDate = date);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(l10n.save),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != true) return;
+
+    final priceText = priceController.text.trim();
+    final price = double.tryParse(priceText);
+    if (price == null || price <= 0) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.fieldRequired)),
+        );
+      }
+      return;
+    }
+
+    try {
+      await ref.read(entryRepositoryProvider).addPurchaseEntry(
+            productId: widget.productId,
+            storeName: productData.product.storeName ?? '',
+            purchaseDate: selectedDate,
+            price: price,
+            quantity: 1.0,
+            unit: null,
+          );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.entrySaved)),
+        );
+      }
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.entrySaveError(error.toString()))),
+        );
+      }
+    }
   }
 
   // Helper to calculate dynamic interval based on actual data

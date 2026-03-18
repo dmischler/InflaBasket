@@ -120,7 +120,7 @@
 
   "settingsDataManagement": "Datenverwaltung",
   "settingsManageCategories": "Kategorien verwalten",
-  "settingsExportData": "Daten exportieren (CSV)",
+  "settingsExportData": "Daten exportieren",
   "settingsFactoryReset": "Werkseinstellungen",
   "@settingsFactoryReset": { "description": "List tile label for factory reset" },
   "factoryResetConfirmTitle": "App zurücksetzen?",
@@ -800,6 +800,22 @@
   "duplicateCleanupNotification": "{count, plural, one{1 Duplikat entfernt} other{{count} Duplikate entfernt}}",
   "@duplicateCleanupNotification": {
     "description": "Snackbar shown when duplicate entries are auto-deleted on startup",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "quickAddPriceTitle": "Preis hinzufügen",
+  "@quickAddPriceTitle": { "description": "Title for the quick add price dialog" },
+
+  "productDetailStoreChangeTitle": "Geschäft ändern?",
+  "@productDetailStoreChangeTitle": { "description": "Title for store change confirmation dialog" },
+
+  "productDetailStoreChangeConfirm": "Dieses Produkt hat {count, plural, one{1 Eintrag} other{{count} Einträge}}. Das Ändern des Geschäfts wird das Standardgeschäft für zukünftige Schnell hinzufügen aktualisieren. Historische Einträge behalten ihr ursprüngliches Geschäft. Fortfahren?",
+  "@productDetailStoreChangeConfirm": {
+    "description": "Message for store change confirmation dialog",
     "placeholders": {
       "count": {
         "type": "int"

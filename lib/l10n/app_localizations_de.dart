@@ -316,7 +316,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsManageCategories => 'Kategorien verwalten';
 
   @override
-  String get settingsExportData => 'Daten exportieren (CSV)';
+  String get settingsExportData => 'Daten exportieren';
 
   @override
   String get settingsFactoryReset => 'Werkseinstellungen';
@@ -1156,5 +1156,22 @@ class AppLocalizationsDe extends AppLocalizations {
       one: '1 Duplikat entfernt',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get quickAddPriceTitle => 'Preis hinzufügen';
+
+  @override
+  String get productDetailStoreChangeTitle => 'Geschäft ändern?';
+
+  @override
+  String productDetailStoreChangeConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Einträge',
+      one: '1 Eintrag',
+    );
+    return 'Dieses Produkt hat $_temp0. Das Ändern des Geschäfts wird das Standardgeschäft für zukünftige Schnell hinzufügen aktualisieren. Historische Einträge behalten ihr ursprüngliches Geschäft. Fortfahren?';
   }
 }

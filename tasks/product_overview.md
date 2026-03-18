@@ -5,10 +5,13 @@
 - [x] **Phase 1: Database Schema Changes** - COMPLETE
 - [x] **Phase 2: Store Autocomplete Service** - COMPLETE
 - [x] **Phase 3: Repository Updates** - COMPLETE
-- [ ] Phase 4: Product Detail Provider
-- [ ] Phase 5: Product Detail Screen UI
-- [ ] Phase 6: Add Entry Screen Enhancement
-- [ ] Phase 7: Router Updates
+- [x] **Phase 4: Product Detail Provider** - COMPLETE
+- [x] **Phase 5: Product Detail Screen UI** - COMPLETE
+  - FAB with quick add price dialog (price + date fields)
+  - Inline editable store field (existing)
+  - Store change confirmation dialog (only when entries exist)
+- [ ] Phase 6: Add Entry Screen Enhancement (SKIPPED - using dialog approach instead)
+- [ ] Phase 7: Router Updates (SKIPPED - using dialog approach instead)
 - [ ] Phase 8: Additional Files to Check
 - [ ] Phase 9: Testing & Cleanup
 
@@ -104,22 +107,28 @@ Future<List<String>> getAllStores() async {
 
 ---
 
-### Phase 5: Product Detail Screen UI
+### Phase 5: Product Detail Screen UI ✅ COMPLETE
 
 **File: `lib/features/dashboard/presentation/product_detail_screen.dart`**
 
-1. **Add inline editable store field** (similar to category):
-   - Use TypeAhead dropdown with store name autocomplete
-   - Get suggestions from `getAllStores()` provider
-   - When store is changed:
-     - Show confirmation dialog: "Changing the store will update this product's default store. All future entries will use the new store. Historical entries keep their original data. Continue?"
-     - If confirmed, update the product's storeName in database
-   - Show store in the header section alongside product name and category
-   - Handle NULL case: "No store set — tap to choose"
+1. **FAB with Quick Add Price Dialog**:
+   - FAB positioned bottom-right
+   - Opens dialog with:
+     - Price field (required, numeric keyboard)
+     - Date picker (defaults to today)
+   - On save: Inserts new PurchaseEntry with product's storeName
+   - Other attributes (store, category) can be changed via settings icon
 
-2. **Add "Add Price" button**:
-   - Use header button (more discoverable than FAB)
-   - Action: Navigate to AddEntryScreen with product context pre-filled
+2. **Store change confirmation**:
+   - When editing product details and changing store:
+     - Check if product has existing entries
+     - Only if entries exist: show confirmation dialog explaining impact
+     - Historical entries keep their original store, future quick-adds use new store
+
+3. **Inline editable store field** (already implemented):
+   - TypeAhead dropdown with store name autocomplete
+   - Shows store in header alongside product name and category
+   - Handle NULL case: "No store set — tap to choose"
 
 ---
 
@@ -187,16 +196,16 @@ In v13: drop storeName from PurchaseEntries, make Products.storeName non-nullabl
 
 ---
 
-## Files to Modify
+## Files Modified (Phase 5 Complete)
 
 | File | Changes |
 |------|---------|
-| `lib/core/database/database.dart` | Add storeName to Products, schema v12, migration |
-| `lib/features/entry_management/data/entry_repository.dart` | Add getAllStores(), add updateProductStore() |
-| `lib/features/dashboard/application/product_detail_provider.dart` | Expose store from product, add stores provider |
-| `lib/features/dashboard/presentation/product_detail_screen.dart` | Inline editable store with confirmation dialog, add price button |
-| `lib/features/entry_management/presentation/add_entry_screen.dart` | Add prefilledProduct param, lock fields |
-| `lib/core/router/app_router.dart` | Pass product context to AddEntryScreen |
+| `lib/core/database/database.dart` | Add storeName to Products, schema v12, migration ✅ |
+| `lib/features/entry_management/data/entry_repository.dart` | Add getAllStores(), add updateProductStore() ✅ |
+| `lib/features/dashboard/application/product_detail_provider.dart` | Expose store from product ✅ |
+| `lib/features/dashboard/presentation/product_detail_screen.dart` | FAB with quick add dialog, store change confirmation |
+| `lib/l10n/app_en.arb` | Add quickAddPriceTitle, productDetailStoreChangeConfirm |
+| `lib/l10n/app_de.arb` | Add German translations |
 
 ### Additional Files to Review
 

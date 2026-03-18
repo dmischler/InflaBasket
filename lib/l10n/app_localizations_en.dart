@@ -310,7 +310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageCategories => 'Manage Categories';
 
   @override
-  String get settingsExportData => 'Export Data (CSV)';
+  String get settingsExportData => 'Export Data';
 
   @override
   String get settingsFactoryReset => 'Factory Reset';
@@ -1159,5 +1159,22 @@ class AppLocalizationsEn extends AppLocalizations {
       one: 'Removed 1 duplicate entry',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get quickAddPriceTitle => 'Add Price';
+
+  @override
+  String get productDetailStoreChangeTitle => 'Change Store?';
+
+  @override
+  String productDetailStoreChangeConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries',
+      one: '1 entry',
+    );
+    return 'This product has $_temp0. Changing the store will update this product\'s default store for future quick-adds. Historical entries keep their original store. Continue?';
   }
 }

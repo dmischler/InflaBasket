@@ -298,7 +298,7 @@
   "settingsManageCategories": "Manage Categories",
   "@settingsManageCategories": { "description": "List tile label" },
 
-  "settingsExportData": "Export Data (CSV)",
+  "settingsExportData": "Export Data",
   "@settingsExportData": { "description": "List tile label for CSV export" },
 
   "settingsFactoryReset": "Factory Reset",
@@ -1129,6 +1129,22 @@
   "duplicateCleanupNotification": "{count, plural, one{Removed 1 duplicate entry} other{Removed {count} duplicate entries}}",
   "@duplicateCleanupNotification": {
     "description": "Snackbar shown when duplicate entries are auto-deleted on startup",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "quickAddPriceTitle": "Add Price",
+  "@quickAddPriceTitle": { "description": "Title for the quick add price dialog" },
+
+  "productDetailStoreChangeTitle": "Change Store?",
+  "@productDetailStoreChangeTitle": { "description": "Title for store change confirmation dialog" },
+
+  "productDetailStoreChangeConfirm": "This product has {count, plural, one{1 entry} other{{count} entries}}. Changing the store will update this product's default store for future quick-adds. Historical entries keep their original store. Continue?",
+  "@productDetailStoreChangeConfirm": {
+    "description": "Message for store change confirmation dialog",
     "placeholders": {
       "count": {
         "type": "int"

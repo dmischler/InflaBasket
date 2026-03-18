@@ -2,7 +2,7 @@ name: inflabasket
 description: Personal Basket Inflation Tracker
 publish_to: 'none'
 
-version: 1.23.0
+version: 1.24.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

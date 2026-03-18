@@ -689,7 +689,7 @@ abstract class AppLocalizations {
   /// List tile label for CSV export
   ///
   /// In en, this message translates to:
-  /// **'Export Data (CSV)'**
+  /// **'Export Data'**
   String get settingsExportData;
 
   /// List tile label for factory reset
@@ -2145,6 +2145,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{Removed 1 duplicate entry} other{Removed {count} duplicate entries}}'**
   String duplicateCleanupNotification(int count);
+
+  /// Title for the quick add price dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Add Price'**
+  String get quickAddPriceTitle;
+
+  /// Title for store change confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Change Store?'**
+  String get productDetailStoreChangeTitle;
+
+  /// Message for store change confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'This product has {count, plural, one{1 entry} other{{count} entries}}. Changing the store will update this product\'s default store for future quick-adds. Historical entries keep their original store. Continue?'**
+  String productDetailStoreChangeConfirm(int count);
 }
 
 class _AppLocalizationsDelegate
