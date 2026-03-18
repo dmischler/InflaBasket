@@ -287,6 +287,9 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
             barcode: widget.productInfoFromBarcode?.barcode,
             forcedProductId:
                 widget.lockSharedFields ? widget.entryToEdit?.product.id : null,
+            storeWebsite: _websiteController.text.trim().isEmpty
+                ? null
+                : _websiteController.text.trim(),
           );
 
       if (!mounted) return;

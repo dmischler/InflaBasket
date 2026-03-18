@@ -536,6 +536,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Created overallItemInflationListSatsProvider for Bitcoin mode
 - Top inflators/deflators now show data from full product history, independent of selected chart range
 
+**v1.20.12 Store Website Fix**
+- Fixed store website not being saved to SharedPreferences when manually entered in add entry screen
+- Added URL normalization to accept diverse inputs (https://..., www..., or bare domain)
+- Added error handling for SharedPreferences operations to prevent iOS crashes
+
 ---
 
 ### 🔄 In Progress / Partially Complete

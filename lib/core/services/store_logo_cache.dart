@@ -55,28 +55,70 @@ class StoreLogoCache {
 
   Future<void> _loadCache() async {
     if (_cache != null) return;
-    final jsonString = _prefs.getString(_storeWebsitesKey);
-    if (jsonString == null || jsonString.isEmpty) {
-      _cache = {};
-      return;
-    }
     try {
+      final jsonString = _prefs.getString(_storeWebsitesKey);
+      if (jsonString == null || jsonString.isEmpty) {
+        _cache = {};
+        return;
+      }
       final decoded = jsonDecode(jsonString) as Map<String, dynamic>;
       _cache = decoded.map((key, value) => MapEntry(key, value.toString()));
     } catch (e) {
-      debugPrint('StoreLogoCache: Failed to decode cache: $e');
+      debugPrint('StoreLogoCache: Failed to load cache: $e');
       _cache = {};
     }
   }
 
   Future<void> _saveCache() async {
     if (_cache == null) return;
-    final jsonString = jsonEncode(_cache);
-    await _prefs.setString(_storeWebsitesKey, jsonString);
+    try {
+      final jsonString = jsonEncode(_cache);
+      await _prefs.setString(_storeWebsitesKey, jsonString);
+    } catch (e) {
+      debugPrint('StoreLogoCache: Failed to save cache: $e');
+    }
   }
 
   String _normalizeStoreName(String storeName) {
     return storeName.toLowerCase().trim().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  String normalizeWebsite(String input) {
+    String website = input.trim();
+    if (website.isEmpty) return '';
+
+    // Remove protocol for normalization check
+    String normalized = website.toLowerCase();
+    if (normalized.startsWith('https://')) {
+      normalized = normalized.substring(8);
+    } else if (normalized.startsWith('http://')) {
+      normalized = normalized.substring(7);
+    }
+
+    // Remove www prefix for checking
+    if (normalized.startsWith('www.')) {
+      normalized = normalized.substring(4);
+    }
+
+    // Remove trailing slash
+    if (normalized.endsWith('/')) {
+      normalized = normalized.substring(0, normalized.length - 1);
+    }
+
+    // Rebuild with https:// prefix
+    String result;
+    if (website.toLowerCase().startsWith('http')) {
+      // Keep existing protocol
+      result = website.trim();
+      if (result.endsWith('/')) {
+        result = result.substring(0, result.length - 1);
+      }
+    } else {
+      // Add https://
+      result = 'https://www.$normalized';
+    }
+
+    return result;
   }
 
   Future<String?> getWebsite(String storeName) async {
@@ -100,10 +142,17 @@ class StoreLogoCache {
   }
 
   Future<void> setWebsite(String storeName, String website) async {
-    await _loadCache();
-    final normalized = _normalizeStoreName(storeName);
-    _cache![normalized] = website;
-    await _saveCache();
+    if (website.trim().isEmpty) return;
+    final normalizedWebsite = normalizeWebsite(website);
+    if (normalizedWebsite.isEmpty) return;
+    try {
+      await _loadCache();
+      final normalized = _normalizeStoreName(storeName);
+      _cache![normalized] = normalizedWebsite;
+      await _saveCache();
+    } catch (e) {
+      debugPrint('StoreLogoCache: Failed to save website: $e');
+    }
   }
 
   Future<void> clearWebsite(String storeName) async {

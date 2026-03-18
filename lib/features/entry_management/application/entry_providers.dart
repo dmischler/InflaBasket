@@ -7,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/price_alert_service.dart';
+import 'package:inflabasket/core/services/store_logo_cache.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/entry_duplicate_dialog.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
@@ -396,6 +397,7 @@ class AddEntryController extends _$AddEntryController {
     int? existingEntryId,
     String? barcode,
     int? forcedProductId,
+    String? storeWebsite,
   }) async {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
@@ -500,6 +502,12 @@ class AddEntryController extends _$AddEntryController {
               isPremium: isPremium,
               previousPrice: previousEntry?.price,
             );
+
+        if (storeWebsite != null && storeWebsite.trim().isNotEmpty) {
+          await ref
+              .read(storeLogoCacheProvider)
+              .setWebsite(storeName, storeWebsite);
+        }
       }
     });
   }
