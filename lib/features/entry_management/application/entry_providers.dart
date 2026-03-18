@@ -435,12 +435,12 @@ class AddEntryController extends _$AddEntryController {
               isPremium: isPremium,
               previousPrice: previousEntry?.price,
             );
+      }
 
-        if (storeWebsite != null && storeWebsite.trim().isNotEmpty) {
-          await ref
-              .read(storeLogoCacheProvider)
-              .setWebsite(entryStoreName, storeWebsite);
-        }
+      if (storeWebsite != null && storeWebsite.trim().isNotEmpty) {
+        await ref
+            .read(storeLogoCacheProvider)
+            .setWebsite(entryStoreName, storeWebsite);
       }
     });
   }
