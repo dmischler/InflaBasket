@@ -443,6 +443,7 @@ class EntryRepository {
     final queryExp = _db.selectOnly(_db.purchaseEntries, distinct: true)
       ..addColumns([_db.purchaseEntries.storeName])
       ..where(_db.purchaseEntries.storeName.like('%$query%'))
+      ..orderBy([OrderingTerm.asc(_db.purchaseEntries.storeName)])
       ..limit(10);
     final res = await queryExp.get();
     return res.map((row) => row.read(_db.purchaseEntries.storeName)!).toList();
