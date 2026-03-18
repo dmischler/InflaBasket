@@ -576,6 +576,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 enabled: !lockSharedFields,
                 validator: (value) =>
                     value == null || value.isEmpty ? l10n.fieldRequired : null,
+                onSelected: (_) => _loadWebsiteFromCache(),
               ),
               const SizedBox(height: 16),
               TextFormField(

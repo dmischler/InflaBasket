@@ -9,6 +9,7 @@ class AsyncAutocompleteField extends StatelessWidget {
   final int minChars;
   final bool enabled;
   final ValueChanged<String>? onFieldSubmitted;
+  final ValueChanged<String>? onSelected;
 
   const AsyncAutocompleteField({
     super.key,
@@ -19,6 +20,7 @@ class AsyncAutocompleteField extends StatelessWidget {
     this.minChars = 0,
     this.enabled = true,
     this.onFieldSubmitted,
+    this.onSelected,
   });
 
   Future<List<String>> _wrapSuggestions(String search) async {
@@ -58,6 +60,7 @@ class AsyncAutocompleteField extends StatelessWidget {
         controller.selection = TextSelection.collapsed(
           offset: selection.length,
         );
+        onSelected?.call(selection);
       },
       debounceDuration: const Duration(milliseconds: 300),
     );
