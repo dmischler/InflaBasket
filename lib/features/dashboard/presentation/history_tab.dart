@@ -265,6 +265,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
         Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
 
     final content = ListTile(
+      onTap: () => context.push('/home/product/${product.id}'),
       onLongPress: () => _showEntryActions(context, entryDetails, l10n),
       leading: StoreLogoWidget(
         storeName: entry.storeName,

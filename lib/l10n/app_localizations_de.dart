@@ -1056,7 +1056,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get productDetailRange6m => '6M';
 
   @override
-  String get productDetailViewAction => 'Details anzeigen';
+  String get productDetailViewAction => 'Produkt anzeigen';
 
   @override
   String duplicateCleanupNotification(int count) {

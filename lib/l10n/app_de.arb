@@ -738,7 +738,7 @@
   "productDetailRange6m": "6M",
   "@productDetailRange6m": { "description": "Six month time range label for product detail chart" },
 
-  "productDetailViewAction": "Details anzeigen",
+  "productDetailViewAction": "Produkt anzeigen",
   "@productDetailViewAction": { "description": "Bottom sheet action to open product details from history" },
 
   "duplicateCleanupNotification": "{count, plural, one{1 Duplikat entfernt} other{{count} Duplikate entfernt}}",

@@ -1981,7 +1981,7 @@ abstract class AppLocalizations {
   /// Bottom sheet action to open product details from history
   ///
   /// In en, this message translates to:
-  /// **'View Details'**
+  /// **'View Product'**
   String get productDetailViewAction;
 
   /// Snackbar shown when duplicate entries are auto-deleted on startup
