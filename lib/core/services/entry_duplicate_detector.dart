@@ -1,4 +1,5 @@
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
+import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 enum DuplicateMatchType {
@@ -47,8 +48,25 @@ class EntryDuplicateDetectorService {
     return storeName.toLowerCase().trim().replaceAll(RegExp(r'\s+'), ' ');
   }
 
-  bool _hasExactPrice(double left, double right) {
-    return left.toStringAsFixed(2) == right.toStringAsFixed(2);
+  bool _hasSimilarNormalizedPrice(
+    PurchaseEntryWithProduct existing,
+    double newPrice,
+    double newQuantity,
+    UnitType newUnit,
+  ) {
+    final existingUnit = unitTypeFromString(existing.entry.unit);
+    if (!existingUnit.compatibleWith(newUnit)) return false;
+
+    final existingNorm = existingUnit.normalizedPrice(
+      existing.price,
+      existing.entry.quantity,
+    );
+    final newNorm = newUnit.normalizedPrice(newPrice, newQuantity);
+
+    if (existingNorm == 0) return newNorm == 0;
+
+    final diff = (existingNorm - newNorm).abs() / existingNorm;
+    return diff <= 0.01;
   }
 
   Future<EntryDuplicateMatch?> findDuplicate({
@@ -59,6 +77,8 @@ class EntryDuplicateDetectorService {
     String? barcode,
     int? existingProductId,
     int days = _defaultDaysLookback,
+    double quantity = 1.0,
+    UnitType? unit,
   }) async {
     final recentEntries = await repository.getRecentEntriesWithProduct(
       days: days,
@@ -71,7 +91,8 @@ class EntryDuplicateDetectorService {
     final normalizedBarcode = barcode?.trim();
     final candidates = recentEntries.where((entry) {
       final sameStore = _normalizeStore(entry.storeName) == normalizedStore;
-      final samePrice = _hasExactPrice(entry.price, price);
+      final samePrice = _hasSimilarNormalizedPrice(
+          entry, price, quantity, unit ?? UnitType.count);
       return sameStore && samePrice;
     }).toList();
 

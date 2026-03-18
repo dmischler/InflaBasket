@@ -371,6 +371,8 @@ class AddEntryController extends _$AddEntryController {
           repository: repo,
           barcode: normalizedBarcode,
           existingProductId: candidateProduct?.id,
+          quantity: quantity,
+          unit: unit,
         );
 
         if (duplicate != null && context.mounted) {
