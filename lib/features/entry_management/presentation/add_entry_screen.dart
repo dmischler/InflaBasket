@@ -110,6 +110,13 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     }
   }
 
+  Future<void> _saveWebsiteToCache() async {
+    final storeName = _storeController.text.trim();
+    final website = _websiteController.text.trim();
+    if (storeName.isEmpty || website.isEmpty) return;
+    await ref.read(storeLogoCacheProvider).setWebsite(storeName, website);
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -576,7 +583,10 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 enabled: !lockSharedFields,
                 validator: (value) =>
                     value == null || value.isEmpty ? l10n.fieldRequired : null,
-                onSelected: (_) => _loadWebsiteFromCache(),
+                onSelected: (_) {
+                  _loadWebsiteFromCache();
+                  _saveWebsiteToCache();
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -596,7 +606,10 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                       : null,
                 ),
                 keyboardType: TextInputType.url,
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) {
+                  setState(() {});
+                  _saveWebsiteToCache();
+                },
               ),
               const SizedBox(height: 16),
               ListTile(
