@@ -65,13 +65,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             boxShadow: [
               BoxShadow(
                 color: glowColor,
-                blurRadius: 20,
-                spreadRadius: 4,
+                blurRadius: 12,
+                spreadRadius: 2,
               ),
               BoxShadow(
                 color: glowColor.withValues(alpha: 0.3),
-                blurRadius: 40,
-                spreadRadius: 8,
+                blurRadius: 24,
+                spreadRadius: 4,
               ),
             ],
           ),
