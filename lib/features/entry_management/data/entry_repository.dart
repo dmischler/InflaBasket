@@ -460,13 +460,27 @@ class EntryRepository {
   }
 
   Future<List<String>> searchStoreNames(String query) async {
-    final queryExp = _db.selectOnly(_db.purchaseEntries, distinct: true)
-      ..addColumns([_db.purchaseEntries.storeName])
-      ..where(_db.purchaseEntries.storeName.like('%$query%'))
-      ..orderBy([OrderingTerm.asc(_db.purchaseEntries.storeName)])
-      ..limit(10);
-    final res = await queryExp.get();
-    return res.map((row) => row.read(_db.purchaseEntries.storeName)!).toList();
+    final storesFromProducts = await (_db.select(_db.products)
+          ..where((p) => p.storeName.isNotNull())
+          ..where((p) => p.storeName.like('%$query%'))
+          ..limit(10))
+        .get();
+    final productStores = storesFromProducts
+        .map((p) => p.storeName!)
+        .where((s) => s.isNotEmpty)
+        .toSet();
+
+    final storesFromEntries =
+        _db.selectOnly(_db.purchaseEntries, distinct: true)
+          ..addColumns([_db.purchaseEntries.storeName])
+          ..where(_db.purchaseEntries.storeName.like('%$query%'))
+          ..orderBy([OrderingTerm.asc(_db.purchaseEntries.storeName)])
+          ..limit(10);
+    final res = await storesFromEntries.get();
+    final entryStores =
+        res.map((row) => row.read(_db.purchaseEntries.storeName)!).toSet();
+
+    return {...productStores, ...entryStores}.toList()..sort();
   }
 
   Future<List<String>> searchCategoryNames(String query) async {

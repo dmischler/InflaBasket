@@ -144,6 +144,7 @@ class DatabaseBackupService extends _$DatabaseBackupService {
                 'categoryId': p.categoryId,
                 'barcode': p.barcode,
                 'brand': p.brand,
+                'storeName': p.storeName,
               })
           .toList(),
       'entries': entriesList,

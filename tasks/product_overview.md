@@ -12,7 +12,7 @@
   - Store change confirmation dialog (only when entries exist)
 - [ ] Phase 6: Add Entry Screen Enhancement (SKIPPED - using dialog approach instead)
 - [ ] Phase 7: Router Updates (SKIPPED - using dialog approach instead)
-- [ ] Phase 8: Additional Files to Check
+- [x] Phase 8: Additional Files to Check - COMPLETE
 - [ ] Phase 9: Testing & Cleanup
 
 ## Overview
@@ -161,14 +161,22 @@ Future<List<String>> getAllStores() async {
 
 ---
 
-### Phase 8: Additional Files to Check
+### Phase 8: Additional Files to Check ✅ COMPLETE
 
-Review and update these files that may reference storeName:
+Reviewed all files referencing storeName:
 
-- Product creation flows (if any)
-- Any SELECT queries that join purchase_entries.storeName
-- Price-history / statistics / reports that group by store
-- Entry list views (if they display store)
+#### Files Already Correct (No Changes Needed)
+- `entry_providers.dart:441-443` - Uses `candidateProduct.storeName` for quick-add
+- `product_detail_provider.dart` - Reads `product.storeName` for canonical store
+- `product_detail_screen.dart` - Uses product's storeName for quick-add
+- `history_tab.dart:269-272` - Displays `entry.storeName` (historical per entry)
+- `export_service.dart:54-56` - Exports `entry.storeName` (historical)
+- `price_history_service.dart:182` - Uses `pe.store_name` (store at time of purchase)
+
+#### Fixes Applied
+1. **`searchStoreNames()` in `entry_repository.dart`** - Updated to merge results from both `products.storeName` AND `purchase_entries.storeName` for better autocomplete
+
+2. **`database_backup_service.dart`** - Added `storeName` field to products backup
 
 ---
 
@@ -196,14 +204,15 @@ In v13: drop storeName from PurchaseEntries, make Products.storeName non-nullabl
 
 ---
 
-## Files Modified (Phase 5 Complete)
+## Files Modified
 
 | File | Changes |
 |------|---------|
 | `lib/core/database/database.dart` | Add storeName to Products, schema v12, migration ✅ |
-| `lib/features/entry_management/data/entry_repository.dart` | Add getAllStores(), add updateProductStore() ✅ |
+| `lib/features/entry_management/data/entry_repository.dart` | Add getAllStores(), updateProductStore(), searchStoreNames() fix ✅ |
 | `lib/features/dashboard/application/product_detail_provider.dart` | Expose store from product ✅ |
-| `lib/features/dashboard/presentation/product_detail_screen.dart` | FAB with quick add dialog, store change confirmation |
+| `lib/features/dashboard/presentation/product_detail_screen.dart` | FAB with quick add dialog, store change confirmation ✅ |
+| `lib/core/services/database_backup_service.dart` | Add storeName to products backup ✅ |
 | `lib/l10n/app_en.arb` | Add quickAddPriceTitle, productDetailStoreChangeConfirm |
 | `lib/l10n/app_de.arb` | Add German translations |
 
