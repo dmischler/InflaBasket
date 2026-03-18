@@ -204,9 +204,31 @@ class AppDatabase extends _$AppDatabase {
             );
           }
           if (from < 12) {
-            // v12: Add storeName column to products table
-            // Backfill storeName from latest entry for each product
-            await m.addColumn(products, products.storeName);
+            // v12: Add storeName column to products table + backfill from latest purchase entry.
+            //
+            // WHY THIS FIX?
+            // - onCreate (fresh installs) already creates the full products table with "store_name"
+            //   via the current schema definition (products.storeName is now part of the table).
+            // - onUpgrade (upgrades from <12) must still add the column for existing DBs.
+            // - SQLite does NOT support "ALTER TABLE ADD COLUMN IF NOT EXISTS", so m.addColumn()
+            //   fails with "duplicate column name" if the column is already present.
+            // - Solution: explicit existence check via PRAGMA (standard, robust pattern used in
+            //   Drift community and fixes interrupted migrations / edge cases where onUpgrade
+            //   runs unexpectedly).
+            // - Backfill SQL already corrected to use snake_case (store_name) — kept unchanged.
+            // - The whole block is now idempotent and safe to re-run.
+
+            // Step 1: Check if column already exists (fresh install or re-run)
+            final columnExistsResult = await customSelect(
+              "SELECT 1 FROM pragma_table_info('products') WHERE name = 'store_name' LIMIT 1",
+            ).get();
+            final storeNameAlreadyExists = columnExistsResult.isNotEmpty;
+
+            if (!storeNameAlreadyExists) {
+              await m.addColumn(products, products.storeName);
+            }
+
+            // Step 2: Backfill storeName from the most recent purchase entry (idempotent)
             await customStatement('''
               UPDATE products
               SET store_name = (
@@ -219,7 +241,8 @@ class AppDatabase extends _$AppDatabase {
               WHERE EXISTS (
                 SELECT 1 FROM purchase_entries pe
                 WHERE pe.product_id = products.id
-              );
+              )
+              AND store_name IS NULL;
             ''');
           }
         },
