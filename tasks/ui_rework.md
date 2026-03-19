@@ -72,7 +72,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 5. ~~**InflationSummaryCard**~~ - ✅ Implemented
 6. ~~**TimeRangeSelector**~~ - ✅ Implemented
 7. ~~**ChartHeader**~~ - ✅ Implemented
-8. **SectionHeader** - For grouped settings
+8. ~~**SettingsSection**~~ - ✅ Implemented (v1.29.0)
 9. **ActionRow** - For list tiles with consistent styling
 10. **InflationLineChart** - Line chart widget (complex, chart mixin dependency)
 11. **InflationListView** - Inflators/deflators list widget (complex, type handling)
@@ -222,10 +222,16 @@ Per roadmap: 3-screen onboarding for new users
 - Extract `BarcodeSection` widget
 - Extract form field components (ProductAutocomplete, CategoryAutocomplete, etc.)
 
-### Phase 3: Settings Rework
-1. Group settings into collapsible sections
-2. Add section headers
-3. Standardize all dialogs to Material
+### Phase 3: Settings Rework ✅ (v1.29.0)
+1. ✅ Group settings into collapsible sections
+   - Created `SettingsSection` widget in `core/widgets/settings_section.dart`
+   - Preferences and Data Management sections are collapsible
+   - Subscription and About sections remain expanded
+2. ✅ Add section headers
+   - All sections now have localized headers: `settingsSubscription`, `settingsPreferences`, `settingsDataManagement`, `settingsBackupRestore`, `settingsAbout`
+3. ✅ Standardize all dialogs to Material
+   - Replaced `CupertinoAlertDialog` (import) with `ConfirmDialog.show()`
+   - Replaced inline `AlertDialog` (factory reset) with `ConfirmDialog.show(isDestructive: true)`
 
 ### Phase 4: UX Polish
 1. ✅ Fix iOS keyboard dismissal (v1.27.1)

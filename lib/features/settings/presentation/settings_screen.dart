@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inflabasket/core/widgets/confirm_dialog.dart';
+import 'package:inflabasket/core/widgets/settings_section.dart';
 import 'package:inflabasket/core/services/database_backup_service.dart';
 import 'package:inflabasket/features/settings/application/export_service.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -98,23 +99,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _handleImport(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: Text(AppLocalizations.of(context)!.backupImportConfirmTitle),
-        content: Text(AppLocalizations.of(context)!.backupImportConfirmMessage),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context)!.backupRestoreButton),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmDialog.show(
+      context,
+      title: l10n.backupImportConfirmTitle,
+      message: l10n.backupImportConfirmMessage,
+      confirmLabel: l10n.backupRestoreButton,
+      isDestructive: true,
     );
 
     if (confirmed != true) return;
@@ -126,13 +116,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (!mounted || result == null) return;
       HapticFeedback.heavyImpact();
       if (!context.mounted) return;
-      await showCupertinoDialog<void>(
+      await showDialog<void>(
         context: context,
-        builder: (dialogContext) => CupertinoAlertDialog(
+        builder: (dialogContext) => AlertDialog(
           title: Text(l10n.backupImportSuccess),
           content: Text(l10n.backupRestartRequired),
           actions: [
-            CupertinoDialogAction(
+            TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child:
                   Text(MaterialLocalizations.of(dialogContext).okButtonLabel),
@@ -159,6 +149,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _handleFactoryReset() async {
+    final l10n = AppLocalizations.of(context)!;
+    final shouldReset = await ConfirmDialog.show(
+      context,
+      title: l10n.factoryResetConfirmTitle,
+      message: l10n.factoryResetConfirmMessage,
+      confirmLabel: l10n.factoryResetButton,
+      isDestructive: true,
+    );
+
+    if (shouldReset == true && mounted) {
+      final repo = ref.read(entryRepositoryProvider);
+      final database = repo.database;
+      await ref
+          .read(settingsControllerProvider.notifier)
+          .factoryReset(database);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.factoryResetCompleted)),
+        );
+        context.go('/home');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -176,234 +191,240 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           Card(
-            child: ListTile(
-              leading: Icon(
-                isPremium ? Icons.verified : Icons.lock_outline,
-                color: isPremium ? Colors.green : Colors.orange,
-              ),
-              title: Text(
-                isPremium ? l10n.settingsPremiumActive : l10n.settingsFreeTier,
-              ),
-              subtitle: Text(debugPremium
-                  ? l10n.settingsDebugPremiumSubtitle
-                  : !subscriptionsSupported
-                      ? l10n.settingsMobileOnlySubtitle
-                      : isPremium
-                          ? l10n.settingsPremiumSubtitle
-                          : l10n.settingsFreeSubtitle),
-              trailing: !subscriptionsSupported
-                  ? Chip(label: Text(l10n.settingsMobileOnly))
-                  : debugPremium
-                      ? Chip(label: Text(l10n.settingsDebugUnlock))
-                      : isPremium
-                          ? TextButton(
-                              onPressed: () => ref
-                                  .read(subscriptionControllerProvider.notifier)
-                                  .restorePurchases(),
-                              child: Text(l10n.settingsRestore),
-                            )
-                          : ElevatedButton(
-                              onPressed: () => context.push('/paywall'),
-                              child: Text(l10n.settingsUpgrade),
-                            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Text(
+                    l10n.settingsSubscription,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(
+                    isPremium ? Icons.verified : Icons.lock_outline,
+                    color: isPremium ? Colors.green : Colors.orange,
+                  ),
+                  title: Text(
+                    isPremium
+                        ? l10n.settingsPremiumActive
+                        : l10n.settingsFreeTier,
+                  ),
+                  subtitle: Text(debugPremium
+                      ? l10n.settingsDebugPremiumSubtitle
+                      : !subscriptionsSupported
+                          ? l10n.settingsMobileOnlySubtitle
+                          : isPremium
+                              ? l10n.settingsPremiumSubtitle
+                              : l10n.settingsFreeSubtitle),
+                  trailing: !subscriptionsSupported
+                      ? Chip(label: Text(l10n.settingsMobileOnly))
+                      : debugPremium
+                          ? Chip(label: Text(l10n.settingsDebugUnlock))
+                          : isPremium
+                              ? TextButton(
+                                  onPressed: () => ref
+                                      .read(subscriptionControllerProvider
+                                          .notifier)
+                                      .restorePurchases(),
+                                  child: Text(l10n.settingsRestore),
+                                )
+                              : ElevatedButton(
+                                  onPressed: () => context.push('/paywall'),
+                                  child: Text(l10n.settingsUpgrade),
+                                ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
-          Card(
-            child: Column(
-              children: [
+          SettingsSection(
+            title: l10n.settingsPreferences,
+            collapsible: true,
+            initiallyExpanded: true,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.currency_exchange),
+                title: Text(l10n.settingsCurrency),
+                trailing: DropdownButton<String>(
+                  value: settings.currency,
+                  underline: const SizedBox(),
+                  items: const [
+                    DropdownMenuItem(value: 'CHF', child: Text('CHF')),
+                    DropdownMenuItem(value: 'EUR', child: Text('EUR')),
+                    DropdownMenuItem(value: 'USD', child: Text('USD')),
+                    DropdownMenuItem(value: 'GBP', child: Text('GBP')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      ref
+                          .read(settingsControllerProvider.notifier)
+                          .setCurrency(val);
+                    }
+                  },
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: Text(l10n.settingsLanguage),
+                trailing: DropdownButton<String>(
+                  value: settings.locale,
+                  underline: const SizedBox(),
+                  items: SettingsController.supportedLocales
+                      .map(
+                        (locale) => DropdownMenuItem<String>(
+                          value: locale,
+                          child: Text(_languageLabels[locale] ?? locale),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      ref
+                          .read(settingsControllerProvider.notifier)
+                          .setLocale(val);
+                    }
+                  },
+                ),
+              ),
+              const Divider(height: 1),
+              SwitchListTile.adaptive(
+                secondary: const Icon(Icons.straighten),
+                title: Text(l10n.settingsMetricSystem),
+                value: settings.isMetric,
+                onChanged: (val) => ref
+                    .read(settingsControllerProvider.notifier)
+                    .setMetric(val),
+              ),
+              const Divider(height: 1),
+              SwitchListTile.adaptive(
+                secondary: const Icon(Icons.update),
+                title: Text(l10n.settingsPriceUpdateReminder),
+                subtitle: Text(l10n.settingsPriceUpdateReminderDesc),
+                value: settings.priceUpdateReminderEnabled,
+                onChanged: (val) async {
+                  final enabled = await ref
+                      .read(settingsControllerProvider.notifier)
+                      .setPriceUpdateReminder(val);
+
+                  if (!enabled && val && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.priceUpdatePermissionDenied),
+                      ),
+                    );
+                  }
+                },
+              ),
+              if (settings.priceUpdateReminderEnabled) ...[
+                const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.currency_exchange),
-                  title: Text(l10n.settingsCurrency),
-                  trailing: DropdownButton<String>(
-                    value: settings.currency,
+                  leading: const Icon(Icons.schedule),
+                  title: Text(l10n.settingsReminderAfter),
+                  trailing: DropdownButton<int>(
+                    value: settings.priceUpdateReminderMonths,
                     underline: const SizedBox(),
                     items: const [
-                      DropdownMenuItem(value: 'CHF', child: Text('CHF')),
-                      DropdownMenuItem(value: 'EUR', child: Text('EUR')),
-                      DropdownMenuItem(value: 'USD', child: Text('USD')),
-                      DropdownMenuItem(value: 'GBP', child: Text('GBP')),
+                      DropdownMenuItem(value: 3, child: Text('3')),
+                      DropdownMenuItem(value: 6, child: Text('6')),
+                      DropdownMenuItem(value: 9, child: Text('9')),
+                      DropdownMenuItem(value: 12, child: Text('12')),
+                      DropdownMenuItem(value: 18, child: Text('18')),
                     ],
                     onChanged: (val) {
                       if (val != null) {
                         ref
                             .read(settingsControllerProvider.notifier)
-                            .setCurrency(val);
+                            .setPriceUpdateReminderMonths(val);
                       }
                     },
                   ),
                 ),
                 const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.language),
-                  title: Text(l10n.settingsLanguage),
-                  trailing: DropdownButton<String>(
-                    value: settings.locale,
-                    underline: const SizedBox(),
-                    items: SettingsController.supportedLocales
-                        .map(
-                          (locale) => DropdownMenuItem<String>(
-                            value: locale,
-                            child: Text(_languageLabels[locale] ?? locale),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        ref
-                            .read(settingsControllerProvider.notifier)
-                            .setLocale(val);
-                      }
-                    },
-                  ),
-                ),
-                const Divider(height: 1),
-                SwitchListTile.adaptive(
-                  secondary: const Icon(Icons.straighten),
-                  title: Text(l10n.settingsMetricSystem),
-                  value: settings.isMetric,
-                  onChanged: (val) => ref
-                      .read(settingsControllerProvider.notifier)
-                      .setMetric(val),
-                ),
-                const Divider(height: 1),
-                SwitchListTile.adaptive(
-                  secondary: const Icon(Icons.update),
-                  title: Text(l10n.settingsPriceUpdateReminder),
-                  subtitle: Text(l10n.settingsPriceUpdateReminderDesc),
-                  value: settings.priceUpdateReminderEnabled,
-                  onChanged: (val) async {
-                    final enabled = await ref
-                        .read(settingsControllerProvider.notifier)
-                        .setPriceUpdateReminder(val);
-
-                    if (!enabled && val && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.priceUpdatePermissionDenied),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                if (settings.priceUpdateReminderEnabled) ...[
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.schedule),
-                    title: Text(l10n.settingsReminderAfter),
-                    trailing: DropdownButton<int>(
-                      value: settings.priceUpdateReminderMonths,
-                      underline: const SizedBox(),
-                      items: const [
-                        DropdownMenuItem(value: 3, child: Text('3')),
-                        DropdownMenuItem(value: 6, child: Text('6')),
-                        DropdownMenuItem(value: 9, child: Text('9')),
-                        DropdownMenuItem(value: 12, child: Text('12')),
-                        DropdownMenuItem(value: 18, child: Text('18')),
-                      ],
-                      onChanged: (val) {
-                        if (val != null) {
-                          ref
-                              .read(settingsControllerProvider.notifier)
-                              .setPriceUpdateReminderMonths(val);
-                        }
-                      },
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () =>
-                            context.push('/settings/price-updates'),
-                        icon: const Icon(Icons.list_alt),
-                        label: Text(l10n.settingsShowPriceUpdateList),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.push('/settings/price-updates'),
+                      icon: const Icon(Icons.list_alt),
+                      label: Text(l10n.settingsShowPriceUpdateList),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),
-                ] else
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Text(
-                      l10n.settingsPriceUpdateReminderDisabled,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
+                ),
+              ] else
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Text(
+                    l10n.settingsPriceUpdateReminderDisabled,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 14,
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
           const SizedBox(height: 12),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.category_outlined),
-                  title: Text(l10n.settingsManageCategories),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/settings/categories'),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.notifications_active_outlined),
-                  title: Text(l10n.priceAlerts),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push('/settings/price-alerts'),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.restart_alt),
-                  title: Text(l10n.settingsFactoryReset),
-                  onTap: () async {
-                    final shouldReset = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(l10n.factoryResetConfirmTitle),
-                        content: Text(l10n.factoryResetConfirmMessage),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(MaterialLocalizations.of(context)
-                                .cancelButtonLabel),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.red,
-                            ),
-                            child: Text(l10n.factoryResetButton),
-                          ),
-                        ],
-                      ),
-                    );
-                    if (shouldReset == true && context.mounted) {
-                      final repo = ref.read(entryRepositoryProvider);
-                      final database = repo.database;
-                      await ref
-                          .read(settingsControllerProvider.notifier)
-                          .factoryReset(database);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.factoryResetCompleted)),
-                        );
-                        context.go('/home');
-                      }
-                    }
-                  },
-                ),
-              ],
-            ),
+          SettingsSection(
+            title: l10n.settingsDataManagement,
+            collapsible: true,
+            initiallyExpanded: true,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.category_outlined),
+                title: Text(l10n.settingsManageCategories),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/categories'),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.notifications_active_outlined),
+                title: Text(l10n.priceAlerts),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/price-alerts'),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.restart_alt),
+                title: Text(l10n.settingsFactoryReset),
+                onTap: _handleFactoryReset,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SettingsSection(
+            title: l10n.settingsBackupRestore,
+            children: [
+              ListTile(
+                leading: exportState.isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.upload_outlined),
+                title: Text(l10n.settingsExportData),
+                onTap: () => _showExportFormatDialog(),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.download_outlined),
+                title: Text(l10n.settingsImportDatabase),
+                onTap: () => _handleImport(context, ref),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           Card(
@@ -413,35 +434,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Text(
-                    l10n.settingsBackupRestore,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    l10n.settingsAbout,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ),
-                ListTile(
-                  leading: exportState.isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.upload_outlined),
-                  title: Text(l10n.settingsExportData),
-                  onTap: () => _showExportFormatDialog(),
-                ),
                 const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.download_outlined),
-                  title: Text(l10n.settingsImportDatabase),
-                  onTap: () => _handleImport(context, ref),
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            child: Column(
-              children: [
                 ListTile(
                   leading: const Icon(Icons.info_outline),
                   title: Text(l10n.settingsVersion),
@@ -449,14 +448,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: Icon(Icons.privacy_tip_outlined),
+                  leading: const Icon(Icons.privacy_tip_outlined),
                   title: Text(l10n.settingsPrivacyPolicy),
                   subtitle: Text(l10n.settingsComingSoon),
                   enabled: false,
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: Icon(Icons.description_outlined),
+                  leading: const Icon(Icons.description_outlined),
                   title: Text(l10n.settingsTerms),
                   subtitle: Text(l10n.settingsComingSoon),
                   enabled: false,
