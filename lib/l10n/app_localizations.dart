@@ -2013,6 +2013,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Products now have a fixed store — quick-add enabled!'**
   String get migrationV12Complete;
+
+  /// Title for the AI consent dialog
+  ///
+  /// In en, this message translates to:
+  /// **'AI Receipt Scanning'**
+  String get aiConsentTitle;
+
+  /// Explanation of what the AI scanner does and how user data is handled
+  ///
+  /// In en, this message translates to:
+  /// **'The receipt scanner uses Google Gemini AI to extract product names, prices, and quantities from your receipt images.\n\nWhen you scan a receipt:\n• The image is sent to Google\'s servers for processing\n• Google processes the image to identify text and item details\n• Extracted data is returned to the app and stored locally on your device\n• Google may process the image in accordance with their privacy policy\n\nNo receipt images are stored by Google or shared with third parties beyond what is required for processing.\n\nBy accepting, you consent to sending your receipt images to Google Gemini for AI-powered text extraction.'**
+  String get aiConsentBody;
+
+  /// Button to accept AI consent and proceed to scanner
+  ///
+  /// In en, this message translates to:
+  /// **'Accept & Continue'**
+  String get aiConsentAccept;
+
+  /// Button to decline AI consent
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get aiConsentDecline;
+
+  /// Message shown when user tries to use scanner without consent
+  ///
+  /// In en, this message translates to:
+  /// **'AI consent is required to use the receipt scanner. You can add entries manually instead.'**
+  String get aiConsentRequired;
 }
 
 class _AppLocalizationsDelegate

@@ -18,6 +18,7 @@ import 'package:inflabasket/features/barcode/presentation/barcode_input_dialog.d
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
+import 'package:inflabasket/core/widgets/ai_consent_dialog.dart';
 
 class AddEntryScreen extends ConsumerStatefulWidget {
   final EntryWithDetails? entryToEdit;
@@ -724,8 +725,20 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               if (!isEditing) ...[
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     if (isPremium) {
+                      final hasConsent = ref
+                          .read(settingsControllerProvider.notifier)
+                          .hasAcceptedAiConsent;
+                      if (!hasConsent) {
+                        final accepted =
+                            await showAiConsentDialog(context: context);
+                        if (accepted != true) return;
+                        await ref
+                            .read(settingsControllerProvider.notifier)
+                            .acceptAiConsent();
+                      }
+                      if (!context.mounted) return;
                       context.push('/scanner');
                     } else {
                       context.push('/paywall');

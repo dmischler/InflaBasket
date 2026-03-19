@@ -1066,5 +1066,20 @@
   },
 
   "migrationV12Complete": "Products now have a fixed store — quick-add enabled!",
-  "@migrationV12Complete": { "description": "SnackBar message after v12 migration" }
+  "@migrationV12Complete": { "description": "SnackBar message after v12 migration" },
+
+  "aiConsentTitle": "AI Receipt Scanning",
+  "@aiConsentTitle": { "description": "Title for the AI consent dialog" },
+
+  "aiConsentBody": "The receipt scanner uses Google Gemini AI to extract product names, prices, and quantities from your receipt images.\n\nWhen you scan a receipt:\n• The image is sent to Google's servers for processing\n• Google processes the image to identify text and item details\n• Extracted data is returned to the app and stored locally on your device\n• Google may process the image in accordance with their privacy policy\n\nNo receipt images are stored by Google or shared with third parties beyond what is required for processing.\n\nBy accepting, you consent to sending your receipt images to Google Gemini for AI-powered text extraction.",
+  "@aiConsentBody": { "description": "Explanation of what the AI scanner does and how user data is handled" },
+
+  "aiConsentAccept": "Accept & Continue",
+  "@aiConsentAccept": { "description": "Button to accept AI consent and proceed to scanner" },
+
+  "aiConsentDecline": "Decline",
+  "@aiConsentDecline": { "description": "Button to decline AI consent" },
+
+  "aiConsentRequired": "AI consent is required to use the receipt scanner. You can add entries manually instead.",
+  "@aiConsentRequired": { "description": "Message shown when user tries to use scanner without consent" }
 }

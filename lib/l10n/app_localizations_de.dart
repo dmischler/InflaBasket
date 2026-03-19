@@ -1089,4 +1089,21 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get migrationV12Complete =>
       'Produkte haben jetzt ein festes Geschäft — Schnell hinzufügen aktiviert!';
+
+  @override
+  String get aiConsentTitle => 'KI-Quittungsscanner';
+
+  @override
+  String get aiConsentBody =>
+      'Der Quittungsscanner verwendet Google Gemini KI, um Produktnamen, Preise und Mengen aus deinen Quittungsbildern zu extrahieren.\n\nWenn du eine Quittung scannst:\n• Das Bild wird zur Verarbeitung an Googles Server gesendet\n• Google verarbeitet das Bild, um Text und Artikeldetails zu erkennen\n• Die extrahierten Daten werden an die App zurückgegeben und lokal auf deinem Gerät gespeichert\n• Google kann das Bild gemäss ihrer Datenschutzrichtlinie verarbeiten\n\nEs werden keine Quittungsbilder von Google gespeichert oder an Dritte weitergegeben, ausser für die erforderliche Verarbeitung.\n\nMit der Annahme stimmst du dem Senden deiner Quittungsbilder an Google Gemini für die KI-gestützte Textextraktion zu.';
+
+  @override
+  String get aiConsentAccept => 'Akzeptieren & Fortfahren';
+
+  @override
+  String get aiConsentDecline => 'Ablehnen';
+
+  @override
+  String get aiConsentRequired =>
+      'KI-Einwilligung ist erforderlich, um den Quittungsscanner zu verwenden. Du kannst stattdessen Einträge manuell hinzufügen.';
 }

@@ -1094,4 +1094,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get migrationV12Complete =>
       'Products now have a fixed store — quick-add enabled!';
+
+  @override
+  String get aiConsentTitle => 'AI Receipt Scanning';
+
+  @override
+  String get aiConsentBody =>
+      'The receipt scanner uses Google Gemini AI to extract product names, prices, and quantities from your receipt images.\n\nWhen you scan a receipt:\n• The image is sent to Google\'s servers for processing\n• Google processes the image to identify text and item details\n• Extracted data is returned to the app and stored locally on your device\n• Google may process the image in accordance with their privacy policy\n\nNo receipt images are stored by Google or shared with third parties beyond what is required for processing.\n\nBy accepting, you consent to sending your receipt images to Google Gemini for AI-powered text extraction.';
+
+  @override
+  String get aiConsentAccept => 'Accept & Continue';
+
+  @override
+  String get aiConsentDecline => 'Decline';
+
+  @override
+  String get aiConsentRequired =>
+      'AI consent is required to use the receipt scanner. You can add entries manually instead.';
 }

@@ -72,6 +72,7 @@ class SettingsController extends _$SettingsController {
   static const _localeKey = 'settings_locale';
   static const _bitcoinModeKey = 'settings_bitcoin_mode';
   static const hasCompletedOnboardingKey = 'has_completed_onboarding';
+  static const aiConsentAcceptedKey = 'ai_consent_accepted';
   static const _priceUpdateReminderKey =
       'settings_price_update_reminder_enabled';
   static const _priceUpdateReminderMonthsKey =
@@ -133,6 +134,16 @@ class SettingsController extends _$SettingsController {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setBool(_bitcoinModeKey, isBitcoinMode);
     state = state.copyWith(isBitcoinMode: isBitcoinMode);
+  }
+
+  bool get hasAcceptedAiConsent {
+    final prefs = ref.read(sharedPreferencesProvider);
+    return prefs.getBool(aiConsentAcceptedKey) ?? false;
+  }
+
+  Future<void> acceptAiConsent() async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setBool(aiConsentAcceptedKey, true);
   }
 
   Future<bool> setPriceUpdateReminder(bool enabled) async {

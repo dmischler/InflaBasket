@@ -22,7 +22,7 @@ Future<void> main() async {
 
   OpenFoodAPIConfiguration.userAgent = UserAgent(
     name: 'InflaBasket',
-    version: '1.20.16',
+    version: '1.25.10',
     url: 'https://github.com/anomalyco/InflaBasket',
   );
 

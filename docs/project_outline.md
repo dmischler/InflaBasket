@@ -546,6 +546,15 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Added URL normalization to accept diverse inputs (https://..., www..., or bare domain)
 - Added error handling for SharedPreferences operations to prevent iOS crashes
 
+**v1.20.13 AI Consent Form (Apple Review Compliance)**
+- Added AI consent dialog shown before first receipt scan to comply with Apple App Store AI disclosure requirement
+- Dialog explains that receipt images are sent to Google Gemini for OCR/text extraction
+- Clearly states what data is collected (receipt image), how it's processed (Google servers), and where it's stored (locally on device only)
+- Consent is tracked via SharedPreferences key `ai_consent_accepted`; shown once per user
+- Gated at both scanner entry points: bottom sheet (camera/gallery) and add entry screen scan button
+- Fully localized (EN + DE)
+- Created `ai_consent_dialog.dart` widget in `core/widgets/`
+
 ---
 
 ### 🔄 In Progress / Partially Complete

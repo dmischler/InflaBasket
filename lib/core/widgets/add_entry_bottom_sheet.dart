@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart' show ImageSource;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:inflabasket/core/widgets/ai_consent_dialog.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
 class AddEntryBottomSheet extends StatelessWidget {
@@ -15,6 +18,25 @@ class AddEntryBottomSheet extends StatelessWidget {
       barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (context) => const AddEntryBottomSheet(),
     );
+  }
+
+  static Future<void> _navigateToScanner(
+    BuildContext context,
+    ImageSource source,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasConsent =
+        prefs.getBool(SettingsController.aiConsentAcceptedKey) ?? false;
+
+    if (!hasConsent) {
+      if (!context.mounted) return;
+      final accepted = await showAiConsentDialog(context: context);
+      if (accepted != true) return;
+      await prefs.setBool(SettingsController.aiConsentAcceptedKey, true);
+    }
+
+    if (!context.mounted) return;
+    GoRouter.of(context).push('/scanner', extra: source);
   }
 
   @override
@@ -82,8 +104,7 @@ class AddEntryBottomSheet extends StatelessWidget {
               onTap: () {
                 HapticFeedback.lightImpact();
                 Navigator.pop(context);
-                GoRouter.of(context)
-                    .push('/scanner', extra: ImageSource.camera);
+                _navigateToScanner(context, ImageSource.camera);
               },
             ),
             Divider(height: 1, indent: 72),
@@ -99,8 +120,7 @@ class AddEntryBottomSheet extends StatelessWidget {
               onTap: () {
                 HapticFeedback.lightImpact();
                 Navigator.pop(context);
-                GoRouter.of(context)
-                    .push('/scanner', extra: ImageSource.gallery);
+                _navigateToScanner(context, ImageSource.gallery);
               },
             ),
             const SizedBox(height: 16),
