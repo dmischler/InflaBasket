@@ -543,21 +543,38 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l10n.scannerReviewTitle,
-                      style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${widget.storeName} · $dateLabel',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l10n.scannerReviewTitle,
+                            style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${widget.storeName} · $dateLabel',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.scannerReviewInstructions,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.scannerReviewInstructions,
-                    style: Theme.of(context).textTheme.bodySmall,
+                  IconButton(
+                    icon: const Icon(Icons.keyboard_hide),
+                    onPressed: () => FocusScope.of(context).unfocus(),
+                    tooltip: 'Dismiss keyboard',
                   ),
                 ],
               ),

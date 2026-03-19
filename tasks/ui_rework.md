@@ -133,11 +133,11 @@ Suggested:
 #### 7. Keyboard Dismissal (Known Issue)
 Receipt review dialog: iOS keyboard can't be dismissed
 Solution options:
-- "Done" button overlay in top-right
+- "Done" button overlay in top-right ✅ **Implemented** - keyboard_hide button in header
 - Tap outside field to dismiss
 - Scroll-to-dismiss gesture
 - ✅ Added `LuxuryTextField.dismissKeyboard()` static helper
-- ⚠️ Still needs integration into receipt review dialog
+- ✅ **Fixed** - Added `IconButton(Icons.keyboard_hide)` in `_ReceiptReviewDialog` header (scanner_screen.dart:577)
 
 #### 8. Empty State Consistency
 Screens with empty states should all use `StateMessageCard` with Lottie animations.
@@ -208,7 +208,7 @@ Per roadmap: 3-screen onboarding for new users
 3. Standardize all dialogs to Material
 
 ### Phase 4: UX Polish
-1. Fix iOS keyboard dismissal
+1. ✅ Fix iOS keyboard dismissal (v1.27.1)
 2. Add pull-to-refresh to History
 3. Review all empty states
 
