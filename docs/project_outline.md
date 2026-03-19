@@ -323,6 +323,9 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Uses v3 API with targeted fields for faster response
 - Preserved store parsing and category mapping logic
 
+**v1.26.1 Receipt Scanner Keyboard Fix**
+- Fixed iOS keyboard dismissal in receipt review dialog: added `TextInputAction.done` and `onSubmitted` handler to price and quantity fields
+
 **v1.26.0 Multi-Database Barcode Lookup**
 - Barcode scanner now queries Open Food Facts, Open Beauty Facts, and Open Products Facts in a waterfall fallback
 - Enables scanning non-food items: cosmetics, personal care, household supplies, tools, stationery

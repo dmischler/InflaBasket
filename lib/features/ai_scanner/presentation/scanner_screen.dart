@@ -647,6 +647,9 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                                   const TextInputType.numberWithOptions(
                                 decimal: true,
                               ),
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (_) =>
+                                  FocusScope.of(context).unfocus(),
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodySmall,
                               decoration: const InputDecoration(
@@ -671,6 +674,9 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                                   const TextInputType.numberWithOptions(
                                 decimal: true,
                               ),
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (_) =>
+                                  FocusScope.of(context).unfocus(),
                               textAlign: TextAlign.end,
                               style: Theme.of(context).textTheme.bodySmall,
                               decoration: const InputDecoration(
