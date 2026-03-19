@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
@@ -147,8 +148,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final categories = categoriesAsync.valueOrNull ?? <Category>[];
     final settings = ref.read(settingsControllerProvider);
 
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == const Color(0xFF050505);
+    final isLuxeMode = Theme.of(context).isLuxeMode;
 
     showModalBottomSheet<bool>(
       context: context,

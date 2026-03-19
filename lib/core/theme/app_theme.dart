@@ -85,3 +85,9 @@ class AppTheme {
     );
   }
 }
+
+extension LuxeTheme on ThemeData {
+  bool get isLuxeMode => scaffoldBackgroundColor == AppColors.bgVoid;
+
+  bool get isBitcoinMode => primaryColor == AppColors.accentBtcMain;
+}
