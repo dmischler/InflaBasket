@@ -323,6 +323,12 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Uses v3 API with targeted fields for faster response
 - Preserved store parsing and category mapping logic
 
+**v1.26.0 Multi-Database Barcode Lookup**
+- Barcode scanner now queries Open Food Facts, Open Beauty Facts, and Open Products Facts in a waterfall fallback
+- Enables scanning non-food items: cosmetics, personal care, household supplies, tools, stationery
+- Uses built-in `uriHelperBeautyProd` / `uriHelperProductsProd` from the `openfoodfacts` package (no API keys required)
+- No UI changes — callers continue using the same `client.lookupBarcode()` interface
+
 **v1.9.0 Inflation Engine Refactor**
 - Replaced modified Laspeyres basket index with product-level unweighted mean
 - Added sparse-data-aware price lookup (`latest price <= date`)

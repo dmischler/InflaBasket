@@ -199,12 +199,17 @@ List<StoreInfo> _parseStores(String? storesRaw, List<String>? storesTags) {
 class OpenFoodFactsClient {
   OpenFoodFactsClient();
 
-  /// Looks up a product by [barcode] (EAN-13, UPC-A, …).
-  /// Returns [ProductInfo] on success, or null if nothing was found.
-  ///
-  /// [locale] - preferred language for product names ('de' or 'en')
-  Future<ProductInfo?> lookupBarcode(String barcode,
-      {String locale = 'en'}) async {
+  static const _foodUriHelper = uriHelperFoodProd;
+  static const _beautyUriHelper = uriHelperBeautyProd;
+  static const _productsUriHelper = uriHelperProductsProd;
+
+  /// Queries a single Open * Facts endpoint for [barcode].
+  /// Returns [ProductInfo] on success, or null if not found.
+  Future<ProductInfo?> _lookupBarcode(
+    String barcode, {
+    required String locale,
+    required UriProductHelper uriHelper,
+  }) async {
     try {
       final config = ProductQueryConfiguration(
         barcode.trim(),
@@ -220,8 +225,10 @@ class OpenFoodFactsClient {
         version: ProductQueryVersion.v3,
       );
 
-      final ProductResultV3 result =
-          await OpenFoodAPIClient.getProductV3(config);
+      final ProductResultV3 result = await OpenFoodAPIClient.getProductV3(
+        config,
+        uriHelper: uriHelper,
+      );
 
       if (result.status != ProductResultV3.statusSuccess ||
           result.product == null) {
@@ -230,18 +237,14 @@ class OpenFoodFactsClient {
 
       final product = result.product!;
 
-      // Extract all name variants
       final nameEn =
           product.productNameInLanguages?[OpenFoodFactsLanguage.ENGLISH];
       final nameDe =
           product.productNameInLanguages?[OpenFoodFactsLanguage.GERMAN];
       final nameFr =
           product.productNameInLanguages?[OpenFoodFactsLanguage.FRENCH];
-
-      // Fallback to productName if mapped languages are null
       final defaultName = product.productName;
 
-      // Use first available name as default (until user selects)
       String? resolvedName = nameEn?.trim() ??
           nameDe?.trim() ??
           nameFr?.trim() ??
@@ -253,7 +256,6 @@ class OpenFoodFactsClient {
 
       final brand = product.brands;
       final imageUrl = product.imageFrontUrl;
-
       final storesRaw = product.stores;
       final storesTags = product.storesTags;
       final storesList = _parseStores(storesRaw, storesTags);
@@ -267,7 +269,7 @@ class OpenFoodFactsClient {
 
       final suggestedCategory = _mapOffCategory(categoryTag);
 
-      final productInfo = ProductInfo(
+      return ProductInfo(
         name: resolvedName.trim(),
         nameEn: nameEn?.trim(),
         nameDe: nameDe?.trim(),
@@ -279,10 +281,32 @@ class OpenFoodFactsClient {
         barcode: barcode,
         locale: locale,
       );
-
-      return productInfo;
     } catch (_) {
       return null;
     }
+  }
+
+  /// Looks up a product by [barcode] (EAN-13, UPC-A, …).
+  /// Returns [ProductInfo] on success, or null if nothing was found.
+  ///
+  /// Tries Open Food Facts first, then Open Beauty Facts,
+  /// then Open Products Facts — returning the first match found.
+  ///
+  /// [locale] - preferred language for product names ('de' or 'en')
+  Future<ProductInfo?> lookupBarcode(String barcode,
+      {String locale = 'en'}) async {
+    for (final helper in [
+      _foodUriHelper,
+      _beautyUriHelper,
+      _productsUriHelper
+    ]) {
+      final result = await _lookupBarcode(
+        barcode,
+        locale: locale,
+        uriHelper: helper,
+      );
+      if (result != null) return result;
+    }
+    return null;
   }
 }
