@@ -237,7 +237,10 @@ Per roadmap: 3-screen onboarding for new users
 
 ### Phase 4: UX Polish
 1. ✅ Fix iOS keyboard dismissal (v1.27.1)
-2. 🔄 Add pull-to-refresh to History (under construction)
+2. ✅ Add pull-to-refresh to History (v1.30.0)
+   - Added `RefreshIndicator` wrapping the entry list in `HistoryTab`
+   - `onRefresh` invalidates `entriesWithDetailsProvider` and clears `imageCache`
+   - **Note:** `RefreshIndicator` only works on touch devices (iOS/Android). Desktop (Linux) does not support pull-to-refresh via mouse scroll. Consider adding a refresh IconButton in the header for desktop users (future improvement).
 3. ✅ Review all empty states (v1.30.1)
    - Standardized `category_management_screen.dart` empty state with `StateMessageCard`
    - Standardized `categories_tab.dart` empty chart state with `StateMessageCard`
