@@ -125,7 +125,14 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
     if (validData.isEmpty) {
       return SizedBox(
         height: responsiveChartHeight(context, type: ChartType.bar),
-        child: Center(child: Text(l10n.categoryNoChartData)),
+        child: Center(
+          child: StateMessageCard(
+            icon: Icons.bar_chart_outlined,
+            title: l10n.categoryNoChartData,
+            message: '',
+            animationAsset: StateIllustrations.emptyGeneral,
+          ),
+        ),
       );
     }
 

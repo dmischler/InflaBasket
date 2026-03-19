@@ -149,8 +149,10 @@ Solution options:
 - ✅ Added `LuxuryTextField.dismissKeyboard()` static helper
 - ✅ **Fixed** - Added `IconButton(Icons.keyboard_hide)` in `_ReceiptReviewDialog` header (scanner_screen.dart:577)
 
-#### 8. Empty State Consistency
-Screens with empty states should all use `StateMessageCard` with Lottie animations.
+#### 8. Empty State Consistency ✅
+- ✅ `category_management_screen.dart` - Now uses `StateMessageCard` with `emptyGeneral` animation
+- ✅ `categories_tab.dart` - Now uses `StateMessageCard` with `emptyGeneral` animation for empty chart data
+- All screens now consistently use `StateMessageCard` with Lottie animations
 
 ---
 
@@ -235,11 +237,11 @@ Per roadmap: 3-screen onboarding for new users
 
 ### Phase 4: UX Polish
 1. ✅ Fix iOS keyboard dismissal (v1.27.1)
-2. ✅ Add pull-to-refresh to History (v1.30.0)
-   - Added `RefreshIndicator` wrapping the entry list in `HistoryTab`
-   - `onRefresh` invalidates `entriesWithDetailsProvider` and clears `imageCache`
-   - User can now pull-to-refresh to reload logo images from API
-3. Review all empty states
+2. 🔄 Add pull-to-refresh to History (under construction)
+3. ✅ Review all empty states (v1.30.1)
+   - Standardized `category_management_screen.dart` empty state with `StateMessageCard`
+   - Standardized `categories_tab.dart` empty chart state with `StateMessageCard`
+   - All screens now consistently use `StateMessageCard` with Lottie animations
 
 ---
 

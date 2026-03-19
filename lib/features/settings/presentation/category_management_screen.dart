@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/widgets/state_illustrations.dart';
+import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -23,7 +25,14 @@ class CategoryManagementScreen extends ConsumerWidget {
       body: categoriesAsync.when(
         data: (categories) {
           if (categories.isEmpty) {
-            return Center(child: Text(l10n.categoryManagementEmpty));
+            return Center(
+              child: StateMessageCard(
+                icon: Icons.category_outlined,
+                title: l10n.categoryManagementEmpty,
+                message: '',
+                animationAsset: StateIllustrations.emptyGeneral,
+              ),
+            );
           }
 
           return ListView.separated(
