@@ -32,7 +32,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 
 | Screen | Lines | Status |
 |--------|-------|--------|
-| OverviewTab | ~1367 | **Too large** - needs splitting |
+| OverviewTab | ~954 | **Reduced from 1367** - partial splitting done |
 | AddEntryScreen | ~760 | **Too large** - needs splitting |
 | SettingsScreen | ~471 | Acceptable but dense |
 | DashboardScreen | ~75 | Good |
@@ -58,14 +58,24 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 | **LuxuryTextField** | core/widgets/luxury_text_field.dart | Luxe form field with keyboard dismissal |
 | **LuxuryDropdownField** | core/widgets/luxury_dropdown_field.dart | Luxe dropdown styling |
 | **ConfirmDialog** | core/widgets/confirm_dialog.dart | Standardized confirmation dialogs |
+| **CustomDateRangeDialog** | core/widgets/custom_date_range_dialog.dart | Date range picker dialog |
+| **InflationSummaryCard** | core/widgets/inflation_summary_card.dart | Yearly inflation summary display |
+| **TimeRangeSelector** | core/widgets/time_range_selector.dart | Chart time range dropdown |
+| **ChartHeader** | core/widgets/chart_header.dart | Overlay type dropdown + CPI toggle |
 | LuxeButton | core/widgets/luxe_button.dart | Luxe styled button |
 
 ### Missing Components
 1. ~~**LuxuryTextField**~~ - ✅ Implemented
 2. ~~**LuxuryDropdownField**~~ - ✅ Implemented  
 3. ~~**ConfirmDialog**~~ - ✅ Implemented
-4. **SectionHeader** - For grouped settings
-5. **ActionRow** - For list tiles with consistent styling
+4. ~~**CustomDateRangeDialog**~~ - ✅ Implemented
+5. ~~**InflationSummaryCard**~~ - ✅ Implemented
+6. ~~**TimeRangeSelector**~~ - ✅ Implemented
+7. ~~**ChartHeader**~~ - ✅ Implemented
+8. **SectionHeader** - For grouped settings
+9. **ActionRow** - For list tiles with consistent styling
+10. **InflationLineChart** - Line chart widget (complex, chart mixin dependency)
+11. **InflationListView** - Inflators/deflators list widget (complex, type handling)
 
 ---
 
@@ -197,10 +207,20 @@ Per roadmap: 3-screen onboarding for new users
    - `ConfirmDialog.show()` factory method
    - `ConfirmDialogHelpers` with `showDelete()` and `showDiscardChanges()`
 
-### Phase 2: Screen Splitting
-1. Split `overview_tab.dart` into 5 smaller components
-2. Split `add_entry_screen.dart` into reusable form components
-3. Extract `BarcodeSection` to own widget
+### Phase 2: Screen Splitting (Partial - v1.28.0)
+**overview_tab.dart**: Reduced from 1367 to 954 lines (~30% reduction)
+- ✅ `CustomDateRangeDialog` - Extracted to `core/widgets/custom_date_range_dialog.dart`
+- ✅ `InflationSummaryCard` - Extracted to `core/widgets/inflation_summary_card.dart`
+- ✅ `TimeRangeSelector` - Extracted to `core/widgets/time_range_selector.dart`
+- ✅ `ChartHeader` - Extracted to `core/widgets/chart_header.dart`
+- ❌ `InflationLineChart` - Not extracted (complex, uses ChartTouchState mixin)
+- ❌ `InflationListView` - Not extracted (complex type handling)
+- ❌ `add_entry_screen.dart` - Not started (tight state coupling)
+
+**Remaining for Phase 2**:
+- Complete `add_entry_screen.dart` splitting
+- Extract `BarcodeSection` widget
+- Extract form field components (ProductAutocomplete, CategoryAutocomplete, etc.)
 
 ### Phase 3: Settings Rework
 1. Group settings into collapsible sections

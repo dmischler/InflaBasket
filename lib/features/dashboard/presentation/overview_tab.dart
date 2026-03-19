@@ -17,6 +17,10 @@ import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/utils/chart_sizing.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
+import 'package:inflabasket/core/widgets/custom_date_range_dialog.dart';
+import 'package:inflabasket/core/widgets/inflation_summary_card.dart';
+import 'package:inflabasket/core/widgets/time_range_selector.dart';
+import 'package:inflabasket/core/widgets/chart_header.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -166,28 +170,39 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSummaryCard(context, l, yearlySummary),
+          InflationSummaryCard(
+            summary: yearlySummary,
+            title: l.overviewTitle,
+          ),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildTimeRangeSelector(
-                context,
-                l,
-                ref,
-                timeFilter,
-                selectedRange,
-                availableTimeRangeOptions,
-                firstDataPoint,
+              TimeRangeSelector(
+                timeFilter: timeFilter,
+                selectedRange: selectedRange,
+                availableOptions: availableTimeRangeOptions,
+                firstDataPoint: firstDataPoint,
+                onRangeChanged: (range) => ref
+                    .read(chartTimeFilterControllerProvider.notifier)
+                    .setRange(range),
+                onCustomRangeRequested: (_) => _showCustomDatePicker(
+                  context,
+                  ref,
+                  timeFilter,
+                  firstDataPoint,
+                ),
               ),
-              _buildChartHeader(
-                context,
-                l,
-                ref,
-                availableTypes,
-                overlayType,
-                showCpi,
-                overlayAsync.isLoading,
+              ChartHeader(
+                availableTypes: availableTypes,
+                overlayType: overlayType,
+                showCpi: showCpi,
+                isLoading: overlayAsync.isLoading,
+                onOverlayTypeChanged: (type) => ref
+                    .read(selectedComparisonOverlayTypeProvider.notifier)
+                    .set(type),
+                onToggleCpi: () =>
+                    ref.read(showCpiOverlayProvider.notifier).toggle(),
               ),
             ],
           ),
@@ -229,205 +244,26 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     );
   }
 
-  Widget _buildSummaryCard(BuildContext context, AppLocalizations l,
-      YearlyInflationSummary summary) {
-    final title = l.overviewTitle;
-    if (summary.qualifyingProducts <= 0) {
-      return StateMessageCard(
-        icon: Icons.show_chart,
-        animationAsset: StateIllustrations.emptyGeneral,
-        animationHeight: 140,
-        title: title,
-        message: l.overviewNoData,
-      );
-    }
-
-    final inflation = summary.yearlyInflationPercent;
-    final color = inflation > 0
-        ? Colors.red
-        : (inflation < 0 ? Colors.green : Colors.grey);
-    final icon = inflation > 0
-        ? Icons.trending_up
-        : (inflation < 0 ? Icons.trending_down : Icons.trending_flat);
-
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
-
-    return isLuxeMode
-        ? VaultCard(
-            isActive: true,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      FittedBox(
-                        alignment: Alignment.centerLeft,
-                        fit: BoxFit.scaleDown,
-                        child: TabularAmountText(
-                          '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(
-                                color: color,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                CircleAvatar(
-                  radius: 32,
-                  backgroundColor: color.withValues(alpha: 0.1),
-                  child: Icon(icon, size: 32, color: color),
-                )
-              ],
-            ),
-          )
-        : Card(
-            elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        FittedBox(
-                          alignment: Alignment.centerLeft,
-                          fit: BoxFit.scaleDown,
-                          child: TabularAmountText(
-                            '${inflation > 0 ? '+' : ''}${inflation.toStringAsFixed(1)}%',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineMedium
-                                ?.copyWith(
-                                  color: color,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  CircleAvatar(
-                    radius: 32,
-                    backgroundColor: color.withValues(alpha: 0.1),
-                    child: Icon(icon, size: 32, color: color),
-                  )
-                ],
-              ),
-            ),
-          );
-  }
-
-  Widget _buildTimeRangeSelector(
-    BuildContext context,
-    AppLocalizations l,
-    WidgetRef ref,
-    ChartTimeFilter timeFilter,
-    ChartTimeRange selectedRange,
-    List<ChartTimeRange> availableOptions,
-    DateTime? firstDataPoint,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: DropdownButton<ChartTimeRange>(
-        value: availableOptions.contains(selectedRange)
-            ? selectedRange
-            : availableOptions.first,
-        underline: const SizedBox(),
-        isDense: true,
-        icon: const Icon(Icons.arrow_drop_down),
-        items: availableOptions.map((range) {
-          return DropdownMenuItem(
-            value: range,
-            child: Text(
-              range == ChartTimeRange.custom
-                  ? l.timeRangeCustom
-                  : _timeRangeLabel(l, range),
-            ),
-          );
-        }).toList(),
-        onChanged: (range) {
-          if (range == null) return;
-          if (range == ChartTimeRange.custom) {
-            _showCustomDatePicker(context, ref, timeFilter, firstDataPoint);
-          } else {
-            ref
-                .read(chartTimeFilterControllerProvider.notifier)
-                .setRange(range);
-          }
-        },
-      ),
-    );
-  }
-
-  String _timeRangeLabel(AppLocalizations l, ChartTimeRange range) {
-    return switch (range) {
-      ChartTimeRange.sixMonths => l.timeRange6m,
-      ChartTimeRange.oneYear => l.timeRange1y,
-      ChartTimeRange.twoYears => l.timeRange2y,
-      ChartTimeRange.threeYears => l.timeRange3y,
-      ChartTimeRange.fiveYears => l.timeRange5y,
-      ChartTimeRange.tenYears => l.timeRange10y,
-      ChartTimeRange.custom => l.timeRangeCustom,
-    };
-  }
-
   Future<void> _showCustomDatePicker(
     BuildContext context,
     WidgetRef ref,
     ChartTimeFilter currentFilter,
     DateTime? firstDataPoint,
   ) async {
-    final l = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final minDate = firstDataPoint ?? DateTime(now.year - 5, 1, 1);
     final maxDate = DateTime(now.year, now.month, 1);
 
-    // Initialize with current values or defaults
     DateTime startDate =
         currentFilter.customStart ?? DateTime(now.year - 1, now.month, 1);
     DateTime endDate = currentFilter.customEnd ?? maxDate;
 
-    final result = await showDialog<(DateTime, DateTime)>(
+    final result = await CustomDateRangeDialog.show(
       context: context,
-      builder: (context) => _CustomDateRangeDialog(
-        initialStart: startDate,
-        initialEnd: endDate,
-        minDate: minDate,
-        maxDate: maxDate,
-        l: l,
-      ),
+      initialStart: startDate,
+      initialEnd: endDate,
+      minDate: minDate,
+      maxDate: maxDate,
     );
 
     if (result != null) {
@@ -436,52 +272,6 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
             result.$2,
           );
     }
-  }
-
-  Widget _buildChartHeader(
-      BuildContext context,
-      AppLocalizations l,
-      WidgetRef ref,
-      List<ComparisonOverlayType> availableTypes,
-      ComparisonOverlayType? overlayType,
-      bool showCpi,
-      bool isLoading) {
-    if (availableTypes.isEmpty) return const SizedBox.shrink();
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (overlayType != null)
-          DropdownButtonHideUnderline(
-            child: DropdownButton<ComparisonOverlayType>(
-              value: overlayType,
-              borderRadius: BorderRadius.circular(12),
-              items: availableTypes
-                  .map(
-                    (type) => DropdownMenuItem<ComparisonOverlayType>(
-                      value: type,
-                      child: Text(_overlayLabel(l, type)),
-                    ),
-                  )
-                  .toList(),
-              onChanged: availableTypes.length < 2
-                  ? null
-                  : (value) {
-                      if (value == null) return;
-                      ref
-                          .read(selectedComparisonOverlayTypeProvider.notifier)
-                          .set(value);
-                    },
-            ),
-          ),
-        const SizedBox(width: 4),
-        Switch.adaptive(
-          value: showCpi,
-          onChanged: isLoading
-              ? null
-              : (_) => ref.read(showCpiOverlayProvider.notifier).toggle(),
-        ),
-      ],
-    );
   }
 
   Widget _buildOverlayStatus(BuildContext context, AppLocalizations l,
@@ -1159,209 +949,5 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
           unit.formattedUnitPriceFromNormalized(pricePerBase, currency);
       return '${fmt(fiatItem.baseUnitPrice)} → ${fmt(fiatItem.currentUnitPrice)}';
     }
-  }
-}
-
-/// Dialog for selecting a custom date range with year and month pickers.
-class _CustomDateRangeDialog extends StatefulWidget {
-  final DateTime initialStart;
-  final DateTime initialEnd;
-  final DateTime minDate;
-  final DateTime maxDate;
-  final AppLocalizations l;
-
-  const _CustomDateRangeDialog({
-    required this.initialStart,
-    required this.initialEnd,
-    required this.minDate,
-    required this.maxDate,
-    required this.l,
-  });
-
-  @override
-  State<_CustomDateRangeDialog> createState() => _CustomDateRangeDialogState();
-}
-
-class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
-  late int startYear;
-  late int startMonth;
-  late int endYear;
-  late int endMonth;
-
-  @override
-  void initState() {
-    super.initState();
-    startYear = widget.initialStart.year;
-    startMonth = widget.initialStart.month;
-    endYear = widget.initialEnd.year;
-    endMonth = widget.initialEnd.month;
-  }
-
-  List<int> get _availableStartYears {
-    return List.generate(
-      widget.maxDate.year - widget.minDate.year + 1,
-      (i) => widget.minDate.year + i,
-    );
-  }
-
-  List<int> get _availableEndYears {
-    return List.generate(
-      widget.maxDate.year - startYear + 1,
-      (i) => startYear + i,
-    );
-  }
-
-  List<int> get _availableStartMonths {
-    if (startYear == widget.minDate.year) {
-      return List.generate(
-        13 - widget.minDate.month,
-        (i) => widget.minDate.month + i,
-      );
-    }
-    return List.generate(12, (i) => i + 1);
-  }
-
-  List<int> get _availableEndMonths {
-    if (endYear == startYear) {
-      // End month must be >= start month
-      return List.generate(13 - startMonth, (i) => startMonth + i);
-    }
-    if (endYear == widget.maxDate.year) {
-      return List.generate(widget.maxDate.month, (i) => i + 1);
-    }
-    return List.generate(12, (i) => i + 1);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.l.timeRangeCustom),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${widget.l.filterDateFrom}:'),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<int>(
-                  initialValue: startYear,
-                  decoration: InputDecoration(labelText: widget.l.filterYear),
-                  items: _availableStartYears
-                      .map((y) => DropdownMenuItem(value: y, child: Text('$y')))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        startYear = value;
-                        // Adjust start month if needed
-                        if (!_availableStartMonths.contains(startMonth)) {
-                          startMonth = _availableStartMonths.first;
-                        }
-                        // Adjust end date if it's before start date
-                        if (endYear < startYear ||
-                            (endYear == startYear && endMonth < startMonth)) {
-                          endYear = startYear;
-                          endMonth = startMonth;
-                        }
-                      });
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: DropdownButtonFormField<int>(
-                  initialValue: startMonth,
-                  decoration: InputDecoration(labelText: widget.l.filterMonth),
-                  items: _availableStartMonths
-                      .map((m) => DropdownMenuItem(
-                          value: m,
-                          child: Text(
-                              DateFormat.MMM().format(DateTime(2024, m, 1)))))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        startMonth = value;
-                        // Adjust end date if it's before start date
-                        if (endYear == startYear && endMonth < startMonth) {
-                          endMonth = startMonth;
-                        }
-                      });
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text('${widget.l.filterDateTo}:'),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<int>(
-                  initialValue: endYear,
-                  decoration: InputDecoration(labelText: widget.l.filterYear),
-                  items: _availableEndYears
-                      .map((y) => DropdownMenuItem(value: y, child: Text('$y')))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        endYear = value;
-                        // Adjust end month if needed
-                        if (!_availableEndMonths.contains(endMonth)) {
-                          endMonth = _availableEndMonths.first;
-                        }
-                      });
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: DropdownButtonFormField<int>(
-                  initialValue: endMonth,
-                  decoration: InputDecoration(labelText: widget.l.filterMonth),
-                  items: _availableEndMonths
-                      .map((m) => DropdownMenuItem(
-                          value: m,
-                          child: Text(
-                              DateFormat.MMM().format(DateTime(2024, m, 1)))))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        endMonth = value;
-                      });
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(widget.l.cancel),
-        ),
-        FilledButton(
-          onPressed: () {
-            final start = DateTime(startYear, startMonth, 1);
-            final monthEnd =
-                DateTime(endYear, endMonth + 1, 0, 23, 59, 59, 999);
-            final now = DateTime.now();
-            final end = monthEnd.isAfter(now) ? now : monthEnd;
-            Navigator.of(context).pop((start, end));
-          },
-          child: Text(widget.l.apply),
-        ),
-      ],
-    );
   }
 }
