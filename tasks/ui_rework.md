@@ -235,7 +235,10 @@ Per roadmap: 3-screen onboarding for new users
 
 ### Phase 4: UX Polish
 1. ✅ Fix iOS keyboard dismissal (v1.27.1)
-2. Add pull-to-refresh to History
+2. ✅ Add pull-to-refresh to History (v1.30.0)
+   - Added `RefreshIndicator` wrapping the entry list in `HistoryTab`
+   - `onRefresh` invalidates `entriesWithDetailsProvider` and clears `imageCache`
+   - User can now pull-to-refresh to reload logo images from API
 3. Review all empty states
 
 ---
