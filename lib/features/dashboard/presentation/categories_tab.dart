@@ -152,8 +152,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
     // Guarantee a non-zero range
     final safeMaxY = (maxY <= minY) ? minY + 10.0 : maxY;
 
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
     final shouldAnimate = animationsEnabled(
       context,
       pointCount: chartData.length,
@@ -295,7 +294,10 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
                       ? BackgroundBarChartRodData(
                           show: true,
                           toY: safeMaxY,
-                          color: AppColors.bgElevated.withValues(alpha: 0.3),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.3),
                         )
                       : null,
                 )
@@ -314,8 +316,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
   Widget _buildCategoryList(BuildContext context, AppLocalizations l10n,
       List<CategoryInflation> data, AppSettings settings) {
     final format = NumberFormat.simpleCurrency(name: settings.currency);
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
 
     return ListView.builder(
       shrinkWrap: true,
@@ -332,9 +333,10 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
         final listTile = ListTile(
           leading: CircleAvatar(
             backgroundColor: isLuxeMode
-                ? AppColors.bgElevated
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
                 : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-            foregroundColor: isLuxeMode ? AppColors.textPrimary : null,
+            foregroundColor:
+                isLuxeMode ? Theme.of(context).colorScheme.onSurface : null,
             child: Text(
               categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '?',
             ),

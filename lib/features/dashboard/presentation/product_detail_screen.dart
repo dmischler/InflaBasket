@@ -12,7 +12,7 @@ import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/mixins/chart_touch_state.dart';
 import 'package:inflabasket/core/models/unit.dart';
-import 'package:inflabasket/core/theme/app_colors.dart';
+
 import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
@@ -293,7 +293,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
     ProductDetailFacts facts,
   ) {
     final theme = Theme.of(context);
-    final isLuxeMode = theme.scaffoldBackgroundColor == AppColors.bgVoid;
+    final isLuxeMode = theme.brightness == Brightness.dark;
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -824,8 +824,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
           }()
         : NumberFormat.simpleCurrency(name: settings.currency)
             .format(entryDetails.entry.price);
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
 
     return isLuxeMode
         ? TabularAmountText(
@@ -839,8 +838,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
   }
 
   Widget _wrapCard(BuildContext context, Widget child) {
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
     if (isLuxeMode) {
       return VaultCard(child: child);
     }

@@ -13,7 +13,6 @@ import 'package:inflabasket/features/entry_management/application/entry_provider
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
-import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
 import 'package:inflabasket/core/widgets/vault_card.dart';
 
@@ -267,8 +266,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
   }) {
     final entry = entryDetails.entry;
     final product = entryDetails.product;
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
 
     final content = ListTile(
       onTap: () => context.push('/home/product/${product.id}'),

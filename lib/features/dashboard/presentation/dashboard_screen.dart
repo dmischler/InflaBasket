@@ -55,9 +55,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         backgroundColor: accentColor,
         elevation: 0,
         shape: const CircleBorder(),
-        child: const Icon(
+        child: Icon(
           Icons.add,
-          color: AppColors.bgVoid,
+          color: Theme.of(context).colorScheme.onPrimary,
           size: 32,
         ),
       ),

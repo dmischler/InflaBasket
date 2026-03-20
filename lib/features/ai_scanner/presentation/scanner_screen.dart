@@ -10,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:inflabasket/core/database/database.dart';
-import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
@@ -148,7 +147,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final categories = categoriesAsync.valueOrNull ?? <Category>[];
     final settings = ref.read(settingsControllerProvider);
 
-    final isLuxeMode = Theme.of(context).isLuxeMode;
+    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet<bool>(
       context: context,
@@ -210,11 +209,16 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF121212).withValues(alpha: 0.9),
+                color: Theme.of(dialogContext)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.9),
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(24)),
-                border: const Border(
-                  top: BorderSide(color: Color(0x14FFFFFF), width: 1),
+                border: Border(
+                  top: BorderSide(
+                      color: Theme.of(dialogContext).colorScheme.outline,
+                      width: 1),
                 ),
               ),
               child: child,

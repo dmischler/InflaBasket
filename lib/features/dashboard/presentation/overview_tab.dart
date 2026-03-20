@@ -146,8 +146,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     final overlayPoints =
         overlayAsync.valueOrNull ?? const <ComparisonDataPoint>[];
     final hasOverlayData = overlayPoints.isNotEmpty;
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
     final timeFilter = ref.watch(chartTimeFilterControllerProvider);
     final firstDataPoint = entries.isNotEmpty
         ? entries
@@ -363,7 +362,9 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         const SizedBox(width: 4),
         Text(l.yourInflation, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(width: 16),
-        _legendDot(isLuxeMode ? AppColors.textSecondary : Colors.orange),
+        _legendDot(isLuxeMode
+            ? Theme.of(context).colorScheme.onSurfaceVariant
+            : Colors.orange),
         const SizedBox(width: 4),
         Text(_overlayLabel(l, overlayType),
             style: Theme.of(context).textTheme.bodySmall),
@@ -588,8 +589,6 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
     final chartMaxY = dataMinY == dataMaxY ? dataMaxY + 10.0 : dataMaxY;
 
     final primaryColor = Theme.of(context).colorScheme.primary;
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final glowOpacity = isDark ? 0.6 : 0.35;
     final chartHeight = responsiveChartHeight(context, type: ChartType.line);
@@ -600,25 +599,28 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         isCurved: true,
         preventCurveOverShooting: true,
         color: primaryColor,
-        barWidth: isLuxeMode ? 3 : 4,
+        barWidth: isDark ? 3 : 4,
         isStrokeCapRound: true,
-        shadow: isLuxeMode
+        shadow: isDark
             ? Shadow(color: primaryColor.withValues(alpha: 0.8), blurRadius: 8)
             : const Shadow(color: Colors.transparent),
         dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(
           show: true,
-          gradient: isLuxeMode
+          gradient: isDark
               ? LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
                     primaryColor.withValues(alpha: 0.3),
-                    AppColors.bgVoid.withValues(alpha: 0.0),
+                    Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withValues(alpha: 0.0),
                   ],
                 )
               : null,
-          color: isLuxeMode ? null : primaryColor.withValues(alpha: 0.2),
+          color: isDark ? null : primaryColor.withValues(alpha: 0.2),
         ),
       ),
       if (showCpi && comparisonSpots.isNotEmpty)
@@ -626,7 +628,9 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
           spots: comparisonSpots,
           isCurved: true,
           preventCurveOverShooting: true,
-          color: isLuxeMode ? AppColors.textSecondary : Colors.orange,
+          color: isDark
+              ? Theme.of(context).colorScheme.onSurfaceVariant
+              : Colors.orange,
           barWidth: 2,
           isStrokeCapRound: true,
           dashArray: [6, 4],
@@ -777,8 +781,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       );
     }
 
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
 
     final List<dynamic> inflators = isBitcoinMode
         ? (items as List<ItemInflationSats>)
@@ -859,8 +862,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
       );
     }
 
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     List<dynamic> deflators;
     if (isBitcoinMode) {
@@ -894,15 +896,15 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         final listTile = InkWell(
           onTap: () => context.push('/home/product/${item.product.id}'),
           child: ListTile(
-            contentPadding: isLuxeMode
+            contentPadding: isDark
                 ? const EdgeInsets.symmetric(horizontal: 16)
                 : EdgeInsets.zero,
             title: Text(item.product.name,
-                style: isLuxeMode
+                style: isDark
                     ? const TextStyle(fontWeight: FontWeight.w600)
                     : null),
             subtitle: Text(unitLabel),
-            trailing: isLuxeMode
+            trailing: isDark
                 ? TabularAmountText(
                     '${item.inflationPercent.toStringAsFixed(1)}%',
                     style: TextStyle(
@@ -920,7 +922,7 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
           ),
         );
 
-        if (isLuxeMode) {
+        if (isDark) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: VaultCard(

@@ -98,20 +98,21 @@ These widgets are used everywhere — fixing them fixes most screens.
 
 - [ ] **4.6** Other minor widgets with hardcoded colors
 
-### Phase 5: Refactor Screen-Level Hardcoded Colors (~6 files)
+### Phase 5: Refactor Screen-Level Hardcoded Colors (~6 files) ✅
 
-- [ ] **5.1** `lib/features/dashboard/presentation/overview_tab.dart` (~9 AppColors refs, 10 isLuxeMode checks)
-- [ ] **5.2** `lib/features/dashboard/presentation/categories_tab.dart` (~13 AppColors refs, 12 isLuxeMode checks)
-- [ ] **5.3** `lib/features/dashboard/presentation/history_tab.dart` (1 AppColors ref, 5 isLuxeMode checks)
-- [ ] **5.4** `lib/features/dashboard/presentation/product_detail_screen.dart` (3 AppColors refs, 6 isLuxeMode checks)
-- [ ] **5.5** Other screens with hardcoded AppColors
+- [x] **5.1** `lib/features/dashboard/presentation/overview_tab.dart` (~9 AppColors refs, 10 isLuxeMode checks)
+- [x] **5.2** `lib/features/dashboard/presentation/categories_tab.dart` (~13 AppColors refs, 12 isLuxeMode checks)
+- [x] **5.3** `lib/features/dashboard/presentation/history_tab.dart` (1 AppColors ref, 5 isLuxeMode checks)
+- [x] **5.4** `lib/features/dashboard/presentation/product_detail_screen.dart` (3 AppColors refs, 6 isLuxeMode checks)
+- [x] **5.5** `lib/features/dashboard/presentation/dashboard_screen.dart` (1 AppColors.bgVoid ref)
+- [x] **5.6** `lib/features/ai_scanner/presentation/scanner_screen.dart` (isLuxeMode extension, 2 hardcoded Color refs)
 
-### Phase 6: Replace `isLuxeMode` Pattern
+### Phase 6: Replace `isLuxeMode` Pattern ✅
 
-- [ ] **6.1** Update `LuxeTheme` extension in `app_theme.dart`
-  - Change `isLuxeMode` to check `brightness == Brightness.dark` instead of comparing scaffoldBackgroundColor
-  - Or rename to `isDarkMode` for clarity
-  - Update all ~69 call sites across ~10 files
+- [x] **6.1** Update `LuxeTheme` extension in `app_theme.dart`
+  - Changed `isLuxeMode` to check `brightness == Brightness.dark` instead of comparing scaffoldBackgroundColor
+  - Added `isDarkMode` as primary getter, `isLuxeMode` as deprecated alias
+  - Local `isLuxeMode` variables in screens now use `Theme.of(context).brightness == Brightness.dark`
 
 ### Phase 7: Add Toggle UI + Localization
 
@@ -176,3 +177,13 @@ These widgets are used everywhere — fixing them fixes most screens.
 - Replaced `scaffoldBackgroundColor == AppColors.bgVoid` pattern with `brightness == Brightness.dark`
 - `flutter analyze` passes with 0 errors across all modified files
 - Key change: `isLuxeMode` check replaced with `Theme.of(context).brightness == Brightness.dark`
+
+### Phase 5 Refactoring (2026-03-20)
+- Refactored 6 screen-level files: overview_tab, categories_tab, history_tab, product_detail_screen, dashboard_screen, scanner_screen
+- Replaced all `scaffoldBackgroundColor == AppColors.bgVoid` checks with `brightness == Brightness.dark`
+- Replaced `AppColors.textSecondary` → `colorScheme.onSurfaceVariant`, `AppColors.bgElevated` → `colorScheme.surfaceContainerHighest`
+- Replaced `AppColors.bgVoid` → `colorScheme.onPrimary` (FAB icon) / `colorScheme.surface` (gradients)
+- Replaced hardcoded `Color(0xFF121212)` / `Color(0x14FFFFFF)` → `colorScheme.surface` / `colorScheme.outline` in scanner modal
+- Removed unused `app_colors.dart` imports from history_tab and product_detail_screen
+- `flutter analyze` passes with 0 errors
+- paywall_screen.dart deferred to separate subscription feature work
