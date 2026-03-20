@@ -60,7 +60,7 @@ class PurchaseEntries extends Table {
 - `entry_templates` — Recurring purchase templates
 - `price_alerts` — Per-product threshold alerts
 - `external_series_cache` — CPI/M2 cached data
-- `price_histories` — Monthly price history per product (NEW)
+- `price_histories` — Monthly price history per product
 
 ---
 
@@ -102,7 +102,11 @@ lib/
 | `/settings` | Settings | Subscription, categories, templates, alerts, export |
 | `/settings/categories` | Category Management | Add/Delete custom categories |
 | `/settings/price-alerts` | Price Alerts | Per-product thresholds |
-| `/settings/weights` | Weight Editor | Category weights for basket |
+| `/settings/price-updates` | Price Updates | Products needing price refresh |
+| `/settings/price-updates/settings` | Price Update Settings | Reminder configuration |
+| `/settings/privacy-policy` | Privacy Policy | Legal privacy information |
+| `/settings/terms-of-service` | Terms of Service | Legal terms of use |
+| `/onboarding` | Onboarding | First-time user intro (3 screens) |
 
 ---
 
@@ -197,497 +201,226 @@ final isPremiumProvider = Provider<bool>((ref) {
 });
 ```
 
-**v1.45.0 UI Rework (Complete)**
-- Component library: LuxuryTextField, LuxuryDropdownField, ConfirmDialog, CustomDateRangeDialog, InflationSummaryCard, TimeRangeSelector, ChartHeader, ActionRow, BarcodeSection, ReceiptScanButton, PriceQuantityRow, InflationLineChart, InflationListView, TimeRangeFilterSheet, ChartOverlayFilterSheet
-- Screen splitting: overview_tab.dart reduced from 1367 → ~339 lines (75% reduction); add_entry_screen.dart reduced from 760 → ~550 lines (28% reduction)
-- Navigation type safety via sealed NavigationExtras classes
-- Bottom sheet filters (TimeRangeFilterSheet, ChartOverlayFilterSheet)
-- Onboarding flow with Fiat/Bitcoin mode selection
-- Settings reorganization with ActionRow component
-- All screens use StateMessageCard with Lottie animations
-
 ---
 
 ## 8. Implementation Status
 
-### ✅ Completed
+### ✅ Core Features
 
-**Core MVP**
-- Project setup, Drift schema, Riverpod architecture
-- Manual entry UI, History list, SQLite CRUD
-- Category seeding (12 default categories auto-created)
-- Localized category display (EN/DE)
+**Database & Architecture**
+- Drift schema with categories, products, purchase_entries
+- Riverpod state management with code generation
+- GoRouter navigation with type-safe extras
 
-**Analytics & Dashboard**
-- Inflation calculation engine (item, category, basket levels)
-- Line chart (basket index history), Bar chart (category comparison)
-- Top inflators/deflators list
-- Date range & category filtering
-- Macro comparison overlay (CPI/M2)
-- External series caching for offline fallback
+**Entry Management**
+- Manual entry form with category autocomplete
+- Barcode scanner (OpenFoodFacts, OpenBeautyFacts, OpenProductsFacts)
+- AI receipt scanner (Gemini 2.5 Flash)
+- Duplicate detection (exact + fuzzy matching)
+- Store logo display with favicon caching
 
-**AI Scanner & Monetization**
-- RevenueCat integration (mobile-only)
-- Paywall UI with desktop fallback
-- Camera/image picker implementation
-- Vision API client (OpenAI/GPT-4o)
-- Receipt review & edit screen
-- Bulk transaction save with rollback
+**Dashboard & Analytics**
+- Overview tab with inflation summary card
+- History tab with search and filtering
+- Categories tab with breakdown charts
+- Product detail screen with charts
+- Bitcoin mode (satoshis) alongside fiat
 
-**Settings & Polish**
-- Settings tab with premium status
-- Category management (add/delete)
-- CSV export
-- Recurring purchase templates
-- Price alerts with notifications
-- Dark/Light mode support
-- Desktop (Linux) support
+**Charts & Visualization**
+- Line charts with animated entrance
+- Bar charts with touch highlights
+- Macro overlay (CPI, M2 money supply)
+- Smart X-axis tick intervals
+- Responsive chart sizing
 
-**Bug Fixes**
-- Category dropdown (DB-sourced)
-- SnackBar error feedback on Add Entry
-- FocusNode leak fix
-- Notes field in entries
-- Receipt date parsing
-- Per-item receipt review dialog
-- Dynamic app version
-- Category overview empty state (use all entries, not time-filtered)
+**Settings & Configuration**
+- Dark/light mode toggle
+- Language selection (EN/DE)
+- Currency selection (CHF, EUR, USD, GBP)
+- Metric system toggle
+- Category management
+- Price alerts
+- Price update reminders
+- Database export/import (SQLite, CSV, JSON)
+- Factory reset
 
-**Sprint 4A-4B**
-- Desktop drag & drop for receipts
-- Debug premium override
-- StateMessageCard UX polish
-- Macro overlay source notes
-- Full UI localization (13 screens)
+**Legal Screens**
+- Privacy policy (v1.45.1)
+- Terms of service (v1.46.0)
 
-**Sprint 5**
-- AI scanner fallback model handling
-- JSON truncation recovery
+---
 
-**Sprint 6 (iOS Launch)**
-- Manual entry date restriction (5 years max)
-- Premium testing bypass (`FORCE_PREMIUM` flag)
-- Barcode scanner crash fix (iOS permissions)
-- Dark mode chart legend color fix
-- Curve baseline alignment
-- Chart tooltip positioning
-- X-axis tick layout fix
+### ✅ Version History
 
-**v1.4.1 Barcode Scanner**
-- Entry/store/category prefill fixes
-- Barcode processing state reset
+**v1.46.0** — Terms of Service
+- Added terms of service screen (Settings > About)
+- 6 sections: Acceptance, Use of Service, Accounts, IP, Liability, Changes
+- EN + DE localization
+- Route `/settings/terms-of-service`
 
-**v1.4.2 Local Caching**
-- Product barcode storage
-- Local lookup before API call
-- Navigation improvement
+**v1.45.1** — Privacy Policy
+- Added privacy policy screen (Settings > About)
+- 6 sections: Controller, Data Collected, Storage, Sharing, GDPR Rights, Contact
+- EN + DE localization
+- Route `/settings/privacy-policy`
 
-**v1.5.0 Smart Duplicate Detection**
-- Brand column (schema v10)
-- Two-stage matching (barcode + fuzzy)
-- Fuzzy engine (fuzzywuzzy)
-- Confirmation dialog with merge option
+**v1.45.0** — Onboarding Flow
+- 3-screen onboarding (Welcome, Modes, Start Tracking)
+- Fiat vs Bitcoin mode selection cards
+- SharedPreferences persistence
+- GoRouter redirect for first launch
 
-**v1.6.0 Backup & Restore**
+**v1.34.0–v1.36.0** — Settings Reorganization
+- Renamed "Preferences" to "Appearance"
+- SettingsSection widget (no collapse)
+- ActionRow component for consistent list tiles
+
+**v1.26.0–v1.26.1** — Theme System
+- Dark/light mode toggle with persistence
+- Theme-aware ColorScheme tokens
+- 6 core widgets + 6 screens refactored
+- Receipt scanner keyboard fix (iOS)
+
+**v1.20.0–v1.20.13** — Chart & Layout Improvements
+- FAB redesign (X/Twitter style)
+- Time range selector improvements
+- Inflation calculation fixes (baseline, range availability)
+- Chart X-tick overlap fix
+- Overall yearly inflation (independent of range)
+- Store website fix
+- AI consent dialog (Apple compliance)
+
+**v1.19.4–v1.19.5** — Chart Overlay Alignment
+- M2/inflation overlay baseline alignment
+- Offset calculation for proper 0% start
+
+**v1.18.0–v1.18.10** — History Tab & Charts
+- Store logo display with favicon caching
+- History search layout fixes
+- Smooth fiat/bitcoin toggle
+- Inflation calculation fix
+- Chart X-tick optimization
+
+**v1.16.1–v1.16.6** — UX Polish
+- Animated empty states (Lottie)
+- Responsive chart sizing
+- History tab scrollbar
+- Chart tooltip improvements
+
+**v1.15.0** — Animated Charts
+- 600ms entrance animations
+- Touch highlights with guide lines
+- Category bar tap effects
+
+**v1.13.2–v1.13.11** — Stability & Product Detail
+- Chart loading skeleton
+- Sats backfill reliability
+- Platform scaffold repair
+- Android build hardening
+- Duplicate entry auto-discard
+- Product detail view
+- Startup duplicate cleanup
+
+**v1.9.0–v1.9.x** — Inflation Engine & Notifications
+- Refactored inflation calculation
+- Sparse-data-aware price lookup
+- Smart search & data quality
+- Price update notifications
+
+**v1.8.0** — Price Update Reminders
+- Toggle in settings
+- Duration picker (3-18 months)
+- Price updates screen
+- Pull-to-refresh support
+
+**v1.7.0–v1.7.1** — Barcode & Export
+- Barcode assignment to existing products
+- Price history tracking
+- Export format selection (SQLite/CSV/JSON)
+
+**v1.6.0** — Backup & Restore
 - Database export/import
 - JSON export
 - Factory reset
 
-**v1.7.0 Smart Re-Scan & Barcode Assignment**
-- Assign barcode to existing products (edit screen)
-- Exact barcode lookup (<50ms local DB)
-- Price prompt dialog (Cupertino style)
-- Price history tracking (monthly)
-- Barcode conflict detection
-- German month names ("März 2026")
+**v1.5.0** — Smart Duplicate Detection
+- Brand column (schema v10)
+- Two-stage matching (barcode + fuzzy)
+- Fuzzy engine (fuzzywuzzy)
 
-**v1.7.1 Export Format Selection**
-- Export format dialog (SQLite/CSV/JSON)
-- Linux fallback for all export types (FilePicker)
-- CSV export Linux support
+**v1.4.x** — Desktop & Barcode
+- Barcode scanner fixes (iOS permissions)
+- Desktop drag & drop for receipts
+- Debug premium override
 
-**FAB Swipe-Up Selection**
-- Modal with Manual/Barcode/Scanner options
-- Direct scanner actions in main sheet (Camera + Gallery)
-- Scanner route performs delayed native picker launch after transition settles (real iOS reliability)
-- Haptic feedback
-
-**Smart Category Autocomplete**
-- TypeAhead with localization-aware filtering
-- Empty field on start
-
-**v1.8.0 Smart Price Update Reminder**
-- Price update reminder toggle in Settings
-- Duration picker (3/6/9/12/18 months)
-- Price Updates screen with collapsible store sections
-- Products grouped by store → category
-- Price prompt integration (reused from barcode scanner)
-- Instant list refresh after saving
-- Pull-to-refresh support
-- Empty state with themed message
-
-**v1.9.2 OpenFoodFacts Migration**
-- Replaced custom Dio HTTP client with official `openfoodfacts` package
-- Configured global UserAgent and country settings for bot protection
-- Uses v3 API with targeted fields for faster response
-- Preserved store parsing and category mapping logic
-
-**v1.26.1 Receipt Scanner Keyboard Fix**
-- Fixed iOS keyboard dismissal in receipt review dialog: added `TextInputAction.done` and `onSubmitted` handler to price and quantity fields
-
-**Dark/Light Mode Toggle (v1.26.x)**
-- Added full dark/light mode support with persistence via SharedPreferences
-- Created `getLuxeLightTheme()` in `app_theme.dart` with Material 3 `ColorScheme.light`
-- Added light color tokens to `app_colors.dart`: `bgLight`, `bgLightVault`, `bgLightElevated`, `textDarkPrimary`, `textDarkSecondary`, `textDarkTertiary`, `borderLight`
-- Refactored 6 core widgets to use theme-aware `ColorScheme` tokens: `luxury_dropdown_field`, `luxury_text_field`, `luxe_button`, `custom_bottom_nav`, `vault_card`, `fiat_bitcoin_toggle`
-- Refactored 5 additional widgets: `confirm_dialog`, `settings_section`, `store_logo_widget`, `chart_skeleton`, `inflation_summary_card`
-- Refactored 6 screen-level files: `overview_tab`, `categories_tab`, `history_tab`, `product_detail_screen`, `dashboard_screen`, `scanner_screen`
-- Replaced `isLuxeMode` extension with `isDarkMode` based on `Theme.of(context).brightness`
-- `isDarkMode` and `isBitcoinMode` are orthogonal — 4 combinations: dark-fiat, dark-btc, light-fiat, light-btc
-- Default to dark mode (`isDarkMode: true`) preserves existing user experience
-- Toggle UI added to Settings screen with `SwitchListTile.adaptive` and `Icons.dark_mode`
-- Localization: `settingsDarkMode` ("Dark Mode" / "Dunkler Modus") and `settingsDarkModeDesc` ("Use dark theme" / "Dunkles Design verwenden")
-- Conditional shadows: card shadows use 0.4 opacity in dark mode, 0.15 in light mode
-- Note: `paywall_screen.dart` deferred to separate subscription feature work (still has hardcoded dark-mode references)
-
-**v1.34.0 Settings Reorganization**
-- Reorganized settings screen into logical sections: Subscription, Appearance, Data Options, About
-- Renamed "Preferences" to "Appearance" (now contains: Dark Mode, Language, Currency, Metric System)
-- Moved Price Update Reminder from Preferences to Data Options
-- Merged "Backup & Restore" into "Data Options" (now contains: Categories, Price Alerts, Price Updates, Export/Import, Factory Reset)
-- Localization: added `settingsAppearance` ("Appearance" / "Darstellung") and `settingsDataOptions` ("Data Options" / "Datenoptionen")
-
-**v1.36.0 SettingsSection Simplification**
-- Removed `collapsible` and `initiallyExpanded` parameters from `SettingsSection` widget
-- Sections are now always expanded (no collapsing behavior)
-- Simplified widget code, removed dead `ExpansionTile` branch
-
-**v1.35.0 ActionRow Component**
-- Created `ActionRow` widget in `core/widgets/action_row.dart` for consistent list tile styling
-- Supports 4 variants: `navigation`, `action`, `toggle`, `dropdown`
-- Circular icon container (40x40) with optional background color
-- Optional subtitle support
-- Migrated Settings screen (Appearance and Data Options sections) to use ActionRow
-- Deprecated private `_OptionRow` in `add_entry_bottom_sheet.dart` (points to ActionRow)
-
-**v1.26.0 Multi-Database Barcode Lookup**
-- Barcode scanner now queries Open Food Facts, Open Beauty Facts, and Open Products Facts in a waterfall fallback
-- Enables scanning non-food items: cosmetics, personal care, household supplies, tools, stationery
-- Uses built-in `uriHelperBeautyProd` / `uriHelperProductsProd` from the `openfoodfacts` package (no API keys required)
-- No UI changes — callers continue using the same `client.lookupBarcode()` interface
-
-**v1.9.0 Inflation Engine Refactor**
-- Replaced modified Laspeyres basket index with product-level unweighted mean
-- Added sparse-data-aware price lookup (`latest price <= date`)
-- Chart now uses exact date-based stepped points with forced 0% baseline
-- Preserved fiat/bitcoin toggle with simplified shared inflation logic
-- Added jump-driver metadata for chart tooltips
-
-**v1.9.x Smart Search & Data Quality**
-- Smart search triggers only after 3 characters typed
-- Store name extraction with first-letter capitalization (Coop not coop)
-- Duplicate detection: same product within 1 month with same price triggers user confirmation, deletes newer entry if confirmed
-- Scanned products preserve fiat price in Bitcoin mode (no sat conversion)
-- AI-based data curation for product matching
-
-**v1.9.x Price Update Notifications**
-- Weekly local reminders for stale product prices (smart date-scheduled)
-- Notification fires on the earliest date any product exceeds the threshold
-- Re-fires weekly if user dismisses without updating
-- In-app popup shows exact count when opened from notification
-- Permission requested when enabling setting (iOS/Android)
-- Reschedules automatically when updating prices or changing settings
-
-**v1.13.2 Chart Loading Polish**
-- Reusable shimmer-based chart skeleton loaders for dashboard chart surfaces
-- Time-range pill placeholders and faux line/bar chart canvases
-- 8-second timeout fallback to `StateMessageCard`
-- Fade transitions into loaded content
-- Accessible loading semantics with dark/light shimmer palettes
-
-**v1.13.3 Sats Backfill Reliability**
-- App startup repairs entries with missing `priceSats` values automatically
-- Editing an entry now recalculates sats instead of dropping the stored value
-
-**v1.13.5 Manual Entry Search Reliability**
-- Fixed manual-mode product and store autocomplete so TypeAhead suggestions open again
-- Category field now keeps the selected default visible until the user starts searching
-- Leaving category search without a new selection restores the current category label
-
-**v1.13.7 Platform Scaffold Repair**
-- Removed an accidental nested Flutter project from `ios/` and restored the expected iOS-only project layout
-- Regenerated missing root `android/` files and missing iOS `Flutter` xcconfig files required by the Runner target
-- Preserved the checked-in iOS `AppIcon.appiconset` and stopped CI from recreating `ios/`, which could strip custom icon assets from iOS builds
-
-**v1.13.8 Android Build Hardening**
-- Raised Android minSdk to 24 for `image_picker_android` compatibility and enabled multidex/desugaring for a stable plugin build
-- Added scheduled-notification manifest receivers, alarm reboot permissions, and camera hardware declarations for Android Studio builds
-- Added release ProGuard rules for `flutter_local_notifications` and requested exact-alarm permission alongside notification permission on Android
-
-**v1.13.9 Duplicate Entry Auto-Discard**
-- Exact duplicates are now auto-discarded for new entries when product, store, and price match within the last 30 days
-- Barcode-based matching is prioritized, then product identity/name matching, before fallback fuzzy matching
-- Receipt bulk import now skips exact duplicates and reports how many rows were saved vs skipped
-
-**v1.13.10 Product Detail View**
-- Added `/home/product/:productId` with product-specific chart, price-history list, and fiat/bitcoin-aware inflation facts
-- History entries now expose a dedicated long-press action sheet with View Details alongside edit/delete
-- Product detail supports inline editing for shared product fields (name, category, canonical store) and propagates store edits across linked entries/templates without a schema migration
-- Product price-history rows reuse swipe gestures: right to edit entry-specific values, left to delete a single price entry
-- Top-level product deletion removes linked entries, templates, alerts, and cached price-history rows after confirmation
-
-**v1.13.11 Startup Duplicate Cleanup**
-- On app startup, scans recent entries (last 30 days) for exact duplicates (same normalized product name + store + exact price)
-- Auto-deletes newer duplicates, keeping the oldest entry in each group
-- Shows localized snackbar notification with count of removed duplicates
-- Runs once per app launch alongside sats repair and reminder sync
-
-**v1.15.0 Animated Charts & Touch Highlights**
-- Added 600ms chart entrance animations with reduced-motion and single-point fallbacks across dashboard overview, categories, and product detail charts
-- Added touch-highlight interactions with dashed guide lines, glow-dot emphasis, debounced haptics, and safer timer-based reset handling
-- Category bars now briefly brighten and pop on tap while preserving built-in tooltips and smooth implicit fl_chart transitions
-
-**v1.16.1 Animated Empty States**
-- Added bundled Lottie-based empty, loading, and error illustrations with localized accessibility labels and icon fallbacks in `StateMessageCard`
-- Rolled the new illustration system across dashboard, scanner, product detail, templates, paywall, alerts, and price-update empty states using a shared asset registry for future theming
-- Preserved offline reliability with local animation assets and one-shot error playback while keeping future fiat/bitcoin illustration swapping centralized
-
-**v1.16.2 Responsive Chart Sizing**
-- Replaced fixed-height chart containers with responsive sizing based on screen height
-- Created shared `chart_sizing.dart` utility for consistent chart heights across app
-- Charts now adapt to phone/tablet screen sizes with clamped min/max bounds
-- Line chart (overview): 180-240px on phones, 220-320px on tablets
-- Bar chart (categories): 200-280px on phones, 220-320px on tablets
-- Fixed overflow issues on smaller screens
-
-**v1.16.3 History Tab Scrollbar**
-- Added scrollbar to history tab for better navigation through long entry lists
-
-**v1.16.5 History Search Header Fix**
-- Fixed bug where clicking search icon in history tab caused the entire header (title + filter icons) to disappear
-- Restructured build method to always render the header row at the top
-- Empty state now shows below the header instead of replacing it entirely
-
-**v1.16.6 Chart Tooltip Improvements**
-- Increased touch detection threshold from 10px to 35px for easier tooltip activation on overview chart
-- Added tooltip margin to display tooltip above touch point, preventing finger from blocking the data
-
-**Bitcoin Standard Mode (v1.2.1)**
+**v1.2.1** — Bitcoin Mode
 - CoinGecko BTC price API
 - Sats converter utility
-- Bitcoin inflation providers
-- Sats storage as integers
-- Unified Fiat/Bitcoin toggle in Dashboard
-- Auto-fetch historical BTC prices
-- Provider invalidation on mode switch
-
-**v1.17.0 Theme Simplification**
-- Removed theme selection UI (settings dropdown)
-- Consolidated to single Luxe Dark theme with Fiat/Bitcoin accent colors
-- Theme toggle now controlled by `isBitcoinMode` setting
-- Removed unused AppThemeType enum and color tokens
-
-**v1.18.0 Store Logo Display**
-- Added store logo display in history tab using favicons from store websites
-- Created `StoreLogoCache` service (SharedPreferences-based) for caching store website URLs
-- Created `StoreLogoWidget` with fallback chain: DuckDuckGo favicon → Vemetric API → category letter
-- Added `storeWebsite` extraction to AI receipt scanner schema
-- Added optional website field to entry add/edit screen
-- User can manually add store website URL once, applies to all entries with same store name
-- Built-in mapping for ~30 common stores (Migros, Coop, Aldi, Lidl, etc.)
-- Fallback to category letter when no website available
-
-**v1.18.4 History Search Layout Fix**
-- Fixed RenderFlex error when clicking search icon in history tab
-- Wrapped AnimatedCrossFade in Expanded to provide bounded width constraints to inner Row with Expanded widget
-
-**v1.18.3 History Search Layout Fix**
-- Fixed RenderFlex error when clicking search icon in history tab
-- Added mainAxisSize.min to outer Row to provide bounded constraints for inner Expanded widget
-
-**v1.18.1 History Tab Optimization**
-- Removed edit icon button (long press and swipe already provide edit access)
-- Store name removed from entry subtitle (now shown via store icon on left)
-- Date format changed to d.M.yy (e.g., 13.3.26)
-- Store icon now displays in place of category letter using StoreLogoWidget
-
-**v1.18.6 Smooth Fiat/Bitcoin Mode Toggle**
-- Removed provider invalidation on mode switch (providers auto-refresh via dependency)
-- Removed AnimatedSwitcher from overview tab to prevent content flicker
-- Simplified loading logic - only triggers on initial app load, not mode changes
-- Content now stays stable while data updates in background
-- Fixed RenderFlex overflow in summary card during AnimatedContainer animation by adding mainAxisSize.min to Row
-
-**v1.18.9 Inflation Calculation Fix**
-- Fixed inflation calculation to exclude products with only 1 price entry in the selected time range (previously counted as 0%, diluting actual inflation)
-- Fixed chart to use selected time range as baseline instead of global earliest entry (chart now correctly starts at 100 for the selected period)
-- Chart time frame selector now properly updates the chart view
-- Both fiat and bitcoin modes fixed
-
-**v1.18.10 Chart X-Tick Overlap Fix**
-- Smart X-axis tick intervals: now never show daily ticks, only months/years based on selected date range
-- Added edge handling (minIncluded/maxIncluded: false) to prevent first/last labels from overflowing chart boundaries
-- Improved SideTitleFitInsideData configuration to keep labels within visible area
-- Overview chart: reduced target labels from 6 to 5, added minInterval calculation for better spacing
-- Product detail chart: replaced fixed intervals with dynamic interval calculation based on actual data range
-
-**v1.19.4 Chart Overlay Alignment Fix**
-- Fixed M2/inflation overlay chart offset so both curves start at exactly 0% (index 100) at the same baseline date
-- Changed comparisonOverlayData to use activeInflationRangeProvider.start as baseline instead of filteredHistory.first.month
-- Now finds the exact M2/inflation value at baseline date for proper rebasing
-
-**v1.19.5 Chart Overlay Offset Fix**
-- Added offset calculation in chart rendering to ensure first tooltip always starts at exactly 0%
-- Offsets comparison curve so first point is always at 0%, regardless of data rebasing
-
-**v1.20.0 FAB Redesign (X/Twitter Style)**
-- Removed FAB from inside bottom navigation pill
-- Added standalone floating action button positioned at bottom-right (floating above nav bar)
-- FAB now has stronger glow effect (blur: 20, spread: 4) compared to selected tab (blur: 12, spread: 2)
-- Uses accent color that switches between fiat green and bitcoin orange based on mode
-- 56px size vs 46px pill tabs for visual hierarchy
-- 4 slots instead of 5 in bottom navigation
-
-**v1.20.2 Simple Yearly Inflation + Dynamic Ranges**
-- Replaced overview summary metric with "Average yearly inflation" based on first/last in-range entries per product
-- Added sats-mode yearly summary using BTC price cache at entry dates
-- Range filtering now works on in-range entries only; products with fewer than two in-range entries are excluded
-- Updated dashboard preset ranges to 6M/1Y/2Y/3Y/5Y/10Y + Custom, with dynamic availability by purchase presence
-- Overview summary insufficient-data state now uses animated empty-state Lottie via `StateMessageCard`
-
-**v1.20.3 Time Range + Inflation Baseline Fixes**
-- Fixed time range availability logic: now shows ranges based on how far back oldest purchase spans (not just if any purchase exists in that period)
-- Fixed inflation calculation: products now only count if they have a price PRIOR to the selected time range start (removed partial period fallback)
-- Changed time range selector from segmented button to pill + dropdown for cleaner UI
-- Changed "overviewTitle" from "Average yearly inflation" / "Durchschnittliche Jahresinflation" to "Ø Jahresinflation"
-
-**v1.20.4 Layout Consolidation**
-- Combined time range selector and M2 toggle into single Row (range left, M2 right)
-- Removed "Compare with" / "Vergleichen mit" label from M2 dropdown
-
-**v1.20.5 Layout Alignment**
-- Removed "Zeitraum" / "Time Range" label from range selector dropdown to align with M2 toggle
-
-**v1.20.6 Inflation Chart Recovery + Sparse Data Smoothing**
-- Fixed flat/empty overview charts by rebuilding tracked product histories from full entry history (not only in-range rows)
-- Reworked cumulative inflation line generation to monthly points with per-product forward-fill for sparse, uneven price updates
-- Added 65% coverage gating for chart baseline so the first visible point starts at a representative 0% and avoids misleading low-coverage starts
-- Applied the same full-history fix to Bitcoin mode chart generation and hardened range start calculations with safe month subtraction
-
-**v1.20.7 Baseline + Range Availability Fixes**
-- Fixed yearly inflation calculation to use entries WITHIN selected range only (first = baseline, last = current)
-- Fixed time range availability: now checks if any product has entries spanning the range (not just oldest entry date)
-- With sample data (products spanning 2 years): only 2Y range now available, 6M/1Y correctly show no inflation when no in-range pairs exist
-
-**v1.20.9 Overall Yearly Inflation**
-- Created overallYearlyInflationSummary provider independent of selected time range
-- Yearly inflation now always shows average across all products' full data span, regardless of chart range selection
-- Same fix applied to Bitcoin mode (overallYearlyInflationSummarySatsProvider)
-
-**v1.20.11 Overall Item Inflation Lists**
-- Created overallItemInflationList provider using all entries (not range-filtered)
-- Created overallItemInflationListSatsProvider for Bitcoin mode
-- Top inflators/deflators now show data from full product history, independent of selected chart range
-
-**v1.25.6 History Short-Press Navigation**
-- Added short-press on history entry to open product detail screen directly
-- Bottom sheet action label changed from "View Details" to "View Product" to clarify distinction from tap behavior
-- Interaction model: left swipe (delete), right swipe (edit), short press (product), long press (action sheet)
-
-**v1.20.12 Store Website Fix**
-- Fixed store website not being saved to SharedPreferences when manually entered in add entry screen
-- Added URL normalization to accept diverse inputs (https://..., www..., or bare domain)
-- Added error handling for SharedPreferences operations to prevent iOS crashes
-
-**v1.20.13 AI Consent Form (Apple Review Compliance)**
-- Added AI consent dialog shown before first receipt scan to comply with Apple App Store AI disclosure requirement
-- Dialog explains that receipt images are sent to Google Gemini for OCR/text extraction
-- Clearly states what data is collected (receipt image), how it's processed (Google servers), and where it's stored (locally on device only)
-- Consent is tracked via SharedPreferences key `ai_consent_accepted`; shown once per user
-- Gated at both scanner entry points: bottom sheet (camera/gallery) and add entry screen scan button
-- Fully localized (EN + DE)
-- Created `ai_consent_dialog.dart` widget in `core/widgets/`
-
-**v1.45.0 Onboarding Flow**
-- 3-screen onboarding: Welcome, Modes (Fiat vs Bitcoin), Start Tracking
-- Uses existing Lottie animations with fallback icons
-- PageView with smooth swipe navigation and animated page indicators
-- Fiats vs Bitcoin comparison cards with glow effects
-- SharedPreferences persistence (`has_completed_onboarding`)
-- GoRouter redirect: `/onboarding` shown on first launch, skipped after completion
-- "Start Tracking" CTA navigates directly to `/home/add`
-- "Skip" button completes onboarding and navigates to `/home`
-- Fully localized (EN + DE)
-- Dark/light mode support with theme-aware accent colors
-
-**v1.45.1 Privacy Policy Screen**
-- Added privacy policy screen accessible from Settings > About
-- 6 sections: Controller, Data Collected, Data Storage, Data Sharing, User Rights (GDPR), Contact
-- Fully localized (EN + DE)
-- Added route `/settings/privacy-policy` to app_router
-- Enabled previously disabled placeholder in settings screen
-
-**v1.46.0 Terms of Service Screen**
-- Added terms of service screen accessible from Settings > About
-- 6 sections: Acceptance of Terms, Use of Service, User Accounts & Data, Intellectual Property, Limitation of Liability, Changes to Terms
-- Realistic legal text in both EN and DE
-- Added route `/settings/terms-of-service` to app_router
-- Enabled previously disabled "Coming soon" placeholder in settings screen
+- Unified Fiat/Bitcoin toggle
 
 ---
 
-### 🔄 In Progress / Partially Complete
+### 🔧 Fit & Finish
 
-**Android Release Signing Setup**
-- Android Studio debug/release builds now have the required manifest and Gradle plumbing
-- Production Play Store signing config still needs to be added locally before shipping Android releases
+**Component Library**
+- `LuxuryTextField`, `LuxuryDropdownField`
+- `ConfirmDialog`, `CustomDateRangeDialog`
+- `InflationSummaryCard`, `TimeRangeSelector`
+- `ChartHeader`, `ActionRow`, `BarcodeSection`
+- `ReceiptScanButton`, `PriceQuantityRow`
+- `InflationLineChart`, `InflationListView`
+- `TimeRangeFilterSheet`, `ChartOverlayFilterSheet`
+- `StateMessageCard` (empty/loading/error states)
+
+**Localization**
+- Full EN + DE support
+- 13+ screens localized
+- Lottie animations with accessibility labels
+
+**Platform Support**
+- iOS, Android, Linux (desktop)
+- Mobile: camera, barcode scanner, subscriptions
+- Desktop: file drag & drop, graceful feature fallbacks
+
+---
+
+### 🔄 In Progress
+
+**Android Release Signing**
+- Android Studio builds configured
+- Play Store signing config needs local setup
 
 ---
 
 ### 🐛 Known Issues
 
-*(None currently)*
+None currently.
 
 ---
 
 ## 9. Future Roadmap
 
-### Near-Term (Planned)
+### Near-Term
 
-**Sprint 4 – UI Design**
-- Glassmorphism cards and blur overlays
-- Speed dial FAB expansion
+| Feature | Description |
+|---------|-------------|
+| Home-Screen Widgets | iOS/Android widgets for quick inflation view |
+| CSV Import | Import entries from CSV files |
+| History Search | Advanced filters in history tab |
+| Batch Operations | Multi-select edit/delete in history |
 
-**Sprint 5 – Code Refactor**
-- Split files >250 lines
-- Remove unused code
-- Consolidate duplicate logic
-- Clean up TODOs and tech debt
-- Dependency audit
+### Long-Term
 
-**Feature: Expand Macro Sources**
-- Additional CPI sources (US BLS, UK ONS, BoJ)
-- M3 / balance sheet overlays
-- Multiple simultaneous overlays
-
----
-
-### Long-Term (Platform Expansion)
-
-| Feature | Status | Tier |
-|---------|--------|------|
-| AI Weekly Insights | Planned | Premium |
-| Price Forecasts (ML) | Planned | Premium |
-| Home-Screen Widgets | Planned | Free |
-| Family Sharing | Planned | Premium |
-| Cloud Backup (iCloud/GDrive) | Planned | Free |
-| User Auth & Cross-Device Sync | Planned | Premium |
-| Voice Entry | Planned | Premium |
-| Loyalty Card Scanner | Planned | Premium |
-| Seasonal/Location Insights | Planned | Premium |
-| CSV Import | Planned | Free |
-| History Search & Advanced Filters | Planned | Free |
-| Batch Operations in History | Planned | Free |
+| Feature | Tier |
+|---------|------|
+| AI Weekly Insights | Premium |
+| Price Forecasts (ML) | Premium |
+| Family Sharing | Premium |
+| Cloud Backup | Free |
+| Cross-Device Sync | Premium |
+| Voice Entry | Premium |
+| Loyalty Card Scanner | Premium |
+| Seasonal Insights | Premium |
 
 ---
 
