@@ -153,12 +153,13 @@ class InflationCalculator {
           .where((e) => e.price.isFinite && e.price > 0)
           .toList()
         ..sort((a, b) => a.date.compareTo(b.date));
-      if (history.isEmpty) continue;
+      if (history.length < 2) continue;
 
-      final base = history.first;
-      if (base.date.isAfter(endDate)) continue;
-
-      prepared.add((name: product.name, history: history, base: base));
+      final lastBeforeBaseline = _lastEntryOnOrBefore(history, baseline);
+      if (lastBeforeBaseline != null) {
+        prepared.add(
+            (name: product.name, history: history, base: lastBeforeBaseline));
+      }
     }
 
     if (prepared.isEmpty) return const [];
@@ -177,14 +178,9 @@ class InflationCalculator {
 
       for (final product in prepared) {
         final current = _lastEntryOnOrBefore(product.history, d);
-        if (current == null || current.date.isBefore(product.base.date)) {
-          continue;
-        }
+        if (current == null) continue;
 
-        // Skip products where current entry is the baseline entry (no actual change yet)
-        if (identical(current, product.base)) {
-          continue;
-        }
+        if (identical(current, product.base)) continue;
 
         final change =
             ((current.price - product.base.price) / product.base.price) * 100;
