@@ -312,49 +312,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     .setDarkMode(val),
               ),
               const Divider(height: 1),
-              SwitchListTile.adaptive(
-                secondary: const Icon(Icons.update),
+              ListTile(
+                leading: const Icon(Icons.update),
                 title: Text(l10n.settingsPriceUpdateReminder),
-                subtitle: Text(l10n.settingsPriceUpdateReminderDesc),
-                value: settings.priceUpdateReminderEnabled,
-                onChanged: (val) async {
-                  final enabled = await ref
-                      .read(settingsControllerProvider.notifier)
-                      .setPriceUpdateReminder(val);
-
-                  if (!enabled && val && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.priceUpdatePermissionDenied),
-                      ),
-                    );
-                  }
-                },
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/price-updates/settings'),
               ),
               if (settings.priceUpdateReminderEnabled) ...[
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.schedule),
-                  title: Text(l10n.settingsReminderAfter),
-                  trailing: DropdownButton<int>(
-                    value: settings.priceUpdateReminderMonths,
-                    underline: const SizedBox(),
-                    items: const [
-                      DropdownMenuItem(value: 3, child: Text('3')),
-                      DropdownMenuItem(value: 6, child: Text('6')),
-                      DropdownMenuItem(value: 9, child: Text('9')),
-                      DropdownMenuItem(value: 12, child: Text('12')),
-                      DropdownMenuItem(value: 18, child: Text('18')),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        ref
-                            .read(settingsControllerProvider.notifier)
-                            .setPriceUpdateReminderMonths(val);
-                      }
-                    },
-                  ),
-                ),
                 const Divider(height: 1),
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -373,17 +337,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   ),
                 ),
-              ] else
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Text(
-                    l10n.settingsPriceUpdateReminderDisabled,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
+              ],
             ],
           ),
           const SizedBox(height: 12),

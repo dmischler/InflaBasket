@@ -638,6 +638,12 @@ abstract class AppLocalizations {
   /// **'Get reminded to update prices'**
   String get settingsPriceUpdateReminderDesc;
 
+  /// Label for the reminder toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get settingsReminder;
+
   /// Label for reminder duration
   ///
   /// In en, this message translates to:

@@ -11,6 +11,7 @@ import 'package:inflabasket/features/barcode/presentation/barcode_screen.dart';
 import 'package:inflabasket/features/settings/presentation/category_management_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_alerts_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_updates_screen.dart';
+import 'package:inflabasket/features/settings/presentation/price_update_settings_screen.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'app_router.g.dart';
@@ -89,6 +90,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/settings/price-updates',
         builder: (context, state) => const PriceUpdatesScreen(),
+      ),
+      GoRoute(
+        path: '/settings/price-updates/settings',
+        builder: (context, state) => const PriceUpdateSettingsScreen(),
       ),
     ],
   );

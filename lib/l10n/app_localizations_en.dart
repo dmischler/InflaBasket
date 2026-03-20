@@ -284,6 +284,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPriceUpdateReminderDesc => 'Get reminded to update prices';
 
   @override
+  String get settingsReminder => 'Reminder';
+
+  @override
   String get settingsReminderAfter => 'Reminder after';
 
   @override

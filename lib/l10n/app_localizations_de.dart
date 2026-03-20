@@ -290,6 +290,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsPriceUpdateReminderDesc => 'Erinnerung zum Aktualisieren';
 
   @override
+  String get settingsReminder => 'Erinnerung';
+
+  @override
   String get settingsReminderAfter => 'Erinnerung nach';
 
   @override

@@ -274,6 +274,9 @@
   "settingsPriceUpdateReminderDesc": "Get reminded to update prices",
   "@settingsPriceUpdateReminderDesc": { "description": "Description for price update reminder toggle" },
 
+  "settingsReminder": "Reminder",
+  "@settingsReminder": { "description": "Label for the reminder toggle" },
+
   "settingsReminderAfter": "Reminder after",
   "@settingsReminderAfter": { "description": "Label for reminder duration" },
 
