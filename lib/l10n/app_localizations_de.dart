@@ -278,6 +278,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsMetricSystem => 'Metrisches System verwenden';
 
   @override
+  String get settingsDarkMode => 'Dunkler Modus';
+
+  @override
+  String get settingsDarkModeDesc => 'Dunkles Design verwenden';
+
+  @override
   String get settingsPriceUpdateReminder => 'Preis-Updates';
 
   @override

@@ -262,6 +262,12 @@
   "settingsMetricSystem": "Use Metric System",
   "@settingsMetricSystem": { "description": "Toggle label for metric/imperial" },
 
+  "settingsDarkMode": "Dark Mode",
+  "@settingsDarkMode": { "description": "Toggle label for dark/light mode" },
+
+  "settingsDarkModeDesc": "Use dark theme",
+  "@settingsDarkModeDesc": { "description": "Description for dark mode toggle" },
+
   "settingsPriceUpdateReminder": "Price Updates",
   "@settingsPriceUpdateReminder": { "description": "Toggle label for price update reminder" },
 

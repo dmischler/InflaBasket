@@ -116,21 +116,21 @@ These widgets are used everywhere — fixing them fixes most screens.
 
 ### Phase 7: Add Toggle UI + Localization
 
-- [ ] **7.1** Add localization strings to `lib/l10n/app_en.arb` and `lib/l10n/app_de.arb`
+- [x] **7.1** Add localization strings to `lib/l10n/app_en.arb` and `lib/l10n/app_de.arb`
   - `settingsDarkMode`: "Dark Mode" / "Dunkler Modus"
   - `settingsDarkModeDesc`: "Use dark theme" / "Dunkles Design verwenden"
 
-- [ ] **7.2** Add toggle to `lib/features/settings/presentation/settings_screen.dart`
-  - Add `SwitchListTile.adaptive` in Preferences section (after metric toggle)
+- [x] **7.2** Add toggle to `lib/features/settings/presentation/settings_screen.dart`
+  - Added `SwitchListTile.adaptive` in Preferences section (after metric toggle)
   - Icon: `Icons.dark_mode`
-  - Wire to `settingsControllerProvider.notifier.setDarkMode(val)`
+  - Wired to `settingsControllerProvider.notifier.setDarkMode(val)`
 
-- [ ] **7.3** Run `flutter gen-l10n` to regenerate AppLocalizations
+- [x] **7.3** Run `flutter gen-l10n` to regenerate AppLocalizations
 
 ### Phase 8: Verification
 
-- [ ] **8.1** Run `dart run build_runner build -d` (regenerate Riverpod code)
-- [ ] **8.2** Run `flutter analyze` (fix any issues)
+- [x] **8.1** Run `dart run build_runner build -d` (regenerate Riverpod code) — N/A (no providers modified)
+- [x] **8.2** Run `flutter analyze` (fix any issues) — passes with 0 errors
 - [ ] **8.3** Run `flutter test`
 - [ ] **8.4** Manual test: toggle dark/light mode, verify all screens render correctly in both modes
 - [ ] **8.5** Test `isBitcoinMode` × `isDarkMode` combinations (4 modes)
@@ -187,3 +187,10 @@ These widgets are used everywhere — fixing them fixes most screens.
 - Removed unused `app_colors.dart` imports from history_tab and product_detail_screen
 - `flutter analyze` passes with 0 errors
 - paywall_screen.dart deferred to separate subscription feature work
+
+### Phase 7: Add Toggle UI + Localization (2026-03-20)
+- Added `settingsDarkMode` and `settingsDarkModeDesc` to both `app_en.arb` and `app_de.arb`
+- Added `SwitchListTile.adaptive` with `Icons.dark_mode` in Preferences section of settings screen
+- Wired toggle to `settingsControllerProvider.notifier.setDarkMode(val)`
+- Ran `flutter gen-l10n` to regenerate AppLocalizations
+- `flutter analyze` passes with 0 errors across all modified files

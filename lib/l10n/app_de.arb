@@ -88,6 +88,12 @@
   "settingsLanguage": "Sprache",
   "settingsMetricSystem": "Metrisches System verwenden",
 
+  "settingsDarkMode": "Dunkler Modus",
+  "@settingsDarkMode": { "description": "Toggle label for dark/light mode" },
+
+  "settingsDarkModeDesc": "Dunkles Design verwenden",
+  "@settingsDarkModeDesc": { "description": "Description for dark mode toggle" },
+
   "settingsPriceUpdateReminder": "Preis-Updates",
   "@settingsPriceUpdateReminder": { "description": "Toggle label for price update reminder" },
 

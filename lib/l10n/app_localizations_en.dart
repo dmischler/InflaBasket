@@ -272,6 +272,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMetricSystem => 'Use Metric System';
 
   @override
+  String get settingsDarkMode => 'Dark Mode';
+
+  @override
+  String get settingsDarkModeDesc => 'Use dark theme';
+
+  @override
   String get settingsPriceUpdateReminder => 'Price Updates';
 
   @override

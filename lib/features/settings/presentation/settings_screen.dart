@@ -303,6 +303,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const Divider(height: 1),
               SwitchListTile.adaptive(
+                secondary: const Icon(Icons.dark_mode),
+                title: Text(l10n.settingsDarkMode),
+                subtitle: Text(l10n.settingsDarkModeDesc),
+                value: settings.isDarkMode,
+                onChanged: (val) => ref
+                    .read(settingsControllerProvider.notifier)
+                    .setDarkMode(val),
+              ),
+              const Divider(height: 1),
+              SwitchListTile.adaptive(
                 secondary: const Icon(Icons.update),
                 title: Text(l10n.settingsPriceUpdateReminder),
                 subtitle: Text(l10n.settingsPriceUpdateReminderDesc),

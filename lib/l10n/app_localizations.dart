@@ -614,6 +614,18 @@ abstract class AppLocalizations {
   /// **'Use Metric System'**
   String get settingsMetricSystem;
 
+  /// Toggle label for dark/light mode
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get settingsDarkMode;
+
+  /// Description for dark mode toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Use dark theme'**
+  String get settingsDarkModeDesc;
+
   /// Toggle label for price update reminder
   ///
   /// In en, this message translates to:
