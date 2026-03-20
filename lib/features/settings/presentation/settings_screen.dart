@@ -245,8 +245,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 12),
           SettingsSection(
             title: l10n.settingsAppearance,
-            collapsible: true,
-            initiallyExpanded: true,
             children: [
               ActionRow(
                 variant: ActionRowVariant.toggle,
@@ -321,8 +319,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 12),
           SettingsSection(
             title: l10n.settingsDataOptions,
-            collapsible: true,
-            initiallyExpanded: true,
             children: [
               ActionRow(
                 variant: ActionRowVariant.navigation,

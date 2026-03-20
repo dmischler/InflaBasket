@@ -348,6 +348,11 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Merged "Backup & Restore" into "Data Options" (now contains: Categories, Price Alerts, Price Updates, Export/Import, Factory Reset)
 - Localization: added `settingsAppearance` ("Appearance" / "Darstellung") and `settingsDataOptions` ("Data Options" / "Datenoptionen")
 
+**v1.36.0 SettingsSection Simplification**
+- Removed `collapsible` and `initiallyExpanded` parameters from `SettingsSection` widget
+- Sections are now always expanded (no collapsing behavior)
+- Simplified widget code, removed dead `ExpansionTile` branch
+
 **v1.35.0 ActionRow Component**
 - Created `ActionRow` widget in `core/widgets/action_row.dart` for consistent list tile styling
 - Supports 4 variants: `navigation`, `action`, `toggle`, `dropdown`
