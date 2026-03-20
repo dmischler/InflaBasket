@@ -206,6 +206,11 @@ class InflationCalculator {
           continue;
         }
 
+        if (identical(current, product.baselineEntry)) {
+          print('  ${product.name}: AT BASELINE (no change)');
+          continue;
+        }
+
         final change = ((current.price - product.baselineEntry.price) /
                 product.baselineEntry.price) *
             100;
