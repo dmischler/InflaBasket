@@ -134,18 +134,19 @@ class InflationCalculator {
   }
 
   static List<ChartPoint> generateInflationChart(
-    DateTime baseline,
+    DateTime rangeStart,
     DateTime endDate,
     List<TrackedProduct> products,
   ) {
-    if (baseline.isAfter(endDate)) return const [];
-    final dates = _monthlyChartDates(baseline, endDate);
+    if (rangeStart.isAfter(endDate)) return const [];
+    final dates = _monthlyChartDates(rangeStart, endDate);
     if (dates.isEmpty) return const [];
 
-    final prepared = <({
+    final productData = <({
       String name,
       List<PriceEntry> history,
-      PriceEntry base,
+      PriceEntry? baselineEntry,
+      bool hasBaselineBeforeRange,
     })>[];
 
     for (final product in products.where((p) => p.isActive)) {
@@ -153,16 +154,22 @@ class InflationCalculator {
           .where((e) => e.price.isFinite && e.price > 0)
           .toList()
         ..sort((a, b) => a.date.compareTo(b.date));
-      if (history.length < 2) continue;
+      if (history.isEmpty) continue;
 
-      final lastBeforeBaseline = _lastEntryOnOrBefore(history, baseline);
-      if (lastBeforeBaseline != null) {
-        prepared.add(
-            (name: product.name, history: history, base: lastBeforeBaseline));
+      final baselineBefore = _lastEntryOnOrBefore(history, rangeStart);
+      final hasBeforeRange = baselineBefore != null;
+
+      if (hasBeforeRange) {
+        productData.add((
+          name: product.name,
+          history: history,
+          baselineEntry: baselineBefore,
+          hasBaselineBeforeRange: true,
+        ));
       }
     }
 
-    if (prepared.isEmpty) return const [];
+    if (productData.isEmpty) return const [];
 
     final rawPoints = <({
       DateTime date,
@@ -176,14 +183,15 @@ class InflationCalculator {
       final changes = <double>[];
       final jumpDrivers = <String>[];
 
-      for (final product in prepared) {
+      for (final product in productData) {
         final current = _lastEntryOnOrBefore(product.history, d);
         if (current == null) continue;
 
-        if (identical(current, product.base)) continue;
+        if (identical(current, product.baselineEntry)) continue;
 
-        final change =
-            ((current.price - product.base.price) / product.base.price) * 100;
+        final change = ((current.price - product.baselineEntry!.price) /
+                product.baselineEntry!.price) *
+            100;
         changes.add(change);
 
         final changedToday = product.history.any((e) =>
@@ -198,13 +206,26 @@ class InflationCalculator {
       rawPoints.add((
         date: d,
         avgInflation: changes.average,
-        coverage: changes.length / prepared.length,
+        coverage: changes.length / productData.length,
         contributing: changes.length,
         jumpDrivers: jumpDrivers,
       ));
     }
 
     if (rawPoints.isEmpty) return const [];
+
+    if (rawPoints.isEmpty || rawPoints.first.date != rangeStart) {
+      rawPoints.insert(
+        0,
+        (
+          date: rangeStart,
+          avgInflation: 0.0,
+          coverage: 0.0,
+          contributing: 0,
+          jumpDrivers: <String>[],
+        ),
+      );
+    }
 
     final baselineInflation = rawPoints.first.avgInflation;
 
@@ -214,7 +235,7 @@ class InflationCalculator {
         date: p.date,
         inflationPct: shifted.abs() < 1e-9 ? 0.0 : shifted,
         contributingProducts: p.contributing,
-        productsAtBaseline: prepared.length,
+        productsAtBaseline: productData.length - p.contributing,
         jumpDrivers: p.jumpDrivers,
       );
     }).toList();

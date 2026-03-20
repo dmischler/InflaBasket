@@ -143,10 +143,14 @@ lib/
 
 ### Chart Semantics
 
-- Baseline point is always forced to **0.0%**.
-- Series is generated from **real update dates only** (plus baseline and end date).
-- No interpolation and no synthetic monthly points.
-- New products only affect inflation from their first available price onward.
+- Baseline per product: last entry BEFORE range start, or first entry INSIDE if none before.
+- Products without baseline before range.start are **excluded** until first price change.
+- Products at baseline contribute **0%** (not skipped).
+- Inflation counts only after first price CHANGE (up or down).
+- Always starts at **0%** at range.start.
+- Aggregate chart: smoothed curves (current display).
+- Individual product chart: **staircase** (step function).
+- Each price change creates immediate step, stays flat until next change.
 
 ### Bitcoin Mode
 
@@ -251,6 +255,15 @@ final isPremiumProvider = Provider<bool>((ref) {
 ---
 
 ### ✅ Version History
+
+**v1.47.1** — Inflation Calculation Rework
+- Baseline per product: last entry before range.start, or first inside if none before
+- Products without baseline before range excluded until first price change
+- Products at baseline contribute 0% (not skipped)
+- Inflation counts only after first price CHANGE (up or down)
+- Aggregate chart: smoothed curves
+- Individual product chart: staircase (step function)
+- Always starts at 0% at range.start
 
 **v1.46.0** — Terms of Service
 - Added terms of service screen (Settings > About)

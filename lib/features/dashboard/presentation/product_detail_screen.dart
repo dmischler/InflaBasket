@@ -500,6 +500,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
     return _wrapCard(context, body);
   }
 
+  static List<FlSpot> _toStepSpots(List<FlSpot> spots) {
+    if (spots.length < 2) return spots;
+    final stepped = <FlSpot>[spots.first];
+    for (var i = 1; i < spots.length; i++) {
+      final prev = spots[i - 1];
+      final curr = spots[i];
+      stepped.add(FlSpot(curr.x, prev.y));
+      stepped.add(curr);
+    }
+    return stepped;
+  }
+
   Widget _buildRangeSelector(
     BuildContext context,
     AppLocalizations l10n,
@@ -569,11 +581,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
           borderData: FlBorderData(show: false),
           lineBarsData: [
             LineChartBarData(
-              spots: spots,
-              isCurved: true,
+              spots: _toStepSpots(spots),
+              isCurved: false,
               color: color,
               barWidth: 3,
               isStrokeCapRound: true,
+              preventCurveOverShooting: true,
               dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
