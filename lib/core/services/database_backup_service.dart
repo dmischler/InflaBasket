@@ -64,17 +64,29 @@ class DatabaseBackupService extends _$DatabaseBackupService {
   }
 
   Future<String?> importDatabase() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      allowMultiple: false,
+    // TODO(user): Remove test import logic before release
+    final testPath = const String.fromEnvironment(
+      'TEST_DB_PATH',
+      defaultValue: '',
     );
 
-    if (result == null || result.files.isEmpty) return null;
+    String filePath;
+    if (testPath.isNotEmpty) {
+      filePath = testPath;
+    } else {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.any,
+        allowMultiple: false,
+      );
 
-    final pickedFile = result.files.first;
-    if (pickedFile.path == null) return null;
+      if (result == null || result.files.isEmpty) return null;
 
-    final file = File(pickedFile.path!);
+      final pickedFile = result.files.first;
+      if (pickedFile.path == null) return null;
+      filePath = pickedFile.path!;
+    }
+
+    final file = File(filePath);
     final bytes = await file.openRead(0, 16).first;
     final header = String.fromCharCodes(bytes);
     if (!header.startsWith('SQLite format 3')) {
