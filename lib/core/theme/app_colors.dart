@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 
-/// Design Token System: Premium Dark Luxe
+/// Design Token System: Premium Luxe
 /// All colors used across the application are centralized here.
 class AppColors {
-  // Surface Tokens
+  // Surface Tokens — Dark
   static const Color bgVoid = Color(0xFF050505);
   static const Color bgVault = Color(0xFF121212);
   static const Color bgElevated = Color(0xFF1E1E1E);
 
-  // Typography Tokens
+  // Surface Tokens — Light
+  static const Color bgLight = Color(0xFFFAFAFA);
+  static const Color bgLightVault = Color(0xFFF5F5F5);
+  static const Color bgLightElevated = Color(0xFFFFFFFF);
+
+  // Typography Tokens — Dark
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xFFA3A3A3);
   static const Color textTertiary = Color(0xFF525252);
+
+  // Typography Tokens — Light
+  static const Color textDarkPrimary = Color(0xFF171717);
+  static const Color textDarkSecondary = Color(0xFF525252);
+  static const Color textDarkTertiary = Color(0xFFA3A3A3);
 
   // Fiat Theme Tokens (Default)
   static const Color accentFiatMain = Color(0xFF10B981); // Emerald
@@ -23,8 +33,11 @@ class AppColors {
   static const Color accentBtcDim = Color(0xFF78350F);
   static const Color accentBtcGlow = Color(0x26F59E0B); // 15% opacity Gold
 
-  // Structural Tokens
+  // Structural Tokens — Dark
   static const Color borderMetallic = Color(0x14FFFFFF); // 8% opacity White
+
+  // Structural Tokens — Light
+  static const Color borderLight = Color(0x14000000); // 8% opacity Black
 }
 
 /// Helper class for standardized spacing and sizing tokens

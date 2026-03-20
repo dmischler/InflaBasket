@@ -25,6 +25,7 @@ class AppSettings {
   final bool isMetric;
   final String locale;
   final bool isBitcoinMode;
+  final bool isDarkMode;
   final bool priceUpdateReminderEnabled;
   final int priceUpdateReminderMonths;
 
@@ -33,6 +34,7 @@ class AppSettings {
     this.isMetric = true,
     this.locale = 'en',
     this.isBitcoinMode = false,
+    this.isDarkMode = true,
     this.priceUpdateReminderEnabled = false,
     this.priceUpdateReminderMonths = 6,
   });
@@ -42,6 +44,7 @@ class AppSettings {
     bool? isMetric,
     String? locale,
     bool? isBitcoinMode,
+    bool? isDarkMode,
     bool? priceUpdateReminderEnabled,
     int? priceUpdateReminderMonths,
   }) {
@@ -50,6 +53,7 @@ class AppSettings {
       isMetric: isMetric ?? this.isMetric,
       locale: locale ?? this.locale,
       isBitcoinMode: isBitcoinMode ?? this.isBitcoinMode,
+      isDarkMode: isDarkMode ?? this.isDarkMode,
       priceUpdateReminderEnabled:
           priceUpdateReminderEnabled ?? this.priceUpdateReminderEnabled,
       priceUpdateReminderMonths:
@@ -77,6 +81,7 @@ class SettingsController extends _$SettingsController {
       'settings_price_update_reminder_enabled';
   static const _priceUpdateReminderMonthsKey =
       'settings_price_update_reminder_months';
+  static const _darkModeKey = 'settings_dark_mode';
 
   // Legacy key - kept for migration
   static const _themeKey = 'settings_theme_type';
@@ -104,6 +109,7 @@ class SettingsController extends _$SettingsController {
       isMetric: prefs.getBool(_metricKey) ?? true,
       locale: resolveAppLanguageCode(prefs.getString(_localeKey)),
       isBitcoinMode: isBitcoinMode,
+      isDarkMode: prefs.getBool(_darkModeKey) ?? true,
       priceUpdateReminderEnabled:
           prefs.getBool(_priceUpdateReminderKey) ?? false,
       priceUpdateReminderMonths:
@@ -134,6 +140,12 @@ class SettingsController extends _$SettingsController {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setBool(_bitcoinModeKey, isBitcoinMode);
     state = state.copyWith(isBitcoinMode: isBitcoinMode);
+  }
+
+  Future<void> setDarkMode(bool isDarkMode) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setBool(_darkModeKey, isDarkMode);
+    state = state.copyWith(isDarkMode: isDarkMode);
   }
 
   bool get hasAcceptedAiConsent {

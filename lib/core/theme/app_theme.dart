@@ -84,10 +84,96 @@ class AppTheme {
       useMaterial3: true,
     );
   }
+
+  static ThemeData getLuxeLightTheme({required bool isBitcoinMode}) {
+    final accentColor =
+        isBitcoinMode ? AppColors.accentBtcMain : AppColors.accentFiatMain;
+
+    const String primaryFontFamily = 'Inter';
+
+    return ThemeData(
+      brightness: Brightness.light,
+      fontFamily: primaryFontFamily,
+      scaffoldBackgroundColor: AppColors.bgLight,
+      primaryColor: accentColor,
+      colorScheme: ColorScheme.light(
+        primary: accentColor,
+        secondary:
+            isBitcoinMode ? AppColors.accentBtcDim : AppColors.accentFiatDim,
+        surface: AppColors.bgLightVault,
+        onPrimary: AppColors.bgLight,
+        onSurface: AppColors.textDarkPrimary,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.bgLight,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: AppColors.textDarkPrimary),
+        titleTextStyle: const TextStyle(
+          color: AppColors.textDarkPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          fontFamily: primaryFontFamily,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.bgLightVault,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          side: const BorderSide(color: AppColors.borderLight, width: 1),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: accentColor,
+          foregroundColor: AppColors.bgLight,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          ),
+          padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.md,
+            horizontal: AppSpacing.lg,
+          ),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            fontFamily: primaryFontFamily,
+          ),
+        ),
+      ),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+            color: AppColors.textDarkPrimary, fontWeight: FontWeight.w700),
+        displayMedium: TextStyle(
+            color: AppColors.textDarkPrimary, fontWeight: FontWeight.w700),
+        displaySmall: TextStyle(
+            color: AppColors.textDarkPrimary, fontWeight: FontWeight.w700),
+        headlineMedium: TextStyle(
+            color: AppColors.textDarkPrimary, fontWeight: FontWeight.w600),
+        headlineSmall: TextStyle(
+            color: AppColors.textDarkPrimary, fontWeight: FontWeight.w600),
+        titleLarge: TextStyle(
+            color: AppColors.textDarkPrimary, fontWeight: FontWeight.w600),
+        titleMedium: TextStyle(
+            color: AppColors.textDarkPrimary, fontWeight: FontWeight.w500),
+        titleSmall: TextStyle(
+            color: AppColors.textDarkSecondary, fontWeight: FontWeight.w500),
+        bodyLarge: TextStyle(color: AppColors.textDarkPrimary),
+        bodyMedium: TextStyle(color: AppColors.textDarkSecondary),
+        bodySmall: TextStyle(color: AppColors.textDarkTertiary),
+      ),
+      useMaterial3: true,
+    );
+  }
 }
 
 extension LuxeTheme on ThemeData {
-  bool get isLuxeMode => scaffoldBackgroundColor == AppColors.bgVoid;
+  bool get isDarkMode => brightness == Brightness.dark;
+
+  // Deprecated alias — use isDarkMode instead
+  bool get isLuxeMode => isDarkMode;
 
   bool get isBitcoinMode => primaryColor == AppColors.accentBtcMain;
 }
