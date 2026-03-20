@@ -32,9 +32,9 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 
 | Screen | Lines | Status |
 |--------|-------|--------|
-| OverviewTab | ~954 | **Reduced from 1367** - partial splitting done |
+| OverviewTab | ~768 | **Reduced from 1367** - InflationListView extracted |
 | AddEntryScreen | ~760 | **Too large** - needs splitting |
-| SettingsScreen | ~471 | Acceptable but dense |
+| SettingsScreen | ~437 | Acceptable - uses ActionRow |
 | DashboardScreen | ~75 | Good |
 | HistoryTab | ~400+ | Acceptable |
 | CategoriesTab | ~300+ | Acceptable |
@@ -63,6 +63,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 | **TimeRangeSelector** | core/widgets/time_range_selector.dart | Chart time range dropdown |
 | **ChartHeader** | core/widgets/chart_header.dart | Overlay type dropdown + CPI toggle |
 | LuxeButton | core/widgets/luxe_button.dart | Luxe styled button |
+| **ActionRow** | core/widgets/action_row.dart | List tile with 4 variants (navigation/action/toggle/dropdown) |
 
 ### Missing Components
 1. ~~**LuxuryTextField**~~ - ✅ Implemented
@@ -73,9 +74,9 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 6. ~~**TimeRangeSelector**~~ - ✅ Implemented
 7. ~~**ChartHeader**~~ - ✅ Implemented
 8. ~~**SettingsSection**~~ - ✅ Implemented (v1.29.0)
-9. **ActionRow** - For list tiles with consistent styling
+9. ~~**ActionRow**~~ - ✅ Implemented (v1.35.0)
 10. **InflationLineChart** - Line chart widget (complex, chart mixin dependency)
-11. **InflationListView** - Inflators/deflators list widget (complex, type handling)
+11. ~~**InflationListView**~~ - ✅ Implemented (v1.36.0) - sealed class union for type-safe ItemInflation/ItemInflationSats handling
 
 ---
 
@@ -209,14 +210,16 @@ Per roadmap: 3-screen onboarding for new users
    - `ConfirmDialog.show()` factory method
    - `ConfirmDialogHelpers` with `showDelete()` and `showDiscardChanges()`
 
-### Phase 2: Screen Splitting (Partial - v1.28.0)
-**overview_tab.dart**: Reduced from 1367 to 954 lines (~30% reduction)
+### Phase 2: Screen Splitting (Partial - v1.28.0, completed v1.36.0)
+**overview_tab.dart**: Reduced from 1367 to 954 lines (~30% reduction), then to 768 lines (~44% total reduction)
 - ✅ `CustomDateRangeDialog` - Extracted to `core/widgets/custom_date_range_dialog.dart`
 - ✅ `InflationSummaryCard` - Extracted to `core/widgets/inflation_summary_card.dart`
 - ✅ `TimeRangeSelector` - Extracted to `core/widgets/time_range_selector.dart`
 - ✅ `ChartHeader` - Extracted to `core/widgets/chart_header.dart`
+- ✅ `InflationListView` - Extracted to `core/widgets/inflation_list_view.dart` (v1.36.0)
+  - Created sealed class union `InflationListItem` with `FiatInflationItem` and `SatsInflationItem`
+  - Added `toInflationList()` extensions on `List<ItemInflation>` and `List<ItemInflationSats>`
 - ❌ `InflationLineChart` - Not extracted (complex, uses ChartTouchState mixin)
-- ❌ `InflationListView` - Not extracted (complex type handling)
 - ❌ `add_entry_screen.dart` - Not started (tight state coupling)
 
 **Remaining for Phase 2**:

@@ -4,30 +4,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/mixins/chart_touch_state.dart';
 import 'package:intl/intl.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/api/cpi_client.dart';
 import 'package:inflabasket/core/api/cpi_provider.dart';
-import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/utils/chart_sizing.dart';
-import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/core/widgets/custom_date_range_dialog.dart';
 import 'package:inflabasket/core/widgets/inflation_summary_card.dart';
 import 'package:inflabasket/core/widgets/time_range_selector.dart';
 import 'package:inflabasket/core/widgets/chart_header.dart';
+import 'package:inflabasket/core/widgets/inflation_list_view.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
-import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
-import 'package:inflabasket/core/widgets/vault_card.dart';
-import 'package:inflabasket/core/theme/app_colors.dart';
 
 class _ChartTickConfig {
   const _ChartTickConfig({
@@ -220,23 +215,25 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
           Text(l.overviewTopInflators,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopInflators(
-            context,
-            l,
-            topInflators,
-            settings,
-            displayBitcoinData,
+          InflationListView(
+            items: displayBitcoinData
+                ? (topInflators as List<ItemInflationSats>).toInflationList()
+                : (topInflators as List<ItemInflation>).toInflationList(),
+            isBitcoinMode: displayBitcoinData,
+            settings: settings,
+            isInflatorsList: true,
           ),
           const SizedBox(height: 24),
           Text(l.overviewTopDeflators,
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
-          _buildTopDeflators(
-            context,
-            l,
-            topInflators,
-            settings,
-            displayBitcoinData,
+          InflationListView(
+            items: displayBitcoinData
+                ? (topInflators as List<ItemInflationSats>).toInflationList()
+                : (topInflators as List<ItemInflation>).toInflationList(),
+            isBitcoinMode: displayBitcoinData,
+            settings: settings,
+            isInflatorsList: false,
           ),
         ],
       ),
@@ -767,189 +764,5 @@ class _OverviewTabState extends ConsumerState<OverviewTab>
         },
       ),
     );
-  }
-
-  Widget _buildTopInflators(BuildContext context, AppLocalizations l,
-      dynamic items, AppSettings settings, bool isBitcoinMode) {
-    if (items.isEmpty) {
-      return StateMessageCard(
-        icon: Icons.trending_up,
-        animationAsset: StateIllustrations.emptyGeneral,
-        animationHeight: 140,
-        title: l.overviewTopInflators,
-        message: l.overviewNoData,
-      );
-    }
-
-    final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
-
-    final List<dynamic> inflators = isBitcoinMode
-        ? (items as List<ItemInflationSats>)
-            .where((i) => i.inflationPercent > 0)
-            .take(5)
-            .toList()
-        : (items as List<ItemInflation>)
-            .where((i) => i.inflationPercent > 0)
-            .take(5)
-            .toList();
-
-    if (inflators.isEmpty) {
-      return Text(l.overviewNoPriceIncreases);
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: inflators.length,
-      itemBuilder: (context, index) {
-        final item = inflators[index];
-        final unitLabel =
-            _unitPriceLabel(item, settings.currency, isBitcoinMode);
-
-        final listTile = InkWell(
-          onTap: () => context.push('/home/product/${item.product.id}'),
-          child: ListTile(
-            contentPadding: isLuxeMode
-                ? const EdgeInsets.symmetric(horizontal: 16)
-                : EdgeInsets.zero,
-            title: Text(item.product.name,
-                style: isLuxeMode
-                    ? const TextStyle(fontWeight: FontWeight.w600)
-                    : null),
-            subtitle: Text(unitLabel),
-            trailing: isLuxeMode
-                ? TabularAmountText(
-                    '+${item.inflationPercent.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                        color: AppColors.accentBtcMain,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  )
-                : Text(
-                    '+${item.inflationPercent.toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
-          ),
-        );
-
-        if (isLuxeMode) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: VaultCard(
-              padding: EdgeInsets.zero,
-              child: listTile,
-            ),
-          );
-        }
-
-        return listTile;
-      },
-    );
-  }
-
-  Widget _buildTopDeflators(BuildContext context, AppLocalizations l,
-      dynamic items, AppSettings settings, bool isBitcoinMode) {
-    if (items.isEmpty) {
-      return StateMessageCard(
-        icon: Icons.trending_down,
-        animationAsset: StateIllustrations.emptyGeneral,
-        animationHeight: 140,
-        title: l.overviewTopDeflators,
-        message: l.overviewNoData,
-      );
-    }
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    List<dynamic> deflators;
-    if (isBitcoinMode) {
-      final list = (items as List<ItemInflationSats>)
-          .where((i) => i.inflationPercent < 0)
-          .toList();
-      list.sort((a, b) => a.inflationPercent.compareTo(b.inflationPercent));
-      deflators = list;
-    } else {
-      final list = (items as List<ItemInflation>)
-          .where((i) => i.inflationPercent < 0)
-          .toList();
-      list.sort((a, b) => a.inflationPercent.compareTo(b.inflationPercent));
-      deflators = list;
-    }
-
-    final top = deflators.take(5).toList();
-    if (top.isEmpty) {
-      return Text(l.overviewNoPriceDecreases);
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: top.length,
-      itemBuilder: (context, index) {
-        final item = top[index];
-        final unitLabel =
-            _unitPriceLabel(item, settings.currency, isBitcoinMode);
-
-        final listTile = InkWell(
-          onTap: () => context.push('/home/product/${item.product.id}'),
-          child: ListTile(
-            contentPadding: isDark
-                ? const EdgeInsets.symmetric(horizontal: 16)
-                : EdgeInsets.zero,
-            title: Text(item.product.name,
-                style: isDark
-                    ? const TextStyle(fontWeight: FontWeight.w600)
-                    : null),
-            subtitle: Text(unitLabel),
-            trailing: isDark
-                ? TabularAmountText(
-                    '${item.inflationPercent.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                        color: AppColors.accentFiatMain,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  )
-                : Text(
-                    '${item.inflationPercent.toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
-          ),
-        );
-
-        if (isDark) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: VaultCard(
-              padding: EdgeInsets.zero,
-              child: listTile,
-            ),
-          );
-        }
-
-        return listTile;
-      },
-    );
-  }
-
-  String _unitPriceLabel(dynamic item, String currency, bool isBitcoinMode) {
-    if (isBitcoinMode) {
-      final satsItem = item as ItemInflationSats;
-      final baseFormatted = SatsConverter.formatSats(satsItem.baseSatsPrice);
-      final currentFormatted =
-          SatsConverter.formatSats(satsItem.currentSatsPrice);
-      return '$baseFormatted → $currentFormatted';
-    } else {
-      final fiatItem = item as ItemInflation;
-      final unit = fiatItem.baseUnit;
-      String fmt(double pricePerBase) =>
-          unit.formattedUnitPriceFromNormalized(pricePerBase, currency);
-      return '${fmt(fiatItem.baseUnitPrice)} → ${fmt(fiatItem.currentUnitPrice)}';
-    }
   }
 }

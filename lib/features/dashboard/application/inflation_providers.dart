@@ -72,6 +72,81 @@ class ItemInflationSats {
   final bool isPartialPeriod;
 }
 
+sealed class InflationListItem {
+  const InflationListItem();
+
+  Product get product;
+  Category get category;
+  double get inflationPercent;
+  bool get isPartialPeriod;
+  UnitType get baseUnit;
+  String formattedPriceRange(String currency);
+}
+
+class FiatInflationItem extends InflationListItem {
+  const FiatInflationItem(this._item);
+  final ItemInflation _item;
+
+  @override
+  Product get product => _item.product;
+
+  @override
+  Category get category => _item.category;
+
+  @override
+  double get inflationPercent => _item.inflationPercent;
+
+  @override
+  bool get isPartialPeriod => _item.isPartialPeriod;
+
+  @override
+  UnitType get baseUnit => _item.baseUnit;
+
+  @override
+  String formattedPriceRange(String currency) {
+    String fmt(double pricePerBase) =>
+        _item.baseUnit.formattedUnitPriceFromNormalized(pricePerBase, currency);
+    return '${fmt(_item.baseUnitPrice)} → ${fmt(_item.currentUnitPrice)}';
+  }
+}
+
+class SatsInflationItem extends InflationListItem {
+  const SatsInflationItem(this._item);
+  final ItemInflationSats _item;
+
+  @override
+  Product get product => _item.product;
+
+  @override
+  Category get category => _item.category;
+
+  @override
+  double get inflationPercent => _item.inflationPercent;
+
+  @override
+  bool get isPartialPeriod => _item.isPartialPeriod;
+
+  @override
+  UnitType get baseUnit => _item.baseUnit;
+
+  @override
+  String formattedPriceRange(String currency) {
+    final baseFormatted = SatsConverter.formatSats(_item.baseSatsPrice);
+    final currentFormatted = SatsConverter.formatSats(_item.currentSatsPrice);
+    return '$baseFormatted → $currentFormatted';
+  }
+}
+
+extension ItemInflationToList on List<ItemInflation> {
+  List<InflationListItem> toInflationList() =>
+      map((e) => FiatInflationItem(e)).toList();
+}
+
+extension ItemInflationSatsToList on List<ItemInflationSats> {
+  List<InflationListItem> toInflationList() =>
+      map((e) => SatsInflationItem(e)).toList();
+}
+
 class CategoryInflation {
   CategoryInflation({
     required this.category,
