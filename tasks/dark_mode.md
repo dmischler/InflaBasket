@@ -34,9 +34,9 @@ The `isBitcoinMode` (accent) and `isDarkMode` (brightness) are orthogonal — 4 
   - Add `setDarkMode(bool)` method on `SettingsController`
   - Load from SharedPreferences in `build()`
 
-### Phase 2: Wire Up MaterialApp (1 file)
+### Phase 2: Wire Up MaterialApp (1 file) ✅
 
-- [ ] **2.1** Update `lib/main.dart` `MaterialApp.router`
+- [x] **2.1** Update `lib/main.dart` `MaterialApp.router`
   - `theme: AppTheme.getLuxeLightTheme(isBitcoinMode: settings.isBitcoinMode)`
   - `darkTheme: AppTheme.getLuxeDarkTheme(isBitcoinMode: settings.isBitcoinMode)`
   - `themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light`

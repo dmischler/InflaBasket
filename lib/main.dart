@@ -207,10 +207,12 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
 
     return MaterialApp.router(
       title: 'InflaBasket',
-      theme: AppTheme.getLuxeDarkTheme(isBitcoinMode: settings.isBitcoinMode),
+      theme: AppTheme.getLuxeLightTheme(isBitcoinMode: settings.isBitcoinMode),
+      darkTheme:
+          AppTheme.getLuxeDarkTheme(isBitcoinMode: settings.isBitcoinMode),
       themeAnimationDuration: Duration.zero,
       themeAnimationCurve: Curves.linear,
-      themeMode: ThemeMode.light, // Let AppTheme control everything
+      themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       locale: Locale(settings.locale),
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
