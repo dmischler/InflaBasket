@@ -205,17 +205,9 @@ class InflationCalculator {
 
     if (rawPoints.isEmpty) return const [];
 
-    const minCoverage = 0.65;
-    final baselinePoint = rawPoints.firstWhereOrNull(
-          (p) => p.coverage >= minCoverage,
-        ) ??
-        rawPoints.first;
+    final baselineInflation = rawPoints.first.avgInflation;
 
-    final baselineInflation = baselinePoint.avgInflation;
-
-    return rawPoints
-        .where((p) => !p.date.isBefore(baselinePoint.date))
-        .map((p) {
+    return rawPoints.map((p) {
       final shifted = p.avgInflation - baselineInflation;
       return ChartPoint(
         date: p.date,
