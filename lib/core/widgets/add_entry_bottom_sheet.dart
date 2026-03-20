@@ -82,8 +82,8 @@ class AddEntryBottomSheet extends StatelessWidget {
             Divider(height: 1, indent: 72),
             _OptionRow(
               icon: Icons.qr_code,
-              iconBackgroundColor: colorScheme.secondaryContainer,
-              iconColor: colorScheme.onSecondaryContainer,
+              iconBackgroundColor: colorScheme.primaryContainer,
+              iconColor: colorScheme.onPrimaryContainer,
               title: l10n.barcode,
               onTap: () {
                 HapticFeedback.lightImpact();
@@ -94,8 +94,8 @@ class AddEntryBottomSheet extends StatelessWidget {
             Divider(height: 1, indent: 72),
             _OptionRow(
               icon: Icons.camera_alt,
-              iconBackgroundColor: colorScheme.tertiaryContainer,
-              iconColor: colorScheme.onTertiaryContainer,
+              iconBackgroundColor: colorScheme.primaryContainer,
+              iconColor: colorScheme.onPrimaryContainer,
               title: l10n.scannerTakePhoto,
               trailing: Icon(
                 Icons.chevron_right,
@@ -110,8 +110,8 @@ class AddEntryBottomSheet extends StatelessWidget {
             Divider(height: 1, indent: 72),
             _OptionRow(
               icon: Icons.photo_library,
-              iconBackgroundColor: colorScheme.tertiaryContainer,
-              iconColor: colorScheme.onTertiaryContainer,
+              iconBackgroundColor: colorScheme.primaryContainer,
+              iconColor: colorScheme.onPrimaryContainer,
               title: l10n.scannerChooseFromGallery,
               trailing: Icon(
                 Icons.chevron_right,

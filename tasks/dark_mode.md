@@ -194,3 +194,9 @@ These widgets are used everywhere — fixing them fixes most screens.
 - Wired toggle to `settingsControllerProvider.notifier.setDarkMode(val)`
 - Ran `flutter gen-l10n` to regenerate AppLocalizations
 - `flutter analyze` passes with 0 errors across all modified files
+
+### Icon Consistency Fix (2026-03-20)
+- Fixed inconsistent icon colors in `AddEntryBottomSheet`
+- All 4 action options (Manual, Barcode, Take Photo, Choose from Gallery) now use `primaryContainer`/`onPrimaryContainer` for consistent icon background colors
+- Previously: Manual used primaryContainer, Barcode used secondaryContainer, Camera/Gallery used tertiaryContainer
+- `flutter analyze` passes

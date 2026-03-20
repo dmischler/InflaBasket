@@ -326,6 +326,21 @@ final isPremiumProvider = Provider<bool>((ref) {
 **v1.26.1 Receipt Scanner Keyboard Fix**
 - Fixed iOS keyboard dismissal in receipt review dialog: added `TextInputAction.done` and `onSubmitted` handler to price and quantity fields
 
+**Dark/Light Mode Toggle (v1.26.x)**
+- Added full dark/light mode support with persistence via SharedPreferences
+- Created `getLuxeLightTheme()` in `app_theme.dart` with Material 3 `ColorScheme.light`
+- Added light color tokens to `app_colors.dart`: `bgLight`, `bgLightVault`, `bgLightElevated`, `textDarkPrimary`, `textDarkSecondary`, `textDarkTertiary`, `borderLight`
+- Refactored 6 core widgets to use theme-aware `ColorScheme` tokens: `luxury_dropdown_field`, `luxury_text_field`, `luxe_button`, `custom_bottom_nav`, `vault_card`, `fiat_bitcoin_toggle`
+- Refactored 5 additional widgets: `confirm_dialog`, `settings_section`, `store_logo_widget`, `chart_skeleton`, `inflation_summary_card`
+- Refactored 6 screen-level files: `overview_tab`, `categories_tab`, `history_tab`, `product_detail_screen`, `dashboard_screen`, `scanner_screen`
+- Replaced `isLuxeMode` extension with `isDarkMode` based on `Theme.of(context).brightness`
+- `isDarkMode` and `isBitcoinMode` are orthogonal — 4 combinations: dark-fiat, dark-btc, light-fiat, light-btc
+- Default to dark mode (`isDarkMode: true`) preserves existing user experience
+- Toggle UI added to Settings screen with `SwitchListTile.adaptive` and `Icons.dark_mode`
+- Localization: `settingsDarkMode` ("Dark Mode" / "Dunkler Modus") and `settingsDarkModeDesc` ("Use dark theme" / "Dunkles Design verwenden")
+- Conditional shadows: card shadows use 0.4 opacity in dark mode, 0.15 in light mode
+- Note: `paywall_screen.dart` deferred to separate subscription feature work (still has hardcoded dark-mode references)
+
 **v1.26.0 Multi-Database Barcode Lookup**
 - Barcode scanner now queries Open Food Facts, Open Beauty Facts, and Open Products Facts in a waterfall fallback
 - Enables scanning non-food items: cosmetics, personal care, household supplies, tools, stationery
