@@ -16,6 +16,7 @@ import 'package:inflabasket/features/settings/application/settings_provider.dart
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/widgets/barcode_section.dart';
+import 'package:inflabasket/core/widgets/price_quantity_row.dart';
 import 'package:inflabasket/core/widgets/receipt_scan_button.dart';
 
 class AddEntryScreen extends ConsumerStatefulWidget {
@@ -487,63 +488,28 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _priceController,
-                decoration: InputDecoration(
-                    labelText: l10n.price,
-                    border: const OutlineInputBorder(),
-                    prefixText: '${settings.currency} '),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) => value == null ||
+              PriceQuantityRow(
+                priceController: _priceController,
+                quantityController: _quantityController,
+                selectedUnit: _selectedUnit,
+                units: units,
+                currency: settings.currency,
+                priceLabel: l10n.price,
+                quantityLabel: l10n.quantity,
+                unitLabel: l10n.unit,
+                priceValidator: (value) => value == null ||
                         value.isEmpty ||
                         double.tryParse(value) == null
                     ? l10n.fieldInvalidNumber
                     : null,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _quantityController,
-                      decoration: InputDecoration(
-                        labelText: l10n.quantity,
-                        border: const OutlineInputBorder(),
-                        hintText: l10n.productHint,
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) => value == null ||
-                              value.isEmpty ||
-                              double.tryParse(value) == null
-                          ? l10n.fieldInvalidNumber
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 130,
-                    child: DropdownButtonFormField<UnitType>(
-                      initialValue: units.contains(_selectedUnit)
-                          ? _selectedUnit
-                          : UnitType.count,
-                      decoration: InputDecoration(
-                        labelText: l10n.unit,
-                        border: const OutlineInputBorder(),
-                      ),
-                      items: units
-                          .map((u) => DropdownMenuItem(
-                                value: u,
-                                child: Text(u.label),
-                              ))
-                          .toList(),
-                      onChanged: (val) {
-                        if (val != null) setState(() => _selectedUnit = val);
-                      },
-                    ),
-                  ),
-                ],
+                quantityValidator: (value) => value == null ||
+                        value.isEmpty ||
+                        double.tryParse(value) == null
+                    ? l10n.fieldInvalidNumber
+                    : null,
+                onUnitChanged: (val) {
+                  setState(() => _selectedUnit = val);
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(
