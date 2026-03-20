@@ -9,7 +9,7 @@ class TimeRangeSelector extends StatelessWidget {
   final List<ChartTimeRange> availableOptions;
   final DateTime? firstDataPoint;
   final ValueChanged<ChartTimeRange> onRangeChanged;
-  final void Function(ChartTimeRange) onCustomRangeRequested;
+  final void Function(DateTime start, DateTime end) onCustomRangeRequested;
 
   const TimeRangeSelector({
     super.key,
@@ -47,7 +47,7 @@ class TimeRangeSelector extends StatelessWidget {
         firstDataPoint: firstDataPoint,
         onRangeSelected: onRangeChanged,
         onCustomRangeApplied: (start, end) {
-          onCustomRangeRequested(ChartTimeRange.custom);
+          onCustomRangeRequested(start, end);
         },
       ),
       child: Container(

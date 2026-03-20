@@ -11,7 +11,6 @@ import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/widgets/time_range_selector.dart';
-import 'package:inflabasket/core/utils/chart_date_range_helper.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -101,13 +100,9 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
               onRangeChanged: (range) => ref
                   .read(chartTimeFilterControllerProvider.notifier)
                   .setRange(range),
-              onCustomRangeRequested: (range) =>
-                  ChartDateRangeHelper.showCustomDatePicker(
-                context: context,
-                ref: ref,
-                currentFilter: timeFilter,
-                firstDataPoint: firstDataPoint,
-              ),
+              onCustomRangeRequested: (start, end) => ref
+                  .read(chartTimeFilterControllerProvider.notifier)
+                  .setCustomRange(start, end),
             ),
             const SizedBox(height: 24),
             Text(l10n.categoryInflationTitle,
