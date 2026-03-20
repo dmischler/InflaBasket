@@ -1,7 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:inflabasket/core/api/openfoodfacts_client.dart';
+import 'package:inflabasket/core/router/navigation_extras.dart';
 import 'package:inflabasket/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:inflabasket/features/dashboard/presentation/product_detail_screen.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
@@ -12,7 +11,6 @@ import 'package:inflabasket/features/settings/presentation/category_management_s
 import 'package:inflabasket/features/settings/presentation/price_alerts_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_updates_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_update_settings_screen.dart';
-import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 
 part 'app_router.g.dart';
 
@@ -28,20 +26,12 @@ GoRouter appRouter(AppRouterRef ref) {
           GoRoute(
             path: 'add',
             builder: (context, state) {
-              final extra = state.extra;
-              if (extra is EntryWithDetails) {
-                return AddEntryScreen(entryToEdit: extra);
-              }
-              if (extra is EntryEditRequest) {
-                return AddEntryScreen(
-                  entryToEdit: extra.entry,
-                  lockSharedFields: extra.lockSharedFields,
-                );
-              }
-              if (extra is ProductInfo) {
-                return AddEntryScreen(productInfoFromBarcode: extra);
-              }
-              return const AddEntryScreen();
+              final extra = state.extra as AddEntryExtras?;
+              return AddEntryScreen(
+                entryToEdit: extra?.entryToEdit,
+                productInfoFromBarcode: extra?.productInfo,
+                lockSharedFields: extra?.lockSharedFields ?? false,
+              );
             },
           ),
           GoRoute(
@@ -61,17 +51,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/scanner',
         builder: (context, state) {
-          final extra = state.extra;
-          ImageSource? initialSource;
-          XFile? initialFile;
-          if (extra is XFile) {
-            initialFile = extra;
-          } else if (extra is ImageSource) {
-            initialSource = extra;
-          }
+          final extra = state.extra as ScannerExtras?;
           return ScannerScreen(
-            initialSource: initialSource,
-            initialFile: initialFile,
+            initialSource: extra?.source,
+            initialFile: extra?.file,
           );
         },
       ),

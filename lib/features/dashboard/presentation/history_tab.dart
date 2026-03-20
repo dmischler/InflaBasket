@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/router/navigation_extensions.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
@@ -207,7 +208,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
               ),
               confirmDismiss: (direction) async {
                 if (direction == DismissDirection.startToEnd) {
-                  context.push('/home/add', extra: entryDetails);
+                  context.pushAddEntry(entryToEdit: entryDetails);
                   return false;
                 } else {
                   return await showDialog<bool>(
@@ -372,7 +373,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
         context.push('/home/product/${entryDetails.product.id}');
         break;
       case 'edit':
-        context.push('/home/add', extra: entryDetails);
+        context.pushAddEntry(entryToEdit: entryDetails);
         break;
       case 'delete':
         final confirmed = await showDialog<bool>(

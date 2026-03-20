@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
+import 'package:inflabasket/core/router/navigation_extensions.dart';
 import 'package:inflabasket/core/services/product_duplicate_detector.dart';
 import 'package:inflabasket/core/services/price_history_service.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -199,7 +200,7 @@ class _BarcodeScreenState extends ConsumerState<BarcodeScreen> {
               brand: info.brand ?? existingProduct.brand,
             );
             if (mounted) {
-              context.push('/home/add', extra: updatedInfo);
+              context.pushAddEntryFromBarcode(updatedInfo);
             }
             return;
           } else if (action == ProductMatchAction.cancel) {
@@ -215,7 +216,7 @@ class _BarcodeScreenState extends ConsumerState<BarcodeScreen> {
         }
 
         if (mounted) {
-          context.push('/home/add', extra: info);
+          context.pushAddEntryFromBarcode(info);
         }
       } else {
         setState(() {
@@ -235,11 +236,10 @@ class _BarcodeScreenState extends ConsumerState<BarcodeScreen> {
   }
 
   void _addManually() {
-    context.push('/home/add',
-        extra: ProductInfo(
-          name: '',
-          barcode: _lastBarcode,
-        ));
+    context.pushAddEntryFromBarcode(ProductInfo(
+      name: '',
+      barcode: _lastBarcode,
+    ));
   }
 
   void _resetAndGoBack() {

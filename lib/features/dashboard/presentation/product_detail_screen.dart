@@ -12,6 +12,7 @@ import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/mixins/chart_touch_state.dart';
 import 'package:inflabasket/core/models/unit.dart';
+import 'package:inflabasket/core/router/navigation_extensions.dart';
 
 import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/utils/sats_converter.dart';
@@ -744,13 +745,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
               ),
               confirmDismiss: (direction) async {
                 if (direction == DismissDirection.startToEnd) {
-                  context.push(
-                    '/home/add',
-                    extra: EntryEditRequest(
-                      entry: entryDetails,
-                      lockSharedFields: true,
-                    ),
-                  );
+                  context.pushAddEntryFromEditRequest(entryDetails);
                   return false;
                 }
 

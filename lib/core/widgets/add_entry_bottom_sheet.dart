@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart' show ImageSource;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:inflabasket/core/router/navigation_extensions.dart';
 import 'package:inflabasket/core/widgets/ai_consent_dialog.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -36,7 +37,7 @@ class AddEntryBottomSheet extends StatelessWidget {
     }
 
     if (!context.mounted) return;
-    GoRouter.of(context).push('/scanner', extra: source);
+    context.pushScanner(source: source);
   }
 
   @override

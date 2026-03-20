@@ -192,9 +192,26 @@ Per roadmap: 3-screen onboarding for new users
 ```
 
 ### Issues
-1. Heavy `state.extra` type casting - fragile
-2. No type-safe argument passing
-3. Suggestion: Consider `extra` wrapper class for type safety
+1. ~~Heavy `state.extra` type casting - fragile~~: ✅ Fixed (v1.42.0)
+2. ~~No type-safe argument passing~~: ✅ Fixed with typed extensions
+3. ~~Suggestion: Consider `extra` wrapper class for type safety~~: ✅ Implemented
+
+#### Navigation Type Safety ✅ (v1.42.0)
+- Created sealed class hierarchy in `core/router/navigation_extras.dart`:
+  - `NavigationExtras` (sealed base)
+  - `AddEntryExtras` with named constructors: `.edit()`, `.fromBarcode()`, `.fromEditRequest()`
+  - `ScannerExtras` with named constructors: `.source()`, `.file()`
+- Created `core/router/navigation_extensions.dart` with `TypedNavigation` extension on `BuildContext`:
+  - `pushAddEntry({required EntryWithDetails entryToEdit})`
+  - `pushAddEntryFromBarcode(ProductInfo info)`
+  - `pushAddEntryFromEditRequest(EntryWithDetails entry, {bool lockSharedFields = true})`
+  - `pushScanner({ImageSource? source, XFile? file})`
+- Updated `app_router.dart` builders to use typed extras
+- Updated 7 call sites across 4 files:
+  - `barcode_screen.dart` (3 locations)
+  - `history_tab.dart` (2 locations)
+  - `product_detail_screen.dart` (1 location)
+  - `add_entry_bottom_sheet.dart` (1 location)
 
 ---
 
