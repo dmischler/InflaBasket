@@ -33,18 +33,20 @@ class _LuxeButtonState extends State<LuxeButton> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final isBitcoinMode = theme.primaryColor == AppColors.accentBtcMain;
     final primaryGlow =
         isBitcoinMode ? AppColors.accentBtcGlow : AppColors.accentFiatGlow;
 
-    final Color bgColor =
-        widget.isSecondary ? AppColors.bgElevated : theme.primaryColor;
+    final Color bgColor = widget.isSecondary
+        ? colorScheme.surfaceContainerHighest
+        : theme.primaryColor;
 
     final Color textColor =
-        widget.isSecondary ? AppColors.textPrimary : AppColors.bgVoid;
+        widget.isSecondary ? colorScheme.onSurface : colorScheme.onPrimary;
 
     final innerGlowColor = widget.isSecondary
-        ? Colors.white.withValues(alpha: 0.05)
+        ? colorScheme.onSurface.withValues(alpha: 0.05)
         : primaryGlow.withValues(alpha: 0.3);
 
     return GestureDetector(
@@ -60,7 +62,7 @@ class _LuxeButtonState extends State<LuxeButton> {
           color: bgColor,
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           border: widget.isSecondary
-              ? Border.all(color: AppColors.borderMetallic, width: 1)
+              ? Border.all(color: colorScheme.outline, width: 1)
               : null,
           boxShadow: _isPressed
               ? [

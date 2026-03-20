@@ -79,11 +79,12 @@ class _LuxuryTextFieldState extends State<LuxuryTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isBitcoinMode =
         Theme.of(context).primaryColor == AppColors.accentBtcMain;
     final accentColor =
         isBitcoinMode ? AppColors.accentBtcMain : AppColors.accentFiatMain;
-    final borderColor = _isFocused ? accentColor : AppColors.borderMetallic;
+    final borderColor = _isFocused ? accentColor : colorScheme.outline;
 
     return GestureDetector(
       onTap: () {
@@ -104,8 +105,7 @@ class _LuxuryTextFieldState extends State<LuxuryTextField> {
           suffixIcon: widget.suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            borderSide:
-                const BorderSide(color: AppColors.borderMetallic, width: 1),
+            borderSide: BorderSide(color: colorScheme.outline, width: 1),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
@@ -124,16 +124,18 @@ class _LuxuryTextFieldState extends State<LuxuryTextField> {
             borderSide: const BorderSide(color: Colors.red, width: 1.5),
           ),
           filled: true,
-          fillColor: AppColors.bgElevated,
-          labelStyle: const TextStyle(color: AppColors.textSecondary),
-          hintStyle: const TextStyle(color: AppColors.textTertiary),
+          fillColor: colorScheme.surfaceContainerHighest,
+          labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+          hintStyle: TextStyle(
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+          ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.md,
             vertical: AppSpacing.md,
           ),
         ),
-        style: const TextStyle(
-          color: AppColors.textPrimary,
+        style: TextStyle(
+          color: colorScheme.onSurface,
           fontSize: 16,
         ),
         keyboardType: widget.keyboardType,

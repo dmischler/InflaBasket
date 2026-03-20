@@ -42,29 +42,42 @@ The `isBitcoinMode` (accent) and `isDarkMode` (brightness) are orthogonal — 4 
   - `themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light`
   - Remove hardcoded `themeMode: ThemeMode.light`
 
-### Phase 3: Refactor Core Widgets (~6 files, highest impact)
+### Phase 3: Refactor Core Widgets (~6 files, highest impact) ✅
 
 These widgets are used everywhere — fixing them fixes most screens.
 
-- [ ] **3.1** Refactor `lib/core/widgets/luxury_dropdown_field.dart` (15 hardcoded refs)
-  - Replace `AppColors.bgElevated` → `Theme.of(context).colorScheme.surfaceContainer`
-  - Replace `AppColors.textPrimary` → `Theme.of(context).colorScheme.onSurface`
-  - Replace `AppColors.borderMetallic` → theme-aware border color
+- [x] **3.1** Refactor `lib/core/widgets/luxury_dropdown_field.dart` (15 hardcoded refs)
+  - `AppColors.bgElevated` → `colorScheme.surfaceContainerHighest`
+  - `AppColors.borderMetallic` → `colorScheme.outline`
+  - `AppColors.textPrimary` → `colorScheme.onSurface`
+  - `AppColors.textSecondary` → `colorScheme.onSurfaceVariant`
+  - `AppColors.textTertiary` → `colorScheme.onSurfaceVariant.withValues(alpha: 0.6)`
 
-- [ ] **3.2** Refactor `lib/core/widgets/luxury_text_field.dart` (8 hardcoded refs)
-  - Same pattern: replace hardcoded AppColors with theme-aware resolution
+- [x] **3.2** Refactor `lib/core/widgets/luxury_text_field.dart` (8 hardcoded refs)
+  - Same pattern as 3.1
 
-- [ ] **3.3** Refactor `lib/core/widgets/luxe_button.dart` (5 refs)
-  - Background, text, border colors from theme
+- [x] **3.3** Refactor `lib/core/widgets/luxe_button.dart` (5 refs)
+  - Primary: `AppColors.bgVoid` → `colorScheme.onPrimary`
+  - Secondary: `AppColors.bgElevated` → `colorScheme.surfaceContainerHighest`
+  - Secondary: `AppColors.textPrimary` → `colorScheme.onSurface`
+  - Secondary: `AppColors.borderMetallic` → `colorScheme.outline`
+  - Inner glow: `Colors.white` → `colorScheme.onSurface` (theme-aware)
 
-- [ ] **3.4** Refactor `lib/core/widgets/custom_bottom_nav.dart` (5 refs)
-  - Background, border, indicator colors from theme
+- [x] **3.4** Refactor `lib/core/widgets/custom_bottom_nav.dart` (5 refs)
+  - Background: `AppColors.bgVault` → `colorScheme.surface` (frosted glass adapts)
+  - Border: `AppColors.borderMetallic` → `colorScheme.outline`
+  - Selected icon: `AppColors.bgVoid` → `colorScheme.onPrimary`
+  - Unselected icon: `AppColors.textSecondary` → `colorScheme.onSurfaceVariant`
 
-- [ ] **3.5** Refactor `lib/core/widgets/vault_card.dart` (5 refs)
-  - Background, border colors from theme
+- [x] **3.5** Refactor `lib/core/widgets/vault_card.dart` (5 refs)
+  - Background: `AppColors.bgVault` → `colorScheme.surface`
+  - Border: `AppColors.borderMetallic` → `colorScheme.outline`
+  - Shadow: conditional opacity (0.15 light, 0.4 dark)
 
-- [ ] **3.6** Refactor `lib/core/widgets/fiat_bitcoin_toggle.dart` (6 refs)
-  - Background, border from theme; accent colors stay as-is
+- [x] **3.6** Refactor `lib/core/widgets/fiat_bitcoin_toggle.dart` (6 refs)
+  - Background: `AppColors.bgVault` → `colorScheme.surfaceContainerHighest`
+  - Border: `AppColors.borderMetallic` → `colorScheme.outline`
+  - Accent colors stay as-is (theme-aware via isBitcoinMode)
 
 ### Phase 4: Refactor Remaining Widgets (~6 files)
 
@@ -119,8 +132,11 @@ These widgets are used everywhere — fixing them fixes most screens.
 1. **Default to dark mode** (`isDarkMode: true`) — preserves existing user experience
 2. **Orthogonal to Bitcoin mode** — accent color and brightness are independent axes
 3. **Use `Theme.of(context).brightness`** instead of scaffoldBackgroundColor comparison for mode detection
-4. **Extend `ColorScheme`** with custom tokens where needed, but prefer standard Material 3 tokens
-5. **Color resolution helper** — consider adding an extension on `BuildContext` like `context.colors.bgVault` that returns the right color for the current mode, reducing boilerplate in widgets
+4. **Use Material 3 `ColorScheme` tokens directly** — `surface`, `surfaceContainerHighest`, `outline`, `onSurface`, `onSurfaceVariant` handle light/dark automatically
+5. **Accent glow colors stay as `AppColors.*`** — they're decorative and vary by isBitcoinMode, not brightness
+6. **Conditional shadows** — card shadows use darker opacity in light mode (0.15) vs dark mode (0.4)
+7. **Frosted glass (`BackdropFilter`) uses `colorScheme.surface`** — naturally adapts between modes
+8. **No custom `BuildContext` extension needed** — Material 3 tokens provide all required mappings
 
 ## Files Modified (estimated)
 
@@ -128,12 +144,18 @@ These widgets are used everywhere — fixing them fixes most screens.
 |----------|-------|---------------------|
 | Theme foundation | 3 | ~120 |
 | MaterialApp | 1 | ~5 |
-| Core widgets | ~12 | ~200 |
-| Screens | ~6 | ~150 |
+| Core widgets (Phase 3) | 6 | ~80 |
+| Remaining widgets (Phase 4) | ~6 | ~60 |
+| Screens (Phase 5) | ~6 | ~150 |
 | Localization | 3 | ~10 |
 | Settings UI | 1 | ~15 |
 | **Total** | **~26** | **~500** |
 
 ## Review
 
-*To be filled after implementation*
+### Phase 3 Refactoring (2026-03-20)
+- Replaced ~39 hardcoded `AppColors.*` references with Material 3 `ColorScheme` tokens across 6 core widgets
+- All changes use `Theme.of(context).colorScheme` — no custom extension needed
+- `flutter analyze` passes with 0 errors (1 benign unused-element warning)
+- Key mapping: `bgElevated`→`surfaceContainerHighest`, `borderMetallic`→`outline`, `textPrimary`→`onSurface`, `textSecondary`→`onSurfaceVariant`, `bgVault`→`surface`
+- Material 3 tokens automatically resolve correct values for light and dark mode

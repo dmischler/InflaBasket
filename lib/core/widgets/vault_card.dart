@@ -20,8 +20,10 @@ class VaultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final brightness = Theme.of(context).brightness;
+
     // Determine the active accent color based on the Theme context.
-    // If the theme primary is True Gold, it's Bitcoin mode. Else, Fiat mode.
     final primaryColor = Theme.of(context).primaryColor;
     final isBitcoinMode = primaryColor == AppColors.accentBtcMain;
 
@@ -29,16 +31,18 @@ class VaultCard extends StatelessWidget {
     final glowColor =
         isBitcoinMode ? AppColors.accentBtcGlow : AppColors.accentFiatGlow;
 
-    final baseBorder = Border.all(color: AppColors.borderMetallic, width: 1);
+    final baseBorder = Border.all(color: colorScheme.outline, width: 1);
     final activeBorder = Border.all(color: primaryColor, width: 2);
 
+    final shadowOpacity = brightness == Brightness.dark ? 0.4 : 0.15;
+
     final decoration = BoxDecoration(
-      color: AppColors.bgVault,
+      color: colorScheme.surface,
       borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
       border: isActive ? activeBorder : baseBorder,
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.4),
+          color: Colors.black.withValues(alpha: shadowOpacity),
           blurRadius: 24,
           offset: const Offset(0, 4),
         )
@@ -50,7 +54,7 @@ class VaultCard extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 glowColor,
-                AppColors.bgVault,
+                colorScheme.surface,
               ],
               stops: const [0.0, 1.0],
             )

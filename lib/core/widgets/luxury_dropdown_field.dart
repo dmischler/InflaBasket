@@ -25,6 +25,7 @@ class LuxuryDropdownField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isBitcoinMode =
         Theme.of(context).primaryColor == AppColors.accentBtcMain;
     final accentColor =
@@ -49,34 +50,34 @@ class LuxuryDropdownField<T> extends StatelessWidget {
         prefixIcon: prefixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide:
-              const BorderSide(color: AppColors.borderMetallic, width: 1),
+          borderSide: BorderSide(color: colorScheme.outline, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          borderSide:
-              const BorderSide(color: AppColors.borderMetallic, width: 1),
+          borderSide: BorderSide(color: colorScheme.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           borderSide: BorderSide(color: accentColor, width: 1.5),
         ),
         filled: true,
-        fillColor: AppColors.bgElevated,
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
-        hintStyle: const TextStyle(color: AppColors.textTertiary),
+        fillColor: colorScheme.surfaceContainerHighest,
+        labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        hintStyle: TextStyle(
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+        ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.md,
         ),
       ),
-      style: const TextStyle(
-        color: AppColors.textPrimary,
+      style: TextStyle(
+        color: colorScheme.onSurface,
         fontSize: 16,
       ),
-      dropdownColor: AppColors.bgElevated,
-      iconEnabledColor: AppColors.textSecondary,
-      iconDisabledColor: AppColors.textTertiary,
+      dropdownColor: colorScheme.surfaceContainerHighest,
+      iconEnabledColor: colorScheme.onSurfaceVariant,
+      iconDisabledColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
     );
   }
 }
@@ -99,21 +100,22 @@ class LuxuryDropdownButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return DropdownButton<T>(
       value: value,
       items: items,
       onChanged: onChanged,
       isExpanded: isExpanded,
       underline: underline != null
-          ? Text(underline!,
-              style: const TextStyle(color: AppColors.textPrimary))
+          ? Text(underline!, style: TextStyle(color: colorScheme.onSurface))
           : const SizedBox(),
-      style: const TextStyle(
-        color: AppColors.textPrimary,
+      style: TextStyle(
+        color: colorScheme.onSurface,
         fontSize: 16,
       ),
-      dropdownColor: AppColors.bgElevated,
-      iconEnabledColor: AppColors.textSecondary,
+      dropdownColor: colorScheme.surfaceContainerHighest,
+      iconEnabledColor: colorScheme.onSurfaceVariant,
     );
   }
 }

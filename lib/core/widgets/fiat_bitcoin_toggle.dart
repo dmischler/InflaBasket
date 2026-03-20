@@ -11,6 +11,7 @@ class FiatBitcoinToggle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsControllerProvider);
     final isBitcoin = settings.isBitcoinMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () {
@@ -25,10 +26,10 @@ class FiatBitcoinToggle extends ConsumerWidget {
         height: 32,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: AppColors.bgVault,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppColors.borderMetallic,
+            color: colorScheme.outline,
             width: 1,
           ),
           boxShadow: [

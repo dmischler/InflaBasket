@@ -24,6 +24,7 @@ class CustomBottomNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsControllerProvider);
     final isBitcoin = settings.isBitcoinMode;
+    final colorScheme = Theme.of(context).colorScheme;
     final accentColor =
         isBitcoin ? AppColors.accentBtcMain : AppColors.accentFiatMain;
     final glowColor =
@@ -52,10 +53,10 @@ class CustomBottomNav extends ConsumerWidget {
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppColors.bgVault.withValues(alpha: 0.85),
+                      color: colorScheme.surface.withValues(alpha: 0.85),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
-                        color: AppColors.borderMetallic,
+                        color: colorScheme.outline,
                         width: 1,
                       ),
                     ),
@@ -172,6 +173,8 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
@@ -195,7 +198,9 @@ class _NavItem extends StatelessWidget {
               child: Icon(
                 isSelected ? selectedIcon : icon,
                 key: ValueKey('${isSelected}_$icon'),
-                color: isSelected ? AppColors.bgVoid : AppColors.textSecondary,
+                color: isSelected
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurfaceVariant,
                 size: 24,
               ),
             ),
