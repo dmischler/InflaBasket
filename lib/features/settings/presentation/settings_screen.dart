@@ -243,30 +243,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 12),
           SettingsSection(
-            title: l10n.settingsPreferences,
+            title: l10n.settingsAppearance,
             collapsible: true,
             initiallyExpanded: true,
             children: [
-              ListTile(
-                leading: const Icon(Icons.currency_exchange),
-                title: Text(l10n.settingsCurrency),
-                trailing: DropdownButton<String>(
-                  value: settings.currency,
-                  underline: const SizedBox(),
-                  items: const [
-                    DropdownMenuItem(value: 'CHF', child: Text('CHF')),
-                    DropdownMenuItem(value: 'EUR', child: Text('EUR')),
-                    DropdownMenuItem(value: 'USD', child: Text('USD')),
-                    DropdownMenuItem(value: 'GBP', child: Text('GBP')),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) {
-                      ref
-                          .read(settingsControllerProvider.notifier)
-                          .setCurrency(val);
-                    }
-                  },
-                ),
+              SwitchListTile.adaptive(
+                secondary: const Icon(Icons.dark_mode),
+                title: Text(l10n.settingsDarkMode),
+                subtitle: Text(l10n.settingsDarkModeDesc),
+                value: settings.isDarkMode,
+                onChanged: (val) => ref
+                    .read(settingsControllerProvider.notifier)
+                    .setDarkMode(val),
               ),
               const Divider(height: 1),
               ListTile(
@@ -293,6 +281,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.currency_exchange),
+                title: Text(l10n.settingsCurrency),
+                trailing: DropdownButton<String>(
+                  value: settings.currency,
+                  underline: const SizedBox(),
+                  items: const [
+                    DropdownMenuItem(value: 'CHF', child: Text('CHF')),
+                    DropdownMenuItem(value: 'EUR', child: Text('EUR')),
+                    DropdownMenuItem(value: 'USD', child: Text('USD')),
+                    DropdownMenuItem(value: 'GBP', child: Text('GBP')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      ref
+                          .read(settingsControllerProvider.notifier)
+                          .setCurrency(val);
+                    }
+                  },
+                ),
+              ),
+              const Divider(height: 1),
               SwitchListTile.adaptive(
                 secondary: const Icon(Icons.straighten),
                 title: Text(l10n.settingsMetricSystem),
@@ -301,15 +311,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     .read(settingsControllerProvider.notifier)
                     .setMetric(val),
               ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SettingsSection(
+            title: l10n.settingsDataOptions,
+            collapsible: true,
+            initiallyExpanded: true,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.category_outlined),
+                title: Text(l10n.settingsManageCategories),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/categories'),
+              ),
               const Divider(height: 1),
-              SwitchListTile.adaptive(
-                secondary: const Icon(Icons.dark_mode),
-                title: Text(l10n.settingsDarkMode),
-                subtitle: Text(l10n.settingsDarkModeDesc),
-                value: settings.isDarkMode,
-                onChanged: (val) => ref
-                    .read(settingsControllerProvider.notifier)
-                    .setDarkMode(val),
+              ListTile(
+                leading: const Icon(Icons.notifications_active_outlined),
+                title: Text(l10n.priceAlerts),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/price-alerts'),
               ),
               const Divider(height: 1),
               ListTile(
@@ -338,39 +359,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
               ],
-            ],
-          ),
-          const SizedBox(height: 12),
-          SettingsSection(
-            title: l10n.settingsDataManagement,
-            collapsible: true,
-            initiallyExpanded: true,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.category_outlined),
-                title: Text(l10n.settingsManageCategories),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/settings/categories'),
-              ),
               const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.notifications_active_outlined),
-                title: Text(l10n.priceAlerts),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/settings/price-alerts'),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.restart_alt),
-                title: Text(l10n.settingsFactoryReset),
-                onTap: _handleFactoryReset,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SettingsSection(
-            title: l10n.settingsBackupRestore,
-            children: [
               ListTile(
                 leading: exportState.isLoading
                     ? const SizedBox(
@@ -387,6 +376,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 leading: const Icon(Icons.download_outlined),
                 title: Text(l10n.settingsImportDatabase),
                 onTap: () => _handleImport(context, ref),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.restart_alt),
+                title: Text(l10n.settingsFactoryReset),
+                onTap: _handleFactoryReset,
               ),
             ],
           ),

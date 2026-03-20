@@ -341,6 +341,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Conditional shadows: card shadows use 0.4 opacity in dark mode, 0.15 in light mode
 - Note: `paywall_screen.dart` deferred to separate subscription feature work (still has hardcoded dark-mode references)
 
+**v1.34.0 Settings Reorganization**
+- Reorganized settings screen into logical sections: Subscription, Appearance, Data Options, About
+- Renamed "Preferences" to "Appearance" (now contains: Dark Mode, Language, Currency, Metric System)
+- Moved Price Update Reminder from Preferences to Data Options
+- Merged "Backup & Restore" into "Data Options" (now contains: Categories, Price Alerts, Price Updates, Export/Import, Factory Reset)
+- Localization: added `settingsAppearance` ("Appearance" / "Darstellung") and `settingsDataOptions` ("Data Options" / "Datenoptionen")
+
 **v1.26.0 Multi-Database Barcode Lookup**
 - Barcode scanner now queries Open Food Facts, Open Beauty Facts, and Open Products Facts in a waterfall fallback
 - Enables scanning non-food items: cosmetics, personal care, household supplies, tools, stationery

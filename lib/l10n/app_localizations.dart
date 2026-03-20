@@ -590,11 +590,11 @@ abstract class AppLocalizations {
   /// **'Upgrade'**
   String get settingsUpgrade;
 
-  /// Settings section header
+  /// Settings section header for UI settings
   ///
   /// In en, this message translates to:
-  /// **'Preferences'**
-  String get settingsPreferences;
+  /// **'Appearance'**
+  String get settingsAppearance;
 
   /// Currency setting label
   ///
@@ -692,11 +692,11 @@ abstract class AppLocalizations {
   /// **'All your product prices are current.'**
   String get priceUpdatesAllCurrentDesc;
 
-  /// Settings section header
+  /// Settings section header for data management options
   ///
   /// In en, this message translates to:
-  /// **'Data Management'**
-  String get settingsDataManagement;
+  /// **'Data Options'**
+  String get settingsDataOptions;
 
   /// List tile label
   ///

@@ -266,7 +266,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsUpgrade => 'Upgrade';
 
   @override
-  String get settingsPreferences => 'Einstellungen';
+  String get settingsAppearance => 'Darstellung';
 
   @override
   String get settingsCurrency => 'Währung';
@@ -319,7 +319,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Alle Ihre Produktpreise sind auf dem neuesten Stand.';
 
   @override
-  String get settingsDataManagement => 'Datenverwaltung';
+  String get settingsDataOptions => 'Datenoptionen';
 
   @override
   String get settingsManageCategories => 'Kategorien verwalten';

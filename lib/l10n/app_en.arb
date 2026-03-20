@@ -250,8 +250,8 @@
   "settingsUpgrade": "Upgrade",
   "@settingsUpgrade": { "description": "Button to upgrade to premium" },
 
-  "settingsPreferences": "Preferences",
-  "@settingsPreferences": { "description": "Settings section header" },
+  "settingsAppearance": "Appearance",
+  "@settingsAppearance": { "description": "Settings section header for UI settings" },
 
   "settingsCurrency": "Currency",
   "@settingsCurrency": { "description": "Currency setting label" },
@@ -301,8 +301,8 @@
   "priceUpdatesAllCurrentDesc": "All your product prices are current.",
   "@priceUpdatesAllCurrentDesc": { "description": "Empty state description" },
 
-  "settingsDataManagement": "Data Management",
-  "@settingsDataManagement": { "description": "Settings section header" },
+  "settingsDataOptions": "Data Options",
+  "@settingsDataOptions": { "description": "Settings section header for data management options" },
 
   "settingsManageCategories": "Manage Categories",
   "@settingsManageCategories": { "description": "List tile label" },

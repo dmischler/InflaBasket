@@ -260,7 +260,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsUpgrade => 'Upgrade';
 
   @override
-  String get settingsPreferences => 'Preferences';
+  String get settingsAppearance => 'Appearance';
 
   @override
   String get settingsCurrency => 'Currency';
@@ -313,7 +313,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'All your product prices are current.';
 
   @override
-  String get settingsDataManagement => 'Data Management';
+  String get settingsDataOptions => 'Data Options';
 
   @override
   String get settingsManageCategories => 'Manage Categories';

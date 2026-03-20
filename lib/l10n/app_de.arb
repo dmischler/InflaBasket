@@ -83,7 +83,9 @@
   "settingsFreeSubtitle": "KI-Scannen freischalten",
   "settingsRestore": "Wiederherstellen",
   "settingsUpgrade": "Upgrade",
-  "settingsPreferences": "Einstellungen",
+  "settingsAppearance": "Darstellung",
+  "@settingsAppearance": { "description": "Settings section header for UI settings" },
+
   "settingsCurrency": "Währung",
   "settingsLanguage": "Sprache",
   "settingsMetricSystem": "Metrisches System verwenden",
@@ -127,7 +129,9 @@
   "priceUpdatesAllCurrentDesc": "Alle Ihre Produktpreise sind auf dem neuesten Stand.",
   "@priceUpdatesAllCurrentDesc": { "description": "Empty state description" },
 
-  "settingsDataManagement": "Datenverwaltung",
+  "settingsDataOptions": "Datenoptionen",
+  "@settingsDataOptions": { "description": "Settings section header for data management options" },
+
   "settingsManageCategories": "Kategorien verwalten",
   "settingsExportData": "Daten exportieren",
   "settingsFactoryReset": "Werkseinstellungen",
