@@ -348,6 +348,14 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Merged "Backup & Restore" into "Data Options" (now contains: Categories, Price Alerts, Price Updates, Export/Import, Factory Reset)
 - Localization: added `settingsAppearance` ("Appearance" / "Darstellung") and `settingsDataOptions` ("Data Options" / "Datenoptionen")
 
+**v1.35.0 ActionRow Component**
+- Created `ActionRow` widget in `core/widgets/action_row.dart` for consistent list tile styling
+- Supports 4 variants: `navigation`, `action`, `toggle`, `dropdown`
+- Circular icon container (40x40) with optional background color
+- Optional subtitle support
+- Migrated Settings screen (Appearance and Data Options sections) to use ActionRow
+- Deprecated private `_OptionRow` in `add_entry_bottom_sheet.dart` (points to ActionRow)
+
 **v1.26.0 Multi-Database Barcode Lookup**
 - Barcode scanner now queries Open Food Facts, Open Beauty Facts, and Open Products Facts in a waterfall fallback
 - Enables scanning non-food items: cosmetics, personal care, household supplies, tools, stationery

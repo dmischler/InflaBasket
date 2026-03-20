@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inflabasket/core/widgets/action_row.dart';
 import 'package:inflabasket/core/widgets/confirm_dialog.dart';
 import 'package:inflabasket/core/widgets/settings_section.dart';
 import 'package:inflabasket/core/services/database_backup_service.dart';
@@ -247,19 +248,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             collapsible: true,
             initiallyExpanded: true,
             children: [
-              SwitchListTile.adaptive(
-                secondary: const Icon(Icons.dark_mode),
-                title: Text(l10n.settingsDarkMode),
-                subtitle: Text(l10n.settingsDarkModeDesc),
-                value: settings.isDarkMode,
-                onChanged: (val) => ref
+              ActionRow(
+                variant: ActionRowVariant.toggle,
+                icon: Icons.dark_mode,
+                title: l10n.settingsDarkMode,
+                subtitle: l10n.settingsDarkModeDesc,
+                toggleValue: settings.isDarkMode,
+                onToggleChanged: (val) => ref
                     .read(settingsControllerProvider.notifier)
                     .setDarkMode(val),
               ),
               const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.language),
-                title: Text(l10n.settingsLanguage),
+              ActionRow(
+                variant: ActionRowVariant.dropdown,
+                icon: Icons.language,
+                title: l10n.settingsLanguage,
                 trailing: DropdownButton<String>(
                   value: settings.locale,
                   underline: const SizedBox(),
@@ -281,9 +284,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.currency_exchange),
-                title: Text(l10n.settingsCurrency),
+              ActionRow(
+                variant: ActionRowVariant.dropdown,
+                icon: Icons.currency_exchange,
+                title: l10n.settingsCurrency,
                 trailing: DropdownButton<String>(
                   value: settings.currency,
                   underline: const SizedBox(),
@@ -303,11 +307,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               const Divider(height: 1),
-              SwitchListTile.adaptive(
-                secondary: const Icon(Icons.straighten),
-                title: Text(l10n.settingsMetricSystem),
-                value: settings.isMetric,
-                onChanged: (val) => ref
+              ActionRow(
+                variant: ActionRowVariant.toggle,
+                icon: Icons.straighten,
+                title: l10n.settingsMetricSystem,
+                toggleValue: settings.isMetric,
+                onToggleChanged: (val) => ref
                     .read(settingsControllerProvider.notifier)
                     .setMetric(val),
               ),
@@ -319,24 +324,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             collapsible: true,
             initiallyExpanded: true,
             children: [
-              ListTile(
-                leading: const Icon(Icons.category_outlined),
-                title: Text(l10n.settingsManageCategories),
-                trailing: const Icon(Icons.chevron_right),
+              ActionRow(
+                variant: ActionRowVariant.navigation,
+                icon: Icons.category_outlined,
+                title: l10n.settingsManageCategories,
                 onTap: () => context.push('/settings/categories'),
               ),
               const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.notifications_active_outlined),
-                title: Text(l10n.priceAlerts),
-                trailing: const Icon(Icons.chevron_right),
+              ActionRow(
+                variant: ActionRowVariant.navigation,
+                icon: Icons.notifications_active_outlined,
+                title: l10n.priceAlerts,
                 onTap: () => context.push('/settings/price-alerts'),
               ),
               const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.update),
-                title: Text(l10n.settingsPriceUpdateReminder),
-                trailing: const Icon(Icons.chevron_right),
+              ActionRow(
+                variant: ActionRowVariant.navigation,
+                icon: Icons.update,
+                title: l10n.settingsPriceUpdateReminder,
                 onTap: () => context.push('/settings/price-updates/settings'),
               ),
               if (settings.priceUpdateReminderEnabled) ...[
@@ -360,27 +365,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ],
               const Divider(height: 1),
-              ListTile(
-                leading: exportState.isLoading
+              ActionRow(
+                variant: ActionRowVariant.action,
+                icon: Icons.upload_outlined,
+                iconBackgroundColor: exportState.isLoading
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : null,
+                title: l10n.settingsExportData,
+                trailing: exportState.isLoading
                     ? const SizedBox(
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.upload_outlined),
-                title: Text(l10n.settingsExportData),
-                onTap: () => _showExportFormatDialog(),
+                    : null,
+                onTap: exportState.isLoading ? null : _showExportFormatDialog,
               ),
               const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.download_outlined),
-                title: Text(l10n.settingsImportDatabase),
+              ActionRow(
+                variant: ActionRowVariant.action,
+                icon: Icons.download_outlined,
+                title: l10n.settingsImportDatabase,
                 onTap: () => _handleImport(context, ref),
               ),
               const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.restart_alt),
-                title: Text(l10n.settingsFactoryReset),
+              ActionRow(
+                variant: ActionRowVariant.action,
+                icon: Icons.restart_alt,
+                title: l10n.settingsFactoryReset,
                 onTap: _handleFactoryReset,
               ),
             ],

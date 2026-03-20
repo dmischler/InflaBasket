@@ -151,6 +151,7 @@ class AddEntryBottomSheet extends StatelessWidget {
   }
 }
 
+@Deprecated('Use ActionRow from core/widgets/action_row.dart instead')
 class _OptionRow extends StatelessWidget {
   final IconData icon;
   final Color iconBackgroundColor;
