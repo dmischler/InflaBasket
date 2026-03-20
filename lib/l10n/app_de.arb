@@ -839,5 +839,43 @@
   },
 
   "barcodeAlreadyAssigned": "Diesem Produkt ist dieser Barcode bereits zugewiesen.",
-  "@barcodeAlreadyAssigned": { "description": "Snackbar message when barcode is already assigned to the same product" }
+  "@barcodeAlreadyAssigned": { "description": "Snackbar message when barcode is already assigned to the same product" },
+
+  "onboardingSkip": "Überspringen",
+  "@onboardingSkip": { "description": "Skip button on onboarding screens" },
+
+  "onboardingNext": "Weiter",
+  "@onboardingNext": { "description": "Next button on onboarding screens" },
+
+  "onboardingStartTracking": "Jetzt starten",
+  "@onboardingStartTracking": { "description": "Final onboarding screen CTA button" },
+
+  "onboardingWelcomeTitle": "Verfolge deine Lebensmittel-Inflation",
+  "@onboardingWelcomeTitle": { "description": "Welcome screen title" },
+
+  "onboardingWelcomeSubtitle": "Erfasse deine Einkäufe und sieh, wie sich Preise über die Zeit ändern.",
+  "@onboardingWelcomeSubtitle": { "description": "Welcome screen subtitle" },
+
+  "onboardingModesTitle": "Zeige Preise auf deine Weise",
+  "@onboardingModesTitle": { "description": "Modes screen title" },
+
+  "onboardingModesSubtitle": "Wechsle zwischen Fiat-Währung und Satoshis, um die wahren Kosten in hartem Geld zu sehen.",
+  "@onboardingModesSubtitle": { "description": "Modes screen subtitle" },
+
+  "onboardingModesFiatTitle": "Fiat-Modus",
+  "@onboardingModesFiatTitle": { "description": "Fiat mode card title" },
+
+  "onboardingModesFiatDesc": "Verfolge die Inflation in deiner Landeswährung.",
+  "@onboardingModesFiatDesc": { "description": "Fiat mode card description" },
+
+  "onboardingModesBitcoinTitle": "Bitcoin-Modus",
+  "@onboardingModesBitcoinTitle": { "description": "Bitcoin mode card title" },
+
+  "onboardingModesBitcoinDesc": "Sieh Preise in Satoshis — die wahren Kosten in hartem Geld.",
+  "@onboardingModesBitcoinDesc": { "description": "Bitcoin mode card description" },
+
+  "onboardingStartTitle": "Bereit, Preise zu verfolgen",
+  "@onboardingStartTitle": { "description": "Final onboarding screen title" },
+
+  "onboardingStartSubtitle": "Füge deinen ersten Einkauf hinzu, um loszulegen. Scanne mit KI oder gib manuell ein."
 }

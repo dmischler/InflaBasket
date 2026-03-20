@@ -2133,6 +2133,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This barcode is already assigned to this product.'**
   String get barcodeAlreadyAssigned;
+
+  /// Skip button on onboarding screens
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// Next button on onboarding screens
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// Final onboarding screen CTA button
+  ///
+  /// In en, this message translates to:
+  /// **'Start Tracking'**
+  String get onboardingStartTracking;
+
+  /// Welcome screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Track Your Grocery Inflation'**
+  String get onboardingWelcomeTitle;
+
+  /// Welcome screen subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Log your purchases and see how prices change over time.'**
+  String get onboardingWelcomeSubtitle;
+
+  /// Modes screen title
+  ///
+  /// In en, this message translates to:
+  /// **'View Prices Your Way'**
+  String get onboardingModesTitle;
+
+  /// Modes screen subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Switch between fiat currency and satoshis to see the true cost in sound money.'**
+  String get onboardingModesSubtitle;
+
+  /// Fiat mode card title
+  ///
+  /// In en, this message translates to:
+  /// **'Fiat Mode'**
+  String get onboardingModesFiatTitle;
+
+  /// Fiat mode card description
+  ///
+  /// In en, this message translates to:
+  /// **'Track inflation in your local currency.'**
+  String get onboardingModesFiatDesc;
+
+  /// Bitcoin mode card title
+  ///
+  /// In en, this message translates to:
+  /// **'Bitcoin Mode'**
+  String get onboardingModesBitcoinTitle;
+
+  /// Bitcoin mode card description
+  ///
+  /// In en, this message translates to:
+  /// **'See prices in satoshis — the true cost in sound money.'**
+  String get onboardingModesBitcoinDesc;
+
+  /// Final onboarding screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to Track Prices'**
+  String get onboardingStartTitle;
+
+  /// No description provided for @onboardingStartSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first purchase to start tracking. Scan with AI or enter manually.'**
+  String get onboardingStartSubtitle;
 }
 
 class _AppLocalizationsDelegate

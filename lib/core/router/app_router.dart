@@ -4,6 +4,8 @@ import 'package:inflabasket/core/router/navigation_extras.dart';
 import 'package:inflabasket/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:inflabasket/features/dashboard/presentation/product_detail_screen.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
+import 'package:inflabasket/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:inflabasket/features/onboarding/application/onboarding_provider.dart';
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
 import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart';
 import 'package:inflabasket/features/barcode/presentation/barcode_screen.dart';
@@ -18,7 +20,25 @@ part 'app_router.g.dart';
 GoRouter appRouter(AppRouterRef ref) {
   return GoRouter(
     initialLocation: '/home',
+    redirect: (context, state) {
+      final onboardingCompleted = ref.watch(onboardingControllerProvider);
+      final isOnboardingRoute = state.matchedLocation == '/onboarding';
+
+      if (!onboardingCompleted && !isOnboardingRoute) {
+        return '/onboarding';
+      }
+
+      if (onboardingCompleted && isOnboardingRoute) {
+        return '/home';
+      }
+
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
       GoRoute(
         path: '/home',
         builder: (context, state) => const DashboardScreen(),

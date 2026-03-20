@@ -599,6 +599,18 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Fully localized (EN + DE)
 - Created `ai_consent_dialog.dart` widget in `core/widgets/`
 
+**v1.45.0 Onboarding Flow**
+- 3-screen onboarding: Welcome, Modes (Fiat vs Bitcoin), Start Tracking
+- Uses existing Lottie animations with fallback icons
+- PageView with smooth swipe navigation and animated page indicators
+- Fiats vs Bitcoin comparison cards with glow effects
+- SharedPreferences persistence (`has_completed_onboarding`)
+- GoRouter redirect: `/onboarding` shown on first launch, skipped after completion
+- "Start Tracking" CTA navigates directly to `/home/add`
+- "Skip" button completes onboarding and navigates to `/home`
+- Fully localized (EN + DE)
+- Dark/light mode support with theme-aware accent colors
+
 ---
 
 ### 🔄 In Progress / Partially Complete
@@ -622,7 +634,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 **Sprint 4 – UI Design**
 - Glassmorphism cards and blur overlays
 - Speed dial FAB expansion
-- Onboarding flow (3 screens)
 
 **Sprint 5 – Code Refactor**
 - Split files >250 lines
@@ -661,7 +672,6 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 - [ ] Replace RevenueCat API key placeholder in `subscription_providers.dart`
 - [ ] Replace Vision API key in `vision_client.dart` (move to backend proxy recommended)
-- [ ] Complete onboarding flow
 
 ---
 

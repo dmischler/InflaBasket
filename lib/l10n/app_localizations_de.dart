@@ -1157,4 +1157,48 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get barcodeAlreadyAssigned =>
       'Diesem Produkt ist dieser Barcode bereits zugewiesen.';
+
+  @override
+  String get onboardingSkip => 'Überspringen';
+
+  @override
+  String get onboardingNext => 'Weiter';
+
+  @override
+  String get onboardingStartTracking => 'Jetzt starten';
+
+  @override
+  String get onboardingWelcomeTitle => 'Verfolge deine Lebensmittel-Inflation';
+
+  @override
+  String get onboardingWelcomeSubtitle =>
+      'Erfasse deine Einkäufe und sieh, wie sich Preise über die Zeit ändern.';
+
+  @override
+  String get onboardingModesTitle => 'Zeige Preise auf deine Weise';
+
+  @override
+  String get onboardingModesSubtitle =>
+      'Wechsle zwischen Fiat-Währung und Satoshis, um die wahren Kosten in hartem Geld zu sehen.';
+
+  @override
+  String get onboardingModesFiatTitle => 'Fiat-Modus';
+
+  @override
+  String get onboardingModesFiatDesc =>
+      'Verfolge die Inflation in deiner Landeswährung.';
+
+  @override
+  String get onboardingModesBitcoinTitle => 'Bitcoin-Modus';
+
+  @override
+  String get onboardingModesBitcoinDesc =>
+      'Sieh Preise in Satoshis — die wahren Kosten in hartem Geld.';
+
+  @override
+  String get onboardingStartTitle => 'Bereit, Preise zu verfolgen';
+
+  @override
+  String get onboardingStartSubtitle =>
+      'Füge deinen ersten Einkauf hinzu, um loszulegen. Scanne mit KI oder gib manuell ein.';
 }

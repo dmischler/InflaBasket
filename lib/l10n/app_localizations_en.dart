@@ -1162,4 +1162,48 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get barcodeAlreadyAssigned =>
       'This barcode is already assigned to this product.';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStartTracking => 'Start Tracking';
+
+  @override
+  String get onboardingWelcomeTitle => 'Track Your Grocery Inflation';
+
+  @override
+  String get onboardingWelcomeSubtitle =>
+      'Log your purchases and see how prices change over time.';
+
+  @override
+  String get onboardingModesTitle => 'View Prices Your Way';
+
+  @override
+  String get onboardingModesSubtitle =>
+      'Switch between fiat currency and satoshis to see the true cost in sound money.';
+
+  @override
+  String get onboardingModesFiatTitle => 'Fiat Mode';
+
+  @override
+  String get onboardingModesFiatDesc =>
+      'Track inflation in your local currency.';
+
+  @override
+  String get onboardingModesBitcoinTitle => 'Bitcoin Mode';
+
+  @override
+  String get onboardingModesBitcoinDesc =>
+      'See prices in satoshis — the true cost in sound money.';
+
+  @override
+  String get onboardingStartTitle => 'Ready to Track Prices';
+
+  @override
+  String get onboardingStartSubtitle =>
+      'Add your first purchase to start tracking. Scan with AI or enter manually.';
 }

@@ -1135,5 +1135,43 @@
   },
 
   "barcodeAlreadyAssigned": "This barcode is already assigned to this product.",
-  "@barcodeAlreadyAssigned": { "description": "Snackbar message when barcode is already assigned to the same product" }
+  "@barcodeAlreadyAssigned": { "description": "Snackbar message when barcode is already assigned to the same product" },
+
+  "onboardingSkip": "Skip",
+  "@onboardingSkip": { "description": "Skip button on onboarding screens" },
+
+  "onboardingNext": "Next",
+  "@onboardingNext": { "description": "Next button on onboarding screens" },
+
+  "onboardingStartTracking": "Start Tracking",
+  "@onboardingStartTracking": { "description": "Final onboarding screen CTA button" },
+
+  "onboardingWelcomeTitle": "Track Your Grocery Inflation",
+  "@onboardingWelcomeTitle": { "description": "Welcome screen title" },
+
+  "onboardingWelcomeSubtitle": "Log your purchases and see how prices change over time.",
+  "@onboardingWelcomeSubtitle": { "description": "Welcome screen subtitle" },
+
+  "onboardingModesTitle": "View Prices Your Way",
+  "@onboardingModesTitle": { "description": "Modes screen title" },
+
+  "onboardingModesSubtitle": "Switch between fiat currency and satoshis to see the true cost in sound money.",
+  "@onboardingModesSubtitle": { "description": "Modes screen subtitle" },
+
+  "onboardingModesFiatTitle": "Fiat Mode",
+  "@onboardingModesFiatTitle": { "description": "Fiat mode card title" },
+
+  "onboardingModesFiatDesc": "Track inflation in your local currency.",
+  "@onboardingModesFiatDesc": { "description": "Fiat mode card description" },
+
+  "onboardingModesBitcoinTitle": "Bitcoin Mode",
+  "@onboardingModesBitcoinTitle": { "description": "Bitcoin mode card title" },
+
+  "onboardingModesBitcoinDesc": "See prices in satoshis — the true cost in sound money.",
+  "@onboardingModesBitcoinDesc": { "description": "Bitcoin mode card description" },
+
+  "onboardingStartTitle": "Ready to Track Prices",
+  "@onboardingStartTitle": { "description": "Final onboarding screen title" },
+
+  "onboardingStartSubtitle": "Add your first purchase to start tracking. Scan with AI or enter manually."
 }

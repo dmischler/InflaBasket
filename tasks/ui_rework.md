@@ -34,6 +34,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 |--------|-------|--------|
 | OverviewTab | ~339 | **Reduced from 1367 (~75% reduction)** - InflationListView, InflationLineChart, ChartDateRangeHelper extracted |
 | AddEntryScreen | ~550 | **Reduced from 760** - BarcodeSection, ReceiptScanButton, PriceQuantityRow extracted |
+| OnboardingScreen | ~200 | **NEW (v1.45.0)** - 3-screen PageView with Fiat/Bitcoin mode selection |
 | SettingsScreen | ~437 | Acceptable - uses ActionRow |
 | DashboardScreen | ~75 | Good |
 | HistoryTab | ~400+ | Acceptable |
@@ -220,8 +221,36 @@ Replace inline dropdown filters with bottom sheet pattern
    - `TimeRangeSelector` now opens sheet instead of dropdown
    - `ChartHeader` now opens sheet instead of dropdown
 
-#### 11. Onboarding Flow
-Per roadmap: 3-screen onboarding for new users
+#### 11. Onboarding Flow ✅ (v1.45.0)
+3-screen onboarding for new users with fiat/bitcoin mode selection.
+
+**Files Created:**
+| File | Purpose |
+|------|---------|
+| `features/onboarding/application/onboarding_provider.dart` | Riverpod state management for onboarding completion |
+| `features/onboarding/presentation/onboarding_screen.dart` | Main 3-screen PageView with navigation |
+| `features/onboarding/presentation/onboarding_page.dart` | Reusable page widget with Lottie + icon fallback |
+| `features/onboarding/presentation/onboarding_modes_cards.dart` | Fiat vs Bitcoin comparison cards |
+
+**Files Modified:**
+| File | Changes |
+|------|---------|
+| `core/router/app_router.dart` | Added `/onboarding` route + redirect logic (shows on first launch) |
+| `l10n/app_en.arb` | Added 13 onboarding localization strings |
+| `l10n/app_de.arb` | Added 13 German translations |
+| `pubspec.yaml` | Bumped to v1.45.0 |
+
+**Flow Design:**
+1. Screen 1 (Welcome): Lottie animation, "Track Your Grocery Inflation"
+2. Screen 2 (Modes): Side-by-side Fiat vs Bitcoin comparison cards with glow effects
+3. Screen 3 (Start): CTA to `/home/add` or skip to `/home`
+
+**Features:**
+- PageView with animated page indicators (pill-style, width animates)
+- Haptic feedback on page transitions
+- Dark/light mode support
+- SharedPreferences persistence (`has_completed_onboarding`)
+- GoRouter redirect logic
 
 ---
 
@@ -229,6 +258,7 @@ Per roadmap: 3-screen onboarding for new users
 
 ### Current Routes (go_router)
 ```
+/onboarding             → OnboardingScreen (shown on first launch)
 /home                    → DashboardScreen
   /home/add             → AddEntryScreen (extra: EntryWithDetails/ProductInfo)
   /home/product/:id     → ProductDetailScreen
@@ -392,6 +422,11 @@ Per roadmap: 3-screen onboarding for new users
    - Standardized `category_management_screen.dart` empty state with `StateMessageCard`
    - Standardized `categories_tab.dart` empty chart state with `StateMessageCard`
    - All screens now consistently use `StateMessageCard` with Lottie animations
+4. ✅ Onboarding flow (v1.45.0)
+   - 3-screen PageView onboarding for new users
+   - Fiat vs Bitcoin mode selection with comparison cards
+   - SharedPreferences persistence for first-launch detection
+   - GoRouter redirect to `/onboarding` on first launch
 
 ---
 
