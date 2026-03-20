@@ -2,12 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
-import 'package:inflabasket/core/theme/app_colors.dart';
 
 class StoreLogoWidget extends ConsumerStatefulWidget {
   final String storeName;
   final String fallbackLetter;
-  final bool isLuxeMode;
   final String? website;
   final double radius;
 
@@ -15,7 +13,6 @@ class StoreLogoWidget extends ConsumerStatefulWidget {
     super.key,
     required this.storeName,
     required this.fallbackLetter,
-    this.isLuxeMode = false,
     this.website,
     this.radius = 20,
   });
@@ -94,10 +91,11 @@ class _StoreLogoWidgetState extends ConsumerState<StoreLogoWidget> {
       return _buildLetterAvatar();
     }
 
+    final colorScheme = Theme.of(context).colorScheme;
     return CircleAvatar(
       radius: widget.radius,
-      backgroundColor: widget.isLuxeMode ? AppColors.bgElevated : null,
-      foregroundColor: widget.isLuxeMode ? AppColors.textPrimary : null,
+      backgroundColor: colorScheme.surfaceContainerHighest,
+      foregroundColor: colorScheme.onSurface,
       child: ClipOval(
         child: _loadFailed && fallbackUrl != null
             ? CachedNetworkImage(
@@ -130,10 +128,11 @@ class _StoreLogoWidgetState extends ConsumerState<StoreLogoWidget> {
   }
 
   Widget _buildLetterAvatar() {
+    final colorScheme = Theme.of(context).colorScheme;
     return CircleAvatar(
       radius: widget.radius,
-      backgroundColor: widget.isLuxeMode ? AppColors.bgElevated : null,
-      foregroundColor: widget.isLuxeMode ? AppColors.textPrimary : null,
+      backgroundColor: colorScheme.surfaceContainerHighest,
+      foregroundColor: colorScheme.onSurface,
       child: Text(
         widget.fallbackLetter.isNotEmpty
             ? widget.fallbackLetter[0].toUpperCase()

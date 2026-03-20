@@ -40,34 +40,35 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final isBitcoinMode = theme.primaryColor == AppColors.accentBtcMain;
     final accentColor =
         isBitcoinMode ? AppColors.accentBtcMain : AppColors.accentFiatMain;
 
     return AlertDialog(
-      backgroundColor: AppColors.bgVault,
+      backgroundColor: colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        side: const BorderSide(color: AppColors.borderMetallic, width: 1),
+        side: BorderSide(color: colorScheme.outline, width: 1),
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
+        style: TextStyle(
+          color: colorScheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
       ),
       content: Text(
         message,
-        style: const TextStyle(
-          color: AppColors.textSecondary,
+        style: TextStyle(
+          color: colorScheme.onSurfaceVariant,
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.textSecondary,
+            foregroundColor: colorScheme.onSurfaceVariant,
           ),
           child: Text(cancelLabel),
         ),

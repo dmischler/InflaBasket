@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
@@ -37,10 +36,9 @@ class InflationSummaryCard extends StatelessWidget {
         ? Icons.trending_up
         : (inflation < 0 ? Icons.trending_down : Icons.trending_flat);
 
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return isLuxeMode
+    return isDarkMode
         ? VaultCard(
             isActive: true,
             child: Row(

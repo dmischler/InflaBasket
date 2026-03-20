@@ -17,6 +17,8 @@ class SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (collapsible) {
       return Card(
         margin: EdgeInsets.zero,
@@ -33,13 +35,13 @@ class SettingsSection extends StatelessWidget {
               title: Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                     ),
               ),
               trailing: Icon(
                 Icons.expand_more,
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
               children: [
                 const Divider(height: 1),
@@ -66,7 +68,7 @@ class SettingsSection extends StatelessWidget {
             child: Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                   ),
             ),

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:inflabasket/core/theme/app_colors.dart';
 import 'package:inflabasket/core/utils/chart_sizing.dart';
 import 'package:inflabasket/core/widgets/shimmer/list_tile_skeleton.dart';
 import 'package:inflabasket/core/widgets/shimmer/shimmer_container.dart';
@@ -164,24 +163,19 @@ class _SkeletonPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLuxeMode =
-        Theme.of(context).scaffoldBackgroundColor == AppColors.bgVoid;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: isLuxeMode
-            ? AppColors.bgElevated.withValues(alpha: 0.9)
-            : Theme.of(context).colorScheme.surface,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: isLuxeMode
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),

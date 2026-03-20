@@ -79,13 +79,23 @@ These widgets are used everywhere — fixing them fixes most screens.
   - Border: `AppColors.borderMetallic` → `colorScheme.outline`
   - Accent colors stay as-is (theme-aware via isBitcoinMode)
 
-### Phase 4: Refactor Remaining Widgets (~6 files)
+### Phase 4: Refactor Remaining Widgets (~6 files) ✅
 
-- [ ] **4.1** `lib/core/widgets/confirm_dialog.dart` (7 refs)
-- [ ] **4.2** `lib/core/widgets/settings_section.dart` (3 refs)
-- [ ] **4.3** `lib/core/widgets/store_logo_widget.dart` (4 refs)
-- [ ] **4.4** `lib/core/widgets/chart_skeleton.dart` (2 refs)
-- [ ] **4.5** `lib/core/widgets/inflation_summary_card.dart` (1 ref)
+- [x] **4.1** `lib/core/widgets/confirm_dialog.dart` (7 refs)
+  - `bgVault`→`surface`, `borderMetallic`→`outline`, `textPrimary`→`onSurface`, `textSecondary`→`onSurfaceVariant`
+
+- [x] **4.2** `lib/core/widgets/settings_section.dart` (3 refs)
+  - `textPrimary`→`onSurface`, `textSecondary`→`onSurfaceVariant`
+
+- [x] **4.3** `lib/core/widgets/store_logo_widget.dart` (4 refs)
+  - Removed `isLuxeMode` parameter; use `colorScheme.surfaceContainerHighest` and `colorScheme.onSurface`
+
+- [x] **4.4** `lib/core/widgets/shimmer/chart_skeleton.dart` (2 refs)
+  - Replaced `isLuxeMode` with `colorScheme.surfaceContainerHighest`; simplified shadow logic
+
+- [x] **4.5** `lib/core/widgets/inflation_summary_card.dart` (1 ref)
+  - Replaced `scaffoldBackgroundColor == AppColors.bgVoid` with `brightness == Brightness.dark`
+
 - [ ] **4.6** Other minor widgets with hardcoded colors
 
 ### Phase 5: Refactor Screen-Level Hardcoded Colors (~6 files)
@@ -159,3 +169,10 @@ These widgets are used everywhere — fixing them fixes most screens.
 - `flutter analyze` passes with 0 errors (1 benign unused-element warning)
 - Key mapping: `bgElevated`→`surfaceContainerHighest`, `borderMetallic`→`outline`, `textPrimary`→`onSurface`, `textSecondary`→`onSurfaceVariant`, `bgVault`→`surface`
 - Material 3 tokens automatically resolve correct values for light and dark mode
+
+### Phase 4 Refactoring (2026-03-20)
+- Refactored 5 more widgets: confirm_dialog, settings_section, store_logo_widget, chart_skeleton, inflation_summary_card
+- Removed `isLuxeMode` parameter from `StoreLogoWidget` (now context-based)
+- Replaced `scaffoldBackgroundColor == AppColors.bgVoid` pattern with `brightness == Brightness.dark`
+- `flutter analyze` passes with 0 errors across all modified files
+- Key change: `isLuxeMode` check replaced with `Theme.of(context).brightness == Brightness.dark`

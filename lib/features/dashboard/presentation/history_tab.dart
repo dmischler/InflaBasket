@@ -276,7 +276,6 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
       leading: StoreLogoWidget(
         storeName: entry.storeName,
         fallbackLetter: categoryName,
-        isLuxeMode: isLuxeMode,
       ),
       title: Text(product.name,
           style:
