@@ -181,6 +181,11 @@ class InflationCalculator {
           continue;
         }
 
+        // Skip products where current entry is the baseline entry (no actual change yet)
+        if (identical(current, product.base)) {
+          continue;
+        }
+
         final change =
             ((current.price - product.base.price) / product.base.price) * 100;
         changes.add(change);
