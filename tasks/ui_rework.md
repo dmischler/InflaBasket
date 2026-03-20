@@ -33,7 +33,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 | Screen | Lines | Status |
 |--------|-------|--------|
 | OverviewTab | ~768 | **Reduced from 1367** - InflationListView extracted |
-| AddEntryScreen | ~610 | **Reduced from 760** - BarcodeSection extracted |
+| AddEntryScreen | ~565 | **Reduced from 760** - BarcodeSection, ReceiptScanButton extracted |
 | SettingsScreen | ~437 | Acceptable - uses ActionRow |
 | DashboardScreen | ~75 | Good |
 | HistoryTab | ~400+ | Acceptable |
@@ -65,6 +65,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 | LuxeButton | core/widgets/luxe_button.dart | Luxe styled button |
 | **ActionRow** | core/widgets/action_row.dart | List tile with 4 variants (navigation/action/toggle/dropdown) |
 | **BarcodeSection** | core/widgets/barcode_section.dart | Self-contained barcode assignment UI with assign/remove/copy actions |
+| **ReceiptScanButton** | core/widgets/receipt_scan_button.dart | Self-contained premium scanner launch with AI consent handling |
 
 ### Missing Components
 1. ~~**LuxuryTextField**~~ - ✅ Implemented
@@ -79,6 +80,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 10. **InflationLineChart** - Line chart widget (complex, chart mixin dependency)
 11. ~~**InflationListView**~~ - ✅ Implemented (v1.36.0) - sealed class union for type-safe ItemInflation/ItemInflationSats handling
 12. ~~**BarcodeSection**~~ - ✅ Implemented - extracted from add_entry_screen.dart with localization
+13. ~~**ReceiptScanButton**~~ - ✅ Implemented - self-contained with AI consent handling (v1.39.0)
 
 ---
 
@@ -226,20 +228,24 @@ Per roadmap: 3-screen onboarding for new users
   - Removed dependency on `ChartTouchState` mixin
   - Uses `GlowDotPainter` and `ChartAnimations` from `core/theme/chart_animations.dart`
 
-**add_entry_screen.dart**: Reduced from 760 to ~610 lines (~20% reduction)
+**add_entry_screen.dart**: Reduced from 760 to ~565 lines (~26% reduction)
 - ✅ `BarcodeSection` - Extracted to `core/widgets/barcode_section.dart` (v1.38.0)
   - Self-contained `ConsumerWidget` with barcode assign/remove/copy logic
   - Added 11 new localization keys for German translation parity
   - Uses `barcodeAssignmentServiceProvider`, `showBarcodeInputDialog`
+- ✅ `ReceiptScanButton` - Extracted to `core/widgets/receipt_scan_button.dart` (v1.39.0)
+  - Self-contained `ConsumerWidget` with AI consent handling internal
+  - Props: `bool isPremium`
+  - Handles consent dialog, acceptAiConsent, navigation to /scanner or /paywall
 
 **Remaining for Phase 2**:
 - Complete `add_entry_screen.dart` splitting
 
 **Extracted so far from add_entry_screen.dart**:
 - ✅ `BarcodeSection` (v1.38.0)
+- ✅ `ReceiptScanButton` (v1.39.0)
 
 **Still to extract from add_entry_screen.dart**:
-- `ReceiptScanButton` - Premium scanner launch button
 - `PriceQuantityRow` - Price + quantity + unit inputs
 - `CategoryAutocompleteField` - Category search field
 
@@ -282,7 +288,7 @@ Per roadmap: 3-screen onboarding for new users
 
 **Files to Create**:
 - ~~`core/widgets/barcode_section.dart`~~ - ✅ Created (v1.38.0)
-- `core/widgets/receipt_scan_button.dart`
+- ~~`core/widgets/receipt_scan_button.dart`~~ - ✅ Created (v1.39.0)
 - `core/widgets/price_quantity_row.dart`
 - `features/entry_management/presentation/category_autocomplete_field.dart`
 
