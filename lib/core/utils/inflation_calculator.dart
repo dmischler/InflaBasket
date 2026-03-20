@@ -145,28 +145,43 @@ class InflationCalculator {
     final productData = <({
       String name,
       List<PriceEntry> history,
-      PriceEntry? baselineEntry,
+      PriceEntry baselineEntry,
       bool hasBaselineBeforeRange,
     })>[];
+
+    print('generateInflationChart: rangeStart=$rangeStart, endDate=$endDate');
+    print('Total products passed: ${products.length}');
 
     for (final product in products.where((p) => p.isActive)) {
       final history = product.priceHistory
           .where((e) => e.price.isFinite && e.price > 0)
           .toList()
         ..sort((a, b) => a.date.compareTo(b.date));
-      if (history.isEmpty) continue;
+      if (history.length < 2) {
+        print('EXCLUDED: ${product.name} (less than 2 entries)');
+        continue;
+      }
 
       final baselineBefore = _lastEntryOnOrBefore(history, rangeStart);
       final hasBeforeRange = baselineBefore != null;
 
+      PriceEntry effectiveBaseline;
       if (hasBeforeRange) {
-        productData.add((
-          name: product.name,
-          history: history,
-          baselineEntry: baselineBefore,
-          hasBaselineBeforeRange: true,
-        ));
+        effectiveBaseline = baselineBefore;
+        print(
+            'QUALIFIED: ${product.name} (baseline=${effectiveBaseline.price} from ${effectiveBaseline.date})');
+      } else {
+        effectiveBaseline = history.first;
+        print(
+            'QUALIFIED: ${product.name} (baseline=${effectiveBaseline.price} from ${effectiveBaseline.date} - first in range)');
       }
+
+      productData.add((
+        name: product.name,
+        history: history,
+        baselineEntry: effectiveBaseline,
+        hasBaselineBeforeRange: hasBeforeRange,
+      ));
     }
 
     if (productData.isEmpty) return const [];
@@ -180,19 +195,24 @@ class InflationCalculator {
     })>[];
 
     for (final d in dates) {
+      print('=== ${d.year}-${d.month.toString().padLeft(2, '0')} ===');
       final changes = <double>[];
       final jumpDrivers = <String>[];
 
       for (final product in productData) {
         final current = _lastEntryOnOrBefore(product.history, d);
-        if (current == null) continue;
+        if (current == null) {
+          print('  ${product.name}: NO ENTRY');
+          continue;
+        }
 
-        if (identical(current, product.baselineEntry)) continue;
-
-        final change = ((current.price - product.baselineEntry!.price) /
-                product.baselineEntry!.price) *
+        final change = ((current.price - product.baselineEntry.price) /
+                product.baselineEntry.price) *
             100;
         changes.add(change);
+
+        print('  ${product.name}: baseline=${product.baselineEntry.price} '
+            'current=${current.price} inflation=${change.toStringAsFixed(2)}%');
 
         final changedToday = product.history.any((e) =>
             e.date.year == d.year &&
@@ -201,11 +221,11 @@ class InflationCalculator {
         if (changedToday) jumpDrivers.add(product.name);
       }
 
-      if (changes.isEmpty) continue;
+      print('  --> avgInflation=${changes.isEmpty ? 0.0 : changes.average}');
 
       rawPoints.add((
         date: d,
-        avgInflation: changes.average,
+        avgInflation: changes.isEmpty ? 0.0 : changes.average,
         coverage: changes.length / productData.length,
         contributing: changes.length,
         jumpDrivers: jumpDrivers,
@@ -213,19 +233,6 @@ class InflationCalculator {
     }
 
     if (rawPoints.isEmpty) return const [];
-
-    if (rawPoints.isEmpty || rawPoints.first.date != rangeStart) {
-      rawPoints.insert(
-        0,
-        (
-          date: rangeStart,
-          avgInflation: 0.0,
-          coverage: 0.0,
-          contributing: 0,
-          jumpDrivers: <String>[],
-        ),
-      );
-    }
 
     final baselineInflation = rawPoints.first.avgInflation;
 
