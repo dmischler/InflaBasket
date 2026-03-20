@@ -197,6 +197,15 @@ final isPremiumProvider = Provider<bool>((ref) {
 });
 ```
 
+**v1.45.0 UI Rework (Complete)**
+- Component library: LuxuryTextField, LuxuryDropdownField, ConfirmDialog, CustomDateRangeDialog, InflationSummaryCard, TimeRangeSelector, ChartHeader, ActionRow, BarcodeSection, ReceiptScanButton, PriceQuantityRow, InflationLineChart, InflationListView, TimeRangeFilterSheet, ChartOverlayFilterSheet
+- Screen splitting: overview_tab.dart reduced from 1367 → ~339 lines (75% reduction); add_entry_screen.dart reduced from 760 → ~550 lines (28% reduction)
+- Navigation type safety via sealed NavigationExtras classes
+- Bottom sheet filters (TimeRangeFilterSheet, ChartOverlayFilterSheet)
+- Onboarding flow with Fiat/Bitcoin mode selection
+- Settings reorganization with ActionRow component
+- All screens use StateMessageCard with Lottie animations
+
 ---
 
 ## 8. Implementation Status
@@ -610,6 +619,20 @@ final isPremiumProvider = Provider<bool>((ref) {
 - "Skip" button completes onboarding and navigates to `/home`
 - Fully localized (EN + DE)
 - Dark/light mode support with theme-aware accent colors
+
+**v1.45.1 Privacy Policy Screen**
+- Added privacy policy screen accessible from Settings > About
+- 6 sections: Controller, Data Collected, Data Storage, Data Sharing, User Rights (GDPR), Contact
+- Fully localized (EN + DE)
+- Added route `/settings/privacy-policy` to app_router
+- Enabled previously disabled placeholder in settings screen
+
+**v1.46.0 Terms of Service Screen**
+- Added terms of service screen accessible from Settings > About
+- 6 sections: Acceptance of Terms, Use of Service, User Accounts & Data, Intellectual Property, Limitation of Liability, Changes to Terms
+- Realistic legal text in both EN and DE
+- Added route `/settings/terms-of-service` to app_router
+- Enabled previously disabled "Coming soon" placeholder in settings screen
 
 ---
 

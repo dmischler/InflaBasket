@@ -2211,6 +2211,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add your first purchase to start tracking. Scan with AI or enter manually.'**
   String get onboardingStartSubtitle;
+
+  /// Subtitle showing last update date
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: March 2026'**
+  String get privacyPolicySubtitle;
+
+  /// Privacy policy section: controller info
+  ///
+  /// In en, this message translates to:
+  /// **'Controller'**
+  String get privacyPolicySection1Title;
+
+  /// Controller section body
+  ///
+  /// In en, this message translates to:
+  /// **'InflaBasket is operated as a personal project. For questions regarding this privacy policy, please contact us via the information provided below.'**
+  String get privacyPolicySection1Body;
+
+  /// Privacy policy section: data collection
+  ///
+  /// In en, this message translates to:
+  /// **'Data Collected & Purpose'**
+  String get privacyPolicySection2Title;
+
+  /// Data collection section body
+  ///
+  /// In en, this message translates to:
+  /// **'InflaBasket collects only the data you manually enter:\n\n• Product names, prices, quantities, and purchase dates\n• Store names and categories\n• Optional notes you add to entries\n\nAll data is entered by you and used solely to calculate and display price trends and inflation within the app. No data is collected automatically.'**
+  String get privacyPolicySection2Body;
+
+  /// Privacy policy section: data storage
+  ///
+  /// In en, this message translates to:
+  /// **'Data Storage & Retention'**
+  String get privacyPolicySection3Title;
+
+  /// Data storage section body
+  ///
+  /// In en, this message translates to:
+  /// **'All your data is stored locally on your device in an SQLite database. No data is transmitted to external servers.\n\nYou may optionally export your data as a backup file (SQLite, CSV, or JSON). These exports are saved to locations you choose.\n\nData is retained until you delete it or perform a factory reset within the app.'**
+  String get privacyPolicySection3Body;
+
+  /// Privacy policy section: data sharing
+  ///
+  /// In en, this message translates to:
+  /// **'Data Sharing'**
+  String get privacyPolicySection4Title;
+
+  /// Data sharing section body
+  ///
+  /// In en, this message translates to:
+  /// **'InflaBasket does not share your personal data with any third parties.\n\nIf you use the AI receipt scanner (Premium feature), receipt images are sent to Google Gemini for text extraction. No images are stored by Google or shared beyond what is required for processing. You must explicitly consent to this before using the scanner.\n\nSee the AI consent dialog for full details on how receipt images are handled.'**
+  String get privacyPolicySection4Body;
+
+  /// Privacy policy section: user rights
+  ///
+  /// In en, this message translates to:
+  /// **'Your Rights (GDPR)'**
+  String get privacyPolicySection5Title;
+
+  /// User rights section body
+  ///
+  /// In en, this message translates to:
+  /// **'Under the General Data Protection Regulation (GDPR), you have the right to:\n\n• Access your data – All data is stored locally and accessible within the app\n• Rectification – Edit any entry directly in the app\n• Deletion – Delete individual entries, categories, or perform a factory reset\n• Data portability – Export your data in CSV, JSON, or SQLite format\n• Restriction & objection – Data processing is minimal and local\n\nSince all data is stored locally on your device, you have full control over your data at all times.'**
+  String get privacyPolicySection5Body;
+
+  /// Privacy policy section: contact
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get privacyPolicySection6Title;
+
+  /// Contact section body
+  ///
+  /// In en, this message translates to:
+  /// **'For privacy-related inquiries, please open an issue on our GitHub repository or contact us through the app store listing.'**
+  String get privacyPolicySection6Body;
+
+  /// Terms of service subtitle showing last update date
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: March 2026'**
+  String get termsSubtitle;
+
+  /// Terms of service section: acceptance
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptance of Terms'**
+  String get termsSection1Title;
+
+  /// Acceptance of terms section body
+  ///
+  /// In en, this message translates to:
+  /// **'By downloading, installing, or using InflaBasket, you agree to be bound by these Terms of Service. If you do not agree to these terms, you must not use the application.\n\nThese terms constitute a legally binding agreement between you and InflaBasket regarding your use of the application and its services.'**
+  String get termsSection1Body;
+
+  /// Terms of service section: use of service
+  ///
+  /// In en, this message translates to:
+  /// **'Use of the Service'**
+  String get termsSection2Title;
+
+  /// Use of service section body
+  ///
+  /// In en, this message translates to:
+  /// **'InflaBasket is provided as a personal productivity tool for tracking grocery prices and calculating inflation. You agree to:\n\n• Use the application only for lawful purposes\n• Not reverse-engineer, decompile, or disassemble the application\n• Not use the application to transmit malicious code or interfere with its operation\n• Not attempt to gain unauthorized access to any part of the service\n\nThe application is provided \"as is\" and \"as available\" without warranties of any kind.'**
+  String get termsSection2Body;
+
+  /// Terms of service section: accounts and data
+  ///
+  /// In en, this message translates to:
+  /// **'User Accounts & Data'**
+  String get termsSection3Title;
+
+  /// Accounts and data section body
+  ///
+  /// In en, this message translates to:
+  /// **'InflaBasket does not require user accounts. All data is stored locally on your device.\n\nYou are solely responsible for:\n\n• The accuracy of data you enter into the application\n• Maintaining backups of your data (via the export feature)\n• Any consequences arising from data loss\n\nWe are not responsible for data loss resulting from device failure, app uninstallation, or user error.'**
+  String get termsSection3Body;
+
+  /// Terms of service section: intellectual property
+  ///
+  /// In en, this message translates to:
+  /// **'Intellectual Property'**
+  String get termsSection4Title;
+
+  /// Intellectual property section body
+  ///
+  /// In en, this message translates to:
+  /// **'InflaBasket and its original content, features, and functionality are owned by InflaBasket and are protected by copyright, trademark, and other intellectual property laws.\n\nYou may not reproduce, distribute, modify, or create derivative works from any part of the application without prior written consent.'**
+  String get termsSection4Body;
+
+  /// Terms of service section: limitation of liability
+  ///
+  /// In en, this message translates to:
+  /// **'Limitation of Liability'**
+  String get termsSection5Title;
+
+  /// Limitation of liability section body
+  ///
+  /// In en, this message translates to:
+  /// **'To the maximum extent permitted by applicable law, InflaBasket shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use of or inability to use the application.\n\nThis includes, but is not limited to:\n\n• Loss of data or profits\n• Business interruption\n• Personal injury or property damage\n• Any other damages resulting from the use of the application\n\nThe total liability of InflaBasket shall not exceed the amount you paid for the application, if any.'**
+  String get termsSection5Body;
+
+  /// Terms of service section: changes
+  ///
+  /// In en, this message translates to:
+  /// **'Changes to Terms'**
+  String get termsSection6Title;
+
+  /// Changes to terms section body
+  ///
+  /// In en, this message translates to:
+  /// **'We reserve the right to modify these Terms of Service at any time. We will notify users of material changes by updating the \"Last updated\" date at the top of this document.\n\nYour continued use of the application after any changes constitutes acceptance of the updated terms. If you disagree with the revised terms, you must stop using the application.\n\nFor questions about these terms, please contact us through the app store listing or by opening an issue on our GitHub repository.'**
+  String get termsSection6Body;
 }
 
 class _AppLocalizationsDelegate

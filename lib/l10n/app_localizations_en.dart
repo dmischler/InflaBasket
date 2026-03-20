@@ -1206,4 +1206,94 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingStartSubtitle =>
       'Add your first purchase to start tracking. Scan with AI or enter manually.';
+
+  @override
+  String get privacyPolicySubtitle => 'Last updated: March 2026';
+
+  @override
+  String get privacyPolicySection1Title => 'Controller';
+
+  @override
+  String get privacyPolicySection1Body =>
+      'InflaBasket is operated as a personal project. For questions regarding this privacy policy, please contact us via the information provided below.';
+
+  @override
+  String get privacyPolicySection2Title => 'Data Collected & Purpose';
+
+  @override
+  String get privacyPolicySection2Body =>
+      'InflaBasket collects only the data you manually enter:\n\n• Product names, prices, quantities, and purchase dates\n• Store names and categories\n• Optional notes you add to entries\n\nAll data is entered by you and used solely to calculate and display price trends and inflation within the app. No data is collected automatically.';
+
+  @override
+  String get privacyPolicySection3Title => 'Data Storage & Retention';
+
+  @override
+  String get privacyPolicySection3Body =>
+      'All your data is stored locally on your device in an SQLite database. No data is transmitted to external servers.\n\nYou may optionally export your data as a backup file (SQLite, CSV, or JSON). These exports are saved to locations you choose.\n\nData is retained until you delete it or perform a factory reset within the app.';
+
+  @override
+  String get privacyPolicySection4Title => 'Data Sharing';
+
+  @override
+  String get privacyPolicySection4Body =>
+      'InflaBasket does not share your personal data with any third parties.\n\nIf you use the AI receipt scanner (Premium feature), receipt images are sent to Google Gemini for text extraction. No images are stored by Google or shared beyond what is required for processing. You must explicitly consent to this before using the scanner.\n\nSee the AI consent dialog for full details on how receipt images are handled.';
+
+  @override
+  String get privacyPolicySection5Title => 'Your Rights (GDPR)';
+
+  @override
+  String get privacyPolicySection5Body =>
+      'Under the General Data Protection Regulation (GDPR), you have the right to:\n\n• Access your data – All data is stored locally and accessible within the app\n• Rectification – Edit any entry directly in the app\n• Deletion – Delete individual entries, categories, or perform a factory reset\n• Data portability – Export your data in CSV, JSON, or SQLite format\n• Restriction & objection – Data processing is minimal and local\n\nSince all data is stored locally on your device, you have full control over your data at all times.';
+
+  @override
+  String get privacyPolicySection6Title => 'Contact';
+
+  @override
+  String get privacyPolicySection6Body =>
+      'For privacy-related inquiries, please open an issue on our GitHub repository or contact us through the app store listing.';
+
+  @override
+  String get termsSubtitle => 'Last updated: March 2026';
+
+  @override
+  String get termsSection1Title => 'Acceptance of Terms';
+
+  @override
+  String get termsSection1Body =>
+      'By downloading, installing, or using InflaBasket, you agree to be bound by these Terms of Service. If you do not agree to these terms, you must not use the application.\n\nThese terms constitute a legally binding agreement between you and InflaBasket regarding your use of the application and its services.';
+
+  @override
+  String get termsSection2Title => 'Use of the Service';
+
+  @override
+  String get termsSection2Body =>
+      'InflaBasket is provided as a personal productivity tool for tracking grocery prices and calculating inflation. You agree to:\n\n• Use the application only for lawful purposes\n• Not reverse-engineer, decompile, or disassemble the application\n• Not use the application to transmit malicious code or interfere with its operation\n• Not attempt to gain unauthorized access to any part of the service\n\nThe application is provided \"as is\" and \"as available\" without warranties of any kind.';
+
+  @override
+  String get termsSection3Title => 'User Accounts & Data';
+
+  @override
+  String get termsSection3Body =>
+      'InflaBasket does not require user accounts. All data is stored locally on your device.\n\nYou are solely responsible for:\n\n• The accuracy of data you enter into the application\n• Maintaining backups of your data (via the export feature)\n• Any consequences arising from data loss\n\nWe are not responsible for data loss resulting from device failure, app uninstallation, or user error.';
+
+  @override
+  String get termsSection4Title => 'Intellectual Property';
+
+  @override
+  String get termsSection4Body =>
+      'InflaBasket and its original content, features, and functionality are owned by InflaBasket and are protected by copyright, trademark, and other intellectual property laws.\n\nYou may not reproduce, distribute, modify, or create derivative works from any part of the application without prior written consent.';
+
+  @override
+  String get termsSection5Title => 'Limitation of Liability';
+
+  @override
+  String get termsSection5Body =>
+      'To the maximum extent permitted by applicable law, InflaBasket shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use of or inability to use the application.\n\nThis includes, but is not limited to:\n\n• Loss of data or profits\n• Business interruption\n• Personal injury or property damage\n• Any other damages resulting from the use of the application\n\nThe total liability of InflaBasket shall not exceed the amount you paid for the application, if any.';
+
+  @override
+  String get termsSection6Title => 'Changes to Terms';
+
+  @override
+  String get termsSection6Body =>
+      'We reserve the right to modify these Terms of Service at any time. We will notify users of material changes by updating the \"Last updated\" date at the top of this document.\n\nYour continued use of the application after any changes constitutes acceptance of the updated terms. If you disagree with the revised terms, you must stop using the application.\n\nFor questions about these terms, please contact us through the app store listing or by opening an issue on our GitHub repository.';
 }

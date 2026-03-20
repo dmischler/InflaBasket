@@ -1201,4 +1201,94 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get onboardingStartSubtitle =>
       'Füge deinen ersten Einkauf hinzu, um loszulegen. Scanne mit KI oder gib manuell ein.';
+
+  @override
+  String get privacyPolicySubtitle => 'Zuletzt aktualisiert: März 2026';
+
+  @override
+  String get privacyPolicySection1Title => 'Verantwortlicher';
+
+  @override
+  String get privacyPolicySection1Body =>
+      'InflaBasket wird als persönliches Projekt betrieben. Bei Fragen zu dieser Datenschutzrichtlinie kontaktieren Sie uns bitte über die untenstehenden Angaben.';
+
+  @override
+  String get privacyPolicySection2Title => 'Erhobene Daten & Zweck';
+
+  @override
+  String get privacyPolicySection2Body =>
+      'InflaBasket erhebt nur Daten, die Sie manuell eingeben:\n\n• Produktnamen, Preise, Mengen und Kaufdaten\n• Geschäftsnamen und Kategorien\n• Optionale Notizen zu Einträgen\n\nAlle Daten werden von Ihnen eingegeben und ausschliesslich zur Berechnung und Anzeige von Preisentwicklungen und Inflation innerhalb der App verwendet. Es werden keine Daten automatisch erhoben.';
+
+  @override
+  String get privacyPolicySection3Title => 'Datenspeicherung & Aufbewahrung';
+
+  @override
+  String get privacyPolicySection3Body =>
+      'Alle Ihre Daten werden lokal auf Ihrem Gerät in einer SQLite-Datenbank gespeichert. Es werden keine Daten an externe Server übertragen.\n\nSie können Ihre Daten optional als Backup-Datei (SQLite, CSV oder JSON) exportieren. Diese Exporte werden an von Ihnen gewählten Orten gespeichert.\n\nDaten werden aufbewahrt, bis Sie sie löschen oder in der App auf Werkseinstellungen zurücksetzen.';
+
+  @override
+  String get privacyPolicySection4Title => 'Datenweitergabe';
+
+  @override
+  String get privacyPolicySection4Body =>
+      'InflaBasket gibt Ihre persönlichen Daten nicht an Dritte weiter.\n\nWenn Sie den KI-Quittungsscanner (Premium-Funktion) verwenden, werden Quittungsbilder zur Textextraktion an Google Gemini gesendet. Es werden keine Bilder von Google gespeichert oder über die erforderliche Verarbeitung hinaus weitergegeben. Sie müssen dem explizit zustimmen, bevor Sie den Scanner verwenden.\n\nIm KI-Einwilligungsdialog finden Sie vollständige Informationen zur Verarbeitung von Quittungsbildern.';
+
+  @override
+  String get privacyPolicySection5Title => 'Ihre Rechte (DSGVO)';
+
+  @override
+  String get privacyPolicySection5Body =>
+      'Gemäss der Datenschutz-Grundverordnung (DSGVO) haben Sie das Recht auf:\n\n• Auskunft – Alle Daten sind lokal gespeichert und in der App zugänglich\n• Berichtigung – Bearbeiten Sie jeden Eintrag direkt in der App\n• Löschung – Löschen Sie einzelne Einträge, Kategorien oder setzen Sie auf Werkseinstellungen zurück\n• Datenübertragbarkeit – Exportieren Sie Ihre Daten im CSV-, JSON- oder SQLite-Format\n• Einschränkung & Widerspruch – Die Datenverarbeitung ist minimal und lokal\n\nDa alle Daten lokal auf Ihrem Gerät gespeichert sind, haben Sie jederzeit die volle Kontrolle über Ihre Daten.';
+
+  @override
+  String get privacyPolicySection6Title => 'Kontakt';
+
+  @override
+  String get privacyPolicySection6Body =>
+      'Für datenschutzbezogene Anfragen öffnen Sie bitte ein Issue in unserem GitHub-Repository oder kontaktieren Sie uns über die App-Store-Eintragsseite.';
+
+  @override
+  String get termsSubtitle => 'Zuletzt aktualisiert: März 2026';
+
+  @override
+  String get termsSection1Title => 'Annahme der Bedingungen';
+
+  @override
+  String get termsSection1Body =>
+      'Durch das Herunterladen, Installieren oder Verwenden von InflaBasket stimmen Sie diesen Nutzungsbedingungen zu. Wenn Sie diesen Bedingungen nicht zustimmen, dürfen Sie die Anwendung nicht verwenden.\n\nDiese Bedingungen bilden eine rechtlich bindende Vereinbarung zwischen Ihnen und InflaBasket bezüglich der Nutzung der Anwendung und ihrer Dienste.';
+
+  @override
+  String get termsSection2Title => 'Nutzung des Dienstes';
+
+  @override
+  String get termsSection2Body =>
+      'InflaBasket wird als persönliches Werkzeug zur Verfolgung von Lebensmittelpreisen und Berechnung von Inflation bereitgestellt. Sie stimmen zu:\n\n• Die Anwendung nur für rechtmässige Zwecke zu verwenden\n• Die Anwendung nicht zurückzuentwickeln, zu dekompilieren oder zu disassemblieren\n• Die Anwendung nicht zu verwenden, um Schadsoftware zu verbreichen oder ihren Betrieb zu stören\n• Keinen unbefugten Zugriff auf Teile des Dienstes zu versuchen\n\nDie Anwendung wird \"wie besehen\" und \"wie verfuegbar\" ohne jegliche Garantien bereitgestellt.';
+
+  @override
+  String get termsSection3Title => 'Benutzerkonten & Daten';
+
+  @override
+  String get termsSection3Body =>
+      'InflaBasket erfordert keine Benutzerkonten. Alle Daten werden lokal auf Ihrem Gerät gespeichert.\n\nSie sind allein verantwortlich für:\n\n• Die Genauigkeit der eingegebenen Daten\n• Das Erstellen von Datensicherungen (über die Export-Funktion)\n• Folgen, die aus Datenverlust entstehen\n\nWir haften nicht für Datenverluste durch Geräteausfälle, Deinstallation der App oder Benutzerfehler.';
+
+  @override
+  String get termsSection4Title => 'Geistiges Eigentum';
+
+  @override
+  String get termsSection4Body =>
+      'InflaBasket und seine originären Inhalte, Funktionen und Funktionalitäten sind Eigentum von InflaBasket und durch Urheberrecht, Markenrecht und andere Gesetze zum geistigen Eigentum geschützt.\n\nSie dürfen keinen Teil der Anwendung ohne vorherige schriftliche Zustimmung reproduzieren, verbreiten, modifizieren oder abgeleitete Werke erstellen.';
+
+  @override
+  String get termsSection5Title => 'Haftungsbeschränkung';
+
+  @override
+  String get termsSection5Body =>
+      'Im gesetzlich zulässigen Umfang haftet InflaBasket nicht für indirekte, zufällige, besondere, Folge- oder Strafschäden, die aus Ihrer Nutzung oder Unmöglichkeit der Nutzung der Anwendung entstehen.\n\nDies umfasst, ohne Einschränkung:\n\n• Daten- oder Gewinnverluste\n• Betriebsunterbrechung\n• Personenschäden oder Sachschäden\n• Sonstige Schäden aus der Nutzung der Anwendung\n\nDie Gesamthaftung von InflaBasket übersteigt nicht den Betrag, den Sie für die Anwendung bezahlt haben, falls vorhanden.';
+
+  @override
+  String get termsSection6Title => 'Änderungen der Bedingungen';
+
+  @override
+  String get termsSection6Body =>
+      'Wir behalten uns das Recht vor, diese Nutzungsbedingungen jederzeit zu ändern. Über wesentliche Änderungen informieren wir Benutzer durch Aktualisierung des Datums \"Zuletzt aktualisiert\" oben in diesem Dokument.\n\nDie fortgesetzte Nutzung der Anwendung nach Änderungen gilt als Annahme der aktualisierten Bedingungen. Wenn Sie mit den geänderten Bedingungen nicht einverstanden sind, müssen Sie die Anwendung nicht mehr verwenden.\n\nFür Fragen zu diesen Bedingungen kontaktieren Sie uns bitte über die App-Store-Eintragsseite oder öffnen Sie ein Issue in unserem GitHub-Repository.';
 }

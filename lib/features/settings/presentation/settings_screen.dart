@@ -417,15 +417,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.privacy_tip_outlined),
                   title: Text(l10n.settingsPrivacyPolicy),
-                  subtitle: Text(l10n.settingsComingSoon),
-                  enabled: false,
+                  onTap: () => context.push('/settings/privacy-policy'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.description_outlined),
                   title: Text(l10n.settingsTerms),
-                  subtitle: Text(l10n.settingsComingSoon),
-                  enabled: false,
+                  onTap: () => context.push('/settings/terms-of-service'),
                 ),
               ],
             ),
