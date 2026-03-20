@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
 import 'package:inflabasket/core/database/database.dart';
-import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/autocomplete_field.dart';
 import 'package:inflabasket/features/entry_management/presentation/barcode_scan_dialog.dart';
+import 'package:inflabasket/features/entry_management/presentation/category_autocomplete_field.dart';
 import 'package:inflabasket/features/entry_management/presentation/duplicate_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
@@ -48,7 +47,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   late DateTime _selectedDate;
   String? _selectedCategoryName;
   UnitType _selectedUnit = UnitType.count;
-  bool _isEditingCategorySearch = false;
 
   // When the user taps "Link to Existing" in the duplicate dialog we record
   // the canonical product name so the repository resolves the right product.
@@ -68,17 +66,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
         'Food & Groceries';
     _categoryController = TextEditingController();
     _categoryFocusNode = FocusNode();
-    _categoryFocusNode.addListener(() {
-      if (_categoryFocusNode.hasFocus) return;
-      if (!_isEditingCategorySearch || _selectedCategoryName == null) return;
-      setState(() {
-        _isEditingCategorySearch = false;
-        _categoryController.text = CategoryLocalization.displayNameForContext(
-          context,
-          _selectedCategoryName!,
-        );
-      });
-    });
     _storeController = TextEditingController(
       text: edit?.entry.storeName ??
           (barcodeInfo?.stores.isNotEmpty == true
@@ -118,19 +105,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_selectedCategoryName == null || _isEditingCategorySearch) return;
-    final displayName = CategoryLocalization.displayNameForContext(
-      context,
-      _selectedCategoryName!,
-    );
-    if (_categoryController.text != displayName) {
-      _categoryController.text = displayName;
-    }
-  }
-
-  @override
   void dispose() {
     _productController.dispose();
     _categoryController.dispose();
@@ -141,19 +115,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     _quantityController.dispose();
     _notesController.dispose();
     super.dispose();
-  }
-
-  void _beginCategorySearch() {
-    if (_selectedCategoryName == null || _isEditingCategorySearch) return;
-
-    final displayName = CategoryLocalization.displayNameForContext(
-        context, _selectedCategoryName!);
-    if (_categoryController.text == displayName) {
-      setState(() {
-        _isEditingCategorySearch = true;
-        _categoryController.clear();
-      });
-    }
   }
 
   // ─── Barcode scan ──────────────────────────────────────────────────────────
@@ -387,44 +348,16 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              TypeAheadField<String>(
+              CategoryAutocompleteField(
                 controller: _categoryController,
                 focusNode: _categoryFocusNode,
-                suggestionsCallback: (search) =>
-                    repo.searchCategoryNames(search),
-                builder: (context, textController, focusNode) {
-                  return TextFormField(
-                    controller: textController,
-                    focusNode: focusNode,
-                    decoration: InputDecoration(
-                      labelText: l10n.category,
-                      border: const OutlineInputBorder(),
-                    ),
-                    onTap: lockSharedFields ? null : _beginCategorySearch,
-                    enabled: !lockSharedFields,
-                    validator: (value) => value == null || value.isEmpty
-                        ? l10n.fieldRequired
-                        : null,
-                  );
-                },
-                itemBuilder: (context, itemData) {
-                  return ListTile(
-                    title: Text(CategoryLocalization.displayNameForContext(
-                        context, itemData)),
-                    dense: true,
-                  );
-                },
-                onSelected: (selection) {
-                  _categoryController.text =
-                      CategoryLocalization.displayNameForContext(
-                          context, selection);
+                selectedCategoryName: _selectedCategoryName,
+                enabled: !lockSharedFields,
+                onCategorySelected: (selection) {
                   setState(() {
                     _selectedCategoryName = selection;
-                    _isEditingCategorySearch = false;
                   });
                 },
-                debounceDuration: const Duration(milliseconds: 300),
-                hideOnEmpty: false,
               ),
               const SizedBox(height: 16),
               AsyncAutocompleteField(

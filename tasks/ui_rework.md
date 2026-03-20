@@ -246,9 +246,11 @@ Per roadmap: 3-screen onboarding for new users
 **Extracted so far from add_entry_screen.dart**:
 - ✅ `BarcodeSection` (v1.38.0)
 - ✅ `ReceiptScanButton` (v1.39.0)
+- ✅ `PriceQuantityRow` (v1.40.0)
+- ✅ `CategoryAutocompleteField` (v1.41.0)
 
 **Still to extract from add_entry_screen.dart**:
-- `CategoryAutocompleteField` - Category search field
+- None - all components extracted!
 
 #### add_entry_screen.dart Splitting Implementation Steps
 
@@ -281,6 +283,7 @@ Per roadmap: 3-screen onboarding for new users
    - Props: `TextEditingController controller`, `FocusNode focusNode`, `String? selectedCategoryName`, `bool enabled`
    - Internal state: `_isEditingCategorySearch`
    - Callback: `onCategorySelected(String categoryName)`
+   - ✅ **IMPLEMENTED** - v1.41.0 - self-contained with internal state management
 
 5. **Refactor `AddEntryScreen`** (`features/entry_management/presentation/add_entry_screen.dart`)
    - Import new widget files
@@ -292,9 +295,9 @@ Per roadmap: 3-screen onboarding for new users
 - ~~`core/widgets/barcode_section.dart`~~ - ✅ Created (v1.38.0)
 - ~~`core/widgets/receipt_scan_button.dart`~~ - ✅ Created (v1.39.0)
 - ~~`core/widgets/price_quantity_row.dart`~~ - ✅ Created (v1.40.0)
-- `features/entry_management/presentation/category_autocomplete_field.dart`
+- ~~`features/entry_management/presentation/category_autocomplete_field.dart`~~ - ✅ Created (v1.41.0)
 
-**Risk**: Medium - Category state (`_selectedCategoryName`, `_isEditingCategorySearch`) is shared between `initState`, `didChangeDependencies`, and `_beginCategorySearch`. Keep state centralized until refactor is validated.
+**Risk**: Low - Category state (`_selectedCategoryName`) is centralized in screen, `_isEditingCategorySearch` internal to widget. ✅ Resolved in v1.41.0
 
 ### Phase 3: Settings Rework ✅ (v1.29.0)
 1. ✅ Group settings into collapsible sections
