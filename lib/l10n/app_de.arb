@@ -796,5 +796,47 @@
   "@aiConsentDecline": { "description": "Button to decline AI consent" },
 
   "aiConsentRequired": "KI-Einwilligung ist erforderlich, um den Quittungsscanner zu verwenden. Du kannst stattdessen Einträge manuell hinzufügen.",
-  "@aiConsentRequired": { "description": "Message shown when user tries to use scanner without consent" }
+  "@aiConsentRequired": { "description": "Message shown when user tries to use scanner without consent" },
+
+  "barcodeSectionTitle": "Barcode zuweisen",
+  "@barcodeSectionTitle": { "description": "Title for the barcode section on the add/edit entry screen" },
+
+  "barcodeCopied": "Barcode kopiert",
+  "@barcodeCopied": { "description": "Snackbar message when barcode is copied to clipboard" },
+
+  "barcodeAssign": "Barcode zuweisen",
+  "@barcodeAssign": { "description": "Button text to assign a barcode" },
+
+  "barcodeChange": "Barcode ändern",
+  "@barcodeChange": { "description": "Button text to change an existing barcode" },
+
+  "barcodeRemove": "Entfernen",
+  "@barcodeRemove": { "description": "Button text to remove a barcode" },
+
+  "barcodeConflictTitle": "Barcode bereits vergeben",
+  "@barcodeConflictTitle": { "description": "Dialog title when barcode is already assigned to another product" },
+
+  "barcodeConflictMessage": "Der Barcode \"{barcode}\" ist bereits dem Produkt \"{product}\" zugewiesen.",
+  "@barcodeConflictMessage": {
+    "description": "Dialog message when barcode conflict occurs",
+    "placeholders": {
+      "barcode": { "type": "String" },
+      "product": { "type": "String" }
+    }
+  },
+
+  "barcodeRemoveConfirmTitle": "Barcode entfernen?",
+  "@barcodeRemoveConfirmTitle": { "description": "Dialog title for barcode removal confirmation" },
+
+  "barcodeRemoveConfirmMessage": "Möchten Sie den Barcode von diesem Produkt entfernen?",
+  "@barcodeRemoveConfirmMessage": { "description": "Dialog message for barcode removal confirmation" },
+
+  "barcodeAssigned": "Barcode zugewiesen: {barcode}",
+  "@barcodeAssigned": {
+    "description": "Snackbar message when barcode is successfully assigned",
+    "placeholders": { "barcode": { "type": "String" } }
+  },
+
+  "barcodeAlreadyAssigned": "Diesem Produkt ist dieser Barcode bereits zugewiesen.",
+  "@barcodeAlreadyAssigned": { "description": "Snackbar message when barcode is already assigned to the same product" }
 }

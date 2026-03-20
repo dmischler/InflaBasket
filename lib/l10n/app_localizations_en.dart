@@ -1120,4 +1120,43 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiConsentRequired =>
       'AI consent is required to use the receipt scanner. You can add entries manually instead.';
+
+  @override
+  String get barcodeSectionTitle => 'Assign Barcode';
+
+  @override
+  String get barcodeCopied => 'Barcode copied';
+
+  @override
+  String get barcodeAssign => 'Assign Barcode';
+
+  @override
+  String get barcodeChange => 'Change Barcode';
+
+  @override
+  String get barcodeRemove => 'Remove';
+
+  @override
+  String get barcodeConflictTitle => 'Barcode Already Assigned';
+
+  @override
+  String barcodeConflictMessage(String barcode, String product) {
+    return 'The barcode \"$barcode\" is already assigned to \"$product\".';
+  }
+
+  @override
+  String get barcodeRemoveConfirmTitle => 'Remove Barcode?';
+
+  @override
+  String get barcodeRemoveConfirmMessage =>
+      'Remove the barcode from this product?';
+
+  @override
+  String barcodeAssigned(String barcode) {
+    return 'Barcode assigned: $barcode';
+  }
+
+  @override
+  String get barcodeAlreadyAssigned =>
+      'This barcode is already assigned to this product.';
 }

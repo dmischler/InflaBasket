@@ -2061,6 +2061,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI consent is required to use the receipt scanner. You can add entries manually instead.'**
   String get aiConsentRequired;
+
+  /// Title for the barcode section on the add/edit entry screen
+  ///
+  /// In en, this message translates to:
+  /// **'Assign Barcode'**
+  String get barcodeSectionTitle;
+
+  /// Snackbar message when barcode is copied to clipboard
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode copied'**
+  String get barcodeCopied;
+
+  /// Button text to assign a barcode
+  ///
+  /// In en, this message translates to:
+  /// **'Assign Barcode'**
+  String get barcodeAssign;
+
+  /// Button text to change an existing barcode
+  ///
+  /// In en, this message translates to:
+  /// **'Change Barcode'**
+  String get barcodeChange;
+
+  /// Button text to remove a barcode
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get barcodeRemove;
+
+  /// Dialog title when barcode is already assigned to another product
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode Already Assigned'**
+  String get barcodeConflictTitle;
+
+  /// Dialog message when barcode conflict occurs
+  ///
+  /// In en, this message translates to:
+  /// **'The barcode \"{barcode}\" is already assigned to \"{product}\".'**
+  String barcodeConflictMessage(String barcode, String product);
+
+  /// Dialog title for barcode removal confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Barcode?'**
+  String get barcodeRemoveConfirmTitle;
+
+  /// Dialog message for barcode removal confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the barcode from this product?'**
+  String get barcodeRemoveConfirmMessage;
+
+  /// Snackbar message when barcode is successfully assigned
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode assigned: {barcode}'**
+  String barcodeAssigned(String barcode);
+
+  /// Snackbar message when barcode is already assigned to the same product
+  ///
+  /// In en, this message translates to:
+  /// **'This barcode is already assigned to this product.'**
+  String get barcodeAlreadyAssigned;
 }
 
 class _AppLocalizationsDelegate

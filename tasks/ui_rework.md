@@ -33,7 +33,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 | Screen | Lines | Status |
 |--------|-------|--------|
 | OverviewTab | ~768 | **Reduced from 1367** - InflationListView extracted |
-| AddEntryScreen | ~760 | **Too large** - needs splitting |
+| AddEntryScreen | ~610 | **Reduced from 760** - BarcodeSection extracted |
 | SettingsScreen | ~437 | Acceptable - uses ActionRow |
 | DashboardScreen | ~75 | Good |
 | HistoryTab | ~400+ | Acceptable |
@@ -64,6 +64,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 | **ChartHeader** | core/widgets/chart_header.dart | Overlay type dropdown + CPI toggle |
 | LuxeButton | core/widgets/luxe_button.dart | Luxe styled button |
 | **ActionRow** | core/widgets/action_row.dart | List tile with 4 variants (navigation/action/toggle/dropdown) |
+| **BarcodeSection** | core/widgets/barcode_section.dart | Self-contained barcode assignment UI with assign/remove/copy actions |
 
 ### Missing Components
 1. ~~**LuxuryTextField**~~ - ✅ Implemented
@@ -77,6 +78,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 9. ~~**ActionRow**~~ - ✅ Implemented (v1.35.0)
 10. **InflationLineChart** - Line chart widget (complex, chart mixin dependency)
 11. ~~**InflationListView**~~ - ✅ Implemented (v1.36.0) - sealed class union for type-safe ItemInflation/ItemInflationSats handling
+12. ~~**BarcodeSection**~~ - ✅ Implemented - extracted from add_entry_screen.dart with localization
 
 ---
 
@@ -210,7 +212,7 @@ Per roadmap: 3-screen onboarding for new users
    - `ConfirmDialog.show()` factory method
    - `ConfirmDialogHelpers` with `showDelete()` and `showDiscardChanges()`
 
-### Phase 2: Screen Splitting (Partial - v1.28.0, completed v1.36.0, InflationLineChart extracted v1.37.0)
+### Phase 2: Screen Splitting (Partial - v1.28.0, completed v1.36.0, InflationLineChart extracted v1.37.0, BarcodeSection extracted v1.38.0)
 **overview_tab.dart**: Reduced from 1367 to 954 lines (~30% reduction), then to 768 lines (~44% total reduction), now at 368 lines (~73% total reduction)
 - ✅ `CustomDateRangeDialog` - Extracted to `core/widgets/custom_date_range_dialog.dart`
 - ✅ `InflationSummaryCard` - Extracted to `core/widgets/inflation_summary_card.dart`
@@ -223,12 +225,68 @@ Per roadmap: 3-screen onboarding for new users
   - Self-contained `StatefulWidget` with internal touch debounce logic
   - Removed dependency on `ChartTouchState` mixin
   - Uses `GlowDotPainter` and `ChartAnimations` from `core/theme/chart_animations.dart`
-- ❌ `add_entry_screen.dart` - Not started (tight state coupling)
+
+**add_entry_screen.dart**: Reduced from 760 to ~610 lines (~20% reduction)
+- ✅ `BarcodeSection` - Extracted to `core/widgets/barcode_section.dart` (v1.38.0)
+  - Self-contained `ConsumerWidget` with barcode assign/remove/copy logic
+  - Added 11 new localization keys for German translation parity
+  - Uses `barcodeAssignmentServiceProvider`, `showBarcodeInputDialog`
 
 **Remaining for Phase 2**:
 - Complete `add_entry_screen.dart` splitting
-- Extract `BarcodeSection` widget
-- Extract form field components (ProductAutocomplete, CategoryAutocomplete, etc.)
+
+**Extracted so far from add_entry_screen.dart**:
+- ✅ `BarcodeSection` (v1.38.0)
+
+**Still to extract from add_entry_screen.dart**:
+- `ReceiptScanButton` - Premium scanner launch button
+- `PriceQuantityRow` - Price + quantity + unit inputs
+- `CategoryAutocompleteField` - Category search field
+
+#### add_entry_screen.dart Splitting Implementation Steps
+
+**Current State**: 760 lines, tight state coupling (all controllers in `_AddEntryScreenState`)
+
+**Strategy**: Extract isolated widgets while keeping form state centralized. Use callbacks for widget→screen communication.
+
+1. **Extract `BarcodeSection` widget** (`core/widgets/barcode_section.dart`)
+   - Extract `_buildBarcodeSection()` method
+   - Extract `_assignBarcode()` method (uses `showBarcodeInputDialog`, `barcodeAssignmentService`)
+   - Extract `_removeBarcode()` method
+   - Props: `Product product`, callbacks: `onAssign(int productId)`, `onRemove(int productId)`
+   - State: Uses `GoRouter.of(context)` for navigation, `ScaffoldMessenger` for snackbars
+   - ✅ **IMPLEMENTED** - v1.38.0 - 11 localization keys added
+
+2. **Extract `ReceiptScanButton` widget** (`core/widgets/receipt_scan_button.dart`)
+   - Extract premium check + button UI from `_submit()` area
+   - Props: `bool isPremium`, callbacks: `onPremiumTap()`, `onScannerTap()`
+   - Handles AI consent dialog check before navigation
+
+3. **Extract `PriceQuantityRow` widget** (`core/widgets/price_quantity_row.dart`)
+   - Combine price TextField, quantity TextField, unit DropdownButtonFormField
+   - Props: `TextEditingController priceController`, `quantityController`, `UnitType selectedUnit`, `List<UnitType> units`, `String currency`
+   - Callback: `onUnitChanged(UnitType)`
+   - Keeps inline validators for flexibility
+
+4. **Extract `CategoryAutocompleteField` widget** (`features/entry_management/presentation/category_autocomplete_field.dart`)
+   - Wrap TypeAheadField pattern used for category selection
+   - Props: `TextEditingController controller`, `FocusNode focusNode`, `String? selectedCategoryName`, `bool enabled`
+   - Internal state: `_isEditingCategorySearch`
+   - Callback: `onCategorySelected(String categoryName)`
+
+5. **Refactor `AddEntryScreen`** (`features/entry_management/presentation/add_entry_screen.dart`)
+   - Import new widget files
+   - Keep all controllers and state in `_AddEntryScreenState` (preserves existing behavior)
+   - Replace inline sections with widget compositions
+   - Target: Reduce from 760 → ~300 lines
+
+**Files to Create**:
+- ~~`core/widgets/barcode_section.dart`~~ - ✅ Created (v1.38.0)
+- `core/widgets/receipt_scan_button.dart`
+- `core/widgets/price_quantity_row.dart`
+- `features/entry_management/presentation/category_autocomplete_field.dart`
+
+**Risk**: Medium - Category state (`_selectedCategoryName`, `_isEditingCategorySearch`) is shared between `initState`, `didChangeDependencies`, and `_beginCategorySearch`. Keep state centralized until refactor is validated.
 
 ### Phase 3: Settings Rework ✅ (v1.29.0)
 1. ✅ Group settings into collapsible sections

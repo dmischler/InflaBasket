@@ -1115,4 +1115,43 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get aiConsentRequired =>
       'KI-Einwilligung ist erforderlich, um den Quittungsscanner zu verwenden. Du kannst stattdessen Einträge manuell hinzufügen.';
+
+  @override
+  String get barcodeSectionTitle => 'Barcode zuweisen';
+
+  @override
+  String get barcodeCopied => 'Barcode kopiert';
+
+  @override
+  String get barcodeAssign => 'Barcode zuweisen';
+
+  @override
+  String get barcodeChange => 'Barcode ändern';
+
+  @override
+  String get barcodeRemove => 'Entfernen';
+
+  @override
+  String get barcodeConflictTitle => 'Barcode bereits vergeben';
+
+  @override
+  String barcodeConflictMessage(String barcode, String product) {
+    return 'Der Barcode \"$barcode\" ist bereits dem Produkt \"$product\" zugewiesen.';
+  }
+
+  @override
+  String get barcodeRemoveConfirmTitle => 'Barcode entfernen?';
+
+  @override
+  String get barcodeRemoveConfirmMessage =>
+      'Möchten Sie den Barcode von diesem Produkt entfernen?';
+
+  @override
+  String barcodeAssigned(String barcode) {
+    return 'Barcode zugewiesen: $barcode';
+  }
+
+  @override
+  String get barcodeAlreadyAssigned =>
+      'Diesem Produkt ist dieser Barcode bereits zugewiesen.';
 }
