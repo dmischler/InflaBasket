@@ -210,8 +210,8 @@ Per roadmap: 3-screen onboarding for new users
    - `ConfirmDialog.show()` factory method
    - `ConfirmDialogHelpers` with `showDelete()` and `showDiscardChanges()`
 
-### Phase 2: Screen Splitting (Partial - v1.28.0, completed v1.36.0)
-**overview_tab.dart**: Reduced from 1367 to 954 lines (~30% reduction), then to 768 lines (~44% total reduction)
+### Phase 2: Screen Splitting (Partial - v1.28.0, completed v1.36.0, InflationLineChart extracted v1.37.0)
+**overview_tab.dart**: Reduced from 1367 to 954 lines (~30% reduction), then to 768 lines (~44% total reduction), now at 368 lines (~73% total reduction)
 - ✅ `CustomDateRangeDialog` - Extracted to `core/widgets/custom_date_range_dialog.dart`
 - ✅ `InflationSummaryCard` - Extracted to `core/widgets/inflation_summary_card.dart`
 - ✅ `TimeRangeSelector` - Extracted to `core/widgets/time_range_selector.dart`
@@ -219,7 +219,10 @@ Per roadmap: 3-screen onboarding for new users
 - ✅ `InflationListView` - Extracted to `core/widgets/inflation_list_view.dart` (v1.36.0)
   - Created sealed class union `InflationListItem` with `FiatInflationItem` and `SatsInflationItem`
   - Added `toInflationList()` extensions on `List<ItemInflation>` and `List<ItemInflationSats>`
-- ❌ `InflationLineChart` - Not extracted (complex, uses ChartTouchState mixin)
+- ✅ `InflationLineChart` - Extracted to `core/widgets/inflation_line_chart.dart` (v1.37.0)
+  - Self-contained `StatefulWidget` with internal touch debounce logic
+  - Removed dependency on `ChartTouchState` mixin
+  - Uses `GlowDotPainter` and `ChartAnimations` from `core/theme/chart_animations.dart`
 - ❌ `add_entry_screen.dart` - Not started (tight state coupling)
 
 **Remaining for Phase 2**:
