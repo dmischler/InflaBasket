@@ -199,6 +199,9 @@
   "showComparisonOverlay": "Compare with",
   "@showComparisonOverlay": { "description": "Label for macro comparison overlay controls" },
 
+  "chartOverlayType": "Chart Overlay",
+  "@chartOverlayType": { "description": "Title for chart overlay type bottom sheet" },
+
   "cpiUnavailable": "National CPI data not available for the selected currency.",
   "@cpiUnavailable": { "description": "Message when no CPI source exists for currency" },
 

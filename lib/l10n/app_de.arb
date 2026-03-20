@@ -66,6 +66,7 @@
   "overviewNoData": "Erfasse mindestens zwei Käufe des gleichen Produkts, um die Inflation anzuzeigen.",
   "showNationalAverage": "vs. Nationalem Durchschnitt",
   "showComparisonOverlay": "Vergleichen mit",
+  "chartOverlayType": "Diagramm-Overlay",
   "cpiUnavailable": "Nationale KPI-Daten für die gewählte Währung nicht verfügbar.",
   "cpiLoadError": "Nationale KPI-Daten konnten nicht geladen werden.",
   "comparisonLoadError": "Vergleichsdaten konnten nicht geladen werden.",

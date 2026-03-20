@@ -168,29 +168,24 @@ Solution options:
 #### 9. Pull-to-Refresh
 Add to History tab for manual data refresh
 
-#### 10. Bottom Sheet Filters ⏳
+#### 10. Bottom Sheet Filters ✅ (v1.43.0)
 Replace inline dropdown filters with bottom sheet pattern
 
-**Current State:** Inline `DropdownButton` filters in headers
-- `TimeRangeSelector` (`overview_tab.dart:153-167`) - DropdownButton in header
-- `_buildTimeRangeSelector` (`categories_tab.dart:404-447`) - Duplicated inline DropdownButton
-- `ChartHeader` (`overview_tab.dart:168-178`) - DropdownButton for overlay type
+**Current State:** Tappable filter buttons that open bottom sheets with `ChoiceChip` selectors (matching History tab filter pattern)
 
-**Target State:** Tappable filter buttons that open bottom sheets with `ChoiceChip` selectors (matching History tab filter pattern)
-
-**Files to Create:**
+**Files Created:**
 | File | Purpose |
 |------|---------|
 | `core/widgets/time_range_filter_sheet.dart` | Bottom sheet with ChoiceChip time range options |
 | `core/widgets/chart_overlay_filter_sheet.dart` | Bottom sheet for overlay type + CPI toggle |
 
-**Files to Modify:**
+**Files Modified:**
 | File | Changes |
 |------|---------|
-| `core/widgets/time_range_selector.dart` | Convert from DropdownButton to pill button that opens sheet |
-| `core/widgets/chart_header.dart` | Convert overlay type dropdown to button that opens sheet |
-| `lib/features/dashboard/presentation/categories_tab.dart` | Replace inline `_buildTimeRangeSelector` with widget |
-| `lib/features/dashboard/presentation/overview_tab.dart` | Update to use new sheet-based selectors |
+| `core/widgets/time_range_selector.dart` | Converted from DropdownButton to pill button that opens sheet |
+| `core/widgets/chart_header.dart` | Converted overlay type dropdown to button that opens sheet |
+| `lib/features/dashboard/presentation/categories_tab.dart` | Replaced inline `_buildTimeRangeSelector` with widget |
+| `lib/features/dashboard/presentation/overview_tab.dart` | Updated to use new sheet-based selectors |
 
 **Implementation Steps:**
 
@@ -201,7 +196,7 @@ Replace inline dropdown filters with bottom sheet pattern
    - Static `show()` factory method
    - Replaced inline `DropdownButton` in `TimeRangeSelector` with tappable pill that opens sheet
 
-2. **Create `ChartOverlayFilterSheet`** (`core/widgets/chart_overlay_filter_sheet.dart`)
+2. **Create `ChartOverlayFilterSheet`** (`core/widgets/chart_overlay_filter_sheet.dart`) ✅ (v1.43.0)
    - Bottom sheet for overlay type selection
    - Props: `availableTypes`, `overlayType`, `showCpi`, callbacks
    - Uses `ChoiceChip` for type + `Switch` for CPI toggle
@@ -211,7 +206,7 @@ Replace inline dropdown filters with bottom sheet pattern
    - On tap, opens `TimeRangeFilterSheet`
    - Reduces from 72 lines → ~60 lines
 
-4. **Refactor `ChartHeader`**
+4. **Refactor `ChartHeader`** ✅ (v1.43.0)
    - Convert overlay type from inline `DropdownButton` to button
    - Opens `ChartOverlayFilterSheet` on tap
    - CPI toggle switch remains inline
@@ -221,7 +216,7 @@ Replace inline dropdown filters with bottom sheet pattern
    - Removed duplicated `_CustomDateRangeDialog` class (now uses `core/widgets/custom_date_range_dialog.dart`)
    - Removed ~270 lines of duplicated code
 
-6. **Update `overview_tab.dart`**
+6. **Update `overview_tab.dart`** ✅ (v1.43.0)
    - `TimeRangeSelector` now opens sheet instead of dropdown
    - `ChartHeader` now opens sheet instead of dropdown
 

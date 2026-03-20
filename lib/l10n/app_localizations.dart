@@ -488,6 +488,12 @@ abstract class AppLocalizations {
   /// **'Compare with'**
   String get showComparisonOverlay;
 
+  /// Title for chart overlay type bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Chart Overlay'**
+  String get chartOverlayType;
+
   /// Message when no CPI source exists for currency
   ///
   /// In en, this message translates to:

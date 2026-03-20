@@ -208,6 +208,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showComparisonOverlay => 'Compare with';
 
   @override
+  String get chartOverlayType => 'Chart Overlay';
+
+  @override
   String get cpiUnavailable =>
       'National CPI data not available for the selected currency.';
 

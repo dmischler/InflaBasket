@@ -212,6 +212,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get showComparisonOverlay => 'Vergleichen mit';
 
   @override
+  String get chartOverlayType => 'Diagramm-Overlay';
+
+  @override
   String get cpiUnavailable =>
       'Nationale KPI-Daten für die gewählte Währung nicht verfügbar.';
 
