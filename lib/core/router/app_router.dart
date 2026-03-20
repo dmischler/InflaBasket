@@ -23,7 +23,7 @@ GoRouter appRouter(AppRouterRef ref) {
   return GoRouter(
     initialLocation: '/home',
     redirect: (context, state) {
-      final onboardingCompleted = ref.watch(onboardingControllerProvider);
+      final onboardingCompleted = ref.read(onboardingControllerProvider);
       final isOnboardingRoute = state.matchedLocation == '/onboarding';
 
       if (!onboardingCompleted && !isOnboardingRoute) {
