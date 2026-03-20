@@ -6,12 +6,12 @@ import 'package:inflabasket/core/api/cpi_provider.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
-import 'package:inflabasket/core/widgets/custom_date_range_dialog.dart';
 import 'package:inflabasket/core/widgets/inflation_summary_card.dart';
 import 'package:inflabasket/core/widgets/time_range_selector.dart';
 import 'package:inflabasket/core/widgets/chart_header.dart';
 import 'package:inflabasket/core/widgets/inflation_line_chart.dart';
 import 'package:inflabasket/core/widgets/inflation_list_view.dart';
+import 'package:inflabasket/core/utils/chart_date_range_helper.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
@@ -158,11 +158,12 @@ class _OverviewTabState extends ConsumerState<OverviewTab> {
                 onRangeChanged: (range) => ref
                     .read(chartTimeFilterControllerProvider.notifier)
                     .setRange(range),
-                onCustomRangeRequested: (_) => _showCustomDatePicker(
-                  context,
-                  ref,
-                  timeFilter,
-                  firstDataPoint,
+                onCustomRangeRequested: (_) =>
+                    ChartDateRangeHelper.showCustomDatePicker(
+                  context: context,
+                  ref: ref,
+                  currentFilter: timeFilter,
+                  firstDataPoint: firstDataPoint,
                 ),
               ),
               ChartHeader(
@@ -220,36 +221,6 @@ class _OverviewTabState extends ConsumerState<OverviewTab> {
         ],
       ),
     );
-  }
-
-  Future<void> _showCustomDatePicker(
-    BuildContext context,
-    WidgetRef ref,
-    ChartTimeFilter currentFilter,
-    DateTime? firstDataPoint,
-  ) async {
-    final now = DateTime.now();
-    final minDate = firstDataPoint ?? DateTime(now.year - 5, 1, 1);
-    final maxDate = DateTime(now.year, now.month, 1);
-
-    DateTime startDate =
-        currentFilter.customStart ?? DateTime(now.year - 1, now.month, 1);
-    DateTime endDate = currentFilter.customEnd ?? maxDate;
-
-    final result = await CustomDateRangeDialog.show(
-      context: context,
-      initialStart: startDate,
-      initialEnd: endDate,
-      minDate: minDate,
-      maxDate: maxDate,
-    );
-
-    if (result != null) {
-      ref.read(chartTimeFilterControllerProvider.notifier).setCustomRange(
-            result.$1,
-            result.$2,
-          );
-    }
   }
 
   Widget _buildOverlayStatus(BuildContext context, AppLocalizations l,

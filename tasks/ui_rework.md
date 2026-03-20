@@ -32,7 +32,7 @@ The app has a solid foundation with a cohesive dark luxe theme, good component l
 
 | Screen | Lines | Status |
 |--------|-------|--------|
-| OverviewTab | ~768 | **Reduced from 1367** - InflationListView extracted |
+| OverviewTab | ~339 | **Reduced from 1367 (~75% reduction)** - InflationListView, InflationLineChart, ChartDateRangeHelper extracted |
 | AddEntryScreen | ~550 | **Reduced from 760** - BarcodeSection, ReceiptScanButton, PriceQuantityRow extracted |
 | SettingsScreen | ~437 | Acceptable - uses ActionRow |
 | DashboardScreen | ~75 | Good |
@@ -283,7 +283,7 @@ Per roadmap: 3-screen onboarding for new users
    - `ConfirmDialogHelpers` with `showDelete()` and `showDiscardChanges()`
 
 ### Phase 2: Screen Splitting (Partial - v1.28.0, completed v1.36.0, InflationLineChart extracted v1.37.0, BarcodeSection extracted v1.38.0)
-**overview_tab.dart**: Reduced from 1367 to 954 lines (~30% reduction), then to 768 lines (~44% total reduction), now at 368 lines (~73% total reduction)
+**overview_tab.dart**: Reduced from 1367 to 954 lines (~30% reduction), then to 768 lines (~44% total reduction), then to 368 lines (~73% total reduction), now at ~339 lines (~75% total reduction) after extracting `ChartDateRangeHelper`
 - ✅ `CustomDateRangeDialog` - Extracted to `core/widgets/custom_date_range_dialog.dart`
 - ✅ `InflationSummaryCard` - Extracted to `core/widgets/inflation_summary_card.dart`
 - ✅ `TimeRangeSelector` - Extracted to `core/widgets/time_range_selector.dart`
@@ -292,9 +292,14 @@ Per roadmap: 3-screen onboarding for new users
   - Created sealed class union `InflationListItem` with `FiatInflationItem` and `SatsInflationItem`
   - Added `toInflationList()` extensions on `List<ItemInflation>` and `List<ItemInflationSats>`
 - ✅ `InflationLineChart` - Extracted to `core/widgets/inflation_line_chart.dart` (v1.37.0)
-  - Self-contained `StatefulWidget` with internal touch debounce logic
-  - Removed dependency on `ChartTouchState` mixin
-  - Uses `GlowDotPainter` and `ChartAnimations` from `core/theme/chart_animations.dart`
+   - Self-contained `StatefulWidget` with internal touch debounce logic
+   - Removed dependency on `ChartTouchState` mixin
+   - Uses `GlowDotPainter` and `ChartAnimations` from `core/theme/chart_animations.dart`
+- ✅ `ChartDateRangeHelper` - Extracted to `core/utils/chart_date_range_helper.dart` (v1.44.0)
+   - Centralized custom date picker logic for chart time range selection
+   - Removed duplicated `_showCustomDatePicker` from `overview_tab.dart`
+   - Removed duplicated inline logic from `categories_tab.dart`
+   - Single source of truth for `CustomDateRangeDialog` usage
 
 **add_entry_screen.dart**: Reduced from 760 to ~565 lines (~26% reduction), now at ~550 lines (~28% total reduction)
 - ✅ `BarcodeSection` - Extracted to `core/widgets/barcode_section.dart` (v1.38.0)
@@ -343,6 +348,7 @@ Per roadmap: 3-screen onboarding for new users
    - Callback: `onUnitChanged(UnitType)`
    - Keeps inline validators for flexibility
    - ✅ **IMPLEMENTED** - Uses `LuxuryTextField` and `LuxuryDropdownField`
+   - ✅ **VERIFIED** (2026-03-20) - Correctly extracted to `core/widgets/price_quantity_row.dart`, uses LuxuryTextField/LuxuryDropdownField, proper numeric keyboard, all props typed correctly
 
 4. **Extract `CategoryAutocompleteField` widget** (`features/entry_management/presentation/category_autocomplete_field.dart`)
    - Wrap TypeAheadField pattern used for category selection

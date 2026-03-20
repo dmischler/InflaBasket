@@ -10,8 +10,8 @@ import 'package:inflabasket/core/theme/chart_animations.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/shimmer/chart_skeleton.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
-import 'package:inflabasket/core/widgets/custom_date_range_dialog.dart';
 import 'package:inflabasket/core/widgets/time_range_selector.dart';
+import 'package:inflabasket/core/utils/chart_date_range_helper.dart';
 import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -101,26 +101,13 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
               onRangeChanged: (range) => ref
                   .read(chartTimeFilterControllerProvider.notifier)
                   .setRange(range),
-              onCustomRangeRequested: (range) async {
-                final now = DateTime.now();
-                final minDate = firstDataPoint ?? DateTime(now.year - 5, 1, 1);
-                final maxDate = DateTime(now.year, now.month, 1);
-                final startDate = timeFilter.customStart ??
-                    DateTime(now.year - 1, now.month, 1);
-                final endDate = timeFilter.customEnd ?? maxDate;
-                final result = await CustomDateRangeDialog.show(
-                  context: context,
-                  initialStart: startDate,
-                  initialEnd: endDate,
-                  minDate: minDate,
-                  maxDate: maxDate,
-                );
-                if (result != null) {
-                  ref
-                      .read(chartTimeFilterControllerProvider.notifier)
-                      .setCustomRange(result.$1, result.$2);
-                }
-              },
+              onCustomRangeRequested: (range) =>
+                  ChartDateRangeHelper.showCustomDatePicker(
+                context: context,
+                ref: ref,
+                currentFilter: timeFilter,
+                firstDataPoint: firstDataPoint,
+              ),
             ),
             const SizedBox(height: 24),
             Text(l10n.categoryInflationTitle,
