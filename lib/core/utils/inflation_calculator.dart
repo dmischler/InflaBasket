@@ -206,8 +206,8 @@ class InflationCalculator {
           continue;
         }
 
-        if (identical(current, product.baselineEntry)) {
-          print('  ${product.name}: AT BASELINE (no change)');
+        if (current.price == product.baselineEntry.price) {
+          print('  ${product.name}: NO PRICE CHANGE (${current.price})');
           continue;
         }
 
