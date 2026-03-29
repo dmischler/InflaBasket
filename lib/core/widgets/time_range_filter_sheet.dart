@@ -48,6 +48,7 @@ class TimeRangeFilterSheet extends StatelessWidget {
       ChartTimeRange.threeYears => l.timeRange3y,
       ChartTimeRange.fiveYears => l.timeRange5y,
       ChartTimeRange.tenYears => l.timeRange10y,
+      ChartTimeRange.allTime => l.timeRangeAll,
       ChartTimeRange.custom => l.timeRangeCustom,
     };
   }

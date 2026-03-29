@@ -100,7 +100,7 @@ class _CategoriesTabState extends ConsumerState<CategoriesTab>
               onRangeChanged: (range) => ref
                   .read(chartTimeFilterControllerProvider.notifier)
                   .setRange(range),
-              onCustomRangeRequested: (start, end) => ref
+              onCustomRangeApplied: (start, end) => ref
                   .read(chartTimeFilterControllerProvider.notifier)
                   .setCustomRange(start, end),
             ),

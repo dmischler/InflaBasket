@@ -149,16 +149,12 @@ class InflationCalculator {
       bool hasBaselineBeforeRange,
     })>[];
 
-    print('generateInflationChart: rangeStart=$rangeStart, endDate=$endDate');
-    print('Total products passed: ${products.length}');
-
     for (final product in products.where((p) => p.isActive)) {
       final history = product.priceHistory
           .where((e) => e.price.isFinite && e.price > 0)
           .toList()
         ..sort((a, b) => a.date.compareTo(b.date));
       if (history.length < 2) {
-        print('EXCLUDED: ${product.name} (less than 2 entries)');
         continue;
       }
 
@@ -168,12 +164,8 @@ class InflationCalculator {
       PriceEntry effectiveBaseline;
       if (hasBeforeRange) {
         effectiveBaseline = baselineBefore;
-        print(
-            'QUALIFIED: ${product.name} (baseline=${effectiveBaseline.price} from ${effectiveBaseline.date})');
       } else {
         effectiveBaseline = history.first;
-        print(
-            'QUALIFIED: ${product.name} (baseline=${effectiveBaseline.price} from ${effectiveBaseline.date} - first in range)');
       }
 
       productData.add((
@@ -195,19 +187,16 @@ class InflationCalculator {
     })>[];
 
     for (final d in dates) {
-      print('=== ${d.year}-${d.month.toString().padLeft(2, '0')} ===');
       final changes = <double>[];
       final jumpDrivers = <String>[];
 
       for (final product in productData) {
         final current = _lastEntryOnOrBefore(product.history, d);
         if (current == null) {
-          print('  ${product.name}: NO ENTRY');
           continue;
         }
 
         if (current.price == product.baselineEntry.price) {
-          print('  ${product.name}: NO PRICE CHANGE (${current.price})');
           continue;
         }
 
@@ -216,17 +205,12 @@ class InflationCalculator {
             100;
         changes.add(change);
 
-        print('  ${product.name}: baseline=${product.baselineEntry.price} '
-            'current=${current.price} inflation=${change.toStringAsFixed(2)}%');
-
         final changedToday = product.history.any((e) =>
             e.date.year == d.year &&
             e.date.month == d.month &&
             e.date.day == d.day);
         if (changedToday) jumpDrivers.add(product.name);
       }
-
-      print('  --> avgInflation=${changes.isEmpty ? 0.0 : changes.average}');
 
       rawPoints.add((
         date: d,
