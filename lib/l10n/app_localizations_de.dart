@@ -1291,4 +1291,49 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get termsSection6Body =>
       'Wir behalten uns das Recht vor, diese Nutzungsbedingungen jederzeit zu ändern. Über wesentliche Änderungen informieren wir Benutzer durch Aktualisierung des Datums \"Zuletzt aktualisiert\" oben in diesem Dokument.\n\nDie fortgesetzte Nutzung der Anwendung nach Änderungen gilt als Annahme der aktualisierten Bedingungen. Wenn Sie mit den geänderten Bedingungen nicht einverstanden sind, müssen Sie die Anwendung nicht mehr verwenden.\n\nFür Fragen zu diesen Bedingungen kontaktieren Sie uns bitte über die App-Store-Eintragsseite oder öffnen Sie ein Issue in unserem GitHub-Repository.';
+
+  @override
+  String get settingsAutoSaveBackup => 'Auto-Speicherung';
+
+  @override
+  String get autoSaveEnable => 'Auto-Speicherung aktivieren';
+
+  @override
+  String get autoSaveStorageType => 'Speicherort';
+
+  @override
+  String get autoSaveStorageLocal => 'Lokal';
+
+  @override
+  String get autoSaveStorageCloud => 'Cloud';
+
+  @override
+  String get autoSaveLastBackup => 'Letzte Sicherung';
+
+  @override
+  String get autoSaveBackupNow => 'Jetzt sichern';
+
+  @override
+  String get autoSaveSelectFolder => 'Ordner wählen';
+
+  @override
+  String get autoSavePathNotSet => 'Kein Ordner gewählt';
+
+  @override
+  String get autoSaveSuccess => 'Sicherung erfolgreich';
+
+  @override
+  String autoSaveError(String error) {
+    return 'Sicherung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get autoSaveEnablePrompt =>
+      'Aktivieren Sie Auto-Speicherung um den Speicherort zu wählen';
+
+  @override
+  String get autoSaveManualBackup => 'Manuelle Sicherung';
+
+  @override
+  String get autoSaveNoBackup => 'Noch keine Sicherung';
 }

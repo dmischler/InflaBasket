@@ -955,5 +955,50 @@
   "@termsSection6Title": { "description": "Terms of service section: changes" },
 
   "termsSection6Body": "Wir behalten uns das Recht vor, diese Nutzungsbedingungen jederzeit zu ändern. Über wesentliche Änderungen informieren wir Benutzer durch Aktualisierung des Datums \"Zuletzt aktualisiert\" oben in diesem Dokument.\n\nDie fortgesetzte Nutzung der Anwendung nach Änderungen gilt als Annahme der aktualisierten Bedingungen. Wenn Sie mit den geänderten Bedingungen nicht einverstanden sind, müssen Sie die Anwendung nicht mehr verwenden.\n\nFür Fragen zu diesen Bedingungen kontaktieren Sie uns bitte über die App-Store-Eintragsseite oder öffnen Sie ein Issue in unserem GitHub-Repository.",
-  "@termsSection6Body": { "description": "Changes to terms section body" }
+  "@termsSection6Body": { "description": "Changes to terms section body" },
+
+  "settingsAutoSaveBackup": "Auto-Speicherung",
+  "@settingsAutoSaveBackup": { "description": "Settings tile for auto-save backup" },
+
+  "autoSaveEnable": "Auto-Speicherung aktivieren",
+  "@autoSaveEnable": { "description": "Toggle label to enable auto-save" },
+
+  "autoSaveStorageType": "Speicherort",
+  "@autoSaveStorageType": { "description": "Label for storage type selector" },
+
+  "autoSaveStorageLocal": "Lokal",
+  "@autoSaveStorageLocal": { "description": "Local storage option" },
+
+  "autoSaveStorageCloud": "Cloud",
+  "@autoSaveStorageCloud": { "description": "Cloud storage option (share sheet)" },
+
+  "autoSaveLastBackup": "Letzte Sicherung",
+  "@autoSaveLastBackup": { "description": "Label for last backup timestamp" },
+
+  "autoSaveBackupNow": "Jetzt sichern",
+  "@autoSaveBackupNow": { "description": "Button to trigger manual backup" },
+
+  "autoSaveSelectFolder": "Ordner wählen",
+  "@autoSaveSelectFolder": { "description": "Button to select backup folder" },
+
+  "autoSavePathNotSet": "Kein Ordner gewählt",
+  "@autoSavePathNotSet": { "description": "Placeholder when no folder is set" },
+
+  "autoSaveSuccess": "Sicherung erfolgreich",
+  "@autoSaveSuccess": { "description": "Success message after backup" },
+
+  "autoSaveError": "Sicherung fehlgeschlagen: {error}",
+  "@autoSaveError": {
+    "description": "Error message when backup fails",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "autoSaveEnablePrompt": "Aktivieren Sie Auto-Speicherung um den Speicherort zu wählen",
+  "@autoSaveEnablePrompt": { "description": "Hint shown when auto-save is disabled" },
+
+  "autoSaveManualBackup": "Manuelle Sicherung",
+  "@autoSaveManualBackup": { "description": "Section title for manual backup" },
+
+  "autoSaveNoBackup": "Noch keine Sicherung",
+  "@autoSaveNoBackup": { "description": "Placeholder when no backup exists" }
 }

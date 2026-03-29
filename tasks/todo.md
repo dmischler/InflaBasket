@@ -1,5 +1,6 @@
 # Task Plan
 
+## Completed Tasks
 - [x] Replace dashboard time-range model with 6M/1Y/2Y/3Y/5Y/10Y/Custom and make availability depend on purchases in each period.
 - [x] Update inflation providers to use only in-range entries and compute average yearly inflation (fiat + sats) from first/last entry inside range.
 - [x] Update Overview and Categories tabs for new range labels, dynamic option sets, and Lottie-based insufficient-data state in the summary card.
@@ -14,3 +15,79 @@
 - Switched overview summary card to "Average yearly inflation" and show Lottie empty-state card when insufficient qualifying data exists.
 - Regenerated Riverpod and l10n outputs, ran `flutter analyze` (passes with existing generated-file deprecation infos), and bumped app version to `1.20.2`.
 - Verified behavior with `flutter test` (all tests passing).
+
+---
+
+# Auto-Save Database Backup Feature
+
+## Overview
+Add an auto-save backup feature that automatically saves the database after every entry is added. Users can choose local storage (folder picker) or cloud storage (share sheet to Google Drive/Dropbox/etc.).
+
+---
+
+## User Flow
+
+```
+Settings > Data Options > Auto-Save Backup
+                    │
+                    ▼
+        ┌─────────────────────────┐
+        │ Auto-Save Settings      │
+        ├─────────────────────────┤
+        │ Enable: [Toggle]        │
+        │                         │
+        │ Storage: [Local/Cloud] │
+        │ (shown when enabled)    │
+        │                         │
+        │ [Select Folder]         │
+        │ (shown for Local)       │
+        │                         │
+        │ Last backup: Mar 29     │
+        │ [Backup Now]            │
+        └─────────────────────────┘
+```
+
+---
+
+## Implementation Checklist
+
+### Phase 1: Data Model &Persistence
+- [x] Add auto-save settings to `AppSettings` class in `settings_provider.dart`
+- [x] Create `lib/core/models/auto_save_config.dart` with enum
+- [x] Add SharedPreferences keys for persistence
+- [x] Add methods to `SettingsController`
+- [x] Run `dart run build_runner build -d`
+
+### Phase 2: Auto-Backup Service
+- [x] Create `lib/core/services/auto_backup_service.dart`
+- [x] Export the service via Riverpod provider
+- [x] Handle platform differences
+
+### Phase 3: Settings UI
+- [x] Add localization strings to `app_en.arb` and `app_de.arb`
+- [x] Run `flutter gen-l10n`
+- [x] Create `lib/features/settings/presentation/auto_save_backup_screen.dart`
+- [x] Add route `/settings/auto-save` to `app_router.dart`
+- [x] Add navigation item to `settings_screen.dart` under "Data Options" section
+
+### Phase 4: Integration Hook
+- [x] Modify `lib/features/entry_management/application/entry_providers.dart`
+- [x] Ensure backup happens asynchronously (don't block entry save)
+
+### Phase 5: Verification &Finalization
+- [x] Run `flutter analyze`
+- [x] Run `dart run build_runner build -d`
+- [x] Run `flutter gen-l10n`
+- [ ] Test backup/restore cycle (manual testing required)
+- [ ] Update `docs/project_outline.md`
+- [ ] Bump version in `pubspec.yaml`
+- [ ] Commit changes
+
+---
+
+## Review Section
+- [x] Phase 1-4 implementation complete
+- [x] flutter analyze passes (only deprecation warnings in generated files)
+- [x] Auto-save triggers after entry addition (using `unawaited` for async)
+- [x] Settings persist across restarts (SharedPreferences)
+- [ ] Manual testing on mobile/desktop required

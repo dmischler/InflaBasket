@@ -362,6 +362,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
               const Divider(height: 1),
               ActionRow(
+                variant: ActionRowVariant.navigation,
+                icon: Icons.save_alt,
+                title: l10n.settingsAutoSaveBackup,
+                onTap: () => context.push('/settings/auto-save'),
+              ),
+              const Divider(height: 1),
+              ActionRow(
                 variant: ActionRowVariant.action,
                 icon: Icons.upload_outlined,
                 iconBackgroundColor: exportState.isLoading

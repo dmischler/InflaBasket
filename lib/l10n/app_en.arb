@@ -1251,5 +1251,50 @@
   "@termsSection6Title": { "description": "Terms of service section: changes" },
 
   "termsSection6Body": "We reserve the right to modify these Terms of Service at any time. We will notify users of material changes by updating the \"Last updated\" date at the top of this document.\n\nYour continued use of the application after any changes constitutes acceptance of the updated terms. If you disagree with the revised terms, you must stop using the application.\n\nFor questions about these terms, please contact us through the app store listing or by opening an issue on our GitHub repository.",
-  "@termsSection6Body": { "description": "Changes to terms section body" }
+  "@termsSection6Body": { "description": "Changes to terms section body" },
+
+  "settingsAutoSaveBackup": "Auto-Save Backup",
+  "@settingsAutoSaveBackup": { "description": "Settings tile for auto-save backup" },
+
+  "autoSaveEnable": "Enable Auto-Save",
+  "@autoSaveEnable": { "description": "Toggle label to enable auto-save" },
+
+  "autoSaveStorageType": "Storage Location",
+  "@autoSaveStorageType": { "description": "Label for storage type selector" },
+
+  "autoSaveStorageLocal": "Local",
+  "@autoSaveStorageLocal": { "description": "Local storage option" },
+
+  "autoSaveStorageCloud": "Cloud",
+  "@autoSaveStorageCloud": { "description": "Cloud storage option (share sheet)" },
+
+  "autoSaveLastBackup": "Last backup",
+  "@autoSaveLastBackup": { "description": "Label for last backup timestamp" },
+
+  "autoSaveBackupNow": "Backup Now",
+  "@autoSaveBackupNow": { "description": "Button to trigger manual backup" },
+
+  "autoSaveSelectFolder": "Select Folder",
+  "@autoSaveSelectFolder": { "description": "Button to select backup folder" },
+
+  "autoSavePathNotSet": "No folder selected",
+  "@autoSavePathNotSet": { "description": "Placeholder when no folder is set" },
+
+  "autoSaveSuccess": "Backup saved successfully",
+  "@autoSaveSuccess": { "description": "Success message after backup" },
+
+  "autoSaveError": "Backup failed: {error}",
+  "@autoSaveError": {
+    "description": "Error message when backup fails",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "autoSaveEnablePrompt": "Enable auto-save to select storage location",
+  "@autoSaveEnablePrompt": { "description": "Hint shown when auto-save is disabled" },
+
+  "autoSaveManualBackup": "Manual Backup",
+  "@autoSaveManualBackup": { "description": "Section title for manual backup" },
+
+  "autoSaveNoBackup": "No backup yet",
+  "@autoSaveNoBackup": { "description": "Placeholder when no backup exists" }
 }

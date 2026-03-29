@@ -356,6 +356,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - JSON export
 - Factory reset
 
+**v1.49.0** — Auto-Save Backup
+- Auto-save database after each entry
+- Local folder picker for backup storage
+- Cloud storage via share sheet (Google Drive, Dropbox, etc.)
+- Manual backup button
+- Last backup timestamp display
+
 **v1.5.0** — Smart Duplicate Detection
 - Brand column (schema v10)
 - Two-stage matching (barcode + fuzzy)

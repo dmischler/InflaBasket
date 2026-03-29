@@ -8,10 +8,12 @@ import 'package:inflabasket/core/database/database.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/price_alert_service.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
+import 'package:inflabasket/core/services/auto_backup_service.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/entry_duplicate_dialog.dart';
 import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/core/services/entry_duplicate_detector.dart';
+import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
 part 'entry_providers.g.dart';
 
@@ -154,6 +156,7 @@ enum ChartTimeRange {
   threeYears,
   fiveYears,
   tenYears,
+  allTime,
   custom,
 }
 
@@ -203,6 +206,8 @@ class ChartTimeFilter {
         return _subtractMonths(now, 60);
       case ChartTimeRange.tenYears:
         return _subtractMonths(now, 120);
+      case ChartTimeRange.allTime:
+        return firstDataPoint;
       case ChartTimeRange.custom:
         return customStart ?? firstDataPoint;
     }
@@ -232,7 +237,8 @@ ChartTimeRange resolveTimeRangeSelection(
     return filter.range;
   }
   return available.firstWhere(
-    (range) => range != ChartTimeRange.custom,
+    (range) =>
+        range != ChartTimeRange.custom && range != ChartTimeRange.allTime,
     orElse: () => ChartTimeRange.custom,
   );
 }
@@ -281,6 +287,7 @@ List<ChartTimeRange> availableTimeRanges(Iterable<EntryWithDetails> entries) {
   if (hasSpan(10)) {
     available.add(ChartTimeRange.tenYears);
   }
+  available.add(ChartTimeRange.allTime);
   available.add(ChartTimeRange.custom);
 
   return available;
@@ -435,6 +442,13 @@ class AddEntryController extends _$AddEntryController {
               isPremium: isPremium,
               previousPrice: previousEntry?.price,
             );
+
+        final settings = ref.read(settingsControllerProvider);
+        if (settings.autoSaveEnabled) {
+          unawaited(
+            ref.read(autoBackupServiceProvider).performBackup(),
+          );
+        }
       }
 
       if (storeWebsite != null && storeWebsite.trim().isNotEmpty) {

@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
+import 'package:inflabasket/core/models/auto_save_config.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
 import 'package:inflabasket/core/services/price_update_reminder_service.dart';
 import 'package:inflabasket/core/database/database.dart';
@@ -28,6 +29,10 @@ class AppSettings {
   final bool isDarkMode;
   final bool priceUpdateReminderEnabled;
   final int priceUpdateReminderMonths;
+  final bool autoSaveEnabled;
+  final AutoSaveStorageType autoSaveStorageType;
+  final String? autoSavePath;
+  final DateTime? lastBackupAt;
 
   const AppSettings({
     this.currency = 'CHF',
@@ -37,6 +42,10 @@ class AppSettings {
     this.isDarkMode = true,
     this.priceUpdateReminderEnabled = false,
     this.priceUpdateReminderMonths = 6,
+    this.autoSaveEnabled = false,
+    this.autoSaveStorageType = AutoSaveStorageType.local,
+    this.autoSavePath,
+    this.lastBackupAt,
   });
 
   AppSettings copyWith({
@@ -47,6 +56,10 @@ class AppSettings {
     bool? isDarkMode,
     bool? priceUpdateReminderEnabled,
     int? priceUpdateReminderMonths,
+    bool? autoSaveEnabled,
+    AutoSaveStorageType? autoSaveStorageType,
+    String? autoSavePath,
+    DateTime? lastBackupAt,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
@@ -58,6 +71,10 @@ class AppSettings {
           priceUpdateReminderEnabled ?? this.priceUpdateReminderEnabled,
       priceUpdateReminderMonths:
           priceUpdateReminderMonths ?? this.priceUpdateReminderMonths,
+      autoSaveEnabled: autoSaveEnabled ?? this.autoSaveEnabled,
+      autoSaveStorageType: autoSaveStorageType ?? this.autoSaveStorageType,
+      autoSavePath: autoSavePath ?? this.autoSavePath,
+      lastBackupAt: lastBackupAt ?? this.lastBackupAt,
     );
   }
 }
@@ -82,6 +99,10 @@ class SettingsController extends _$SettingsController {
   static const _priceUpdateReminderMonthsKey =
       'settings_price_update_reminder_months';
   static const _darkModeKey = 'settings_dark_mode';
+  static const _autoSaveEnabledKey = 'settings_auto_save_enabled';
+  static const _autoSaveStorageTypeKey = 'settings_auto_save_storage_type';
+  static const _autoSavePathKey = 'settings_auto_save_path';
+  static const _lastBackupAtKey = 'settings_last_backup_at';
 
   // Legacy key - kept for migration
   static const _themeKey = 'settings_theme_type';
@@ -114,6 +135,13 @@ class SettingsController extends _$SettingsController {
           prefs.getBool(_priceUpdateReminderKey) ?? false,
       priceUpdateReminderMonths:
           prefs.getInt(_priceUpdateReminderMonthsKey) ?? 6,
+      autoSaveEnabled: prefs.getBool(_autoSaveEnabledKey) ?? false,
+      autoSaveStorageType: AutoSaveStorageType
+          .values[prefs.getInt(_autoSaveStorageTypeKey) ?? 0],
+      autoSavePath: prefs.getString(_autoSavePathKey),
+      lastBackupAt: prefs.getString(_lastBackupAtKey) != null
+          ? DateTime.tryParse(prefs.getString(_lastBackupAtKey)!)
+          : null,
     );
   }
 
@@ -190,6 +218,38 @@ class SettingsController extends _$SettingsController {
       final reminderService = ref.read(priceUpdateReminderServiceProvider);
       await reminderService.syncReminderSchedule();
     }
+  }
+
+  Future<void> setAutoSaveEnabled(bool enabled) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setBool(_autoSaveEnabledKey, enabled);
+    state = state.copyWith(autoSaveEnabled: enabled);
+  }
+
+  Future<void> setAutoSaveStorageType(AutoSaveStorageType type) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setInt(_autoSaveStorageTypeKey, type.index);
+    state = state.copyWith(autoSaveStorageType: type);
+  }
+
+  Future<void> setAutoSavePath(String? path) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    if (path != null) {
+      await prefs.setString(_autoSavePathKey, path);
+    } else {
+      await prefs.remove(_autoSavePathKey);
+    }
+    state = state.copyWith(autoSavePath: path);
+  }
+
+  Future<void> setLastBackupAt(DateTime? time) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    if (time != null) {
+      await prefs.setString(_lastBackupAtKey, time.toIso8601String());
+    } else {
+      await prefs.remove(_lastBackupAtKey);
+    }
+    state = state.copyWith(lastBackupAt: time);
   }
 
   Future<void> factoryReset(AppDatabase database) async {
