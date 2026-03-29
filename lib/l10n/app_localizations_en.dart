@@ -1296,4 +1296,49 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get termsSection6Body =>
       'We reserve the right to modify these Terms of Service at any time. We will notify users of material changes by updating the \"Last updated\" date at the top of this document.\n\nYour continued use of the application after any changes constitutes acceptance of the updated terms. If you disagree with the revised terms, you must stop using the application.\n\nFor questions about these terms, please contact us through the app store listing or by opening an issue on our GitHub repository.';
+
+  @override
+  String get settingsAutoSaveBackup => 'Auto-Save Backup';
+
+  @override
+  String get autoSaveEnable => 'Enable Auto-Save';
+
+  @override
+  String get autoSaveStorageType => 'Storage Location';
+
+  @override
+  String get autoSaveStorageLocal => 'Local';
+
+  @override
+  String get autoSaveStorageCloud => 'Cloud';
+
+  @override
+  String get autoSaveLastBackup => 'Last backup';
+
+  @override
+  String get autoSaveBackupNow => 'Backup Now';
+
+  @override
+  String get autoSaveSelectFolder => 'Select Folder';
+
+  @override
+  String get autoSavePathNotSet => 'No folder selected';
+
+  @override
+  String get autoSaveSuccess => 'Backup saved successfully';
+
+  @override
+  String autoSaveError(String error) {
+    return 'Backup failed: $error';
+  }
+
+  @override
+  String get autoSaveEnablePrompt =>
+      'Enable auto-save to select storage location';
+
+  @override
+  String get autoSaveManualBackup => 'Manual Backup';
+
+  @override
+  String get autoSaveNoBackup => 'No backup yet';
 }

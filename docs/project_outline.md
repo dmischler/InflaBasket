@@ -256,7 +256,17 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### ✅ Version History
 
-**v1.47.1** — Inflation Calculation Rework
+**v1.50.0** — Receipt Review UX Redesign
+- Card-based layout for receipt items with visual hierarchy
+- Product name as hero element (large, editable)
+- Price prominently displayed on right side
+- Category/unit/quantity as secondary row with chip-style containers
+- Scroll-to-visible for keyboard handling (FocusNode listeners)
+- Footer automatically pads when keyboard appears
+- Selected items highlighted with background color change
+- Improved touch targets for all interactive elements
+
+**v1.49.0** — Auto-Save Backup
 - Baseline per product: last entry before range.start, or first inside if none before
 - Products without baseline before range excluded until first price change
 - Products at baseline contribute 0% (not skipped)
@@ -355,6 +365,13 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Database export/import
 - JSON export
 - Factory reset
+
+**v1.49.0** — Auto-Save Backup
+- Auto-save database after each entry
+- Local folder picker for backup storage
+- Cloud storage via share sheet (Google Drive, Dropbox, etc.)
+- Manual backup button
+- Last backup timestamp display
 
 **v1.5.0** — Smart Duplicate Detection
 - Brand column (schema v10)

@@ -414,6 +414,215 @@ class _ReceiptReviewDialog extends StatefulWidget {
   State<_ReceiptReviewDialog> createState() => _ReceiptReviewDialogState();
 }
 
+class _ReceiptItemCard extends StatelessWidget {
+  final int index;
+  final bool isSelected;
+  final TextEditingController nameController;
+  final TextEditingController priceController;
+  final TextEditingController quantityController;
+  final String categorySelection;
+  final UnitType unitSelection;
+  final List<String> categoryNames;
+  final bool isMetric;
+  final bool enabled;
+  final ValueChanged<bool?> onSelectionChanged;
+  final ValueChanged<String?> onCategoryChanged;
+  final ValueChanged<UnitType?> onUnitChanged;
+  final VoidCallback onNameFocus;
+  final VoidCallback onPriceFocus;
+  final FocusNode nameFocusNode;
+  final FocusNode priceFocusNode;
+
+  const _ReceiptItemCard({
+    super.key,
+    required this.index,
+    required this.isSelected,
+    required this.nameController,
+    required this.priceController,
+    required this.quantityController,
+    required this.categorySelection,
+    required this.unitSelection,
+    required this.categoryNames,
+    required this.isMetric,
+    required this.enabled,
+    required this.onSelectionChanged,
+    required this.onCategoryChanged,
+    required this.onUnitChanged,
+    required this.onNameFocus,
+    required this.onPriceFocus,
+    required this.nameFocusNode,
+    required this.priceFocusNode,
+  });
+
+  String _displayCategoryName(BuildContext context, String categoryName) {
+    return CategoryLocalization.displayNameForContext(context, categoryName);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? colorScheme.surfaceContainerHighest
+            : colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isSelected
+              ? colorScheme.primary.withValues(alpha: 0.3)
+              : colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: isSelected ? 1.5 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 8, 12, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: isSelected,
+                  onChanged: onSelectionChanged,
+                  visualDensity: VisualDensity.compact,
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: nameController,
+                    enabled: enabled,
+                    focusNode: nameFocusNode,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      hintText: 'Product name',
+                      hintStyle: TextStyle(
+                        color:
+                            colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    controller: priceController,
+                    enabled: enabled,
+                    focusNode: priceFocusNode,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    textInputAction: TextInputAction.done,
+                    textAlign: TextAlign.end,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      hintText: '0.00',
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(48, 4, 12, 12),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<String>(
+                    value: categorySelection,
+                    isDense: true,
+                    underline: const SizedBox(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: enabled
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                    onChanged: enabled ? onCategoryChanged : null,
+                    items: categoryNames
+                        .map((n) => DropdownMenuItem(
+                              value: n,
+                              child: Text(
+                                _displayCategoryName(context, n),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<UnitType>(
+                    value: unitSelection,
+                    isDense: true,
+                    underline: const SizedBox(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: enabled
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                    onChanged: enabled ? onUnitChanged : null,
+                    items: availableUnits(isMetric)
+                        .map((u) => DropdownMenuItem(
+                              value: u,
+                              child: Text(u.label),
+                            ))
+                        .toList(),
+                  ),
+                ),
+                Text('×', style: theme.textTheme.bodySmall),
+                SizedBox(
+                  width: 48,
+                  child: TextField(
+                    controller: quantityController,
+                    enabled: enabled,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
   late final List<bool> _selected;
   late final List<TextEditingController> _nameControllers;
@@ -421,11 +630,16 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
   late final List<TextEditingController> _quantityControllers;
   late final List<String> _categorySelections;
   late final List<UnitType> _unitSelections;
+  late final List<FocusNode> _nameFocusNodes;
+  late final List<FocusNode> _priceFocusNodes;
+  late final List<GlobalKey> _itemKeys;
+  late final ScrollController _scrollController;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     _selected = List.generate(widget.items.length, (_) => true);
     _nameControllers = widget.items
         .map((item) =>
@@ -450,15 +664,45 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
     _unitSelections = widget.items.map((item) {
       final unitStr = item['unit'] as String?;
       final parsed = unitTypeFromString(unitStr);
-      // If the parsed unit isn't available for the current metric/imperial
-      // setting, fall back to count.
       final available = availableUnits(widget.isMetric);
       return available.contains(parsed) ? parsed : UnitType.count;
     }).toList();
+    _nameFocusNodes = List.generate(widget.items.length, (_) => FocusNode());
+    _priceFocusNodes = List.generate(widget.items.length, (_) => FocusNode());
+    _itemKeys = List.generate(widget.items.length, (_) => GlobalKey());
+
+    for (int i = 0; i < widget.items.length; i++) {
+      _nameFocusNodes[i].addListener(() {
+        if (_nameFocusNodes[i].hasFocus) {
+          _scrollToItem(i);
+        }
+      });
+      _priceFocusNodes[i].addListener(() {
+        if (_priceFocusNodes[i].hasFocus) {
+          _scrollToItem(i);
+        }
+      });
+    }
+  }
+
+  void _scrollToItem(int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      final context = _itemKeys[index].currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          alignment: 0.5,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     for (final c in _nameControllers) {
       c.dispose();
     }
@@ -467,6 +711,12 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
     }
     for (final c in _quantityControllers) {
       c.dispose();
+    }
+    for (final fn in _nameFocusNodes) {
+      fn.dispose();
+    }
+    for (final fn in _priceFocusNodes) {
+      fn.dispose();
     }
     super.dispose();
   }
@@ -485,10 +735,6 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
     );
   }
 
-  String _displayCategoryName(String categoryName) {
-    return CategoryLocalization.displayNameForContext(context, categoryName);
-  }
-
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context)!;
     setState(() => _isSaving = true);
@@ -502,7 +748,6 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
             : _nameControllers[i].text.trim();
         item['categoryName'] = _categorySelections[i];
         item['unit'] = _unitSelections[i].name;
-        // Parse price and quantity from editable fields
         final priceText = _priceControllers[i].text.trim();
         final price = double.tryParse(priceText.replaceAll(',', '.'));
         item['price'] = price ?? 0.0;
@@ -520,6 +765,7 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
     final l10n = AppLocalizations.of(context)!;
     final selectedCount = _selected.where((s) => s).length;
     final dateLabel = DateFormat.yMMMd().format(widget.receiptDate);
+    final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return SafeArea(
       child: ConstrainedBox(
@@ -530,7 +776,6 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Drag Handle for bottom sheet
             const SizedBox(height: 12),
             Container(
               width: 40,
@@ -544,11 +789,9 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
               ),
             ),
             const SizedBox(height: 8),
-            // Header
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Column(
@@ -567,11 +810,6 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                                       .colorScheme
                                       .onSurfaceVariant),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n.scannerReviewInstructions,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
                       ],
                     ),
                   ),
@@ -583,148 +821,59 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                l10n.scannerReviewInstructions,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ),
             const Divider(height: 1),
-
-            // Item list
             Flexible(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: widget.items.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (context, index) {
-                  return CheckboxListTile(
-                    value: _selected[index],
-                    onChanged: (val) =>
+                  return _ReceiptItemCard(
+                    key: _itemKeys[index],
+                    index: index,
+                    isSelected: _selected[index],
+                    nameController: _nameControllers[index],
+                    priceController: _priceControllers[index],
+                    quantityController: _quantityControllers[index],
+                    categorySelection: _categorySelections[index],
+                    unitSelection: _unitSelections[index],
+                    categoryNames: _categoryNames,
+                    isMetric: widget.isMetric,
+                    enabled: _selected[index],
+                    onSelectionChanged: (val) =>
                         setState(() => _selected[index] = val ?? false),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: const EdgeInsets.only(left: 4, right: 12),
-                    title: TextField(
-                      controller: _nameControllers[index],
-                      enabled: _selected[index],
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        border: UnderlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(vertical: 4),
-                      ),
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButton<String>(
-                              value: _categorySelections[index],
-                              isExpanded: true,
-                              isDense: true,
-                              underline: const SizedBox(),
-                              style: Theme.of(context).textTheme.bodySmall,
-                              onChanged: _selected[index]
-                                  ? (val) {
-                                      if (val != null) {
-                                        setState(() =>
-                                            _categorySelections[index] = val);
-                                      }
-                                    }
-                                  : null,
-                              items: _categoryNames
-                                  .map((n) => DropdownMenuItem(
-                                        value: n,
-                                        child: Text(_displayCategoryName(n)),
-                                      ))
-                                  .toList(),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Unit picker
-                          DropdownButton<UnitType>(
-                            value: _unitSelections[index],
-                            isDense: true,
-                            underline: const SizedBox(),
-                            style: Theme.of(context).textTheme.bodySmall,
-                            onChanged: _selected[index]
-                                ? (val) {
-                                    if (val != null) {
-                                      setState(
-                                          () => _unitSelections[index] = val);
-                                    }
-                                  }
-                                : null,
-                            items: availableUnits(widget.isMetric)
-                                .map((u) => DropdownMenuItem(
-                                      value: u,
-                                      child: Text(u.label),
-                                    ))
-                                .toList(),
-                          ),
-                          const SizedBox(width: 8),
-                          // Quantity field
-                          SizedBox(
-                            width: 50,
-                            child: TextField(
-                              controller: _quantityControllers[index],
-                              enabled: _selected[index],
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                              textInputAction: TextInputAction.done,
-                              onSubmitted: (_) =>
-                                  FocusScope.of(context).unfocus(),
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall,
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                border: UnderlineInputBorder(),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 4),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            ' × ',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                          // Price field
-                          SizedBox(
-                            width: 70,
-                            child: TextField(
-                              controller: _priceControllers[index],
-                              enabled: _selected[index],
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                              textInputAction: TextInputAction.done,
-                              onSubmitted: (_) =>
-                                  FocusScope.of(context).unfocus(),
-                              textAlign: TextAlign.end,
-                              style: Theme.of(context).textTheme.bodySmall,
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                border: UnderlineInputBorder(),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 4),
-                                hintText: '0.00',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    onCategoryChanged: (val) {
+                      if (val != null) {
+                        setState(() => _categorySelections[index] = val);
+                      }
+                    },
+                    onUnitChanged: (val) {
+                      if (val != null) {
+                        setState(() => _unitSelections[index] = val);
+                      }
+                    },
+                    onNameFocus: () => _scrollToItem(index),
+                    onPriceFocus: () => _scrollToItem(index),
+                    nameFocusNode: _nameFocusNodes[index],
+                    priceFocusNode: _priceFocusNodes[index],
                   );
                 },
               ),
             ),
-
             const Divider(height: 1),
-
-            // Footer actions
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 12, 12),
+              padding: EdgeInsets.fromLTRB(12, 8, 12, 12 + bottomPadding),
               child: Row(
                 children: [
-                  // Select all / none
                   TextButton(
                     onPressed: _isSaving
                         ? null

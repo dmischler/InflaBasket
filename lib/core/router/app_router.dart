@@ -9,6 +9,7 @@ import 'package:inflabasket/features/onboarding/application/onboarding_provider.
 import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
 import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart';
 import 'package:inflabasket/features/barcode/presentation/barcode_screen.dart';
+import 'package:inflabasket/features/settings/presentation/auto_save_backup_screen.dart';
 import 'package:inflabasket/features/settings/presentation/category_management_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_alerts_screen.dart';
 import 'package:inflabasket/features/settings/presentation/price_updates_screen.dart';
@@ -107,6 +108,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/settings/terms-of-service',
         builder: (context, state) => const TermsOfServiceScreen(),
+      ),
+      GoRoute(
+        path: '/settings/auto-save',
+        builder: (context, state) => const AutoSaveBackupScreen(),
       ),
     ],
   );

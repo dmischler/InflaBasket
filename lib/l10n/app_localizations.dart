@@ -2367,6 +2367,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We reserve the right to modify these Terms of Service at any time. We will notify users of material changes by updating the \"Last updated\" date at the top of this document.\n\nYour continued use of the application after any changes constitutes acceptance of the updated terms. If you disagree with the revised terms, you must stop using the application.\n\nFor questions about these terms, please contact us through the app store listing or by opening an issue on our GitHub repository.'**
   String get termsSection6Body;
+
+  /// Settings tile for auto-save backup
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-Save Backup'**
+  String get settingsAutoSaveBackup;
+
+  /// Toggle label to enable auto-save
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Auto-Save'**
+  String get autoSaveEnable;
+
+  /// Label for storage type selector
+  ///
+  /// In en, this message translates to:
+  /// **'Storage Location'**
+  String get autoSaveStorageType;
+
+  /// Local storage option
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get autoSaveStorageLocal;
+
+  /// Cloud storage option (share sheet)
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud'**
+  String get autoSaveStorageCloud;
+
+  /// Label for last backup timestamp
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup'**
+  String get autoSaveLastBackup;
+
+  /// Button to trigger manual backup
+  ///
+  /// In en, this message translates to:
+  /// **'Backup Now'**
+  String get autoSaveBackupNow;
+
+  /// Button to select backup folder
+  ///
+  /// In en, this message translates to:
+  /// **'Select Folder'**
+  String get autoSaveSelectFolder;
+
+  /// Placeholder when no folder is set
+  ///
+  /// In en, this message translates to:
+  /// **'No folder selected'**
+  String get autoSavePathNotSet;
+
+  /// Success message after backup
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved successfully'**
+  String get autoSaveSuccess;
+
+  /// Error message when backup fails
+  ///
+  /// In en, this message translates to:
+  /// **'Backup failed: {error}'**
+  String autoSaveError(String error);
+
+  /// Hint shown when auto-save is disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Enable auto-save to select storage location'**
+  String get autoSaveEnablePrompt;
+
+  /// Section title for manual backup
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Backup'**
+  String get autoSaveManualBackup;
+
+  /// Placeholder when no backup exists
+  ///
+  /// In en, this message translates to:
+  /// **'No backup yet'**
+  String get autoSaveNoBackup;
 }
 
 class _AppLocalizationsDelegate
