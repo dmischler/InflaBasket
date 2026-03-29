@@ -69,7 +69,10 @@ ChartTickConfig buildTickConfig(
   final estimatedLabelWidth = switch (range) {
     ChartTimeRange.sixMonths || ChartTimeRange.oneYear => 44.0,
     ChartTimeRange.twoYears || ChartTimeRange.threeYears => 64.0,
-    ChartTimeRange.fiveYears || ChartTimeRange.tenYears => 42.0,
+    ChartTimeRange.fiveYears ||
+    ChartTimeRange.tenYears ||
+    ChartTimeRange.allTime =>
+      42.0,
     ChartTimeRange.custom => totalMonths <= 18 ? 44.0 : 64.0,
   };
   final targetLabels =
@@ -128,6 +131,7 @@ List<MonthlyIndex> aggregateByPeriod(
         return DateTime(date.year, quarter * 3 + 1, 1);
       case ChartTimeRange.fiveYears:
       case ChartTimeRange.tenYears:
+      case ChartTimeRange.allTime:
         return DateTime(date.year, 1, 1);
     }
   }
@@ -220,6 +224,7 @@ class _InflationLineChartState extends State<InflationLineChart> {
             return DateTime(date.year, quarter * 3 + 1, 1);
           case ChartTimeRange.fiveYears:
           case ChartTimeRange.tenYears:
+          case ChartTimeRange.allTime:
             return DateTime(date.year, 1, 1);
         }
       }

@@ -9,7 +9,7 @@ class TimeRangeSelector extends StatelessWidget {
   final List<ChartTimeRange> availableOptions;
   final DateTime? firstDataPoint;
   final ValueChanged<ChartTimeRange> onRangeChanged;
-  final void Function(DateTime start, DateTime end) onCustomRangeRequested;
+  final void Function(DateTime start, DateTime end) onCustomRangeApplied;
 
   const TimeRangeSelector({
     super.key,
@@ -18,7 +18,7 @@ class TimeRangeSelector extends StatelessWidget {
     required this.availableOptions,
     required this.firstDataPoint,
     required this.onRangeChanged,
-    required this.onCustomRangeRequested,
+    required this.onCustomRangeApplied,
   });
 
   String _timeRangeLabel(AppLocalizations l, ChartTimeRange range) {
@@ -29,6 +29,7 @@ class TimeRangeSelector extends StatelessWidget {
       ChartTimeRange.threeYears => l.timeRange3y,
       ChartTimeRange.fiveYears => l.timeRange5y,
       ChartTimeRange.tenYears => l.timeRange10y,
+      ChartTimeRange.allTime => l.timeRangeAll,
       ChartTimeRange.custom => l.timeRangeCustom,
     };
   }
@@ -46,9 +47,7 @@ class TimeRangeSelector extends StatelessWidget {
         availableOptions: availableOptions,
         firstDataPoint: firstDataPoint,
         onRangeSelected: onRangeChanged,
-        onCustomRangeApplied: (start, end) {
-          onCustomRangeRequested(start, end);
-        },
+        onCustomRangeApplied: onCustomRangeApplied,
       ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

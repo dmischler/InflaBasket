@@ -42,8 +42,23 @@ Future<void> main() async {
   await NotificationService.initialize();
   final sharedPreferences = await SharedPreferences.getInstance();
 
-  // Check for pending database restore
-  final pendingPath = sharedPreferences.getString('pending_restore_path');
+  // Check for TEST_DB_PATH first (direct load for Linux testing without file picker)
+  const testDbPath = String.fromEnvironment('TEST_DB_PATH', defaultValue: '');
+  if (testDbPath.isNotEmpty) {
+    try {
+      final dbFolder = await getApplicationDocumentsDirectory();
+      final dbPath = p.join(dbFolder.path, 'db.sqlite');
+      await File(testDbPath).copy(dbPath);
+      debugPrint('TEST_MODE: Loaded test database from: $testDbPath');
+    } catch (e) {
+      debugPrint('TEST_MODE: Failed to load test database: $e');
+    }
+  }
+
+  // Check for pending database restore (skip if TEST_DB_PATH was used)
+  final pendingPath = testDbPath.isNotEmpty
+      ? null
+      : sharedPreferences.getString('pending_restore_path');
   if (pendingPath != null) {
     try {
       final dbFolder = await getApplicationDocumentsDirectory();
