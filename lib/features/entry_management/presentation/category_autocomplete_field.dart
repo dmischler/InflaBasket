@@ -91,7 +91,7 @@ class _CategoryAutocompleteFieldState
             border: const OutlineInputBorder(),
           ),
           onTap: widget.enabled ? beginCategorySearch : null,
-          enabled: !widget.enabled,
+          enabled: widget.enabled,
           validator: (value) =>
               value == null || value.isEmpty ? l10n.fieldRequired : null,
         );
