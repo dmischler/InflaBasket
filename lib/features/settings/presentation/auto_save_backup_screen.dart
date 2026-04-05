@@ -138,14 +138,15 @@ class AutoSaveBackupScreen extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         final scaffoldMessenger = ScaffoldMessenger.of(context);
-                        final success = await autoBackupService.performBackup();
+                        final result = await autoBackupService.performBackup();
                         if (context.mounted) {
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Text(
-                                success
+                                result.success
                                     ? l10n.autoSaveSuccess
-                                    : l10n.autoSaveError(''),
+                                    : l10n.autoSaveError(
+                                        result.error ?? 'Unknown error'),
                               ),
                             ),
                           );

@@ -27,7 +27,7 @@ class AutoBackupService {
   String get _dbFilename =>
       'InflaBasket_Backup_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.sqlite';
 
-  Future<bool> performBackup() async {
+  Future<({bool success, String? error})> performBackup() async {
     final settings = _ref.read(settingsControllerProvider);
     final storageType = settings.autoSaveStorageType;
     final autoSavePath = settings.autoSavePath;
@@ -36,26 +36,22 @@ class AutoBackupService {
       final dbPath = await _getDatabasePath();
       final dbFile = File(dbPath);
       if (!await dbFile.exists()) {
-        debugPrint('Database file not found at $dbPath');
-        return false;
+        return (success: false, error: 'Database file not found');
       }
 
       if (storageType == AutoSaveStorageType.local && autoSavePath != null) {
         await _backupToLocal(dbFile, autoSavePath);
-      } else if (storageType == AutoSaveStorageType.cloud) {
-        await _backupToCloud(dbFile);
       } else {
-        debugPrint('No valid backup path configured');
-        return false;
+        await _backupToCloud(dbFile);
       }
 
       await _ref
           .read(settingsControllerProvider.notifier)
           .setLastBackupAt(DateTime.now());
-      return true;
+      return (success: true, error: null);
     } catch (e) {
       debugPrint('Backup failed: $e');
-      return false;
+      return (success: false, error: e.toString());
     }
   }
 
