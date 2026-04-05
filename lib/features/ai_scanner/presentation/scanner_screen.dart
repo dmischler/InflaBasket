@@ -34,6 +34,7 @@ class ScannerScreen extends ConsumerStatefulWidget {
 class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   bool _isProcessing = false;
   bool _isDraggingFile = false;
+  ImageSource? _lastUsedSource;
 
   bool get _supportsDesktopDragAndDrop {
     if (kIsWeb) return false;
@@ -46,6 +47,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   Future<void> _scanReceipt(ImageSource source) async {
+    _lastUsedSource = source;
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(
@@ -149,7 +151,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
     final isLuxeMode = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet<bool>(
+    showModalBottomSheet<bool?>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -202,6 +204,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
               );
             }
           },
+          onRescan: () {
+            Navigator.of(dialogContext).pop(null);
+          },
         );
 
         if (isLuxeMode) {
@@ -228,9 +233,12 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
         return child;
       },
-    ).then((saved) {
-      if (saved == true && mounted) {
+    ).then((result) {
+      if (!mounted) return;
+      if (result == true) {
         context.go('/home');
+      } else if (result == null) {
+        _scanReceipt(_lastUsedSource ?? ImageSource.gallery);
       }
     });
   }
@@ -399,6 +407,7 @@ class _ReceiptReviewDialog extends StatefulWidget {
   final List<Category> categories;
   final bool isMetric;
   final Future<void> Function(List<Map<String, dynamic>>) onSave;
+  final VoidCallback? onRescan;
 
   const _ReceiptReviewDialog({
     required this.storeName,
@@ -408,6 +417,7 @@ class _ReceiptReviewDialog extends StatefulWidget {
     required this.categories,
     required this.isMetric,
     required this.onSave,
+    this.onRescan,
   });
 
   @override
@@ -871,40 +881,40 @@ class _ReceiptReviewDialogState extends State<_ReceiptReviewDialog> {
             ),
             const Divider(height: 1),
             Padding(
-              padding: EdgeInsets.fromLTRB(12, 8, 12, 12 + bottomPadding),
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + bottomPadding),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed: _isSaving
-                        ? null
-                        : () {
-                            final allSelected = _selected.every((s) => s);
-                            setState(() {
-                              for (int i = 0; i < _selected.length; i++) {
-                                _selected[i] = !allSelected;
-                              }
-                            });
-                          },
-                    child: Text(_selected.every((s) => s)
-                        ? l10n.scannerDeselectAll
-                        : l10n.scannerSelectAll),
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: _isSaving ? null : widget.onRescan,
+                    tooltip: l10n.scannerTakePhoto,
                   ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed:
-                        _isSaving ? null : () => Navigator.of(context).pop(),
-                    child: Text(l10n.cancel),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: (_isSaving || selectedCount == 0) ? null : _save,
-                    child: _isSaving
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(l10n.scannerSaveItems(selectedCount)),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: _isSaving
+                            ? null
+                            : () => Navigator.of(context).pop(false),
+                        tooltip: l10n.cancel,
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: _isSaving
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.check),
+                        onPressed:
+                            (_isSaving || selectedCount == 0) ? null : _save,
+                        tooltip: l10n.scannerSaveItems(selectedCount),
+                      ),
+                    ],
                   ),
                 ],
               ),
