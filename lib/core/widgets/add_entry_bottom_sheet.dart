@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart' show ImageSource;
-import 'package:inflabasket/core/router/navigation_extensions.dart';
+import 'package:inflabasket/core/router/navigation_extras.dart';
 import 'package:inflabasket/core/widgets/ai_consent_dialog.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -37,7 +37,10 @@ class AddEntryBottomSheet extends ConsumerWidget {
     }
 
     if (!context.mounted) return;
-    context.pushScanner(source: source);
+    final router = GoRouter.of(context);
+    final extras = ScannerExtras.source(source);
+    Navigator.of(context).pop();
+    router.push('/scanner', extra: extras);
   }
 
   @override
@@ -104,7 +107,6 @@ class AddEntryBottomSheet extends ConsumerWidget {
               ),
               onTap: () {
                 HapticFeedback.lightImpact();
-                Navigator.pop(context);
                 _navigateToScanner(context, ref, ImageSource.camera);
               },
             ),
@@ -120,7 +122,6 @@ class AddEntryBottomSheet extends ConsumerWidget {
               ),
               onTap: () {
                 HapticFeedback.lightImpact();
-                Navigator.pop(context);
                 _navigateToScanner(context, ref, ImageSource.gallery);
               },
             ),
