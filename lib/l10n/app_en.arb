@@ -115,8 +115,37 @@
   "notesHint": "Optional notes…",
   "@notesHint": { "description": "Hint for notes field" },
 
-  "scanReceipt": "Scan Receipt (Premium)",
+  "scanReceipt": "Scan Receipt",
   "@scanReceipt": { "description": "Button to open AI receipt scanner" },
+  "settingsConfigureApiKey": "Configure your AI API key in Settings to enable receipt scanning",
+  "@settingsConfigureApiKey": { "description": "Snackbar message when no API key is configured for receipt scanning" },
+
+  "settingsAiConfiguration": "AI Configuration",
+  "@settingsAiConfiguration": { "description": "Settings section header for AI provider configuration" },
+
+  "settingsAiProvider": "AI Provider",
+  "@settingsAiProvider": { "description": "Label for AI provider dropdown" },
+
+  "settingsApiKey": "API Key",
+  "@settingsApiKey": { "description": "Label for API key input field" },
+
+  "settingsApiKeyHintGemini": "Enter your Gemini API key",
+  "@settingsApiKeyHintGemini": { "description": "Hint text for Gemini API key input" },
+
+  "settingsApiKeyHintOpenai": "Enter your OpenAI API key",
+  "@settingsApiKeyHintOpenai": { "description": "Hint text for OpenAI API key input" },
+
+  "settingsApiKeyConfigured": "API key configured",
+  "@settingsApiKeyConfigured": { "description": "Status when API key is set" },
+
+  "settingsApiKeyNotConfigured": "No API key configured",
+  "@settingsApiKeyNotConfigured": { "description": "Status when API key is not set" },
+
+  "settingsApiKeyPrivacyNote": "Your API key is stored locally on this device and is never sent to our servers. Database imports include API keys — share backup files with care.",
+  "@settingsApiKeyPrivacyNote": { "description": "Privacy note about API key storage" },
+
+  "settingsExportApiKeyWarning": "This backup will include your API keys and settings. Only share with trusted parties.",
+  "@settingsExportApiKeyWarning": { "description": "Warning shown before database export about API keys" },
 
   "scanBarcode": "Scan Barcode",
   "@scanBarcode": { "description": "Button to scan a product barcode" },

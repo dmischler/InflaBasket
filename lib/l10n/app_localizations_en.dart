@@ -124,7 +124,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notesHint => 'Optional notes…';
 
   @override
-  String get scanReceipt => 'Scan Receipt (Premium)';
+  String get scanReceipt => 'Scan Receipt';
+
+  @override
+  String get settingsConfigureApiKey =>
+      'Configure your AI API key in Settings to enable receipt scanning';
+
+  @override
+  String get settingsAiConfiguration => 'AI Configuration';
+
+  @override
+  String get settingsAiProvider => 'AI Provider';
+
+  @override
+  String get settingsApiKey => 'API Key';
+
+  @override
+  String get settingsApiKeyHintGemini => 'Enter your Gemini API key';
+
+  @override
+  String get settingsApiKeyHintOpenai => 'Enter your OpenAI API key';
+
+  @override
+  String get settingsApiKeyConfigured => 'API key configured';
+
+  @override
+  String get settingsApiKeyNotConfigured => 'No API key configured';
+
+  @override
+  String get settingsApiKeyPrivacyNote =>
+      'Your API key is stored locally on this device and is never sent to our servers. Database imports include API keys — share backup files with care.';
+
+  @override
+  String get settingsExportApiKeyWarning =>
+      'This backup will include your API keys and settings. Only share with trusted parties.';
 
   @override
   String get scanBarcode => 'Scan Barcode';

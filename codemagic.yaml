@@ -71,7 +71,7 @@ workflows:
           export CODE_SIGNING_REQUIRED=NO
           
           # Build for iOS device (creates .app, not .ipa)
-          flutter build ios --release --no-codesign --dart-define=FORCE_PREMIUM=true 2>&1 | tee build.log
+          flutter build ios --release --no-codesign 2>&1 | tee build.log
           
           echo "=== Build completed, creating unsigned IPA ==="
           

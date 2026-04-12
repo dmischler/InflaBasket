@@ -329,8 +329,68 @@ abstract class AppLocalizations {
   /// Button to open AI receipt scanner
   ///
   /// In en, this message translates to:
-  /// **'Scan Receipt (Premium)'**
+  /// **'Scan Receipt'**
   String get scanReceipt;
+
+  /// Snackbar message when no API key is configured for receipt scanning
+  ///
+  /// In en, this message translates to:
+  /// **'Configure your AI API key in Settings to enable receipt scanning'**
+  String get settingsConfigureApiKey;
+
+  /// Settings section header for AI provider configuration
+  ///
+  /// In en, this message translates to:
+  /// **'AI Configuration'**
+  String get settingsAiConfiguration;
+
+  /// Label for AI provider dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'AI Provider'**
+  String get settingsAiProvider;
+
+  /// Label for API key input field
+  ///
+  /// In en, this message translates to:
+  /// **'API Key'**
+  String get settingsApiKey;
+
+  /// Hint text for Gemini API key input
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your Gemini API key'**
+  String get settingsApiKeyHintGemini;
+
+  /// Hint text for OpenAI API key input
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your OpenAI API key'**
+  String get settingsApiKeyHintOpenai;
+
+  /// Status when API key is set
+  ///
+  /// In en, this message translates to:
+  /// **'API key configured'**
+  String get settingsApiKeyConfigured;
+
+  /// Status when API key is not set
+  ///
+  /// In en, this message translates to:
+  /// **'No API key configured'**
+  String get settingsApiKeyNotConfigured;
+
+  /// Privacy note about API key storage
+  ///
+  /// In en, this message translates to:
+  /// **'Your API key is stored locally on this device and is never sent to our servers. Database imports include API keys — share backup files with care.'**
+  String get settingsApiKeyPrivacyNote;
+
+  /// Warning shown before database export about API keys
+  ///
+  /// In en, this message translates to:
+  /// **'This backup will include your API keys and settings. Only share with trusted parties.'**
+  String get settingsExportApiKeyWarning;
 
   /// Button to scan a product barcode
   ///

@@ -10,7 +10,6 @@ import 'package:inflabasket/core/services/price_alert_service.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/entry_management/presentation/entry_duplicate_dialog.dart';
-import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
 import 'package:inflabasket/core/services/entry_duplicate_detector.dart';
 
 part 'entry_providers.g.dart';
@@ -326,8 +325,6 @@ class AddEntryController extends _$AddEntryController {
   }) async {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(entryRepositoryProvider);
-      final isPremium =
-          ref.read(subscriptionControllerProvider).valueOrNull ?? false;
 
       // 1. Resolve or create category
       final existingCategories = await repo.watchCategories().first;
@@ -432,7 +429,6 @@ class AddEntryController extends _$AddEntryController {
               productId: productId,
               productName: productName,
               newPrice: price,
-              isPremium: isPremium,
               previousPrice: previousEntry?.price,
             );
       }

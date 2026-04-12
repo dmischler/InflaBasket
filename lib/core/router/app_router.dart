@@ -4,7 +4,7 @@ import 'package:inflabasket/core/router/navigation_extras.dart';
 import 'package:inflabasket/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:inflabasket/features/dashboard/presentation/product_detail_screen.dart';
 import 'package:inflabasket/features/entry_management/presentation/add_entry_screen.dart';
-import 'package:inflabasket/features/subscription/presentation/paywall_screen.dart';
+
 import 'package:inflabasket/features/ai_scanner/presentation/scanner_screen.dart';
 import 'package:inflabasket/features/barcode/presentation/barcode_screen.dart';
 import 'package:inflabasket/features/settings/presentation/category_management_screen.dart';
@@ -43,10 +43,6 @@ GoRouter appRouter(AppRouterRef ref) {
             },
           ),
         ],
-      ),
-      GoRoute(
-        path: '/paywall',
-        builder: (context, state) => const PaywallScreen(),
       ),
       GoRoute(
         path: '/scanner',

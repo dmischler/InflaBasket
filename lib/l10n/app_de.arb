@@ -39,7 +39,36 @@
   "date": "Datum",
   "notes": "Notizen",
   "notesHint": "Optionale Notizen…",
-  "scanReceipt": "Quittung scannen (Premium)",
+  "scanReceipt": "Quittung scannen",
+  "settingsConfigureApiKey": "Konfiguriere deinen KI-API-Schlüssel in den Einstellungen, um den Belegscanner zu aktivieren",
+
+  "settingsAiConfiguration": "KI-Konfiguration",
+  "@settingsAiConfiguration": { "description": "Settings section header for AI provider configuration" },
+
+  "settingsAiProvider": "KI-Anbieter",
+  "@settingsAiProvider": { "description": "Label for AI provider dropdown" },
+
+  "settingsApiKey": "API-Schlüssel",
+  "@settingsApiKey": { "description": "Label for API key input field" },
+
+  "settingsApiKeyHintGemini": "Gemini API-Schlüssel eingeben",
+  "@settingsApiKeyHintGemini": { "description": "Hint text for Gemini API key input" },
+
+  "settingsApiKeyHintOpenai": "OpenAI API-Schlüssel eingeben",
+  "@settingsApiKeyHintOpenai": { "description": "Hint text for OpenAI API key input" },
+
+  "settingsApiKeyConfigured": "API-Schlüssel konfiguriert",
+  "@settingsApiKeyConfigured": { "description": "Status when API key is set" },
+
+  "settingsApiKeyNotConfigured": "Kein API-Schlüssel konfiguriert",
+  "@settingsApiKeyNotConfigured": { "description": "Status when API key is not set" },
+
+  "settingsApiKeyPrivacyNote": "Ihr API-Schlüssel wird lokal auf diesem Gerät gespeichert und niemals an unsere Server gesendet. Datenbankimporte enthalten API-Schlüssel — teilen Sie Backups mit Vorsicht.",
+  "@settingsApiKeyPrivacyNote": { "description": "Privacy note about API key storage" },
+
+  "settingsExportApiKeyWarning": "Dieses Backup enthält Ihre API-Schlüssel und Einstellungen. Teilen Sie es nur mit vertrauenswürdigen Personen.",
+  "@settingsExportApiKeyWarning": { "description": "Warning shown before database export about API keys" },
+
   "scanBarcode": "Barcode scannen",
   "barcodeNotFound": "Kein Produkt für diesen Barcode gefunden.",
   "barcodeError": "Barcode konnte nicht gescannt werden. Bitte versuche es erneut.",

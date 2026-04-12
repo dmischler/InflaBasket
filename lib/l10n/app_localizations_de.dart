@@ -125,7 +125,40 @@ class AppLocalizationsDe extends AppLocalizations {
   String get notesHint => 'Optionale Notizen…';
 
   @override
-  String get scanReceipt => 'Quittung scannen (Premium)';
+  String get scanReceipt => 'Quittung scannen';
+
+  @override
+  String get settingsConfigureApiKey =>
+      'Konfiguriere deinen KI-API-Schlüssel in den Einstellungen, um den Belegscanner zu aktivieren';
+
+  @override
+  String get settingsAiConfiguration => 'KI-Konfiguration';
+
+  @override
+  String get settingsAiProvider => 'KI-Anbieter';
+
+  @override
+  String get settingsApiKey => 'API-Schlüssel';
+
+  @override
+  String get settingsApiKeyHintGemini => 'Gemini API-Schlüssel eingeben';
+
+  @override
+  String get settingsApiKeyHintOpenai => 'OpenAI API-Schlüssel eingeben';
+
+  @override
+  String get settingsApiKeyConfigured => 'API-Schlüssel konfiguriert';
+
+  @override
+  String get settingsApiKeyNotConfigured => 'Kein API-Schlüssel konfiguriert';
+
+  @override
+  String get settingsApiKeyPrivacyNote =>
+      'Ihr API-Schlüssel wird lokal auf diesem Gerät gespeichert und niemals an unsere Server gesendet. Datenbankimporte enthalten API-Schlüssel — teilen Sie Backups mit Vorsicht.';
+
+  @override
+  String get settingsExportApiKeyWarning =>
+      'Dieses Backup enthält Ihre API-Schlüssel und Einstellungen. Teilen Sie es nur mit vertrauenswürdigen Personen.';
 
   @override
   String get scanBarcode => 'Barcode scannen';

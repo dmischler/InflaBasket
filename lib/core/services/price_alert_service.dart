@@ -15,9 +15,6 @@ PriceAlertService priceAlertService(PriceAlertServiceRef ref) {
 
 /// Checks whether a newly recorded price should trigger an alert, and if so
 /// fires a local notification.
-///
-/// Should be called from [AddEntryController.submitEntry] after a successful
-/// insert, but only when [isPremium] is true.
 class PriceAlertService {
   final EntryRepository _repo;
   final NotificationService _notifications;
@@ -30,11 +27,8 @@ class PriceAlertService {
     required int productId,
     required String productName,
     required double newPrice,
-    required bool isPremium,
     double? previousPrice,
   }) async {
-    if (!isPremium) return false;
-
     try {
       final alert = await _repo.getPriceAlert(productId);
       if (alert == null || !alert.isEnabled) return false;

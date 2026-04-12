@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,12 +33,6 @@ Future<void> main() async {
     OpenFoodFactsLanguage.FRENCH,
   ];
 
-  try {
-    await dotenv.load(fileName: '.env');
-  } catch (e) {
-    // .env file may not exist in some environments (e.g., production builds)
-    // Ignore error - env vars will just be null
-  }
   await NotificationService.initialize();
   final sharedPreferences = await SharedPreferences.getInstance();
 
@@ -94,6 +88,11 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
     };
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await ref
+          .read(settingsControllerProvider.notifier)
+          .initializeFromDatabase();
+
       if (!mounted ||
           _didRunInitialReminderSync ||
           _didRunInitialSatsRepair ||

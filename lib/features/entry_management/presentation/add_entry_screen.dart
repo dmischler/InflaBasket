@@ -12,7 +12,7 @@ import 'package:inflabasket/features/entry_management/presentation/barcode_scan_
 import 'package:inflabasket/features/entry_management/presentation/category_autocomplete_field.dart';
 import 'package:inflabasket/features/entry_management/presentation/duplicate_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
-import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
+
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/widgets/barcode_section.dart';
 import 'package:inflabasket/core/widgets/price_quantity_row.dart';
@@ -144,7 +144,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     });
   }
 
-  // ─── LLM duplicate detection (Premium only) ────────────────────────────────
+  // ─── Duplicate detection ──────────────────────────────────────────────────
 
   /// Checks for a similar product name in the same category using a simple
   /// normalised-string similarity heuristic. For Premium users we additionally
@@ -221,11 +221,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      final isPremium =
-          ref.read(subscriptionControllerProvider).valueOrNull ?? false;
-
-      // Run duplicate detection before saving (Premium only, new entries only)
-      if (isPremium && widget.entryToEdit == null) {
+      if (widget.entryToEdit == null) {
         final categories =
             ref.read(categoriesProvider).valueOrNull ?? <Category>[];
         final cat = categories
@@ -300,8 +296,6 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     final isEditing = widget.entryToEdit != null;
     final lockSharedFields = widget.lockSharedFields;
     final units = availableUnits(settings.isMetric);
-    final isPremium =
-        ref.watch(subscriptionControllerProvider).valueOrNull ?? false;
 
     final categories = categoriesAsync.valueOrNull ?? <Category>[];
 
@@ -472,7 +466,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
               const SizedBox(height: 12),
               if (!isEditing) ...[
                 const SizedBox(height: 16),
-                ReceiptScanButton(isPremium: isPremium),
+                ReceiptScanButton(),
               ]
             ],
           ),

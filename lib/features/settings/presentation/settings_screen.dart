@@ -8,7 +8,7 @@ import 'package:inflabasket/core/widgets/settings_section.dart';
 import 'package:inflabasket/core/services/database_backup_service.dart';
 import 'package:inflabasket/features/settings/application/export_service.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
-import 'package:inflabasket/features/subscription/application/subscription_providers.dart';
+
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
@@ -80,8 +80,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _handleExport(BuildContext context, WidgetRef ref) async {
-    final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final confirmed = await ConfirmDialog.show(
+      context,
+      title: l10n.exportFormatTitle,
+      message: l10n.settingsExportApiKeyWarning,
+      confirmLabel: l10n.settingsExportData,
+    );
+    if (confirmed != true) return;
+
+    final messenger = ScaffoldMessenger.of(context);
     try {
       final filename = await ref
           .read(databaseBackupServiceProvider.notifier)
@@ -175,72 +183,133 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  bool _obscureApiKey = true;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final subscriptionsSupported = supportsSubscriptionsOnCurrentPlatform;
-    final premiumAsync = ref.watch(subscriptionControllerProvider);
-    final isPremium = premiumAsync.valueOrNull ?? false;
     final settings = ref.watch(settingsControllerProvider);
     final exportState = ref.watch(exportServiceProvider);
     final versionAsync = ref.watch(appVersionProvider);
-    final debugPremium = debugPremiumOverrideEnabled;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Card(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text(
-                    l10n.settingsSubscription,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+          SettingsSection(
+            title: l10n.settingsAiConfiguration,
+            children: [
+              ActionRow(
+                variant: ActionRowVariant.dropdown,
+                icon: Icons.smart_toy,
+                title: l10n.settingsAiProvider,
+                trailing: DropdownButton<AiProvider>(
+                  value: settings.aiProvider,
+                  underline: const SizedBox(),
+                  items: [
+                    DropdownMenuItem(
+                      value: AiProvider.gemini,
+                      child: const Text('Google Gemini'),
+                    ),
+                    DropdownMenuItem(
+                      value: AiProvider.openai,
+                      child: const Text('OpenAI'),
+                    ),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      ref
+                          .read(settingsControllerProvider.notifier)
+                          .setAiProvider(val);
+                    }
+                  },
+                ),
+              ),
+              const Divider(height: 1),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.settingsApiKey,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      obscureText: _obscureApiKey,
+                      decoration: InputDecoration(
+                        hintText: settings.aiProvider == AiProvider.gemini
+                            ? l10n.settingsApiKeyHintGemini
+                            : l10n.settingsApiKeyHintOpenai,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureApiKey
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () =>
+                              setState(() => _obscureApiKey = !_obscureApiKey),
                         ),
-                  ),
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                      onSubmitted: (value) {
+                        if (settings.aiProvider == AiProvider.gemini) {
+                          ref
+                              .read(settingsControllerProvider.notifier)
+                              .setGeminiApiKey(value);
+                        } else {
+                          ref
+                              .read(settingsControllerProvider.notifier)
+                              .setOpenaiApiKey(value);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(
+                          settings.hasApiKey
+                              ? Icons.check_circle
+                              : Icons.info_outline,
+                          size: 16,
+                          color: settings.hasApiKey
+                              ? Colors.green
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            settings.hasApiKey
+                                ? l10n.settingsApiKeyConfigured
+                                : l10n.settingsApiKeyNotConfigured,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: settings.hasApiKey
+                                          ? Colors.green
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.settingsApiKeyPrivacyNote,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(
-                    isPremium ? Icons.verified : Icons.lock_outline,
-                    color: isPremium ? Colors.green : Colors.orange,
-                  ),
-                  title: Text(
-                    isPremium
-                        ? l10n.settingsPremiumActive
-                        : l10n.settingsFreeTier,
-                  ),
-                  subtitle: Text(debugPremium
-                      ? l10n.settingsDebugPremiumSubtitle
-                      : !subscriptionsSupported
-                          ? l10n.settingsMobileOnlySubtitle
-                          : isPremium
-                              ? l10n.settingsPremiumSubtitle
-                              : l10n.settingsFreeSubtitle),
-                  trailing: !subscriptionsSupported
-                      ? Chip(label: Text(l10n.settingsMobileOnly))
-                      : debugPremium
-                          ? Chip(label: Text(l10n.settingsDebugUnlock))
-                          : isPremium
-                              ? TextButton(
-                                  onPressed: () => ref
-                                      .read(subscriptionControllerProvider
-                                          .notifier)
-                                      .restorePurchases(),
-                                  child: Text(l10n.settingsRestore),
-                                )
-                              : ElevatedButton(
-                                  onPressed: () => context.push('/paywall'),
-                                  child: Text(l10n.settingsUpgrade),
-                                ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           SettingsSection(

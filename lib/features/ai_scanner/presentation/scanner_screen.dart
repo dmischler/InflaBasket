@@ -15,7 +15,7 @@ import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
-import 'package:inflabasket/features/ai_scanner/data/vision_client.dart';
+import 'package:inflabasket/features/ai_scanner/application/ai_client_provider.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -82,7 +82,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      final client = ref.read(visionClientProvider);
+      final client = ref.read(aiClientProvider)!;
       final categories =
           ref.read(categoriesProvider).valueOrNull ?? <Category>[];
       final customCategoryNames = categories

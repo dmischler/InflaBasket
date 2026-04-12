@@ -2,7 +2,7 @@ name: inflabasket
 description: Personal Basket Inflation Tracker
 publish_to: 'none'
 
-version: 1.44.1
+version: 2.0.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -21,10 +21,9 @@ dependencies:
   path: ^1.9.0
   fl_chart: ^1.0.0
   google_generative_ai: ^0.4.7
-  flutter_dotenv: ^5.1.0
+  dart_openai: ^6.1.1
   lucide_icons: ^0.257.0
   dio: ^5.4.0
-  purchases_flutter: ^9.8.0
   image_picker: ^1.2.1
   desktop_drop: ^0.7.0
   mobile_scanner: ^5.0.0
@@ -59,6 +58,5 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - .env
     - assets/
     - assets/animations/

@@ -6,6 +6,7 @@ import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
 import 'package:inflabasket/core/services/price_update_reminder_service.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/features/settings/data/settings_repository.dart';
 
 part 'settings_provider.g.dart';
 
@@ -20,6 +21,8 @@ SharedPreferences sharedPreferences(SharedPreferencesRef ref) {
   throw UnimplementedError('sharedPreferencesProvider must be overridden');
 }
 
+enum AiProvider { gemini, openai }
+
 class AppSettings {
   final String currency;
   final bool isMetric;
@@ -28,6 +31,11 @@ class AppSettings {
   final bool isDarkMode;
   final bool priceUpdateReminderEnabled;
   final int priceUpdateReminderMonths;
+  final bool aiConsentAccepted;
+  final bool hasCompletedOnboarding;
+  final AiProvider aiProvider;
+  final String geminiApiKey;
+  final String openaiApiKey;
 
   const AppSettings({
     this.currency = 'CHF',
@@ -37,7 +45,17 @@ class AppSettings {
     this.isDarkMode = true,
     this.priceUpdateReminderEnabled = false,
     this.priceUpdateReminderMonths = 6,
+    this.aiConsentAccepted = false,
+    this.hasCompletedOnboarding = false,
+    this.aiProvider = AiProvider.gemini,
+    this.geminiApiKey = '',
+    this.openaiApiKey = '',
   });
+
+  String get currentApiKey =>
+      aiProvider == AiProvider.gemini ? geminiApiKey : openaiApiKey;
+
+  bool get hasApiKey => currentApiKey.isNotEmpty;
 
   AppSettings copyWith({
     String? currency,
@@ -47,6 +65,11 @@ class AppSettings {
     bool? isDarkMode,
     bool? priceUpdateReminderEnabled,
     int? priceUpdateReminderMonths,
+    bool? aiConsentAccepted,
+    bool? hasCompletedOnboarding,
+    AiProvider? aiProvider,
+    String? geminiApiKey,
+    String? openaiApiKey,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
@@ -58,6 +81,12 @@ class AppSettings {
           priceUpdateReminderEnabled ?? this.priceUpdateReminderEnabled,
       priceUpdateReminderMonths:
           priceUpdateReminderMonths ?? this.priceUpdateReminderMonths,
+      aiConsentAccepted: aiConsentAccepted ?? this.aiConsentAccepted,
+      hasCompletedOnboarding:
+          hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+      aiProvider: aiProvider ?? this.aiProvider,
+      geminiApiKey: geminiApiKey ?? this.geminiApiKey,
+      openaiApiKey: openaiApiKey ?? this.openaiApiKey,
     );
   }
 }
@@ -71,96 +100,112 @@ String resolveAppLanguageCode([String? languageCode]) {
 @Riverpod(keepAlive: true)
 class SettingsController extends _$SettingsController {
   static const supportedLocales = <String>['en', 'de'];
-  static const _currencyKey = 'settings_currency';
-  static const _metricKey = 'settings_is_metric';
-  static const _localeKey = 'settings_locale';
-  static const _bitcoinModeKey = 'settings_bitcoin_mode';
-  static const hasCompletedOnboardingKey = 'has_completed_onboarding';
   static const aiConsentAcceptedKey = 'ai_consent_accepted';
-  static const _priceUpdateReminderKey =
-      'settings_price_update_reminder_enabled';
-  static const _priceUpdateReminderMonthsKey =
-      'settings_price_update_reminder_months';
-  static const _darkModeKey = 'settings_dark_mode';
-
-  // Legacy key - kept for migration
-  static const _themeKey = 'settings_theme_type';
 
   @override
   AppSettings build() {
-    final prefs = ref.watch(sharedPreferencesProvider);
+    final repo = ref.watch(settingsRepositoryProvider);
+    final settingsStream = repo.watchAllSettings();
 
-    // Migration: Convert old theme index to isBitcoinMode
-    // Old indices: 0=standardLight, 1=standardDark, 2=luxeDarkFiat, 3=luxeDarkBitcoin, 4=neoCyberpunkTerminal
-    // If user had luxeDarkBitcoin (index 3), set isBitcoinMode=true
-    final savedThemeIndex = prefs.getInt(_themeKey);
-    bool isBitcoinMode = false;
-    if (savedThemeIndex != null) {
-      // Index 3 was luxeDarkBitcoin
-      isBitcoinMode = savedThemeIndex == 3;
-      // Clean up legacy key
-      prefs.remove(_themeKey);
-    } else {
-      isBitcoinMode = prefs.getBool(_bitcoinModeKey) ?? false;
+    final subscription = settingsStream.listen((_) {});
+    ref.onDispose(() => subscription.cancel());
+
+    return const AppSettings();
+  }
+
+  Future<void> initializeFromDatabase() async {
+    final repo = ref.read(settingsRepositoryProvider);
+    final settingsList = await repo.getAllSettings();
+    final settingsMap = {for (final s in settingsList) s.key: s.value};
+
+    final legacyThemeIndex = settingsMap.remove('settings_theme_type');
+    bool isDarkMode =
+        _parseBool(settingsMap['is_dark_mode'], defaultValue: true);
+
+    if (legacyThemeIndex != null) {
+      // Legacy theme migration handled - dark mode is default
     }
 
-    return AppSettings(
-      currency: prefs.getString(_currencyKey) ?? 'CHF',
-      isMetric: prefs.getBool(_metricKey) ?? true,
-      locale: resolveAppLanguageCode(prefs.getString(_localeKey)),
-      isBitcoinMode: isBitcoinMode,
-      isDarkMode: prefs.getBool(_darkModeKey) ?? true,
+    state = AppSettings(
+      currency: settingsMap['currency'] ?? 'CHF',
+      isMetric: _parseBool(settingsMap['is_metric'], defaultValue: true),
+      locale: resolveAppLanguageCode(settingsMap['locale']),
+      isBitcoinMode: _parseBool(settingsMap['is_bitcoin_mode']),
+      isDarkMode: isDarkMode,
       priceUpdateReminderEnabled:
-          prefs.getBool(_priceUpdateReminderKey) ?? false,
+          _parseBool(settingsMap['price_update_reminder_enabled']),
       priceUpdateReminderMonths:
-          prefs.getInt(_priceUpdateReminderMonthsKey) ?? 6,
+          int.tryParse(settingsMap['price_update_reminder_months'] ?? '6') ?? 6,
+      aiConsentAccepted: _parseBool(settingsMap['ai_consent_accepted']),
+      hasCompletedOnboarding:
+          _parseBool(settingsMap['has_completed_onboarding']),
+      aiProvider: settingsMap['ai_provider'] == 'openai'
+          ? AiProvider.openai
+          : AiProvider.gemini,
+      geminiApiKey: settingsMap['gemini_api_key'] ?? '',
+      openaiApiKey: settingsMap['openai_api_key'] ?? '',
     );
   }
 
+  bool _parseBool(String? value, {bool defaultValue = false}) {
+    if (value == null) return defaultValue;
+    return value.toLowerCase() == 'true' || value == '1';
+  }
+
+  Future<void> _set(String key, String value) async {
+    final repo = ref.read(settingsRepositoryProvider);
+    await repo.setSetting(key, value);
+  }
+
   Future<void> setCurrency(String currency) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(_currencyKey, currency);
+    await _set('currency', currency);
     state = state.copyWith(currency: currency);
   }
 
   Future<void> setMetric(bool isMetric) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setBool(_metricKey, isMetric);
+    await _set('is_metric', isMetric.toString());
     state = state.copyWith(isMetric: isMetric);
   }
 
   Future<void> setLocale(String locale) async {
     final normalizedLocale = resolveAppLanguageCode(locale);
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(_localeKey, normalizedLocale);
+    await _set('locale', normalizedLocale);
     state = state.copyWith(locale: normalizedLocale);
   }
 
   Future<void> setBitcoinMode(bool isBitcoinMode) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setBool(_bitcoinModeKey, isBitcoinMode);
+    await _set('is_bitcoin_mode', isBitcoinMode.toString());
     state = state.copyWith(isBitcoinMode: isBitcoinMode);
   }
 
   Future<void> setDarkMode(bool isDarkMode) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setBool(_darkModeKey, isDarkMode);
+    await _set('is_dark_mode', isDarkMode.toString());
     state = state.copyWith(isDarkMode: isDarkMode);
   }
 
-  bool get hasAcceptedAiConsent {
-    final prefs = ref.read(sharedPreferencesProvider);
-    return prefs.getBool(aiConsentAcceptedKey) ?? false;
-  }
+  bool get hasAcceptedAiConsent => state.aiConsentAccepted;
 
   Future<void> acceptAiConsent() async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setBool(aiConsentAcceptedKey, true);
+    await _set('ai_consent_accepted', true.toString());
+    state = state.copyWith(aiConsentAccepted: true);
+  }
+
+  Future<void> setAiProvider(AiProvider provider) async {
+    await _set('ai_provider', provider.name);
+    state = state.copyWith(aiProvider: provider);
+  }
+
+  Future<void> setGeminiApiKey(String apiKey) async {
+    await _set('gemini_api_key', apiKey);
+    state = state.copyWith(geminiApiKey: apiKey);
+  }
+
+  Future<void> setOpenaiApiKey(String apiKey) async {
+    await _set('openai_api_key', apiKey);
+    state = state.copyWith(openaiApiKey: apiKey);
   }
 
   Future<bool> setPriceUpdateReminder(bool enabled) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-
     if (enabled) {
       if (defaultTargetPlatform == TargetPlatform.iOS ||
           defaultTargetPlatform == TargetPlatform.android) {
@@ -172,7 +217,7 @@ class SettingsController extends _$SettingsController {
       }
     }
 
-    await prefs.setBool(_priceUpdateReminderKey, enabled);
+    await _set('price_update_reminder_enabled', enabled.toString());
     state = state.copyWith(priceUpdateReminderEnabled: enabled);
 
     final reminderService = ref.read(priceUpdateReminderServiceProvider);
@@ -182,8 +227,7 @@ class SettingsController extends _$SettingsController {
   }
 
   Future<void> setPriceUpdateReminderMonths(int months) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setInt(_priceUpdateReminderMonthsKey, months);
+    await _set('price_update_reminder_months', months.toString());
     state = state.copyWith(priceUpdateReminderMonths: months);
 
     if (state.priceUpdateReminderEnabled) {
@@ -192,11 +236,11 @@ class SettingsController extends _$SettingsController {
     }
   }
 
-  Future<void> factoryReset(AppDatabase database) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await database.resetDatabase();
-    await prefs.clear();
-    await prefs.setBool(hasCompletedOnboardingKey, false);
-    ref.invalidate(settingsControllerProvider);
+  Future<void> factoryReset(AppDatabase database,
+      {bool keepApiKeys = true}) async {
+    await database.resetDatabase(keepApiKeys: keepApiKeys);
+    final repo = ref.read(settingsRepositoryProvider);
+    await repo.factoryReset(keepApiKeys: keepApiKeys);
+    await initializeFromDatabase();
   }
 }

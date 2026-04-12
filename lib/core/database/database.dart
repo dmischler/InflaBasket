@@ -89,6 +89,15 @@ class ExternalSeriesCache extends Table {
   Set<Column> get primaryKey => {source, currency, metric, month};
 }
 
+@DataClassName('Setting')
+class Settings extends Table {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column> get primaryKey => {key};
+}
+
 @DriftDatabase(tables: [
   Categories,
   Products,
@@ -96,12 +105,13 @@ class ExternalSeriesCache extends Table {
   PriceAlerts,
   ExternalSeriesCache,
   PriceHistories,
+  Settings,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -220,18 +230,34 @@ class AppDatabase extends _$AppDatabase {
             await customStatement('DROP TABLE IF EXISTS category_weights');
             await customStatement('DROP TABLE IF EXISTS entry_templates');
           }
+          if (from < 14) {
+            await m.createTable(settings);
+          }
         },
       );
 
-  Future<void> resetDatabase() async {
+  Future<void> resetDatabase({bool keepApiKeys = true}) async {
     await transaction(() async {
       await delete(purchaseEntries).go();
       await delete(products).go();
       await delete(priceAlerts).go();
       await delete(externalSeriesCache).go();
+      await delete(priceHistories).go();
       await delete(categories).go();
+      if (keepApiKeys) {
+        final apiKeys = await (select(settings)
+              ..where((t) => t.key.isIn(['gemini_api_key', 'openai_api_key'])))
+            .get();
+        await delete(settings).go();
+        await batch((b) {
+          b.insertAll(settings, apiKeys);
+        });
+      } else {
+        await delete(settings).go();
+      }
     });
     await _seedDefaultCategories();
+    await seedDefaultSettings();
   }
 
   Future<void> _seedDefaultCategories() async {
@@ -264,6 +290,28 @@ class AppDatabase extends _$AppDatabase {
 
     await batch((batch) {
       batch.insertAll(categories, defaults);
+    });
+  }
+
+  Future<void> seedDefaultSettings() async {
+    final defaultSettings = <SettingsCompanion>[
+      SettingsCompanion.insert(key: 'currency', value: 'CHF'),
+      SettingsCompanion.insert(key: 'is_metric', value: 'true'),
+      SettingsCompanion.insert(key: 'locale', value: 'en'),
+      SettingsCompanion.insert(key: 'is_bitcoin_mode', value: 'false'),
+      SettingsCompanion.insert(key: 'is_dark_mode', value: 'true'),
+      SettingsCompanion.insert(
+          key: 'price_update_reminder_enabled', value: 'false'),
+      SettingsCompanion.insert(key: 'price_update_reminder_months', value: '6'),
+      SettingsCompanion.insert(key: 'ai_consent_accepted', value: 'false'),
+      SettingsCompanion.insert(key: 'has_completed_onboarding', value: 'false'),
+      SettingsCompanion.insert(key: 'ai_provider', value: 'gemini'),
+      SettingsCompanion.insert(key: 'gemini_api_key', value: ''),
+      SettingsCompanion.insert(key: 'openai_api_key', value: ''),
+    ];
+
+    await batch((batch) {
+      batch.insertAll(settings, defaultSettings);
     });
   }
 }
