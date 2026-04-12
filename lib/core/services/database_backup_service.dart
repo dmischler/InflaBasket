@@ -52,19 +52,23 @@ class DatabaseBackupService extends _$DatabaseBackupService {
     String currentDocsPath,
   ) {
     const marker = '/Containers/Data/Application/';
-    if (!configuredPath.contains(marker)) return false;
 
-    String normalizeForComparison(String value) {
-      final normalized = p.normalize(value);
-      if (normalized.startsWith('/private/var/')) {
-        return normalized.replaceFirst('/private', '');
-      }
-      return normalized;
+    String? extractAppContainerUuid(String path) {
+      final index = path.indexOf(marker);
+      if (index == -1) return null;
+      final afterMarker = path.substring(index + marker.length);
+      final slashIndex = afterMarker.indexOf('/');
+      return slashIndex == -1
+          ? afterMarker
+          : afterMarker.substring(0, slashIndex);
     }
 
-    final normalizedConfigured = normalizeForComparison(configuredPath);
-    final normalizedCurrent = normalizeForComparison(currentDocsPath);
-    return !normalizedConfigured.startsWith(normalizedCurrent);
+    final configuredUuid = extractAppContainerUuid(configuredPath);
+    final currentUuid = extractAppContainerUuid(currentDocsPath);
+
+    if (configuredUuid == null || currentUuid == null) return false;
+
+    return configuredUuid != currentUuid;
   }
 
   Future<void> _copyAutoBackupToExternal(File sourceBackupFile) async {
@@ -74,6 +78,8 @@ class DatabaseBackupService extends _$DatabaseBackupService {
 
     final docsDir = await getApplicationDocumentsDirectory();
     if (_isLikelyStaleAppContainerPath(externalPath, docsDir.path)) {
+      debugPrint(
+          'External backup path appears stale (app reinstalled). Clearing.');
       await ref
           .read(settingsControllerProvider.notifier)
           .clearAutoBackupExternalPath();
@@ -82,12 +88,21 @@ class DatabaseBackupService extends _$DatabaseBackupService {
 
     final externalDir = Directory(externalPath);
     if (!await externalDir.exists()) {
-      return;
+      try {
+        await externalDir.create(recursive: true);
+      } catch (e) {
+        debugPrint('Cannot create external backup directory: $e');
+        return;
+      }
     }
 
     final targetPath =
         p.join(externalDir.path, p.basename(sourceBackupFile.path));
-    await sourceBackupFile.copy(targetPath);
+    try {
+      await sourceBackupFile.copy(targetPath);
+    } on FileSystemException catch (e) {
+      debugPrint('Failed to copy backup to external directory: $e');
+    }
   }
 
   Future<void> _pruneOldInternalAutoBackups(Directory backupDir) async {
@@ -180,7 +195,6 @@ class DatabaseBackupService extends _$DatabaseBackupService {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(backupPath)],
-          text: 'InflaBasket Backup',
         ),
       );
     } catch (e) {
@@ -308,7 +322,6 @@ class DatabaseBackupService extends _$DatabaseBackupService {
         await SharePlus.instance.share(
           ShareParams(
             files: [XFile(filePath)],
-            text: 'InflaBasket Export',
           ),
         );
       } catch (e) {

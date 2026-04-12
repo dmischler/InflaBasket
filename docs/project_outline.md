@@ -603,6 +603,11 @@ Supported models:
 - Added query-param-aware dashboard tab initialization so deep links can open a specific tab
 - Added widget test coverage for missing-key scanner behavior (`receipt_scan_button_test.dart`)
 
+**v2.1.1 Backup & Export Bug Fixes**
+- Fixed auto-save external folder path being incorrectly cleared after "Backup Now" on iOS: `_isLikelyStaleAppContainerPath` now compares container UUIDs instead of checking if path starts with Documents directory
+- Fixed external backup files not being saved: now creates directory if missing and wraps copy in try/catch with error logging
+- Fixed SQLite/JSON/CSV exports creating extra `Text N.txt` files on iOS: removed `text` parameter from `ShareParams` which caused iOS Save to Files to create a companion text file
+
 **v2.0.2 Open-Model Cleanup + Auto-Backup Hardening**
 - Removed stale premium/paywall localization keys and updated docs/README references to the open model
 - Added automatic SQLite backups into app documents (`Documents/backups/auto`) with retention and optional external folder copy
@@ -632,7 +637,7 @@ Supported models:
 
 ### 🐛 Known Issues
 
-- iOS external-folder backup depends on user-selected File Provider permissions; if provider access is revoked, the app keeps local auto-backups and skips the external copy.
+- iOS external-folder backup depends on user-selected File Provider permissions; if provider access is revoked, the app keeps local auto-backups and skips the external copy (with warning log).
 
 ---
 

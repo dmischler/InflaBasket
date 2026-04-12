@@ -79,7 +79,6 @@ class ExportService extends _$ExportService {
         await SharePlus.instance.share(
           ShareParams(
             files: [XFile(file.path)],
-            text: 'My InflaBasket Purchase History',
           ),
         );
       } catch (e) {
