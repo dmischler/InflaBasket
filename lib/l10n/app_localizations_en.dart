@@ -134,6 +134,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAiConfiguration => 'AI Configuration';
 
   @override
+  String get settingsApiKeys => 'API Keys';
+
+  @override
+  String get apiKeysTitle => 'API Keys';
+
+  @override
+  String get apiKeyAdd => 'Add API Key';
+
+  @override
+  String get apiKeyAddTitle => 'Add API Key';
+
+  @override
+  String get apiKeyNoKeysYet => 'No API keys configured';
+
+  @override
+  String get apiKeyNoKeysYetDesc =>
+      'Add an API key to enable receipt scanning.';
+
+  @override
+  String get apiKeyProvider => 'Provider';
+
+  @override
+  String get apiKeyNameLabel => 'Name';
+
+  @override
+  String get apiKeyNameHint => 'e.g. Personal, Work';
+
+  @override
+  String get apiKeyView => 'View Key';
+
+  @override
+  String get apiKeyCopy => 'Copy Key';
+
+  @override
+  String get apiKeyCopied => 'API key copied to clipboard';
+
+  @override
+  String get apiKeyDelete => 'Delete Key';
+
+  @override
+  String get apiKeyDeleteConfirmTitle => 'Delete API Key?';
+
+  @override
+  String get apiKeyDeleteConfirmMessage =>
+      'This will permanently remove this API key. You can always add it again later.';
+
+  @override
+  String get apiKeySetActive => 'Set as Active';
+
+  @override
   String get settingsAiProvider => 'AI Provider';
 
   @override

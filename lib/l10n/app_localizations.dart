@@ -344,6 +344,102 @@ abstract class AppLocalizations {
   /// **'AI Configuration'**
   String get settingsAiConfiguration;
 
+  /// Navigation label for API keys submenu
+  ///
+  /// In en, this message translates to:
+  /// **'API Keys'**
+  String get settingsApiKeys;
+
+  /// Title for API keys management screen
+  ///
+  /// In en, this message translates to:
+  /// **'API Keys'**
+  String get apiKeysTitle;
+
+  /// Button to add a new API key
+  ///
+  /// In en, this message translates to:
+  /// **'Add API Key'**
+  String get apiKeyAdd;
+
+  /// Dialog title for adding an API key
+  ///
+  /// In en, this message translates to:
+  /// **'Add API Key'**
+  String get apiKeyAddTitle;
+
+  /// Empty state title when no API keys exist
+  ///
+  /// In en, this message translates to:
+  /// **'No API keys configured'**
+  String get apiKeyNoKeysYet;
+
+  /// Empty state description when no API keys exist
+  ///
+  /// In en, this message translates to:
+  /// **'Add an API key to enable receipt scanning.'**
+  String get apiKeyNoKeysYetDesc;
+
+  /// Label for provider dropdown in add key dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Provider'**
+  String get apiKeyProvider;
+
+  /// Label for API key name field
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get apiKeyNameLabel;
+
+  /// Hint text for API key name field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Personal, Work'**
+  String get apiKeyNameHint;
+
+  /// Action to view full API key
+  ///
+  /// In en, this message translates to:
+  /// **'View Key'**
+  String get apiKeyView;
+
+  /// Action to copy API key to clipboard
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Key'**
+  String get apiKeyCopy;
+
+  /// Snackbar after copying API key
+  ///
+  /// In en, this message translates to:
+  /// **'API key copied to clipboard'**
+  String get apiKeyCopied;
+
+  /// Action to delete an API key
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Key'**
+  String get apiKeyDelete;
+
+  /// Dialog title for confirming API key deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Delete API Key?'**
+  String get apiKeyDeleteConfirmTitle;
+
+  /// Dialog body for confirming API key deletion
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently remove this API key. You can always add it again later.'**
+  String get apiKeyDeleteConfirmMessage;
+
+  /// Action to set an API key as the active one
+  ///
+  /// In en, this message translates to:
+  /// **'Set as Active'**
+  String get apiKeySetActive;
+
   /// Label for AI provider dropdown
   ///
   /// In en, this message translates to:

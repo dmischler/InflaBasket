@@ -135,6 +135,56 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsAiConfiguration => 'KI-Konfiguration';
 
   @override
+  String get settingsApiKeys => 'API-Schlüssel';
+
+  @override
+  String get apiKeysTitle => 'API-Schlüssel';
+
+  @override
+  String get apiKeyAdd => 'API-Schlüssel hinzufügen';
+
+  @override
+  String get apiKeyAddTitle => 'API-Schlüssel hinzufügen';
+
+  @override
+  String get apiKeyNoKeysYet => 'Keine API-Schlüssel konfiguriert';
+
+  @override
+  String get apiKeyNoKeysYetDesc =>
+      'Fügen Sie einen API-Schlüssel hinzu, um den Belegscanner zu aktivieren.';
+
+  @override
+  String get apiKeyProvider => 'Anbieter';
+
+  @override
+  String get apiKeyNameLabel => 'Name';
+
+  @override
+  String get apiKeyNameHint => 'z.B. Persönlich, Arbeit';
+
+  @override
+  String get apiKeyView => 'Schlüssel anzeigen';
+
+  @override
+  String get apiKeyCopy => 'Schlüssel kopieren';
+
+  @override
+  String get apiKeyCopied => 'API-Schlüssel in Zwischenablage kopiert';
+
+  @override
+  String get apiKeyDelete => 'Schlüssel löschen';
+
+  @override
+  String get apiKeyDeleteConfirmTitle => 'API-Schlüssel löschen?';
+
+  @override
+  String get apiKeyDeleteConfirmMessage =>
+      'Dieser API-Schlüssel wird dauerhaft entfernt. Sie können ihn jederzeit wieder hinzufügen.';
+
+  @override
+  String get apiKeySetActive => 'Als aktiv setzen';
+
+  @override
   String get settingsAiProvider => 'KI-Anbieter';
 
   @override
