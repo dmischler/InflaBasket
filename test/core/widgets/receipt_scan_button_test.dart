@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/widgets/receipt_scan_button.dart';
+import 'package:inflabasket/features/ai_scanner/application/ai_client_provider.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
@@ -32,6 +33,7 @@ void main() {
       ProviderScope(
         overrides: [
           settingsControllerProvider.overrideWith(_TestSettingsController.new),
+          activeApiKeyProvider.overrideWith((ref) => Stream.value(null)),
         ],
         child: MaterialApp.router(
           routerConfig: router,
@@ -56,10 +58,6 @@ void main() {
 class _TestSettingsController extends SettingsController {
   @override
   AppSettings build() {
-    return const AppSettings(
-      aiProvider: AiProvider.gemini,
-      geminiApiKey: '',
-      openaiApiKey: '',
-    );
+    return const AppSettings();
   }
 }

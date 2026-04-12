@@ -45,6 +45,54 @@
   "settingsAiConfiguration": "KI-Konfiguration",
   "@settingsAiConfiguration": { "description": "Settings section header for AI provider configuration" },
 
+  "settingsApiKeys": "API-Schlüssel",
+  "@settingsApiKeys": { "description": "Navigation label for API keys submenu" },
+
+  "apiKeysTitle": "API-Schlüssel",
+  "@apiKeysTitle": { "description": "Title for API keys management screen" },
+
+  "apiKeyAdd": "API-Schlüssel hinzufügen",
+  "@apiKeyAdd": { "description": "Button to add a new API key" },
+
+  "apiKeyAddTitle": "API-Schlüssel hinzufügen",
+  "@apiKeyAddTitle": { "description": "Dialog title for adding an API key" },
+
+  "apiKeyNoKeysYet": "Keine API-Schlüssel konfiguriert",
+  "@apiKeyNoKeysYet": { "description": "Empty state title when no API keys exist" },
+
+  "apiKeyNoKeysYetDesc": "Fügen Sie einen API-Schlüssel hinzu, um den Belegscanner zu aktivieren.",
+  "@apiKeyNoKeysYetDesc": { "description": "Empty state description when no API keys exist" },
+
+  "apiKeyProvider": "Anbieter",
+  "@apiKeyProvider": { "description": "Label for provider dropdown in add key dialog" },
+
+  "apiKeyNameLabel": "Name",
+  "@apiKeyNameLabel": { "description": "Label for API key name field" },
+
+  "apiKeyNameHint": "z.B. Persönlich, Arbeit",
+  "@apiKeyNameHint": { "description": "Hint text for API key name field" },
+
+  "apiKeyView": "Schlüssel anzeigen",
+  "@apiKeyView": { "description": "Action to view full API key" },
+
+  "apiKeyCopy": "Schlüssel kopieren",
+  "@apiKeyCopy": { "description": "Action to copy API key to clipboard" },
+
+  "apiKeyCopied": "API-Schlüssel in Zwischenablage kopiert",
+  "@apiKeyCopied": { "description": "Snackbar after copying API key" },
+
+  "apiKeyDelete": "Schlüssel löschen",
+  "@apiKeyDelete": { "description": "Action to delete an API key" },
+
+  "apiKeyDeleteConfirmTitle": "API-Schlüssel löschen?",
+  "@apiKeyDeleteConfirmTitle": { "description": "Dialog title for confirming API key deletion" },
+
+  "apiKeyDeleteConfirmMessage": "Dieser API-Schlüssel wird dauerhaft entfernt. Sie können ihn jederzeit wieder hinzufügen.",
+  "@apiKeyDeleteConfirmMessage": { "description": "Dialog body for confirming API key deletion" },
+
+  "apiKeySetActive": "Als aktiv setzen",
+  "@apiKeySetActive": { "description": "Action to set an API key as the active one" },
+
   "settingsAiProvider": "KI-Anbieter",
   "@settingsAiProvider": { "description": "Label for AI provider dropdown" },
 

@@ -21,8 +21,6 @@ SharedPreferences sharedPreferences(SharedPreferencesRef ref) {
   throw UnimplementedError('sharedPreferencesProvider must be overridden');
 }
 
-enum AiProvider { gemini, openai }
-
 class AppSettings {
   final String currency;
   final bool isMetric;
@@ -33,9 +31,6 @@ class AppSettings {
   final int priceUpdateReminderMonths;
   final bool aiConsentAccepted;
   final bool hasCompletedOnboarding;
-  final AiProvider aiProvider;
-  final String geminiApiKey;
-  final String openaiApiKey;
   final bool autoBackupEnabled;
   final String autoBackupExternalPath;
   final DateTime? autoBackupLastAt;
@@ -50,18 +45,10 @@ class AppSettings {
     this.priceUpdateReminderMonths = 6,
     this.aiConsentAccepted = false,
     this.hasCompletedOnboarding = false,
-    this.aiProvider = AiProvider.gemini,
-    this.geminiApiKey = '',
-    this.openaiApiKey = '',
     this.autoBackupEnabled = true,
     this.autoBackupExternalPath = '',
     this.autoBackupLastAt,
   });
-
-  String get currentApiKey =>
-      aiProvider == AiProvider.gemini ? geminiApiKey : openaiApiKey;
-
-  bool get hasApiKey => currentApiKey.isNotEmpty;
 
   AppSettings copyWith({
     String? currency,
@@ -73,9 +60,6 @@ class AppSettings {
     int? priceUpdateReminderMonths,
     bool? aiConsentAccepted,
     bool? hasCompletedOnboarding,
-    AiProvider? aiProvider,
-    String? geminiApiKey,
-    String? openaiApiKey,
     bool? autoBackupEnabled,
     String? autoBackupExternalPath,
     DateTime? autoBackupLastAt,
@@ -93,9 +77,6 @@ class AppSettings {
       aiConsentAccepted: aiConsentAccepted ?? this.aiConsentAccepted,
       hasCompletedOnboarding:
           hasCompletedOnboarding ?? this.hasCompletedOnboarding,
-      aiProvider: aiProvider ?? this.aiProvider,
-      geminiApiKey: geminiApiKey ?? this.geminiApiKey,
-      openaiApiKey: openaiApiKey ?? this.openaiApiKey,
       autoBackupEnabled: autoBackupEnabled ?? this.autoBackupEnabled,
       autoBackupExternalPath:
           autoBackupExternalPath ?? this.autoBackupExternalPath,
@@ -151,11 +132,6 @@ class SettingsController extends _$SettingsController {
       aiConsentAccepted: _parseBool(settingsMap['ai_consent_accepted']),
       hasCompletedOnboarding:
           _parseBool(settingsMap['has_completed_onboarding']),
-      aiProvider: settingsMap['ai_provider'] == 'openai'
-          ? AiProvider.openai
-          : AiProvider.gemini,
-      geminiApiKey: settingsMap['gemini_api_key'] ?? '',
-      openaiApiKey: settingsMap['openai_api_key'] ?? '',
       autoBackupEnabled:
           _parseBool(settingsMap['auto_backup_enabled'], defaultValue: true),
       autoBackupExternalPath: settingsMap['auto_backup_external_path'] ?? '',
@@ -204,21 +180,6 @@ class SettingsController extends _$SettingsController {
   Future<void> acceptAiConsent() async {
     await _set('ai_consent_accepted', true.toString());
     state = state.copyWith(aiConsentAccepted: true);
-  }
-
-  Future<void> setAiProvider(AiProvider provider) async {
-    await _set('ai_provider', provider.name);
-    state = state.copyWith(aiProvider: provider);
-  }
-
-  Future<void> setGeminiApiKey(String apiKey) async {
-    await _set('gemini_api_key', apiKey);
-    state = state.copyWith(geminiApiKey: apiKey);
-  }
-
-  Future<void> setOpenaiApiKey(String apiKey) async {
-    await _set('openai_api_key', apiKey);
-    state = state.copyWith(openaiApiKey: apiKey);
   }
 
   Future<void> setAutoBackupEnabled(bool enabled) async {

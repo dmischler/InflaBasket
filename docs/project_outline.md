@@ -609,6 +609,17 @@ Supported models:
 - Added Settings controls for auto-backup (enable toggle, manual run, external folder pick/clear, last backup timestamp)
 - Hardened iOS container-path handling: stale app-container external paths are ignored and cleared to prevent `PathAccessException` after reinstall
 
+**v2.0.4 API Keys Submenu**
+- Moved API key management from inline settings to a dedicated API Keys submenu (`/settings/api-keys`)
+- New `api_keys` database table (schema v15) with fields: id, provider, name, key, is_active, created_at
+- Users can now add multiple API keys per provider with custom names (e.g., "Personal Gemini", "Work OpenAI")
+- Active key is selectable by tapping; first key in list is active by default
+- Keys can be viewed, copied, and deleted from the submenu
+- Data migration from v14: existing `gemini_api_key`/`openai_api_key` and `ai_provider` settings migrated to `api_keys` table
+- Removed `AiProvider` enum, `geminiApiKey`/`openaiApiKey` fields from `AppSettings`; added `activeApiKeyProvider` and `allApiKeysProvider` Riverpod providers
+- `ReceiptScanButton` now uses `activeApiKeyProvider` instead of `settings.hasApiKey`
+- Factory reset preserves keys from `api_keys` table instead of settings
+
 ---
 
 ### 🔄 In Progress / Partially Complete

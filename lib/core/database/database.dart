@@ -98,6 +98,16 @@ class Settings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+@DataClassName('ApiKey')
+class ApiKeys extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get provider => text().withLength(min: 1, max: 20)();
+  TextColumn get name => text().withLength(min: 1, max: 100)();
+  TextColumn get key => text()();
+  BoolColumn get isActive => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 @DriftDatabase(tables: [
   Categories,
   Products,
@@ -106,12 +116,13 @@ class Settings extends Table {
   ExternalSeriesCache,
   PriceHistories,
   Settings,
+  ApiKeys,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -233,6 +244,56 @@ class AppDatabase extends _$AppDatabase {
           if (from < 14) {
             await m.createTable(settings);
           }
+          if (from < 15) {
+            await customStatement('''
+              CREATE TABLE IF NOT EXISTS api_keys (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                provider TEXT NOT NULL,
+                name TEXT NOT NULL,
+                key TEXT NOT NULL,
+                is_active INTEGER NOT NULL DEFAULT 0,
+                created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+              )
+            ''');
+            await customStatement(
+              'CREATE UNIQUE INDEX IF NOT EXISTS idx_api_keys_active_provider ON api_keys(is_active) WHERE is_active = 1',
+            );
+            final oldGeminiKey = await customSelect(
+              "SELECT value FROM settings WHERE key = 'gemini_api_key'",
+            ).getSingleOrNull();
+            final oldOpenaiKey = await customSelect(
+              "SELECT value FROM settings WHERE key = 'openai_api_key'",
+            ).getSingleOrNull();
+            final oldProvider = await customSelect(
+              "SELECT value FROM settings WHERE key = 'ai_provider'",
+            ).getSingleOrNull();
+            if (oldGeminiKey != null) {
+              final keyVal = oldGeminiKey.read<String>('value');
+              if (keyVal.isNotEmpty) {
+                final isActive = oldProvider != null &&
+                        oldProvider.read<String>('value') != 'openai'
+                    ? 1
+                    : 0;
+                await customStatement(
+                  "INSERT INTO api_keys (provider, name, key, is_active) VALUES ('gemini', 'Gemini', ?, $isActive)",
+                  [keyVal],
+                );
+              }
+            }
+            if (oldOpenaiKey != null) {
+              final keyVal = oldOpenaiKey.read<String>('value');
+              if (keyVal.isNotEmpty) {
+                final isActive = oldProvider != null &&
+                        oldProvider.read<String>('value') == 'openai'
+                    ? 1
+                    : 0;
+                await customStatement(
+                  "INSERT INTO api_keys (provider, name, key, is_active) VALUES ('openai', 'OpenAI', ?, $isActive)",
+                  [keyVal],
+                );
+              }
+            }
+          }
         },
       );
 
@@ -245,15 +306,37 @@ class AppDatabase extends _$AppDatabase {
       await delete(priceHistories).go();
       await delete(categories).go();
       if (keepApiKeys) {
-        final apiKeys = await (select(settings)
-              ..where((t) => t.key.isIn(['gemini_api_key', 'openai_api_key'])))
-            .get();
+        final savedApiKeys = await select(apiKeys).get();
         await delete(settings).go();
+        await delete(apiKeys).go();
         await batch((b) {
-          b.insertAll(settings, apiKeys);
+          b.insertAll(settings, [
+            SettingsCompanion.insert(key: 'currency', value: 'CHF'),
+            SettingsCompanion.insert(key: 'is_metric', value: 'true'),
+            SettingsCompanion.insert(key: 'locale', value: 'en'),
+            SettingsCompanion.insert(key: 'is_bitcoin_mode', value: 'false'),
+            SettingsCompanion.insert(key: 'is_dark_mode', value: 'true'),
+            SettingsCompanion.insert(
+                key: 'price_update_reminder_enabled', value: 'false'),
+            SettingsCompanion.insert(
+                key: 'price_update_reminder_months', value: '6'),
+            SettingsCompanion.insert(
+                key: 'ai_consent_accepted', value: 'false'),
+            SettingsCompanion.insert(
+                key: 'has_completed_onboarding', value: 'false'),
+            SettingsCompanion.insert(key: 'ai_provider', value: 'gemini'),
+            SettingsCompanion.insert(key: 'gemini_api_key', value: ''),
+            SettingsCompanion.insert(key: 'openai_api_key', value: ''),
+            SettingsCompanion.insert(key: 'auto_backup_enabled', value: 'true'),
+            SettingsCompanion.insert(
+                key: 'auto_backup_external_path', value: ''),
+            SettingsCompanion.insert(key: 'auto_backup_last_at', value: ''),
+          ]);
+          b.insertAll(apiKeys, savedApiKeys);
         });
       } else {
         await delete(settings).go();
+        await delete(apiKeys).go();
       }
     });
     await _seedDefaultCategories();

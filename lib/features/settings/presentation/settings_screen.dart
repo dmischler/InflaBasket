@@ -6,6 +6,7 @@ import 'package:inflabasket/core/widgets/action_row.dart';
 import 'package:inflabasket/core/widgets/confirm_dialog.dart';
 import 'package:inflabasket/core/widgets/settings_section.dart';
 import 'package:inflabasket/core/services/database_backup_service.dart';
+import 'package:inflabasket/features/ai_scanner/application/ai_client_provider.dart';
 import 'package:inflabasket/features/settings/application/export_service.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -228,14 +229,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return '$date $time';
   }
 
-  bool _obscureApiKey = true;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(settingsControllerProvider);
     final exportState = ref.watch(exportServiceProvider);
     final versionAsync = ref.watch(appVersionProvider);
+    final hasApiKey = ref.watch(activeApiKeyProvider).valueOrNull != null;
     final externalBackupPath = settings.autoBackupExternalPath.trim();
     final externalPathSet = externalBackupPath.isNotEmpty;
     final lastBackupSubtitle = settings.autoBackupLastAt == null
@@ -252,113 +252,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: l10n.settingsAiConfiguration,
             children: [
               ActionRow(
-                variant: ActionRowVariant.dropdown,
-                icon: Icons.smart_toy,
-                title: l10n.settingsAiProvider,
-                trailing: DropdownButton<AiProvider>(
-                  value: settings.aiProvider,
-                  underline: const SizedBox(),
-                  items: [
-                    DropdownMenuItem(
-                      value: AiProvider.gemini,
-                      child: const Text('Google Gemini'),
-                    ),
-                    DropdownMenuItem(
-                      value: AiProvider.openai,
-                      child: const Text('OpenAI'),
-                    ),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) {
-                      ref
-                          .read(settingsControllerProvider.notifier)
-                          .setAiProvider(val);
-                    }
-                  },
-                ),
-              ),
-              const Divider(height: 1),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.settingsApiKey,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      obscureText: _obscureApiKey,
-                      decoration: InputDecoration(
-                        hintText: settings.aiProvider == AiProvider.gemini
-                            ? l10n.settingsApiKeyHintGemini
-                            : l10n.settingsApiKeyHintOpenai,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureApiKey
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () =>
-                              setState(() => _obscureApiKey = !_obscureApiKey),
-                        ),
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      onSubmitted: (value) {
-                        if (settings.aiProvider == AiProvider.gemini) {
-                          ref
-                              .read(settingsControllerProvider.notifier)
-                              .setGeminiApiKey(value);
-                        } else {
-                          ref
-                              .read(settingsControllerProvider.notifier)
-                              .setOpenaiApiKey(value);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Icon(
-                          settings.hasApiKey
-                              ? Icons.check_circle
-                              : Icons.info_outline,
-                          size: 16,
-                          color: settings.hasApiKey
-                              ? Colors.green
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            settings.hasApiKey
-                                ? l10n.settingsApiKeyConfigured
-                                : l10n.settingsApiKeyNotConfigured,
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: settings.hasApiKey
-                                          ? Colors.green
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
-                                    ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.settingsApiKeyPrivacyNote,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                  ],
-                ),
+                variant: ActionRowVariant.navigation,
+                icon: Icons.vpn_key_outlined,
+                title: l10n.settingsApiKeys,
+                subtitle: hasApiKey
+                    ? l10n.settingsApiKeyConfigured
+                    : l10n.settingsApiKeyNotConfigured,
+                onTap: () => context.push('/settings/api-keys'),
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/router/navigation_extensions.dart';
 import 'package:inflabasket/core/widgets/ai_consent_dialog.dart';
+import 'package:inflabasket/features/ai_scanner/application/ai_client_provider.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
@@ -12,11 +13,11 @@ class ReceiptScanButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final settings = ref.watch(settingsControllerProvider);
+    final hasApiKey = ref.watch(activeApiKeyProvider).valueOrNull != null;
 
     return OutlinedButton.icon(
       onPressed: () async {
-        if (!settings.hasApiKey) {
+        if (!hasApiKey) {
           if (!context.mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
