@@ -8,8 +8,6 @@ import 'package:inflabasket/core/widgets/settings_section.dart';
 import 'package:inflabasket/core/services/database_backup_service.dart';
 import 'package:inflabasket/features/settings/application/export_service.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
-
-import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 
 enum ExportFormat { sqlite, csv, json }
@@ -67,19 +65,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (result != null) {
       switch (result) {
         case ExportFormat.sqlite:
-          await _handleExport(context, ref);
+          await _handleExport(ref);
           break;
         case ExportFormat.csv:
           ref.read(exportServiceProvider.notifier).exportData();
           break;
         case ExportFormat.json:
-          await _handleExportJson(context, ref);
+          await _handleExportJson(ref);
           break;
       }
     }
   }
 
-  Future<void> _handleExport(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleExport(WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmDialog.show(
       context,
@@ -89,23 +87,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
     if (confirmed != true) return;
 
-    final messenger = ScaffoldMessenger.of(context);
     try {
       final filename = await ref
           .read(databaseBackupServiceProvider.notifier)
           .exportDatabase();
       if (!mounted) return;
       HapticFeedback.mediumImpact();
-      messenger.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.backupExportSuccess(filename))),
       );
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
     }
   }
 
-  Future<void> _handleImport(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleImport(WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmDialog.show(
@@ -145,8 +143,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _handleExportJson(BuildContext context, WidgetRef ref) async {
-    final messenger = ScaffoldMessenger.of(context);
+  Future<void> _handleExportJson(WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     try {
       await ref.read(databaseBackupServiceProvider.notifier).exportAsJson();
@@ -154,7 +151,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       HapticFeedback.mediumImpact();
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
     }
   }
 
@@ -169,11 +167,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
 
     if (shouldReset == true && mounted) {
-      final repo = ref.read(entryRepositoryProvider);
-      final database = repo.database;
-      await ref
-          .read(settingsControllerProvider.notifier)
-          .factoryReset(database);
+      await ref.read(settingsControllerProvider.notifier).factoryReset();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.factoryResetCompleted)),
@@ -181,6 +175,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         context.go('/home');
       }
     }
+  }
+
+  Future<void> _handleRunAutoBackup(WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+
+    final success = await ref
+        .read(databaseBackupServiceProvider.notifier)
+        .runAutoBackup(force: true);
+    if (!mounted) return;
+
+    if (success) {
+      HapticFeedback.mediumImpact();
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.autoBackupManualSuccess)),
+      );
+      return;
+    }
+
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.autoBackupManualFailure)),
+    );
+  }
+
+  Future<void> _handlePickExternalBackupFolder(WidgetRef ref) async {
+    await ref
+        .read(databaseBackupServiceProvider.notifier)
+        .pickExternalBackupDirectory();
+    if (!mounted) return;
+    HapticFeedback.selectionClick();
+  }
+
+  Future<void> _handleClearExternalBackupFolder(WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    await ref
+        .read(settingsControllerProvider.notifier)
+        .clearAutoBackupExternalPath();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.autoBackupFolderCleared)),
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final material = MaterialLocalizations.of(context);
+    final date = material.formatMediumDate(dateTime);
+    final time = material.formatTimeOfDay(
+      TimeOfDay.fromDateTime(dateTime),
+      alwaysUse24HourFormat: MediaQuery.of(context).alwaysUse24HourFormat,
+    );
+    return '$date $time';
   }
 
   bool _obscureApiKey = true;
@@ -191,6 +236,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final settings = ref.watch(settingsControllerProvider);
     final exportState = ref.watch(exportServiceProvider);
     final versionAsync = ref.watch(appVersionProvider);
+    final externalBackupPath = settings.autoBackupExternalPath.trim();
+    final externalPathSet = externalBackupPath.isNotEmpty;
+    final lastBackupSubtitle = settings.autoBackupLastAt == null
+        ? l10n.autoBackupNoBackupYet
+        : l10n
+            .autoBackupLastBackup(_formatDateTime(settings.autoBackupLastAt!));
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
@@ -429,6 +480,58 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
               ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          SettingsSection(
+            title: l10n.settingsBackupRestore,
+            children: [
+              ActionRow(
+                variant: ActionRowVariant.toggle,
+                icon: Icons.auto_awesome_motion,
+                title: l10n.autoBackupEnable,
+                subtitle: l10n.autoBackupEnableDesc,
+                toggleValue: settings.autoBackupEnabled,
+                onToggleChanged: (value) => ref
+                    .read(settingsControllerProvider.notifier)
+                    .setAutoBackupEnabled(value),
+              ),
+              if (settings.autoBackupEnabled) ...[
+                const Divider(height: 1),
+                ActionRow(
+                  variant: ActionRowVariant.action,
+                  icon: Icons.backup,
+                  title: l10n.autoBackupBackupNow,
+                  subtitle: lastBackupSubtitle,
+                  onTap: () => _handleRunAutoBackup(ref),
+                ),
+                const Divider(height: 1),
+                ActionRow(
+                  variant: ActionRowVariant.navigation,
+                  icon: Icons.folder_open,
+                  title: l10n.autoBackupExternalFolder,
+                  subtitle: externalPathSet
+                      ? externalBackupPath
+                      : l10n.autoBackupExternalFolderNotSet,
+                  trailing: externalPathSet
+                      ? IconButton(
+                          tooltip: l10n.delete,
+                          onPressed: () =>
+                              _handleClearExternalBackupFolder(ref),
+                          icon: const Icon(Icons.clear),
+                        )
+                      : null,
+                  onTap: () => _handlePickExternalBackupFolder(ref),
+                ),
+                const Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: Text(
+                    l10n.autoBackupExternalFolderHint,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
               const Divider(height: 1),
               ActionRow(
                 variant: ActionRowVariant.action,
@@ -451,7 +554,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 variant: ActionRowVariant.action,
                 icon: Icons.download_outlined,
                 title: l10n.settingsImportDatabase,
-                onTap: () => _handleImport(context, ref),
+                onTap: () => _handleImport(ref),
               ),
               const Divider(height: 1),
               ActionRow(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inflabasket/core/theme/app_colors.dart';
 
-/// VaultCard represents the new Premium Dark Luxe Data Cards.
+/// VaultCard represents the app's luxe data card surface.
 /// Uses the Vault Surface background and adds a metallic border or
 /// active gradient border based on the current context theme.
 class VaultCard extends StatelessWidget {

@@ -614,48 +614,6 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
-  /// Settings section header
-  ///
-  /// In en, this message translates to:
-  /// **'Subscription'**
-  String get settingsSubscription;
-
-  /// Status for active premium subscription
-  ///
-  /// In en, this message translates to:
-  /// **'Premium Active'**
-  String get settingsPremiumActive;
-
-  /// Status for free tier
-  ///
-  /// In en, this message translates to:
-  /// **'Free Tier'**
-  String get settingsFreeTier;
-
-  /// Subtitle for premium status
-  ///
-  /// In en, this message translates to:
-  /// **'AI receipt scanning'**
-  String get settingsPremiumSubtitle;
-
-  /// Subtitle for free tier status
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock AI scanning'**
-  String get settingsFreeSubtitle;
-
-  /// Button to restore purchases
-  ///
-  /// In en, this message translates to:
-  /// **'Restore'**
-  String get settingsRestore;
-
-  /// Button to upgrade to premium
-  ///
-  /// In en, this message translates to:
-  /// **'Upgrade'**
-  String get settingsUpgrade;
-
   /// Settings section header for UI settings
   ///
   /// In en, this message translates to:
@@ -1119,18 +1077,6 @@ abstract class AppLocalizations {
   /// **'Uncheck items you don\'t want to save. Tap names, prices, quantities, or categories to edit.'**
   String get scannerReviewInstructions;
 
-  /// Badge for mobile-only features
-  ///
-  /// In en, this message translates to:
-  /// **'Mobile only'**
-  String get settingsMobileOnly;
-
-  /// Badge for debug premium unlock
-  ///
-  /// In en, this message translates to:
-  /// **'Debug unlock'**
-  String get settingsDebugUnlock;
-
   /// Title for inflation by category section
   ///
   /// In en, this message translates to:
@@ -1414,108 +1360,6 @@ abstract class AppLocalizations {
   /// **'Error loading categories: {error}'**
   String errorLoadingCategories(String error);
 
-  /// Debug subtitle on the subscription card
-  ///
-  /// In en, this message translates to:
-  /// **'Debug: Premium unlocked for testing.'**
-  String get settingsDebugPremiumSubtitle;
-
-  /// Unsupported-platform subtitle on the subscription card
-  ///
-  /// In en, this message translates to:
-  /// **'Subscriptions are only available on iOS and Android.'**
-  String get settingsMobileOnlySubtitle;
-
-  /// AppBar title for paywall screen
-  ///
-  /// In en, this message translates to:
-  /// **'Go Premium'**
-  String get paywallTitle;
-
-  /// Title for debug paywall state
-  ///
-  /// In en, this message translates to:
-  /// **'Debug Mode'**
-  String get paywallDebugTitle;
-
-  /// Message for debug paywall state
-  ///
-  /// In en, this message translates to:
-  /// **'Premium features are unlocked for testing.'**
-  String get paywallDebugMessage;
-
-  /// Action button to close the paywall
-  ///
-  /// In en, this message translates to:
-  /// **'Back to App'**
-  String get paywallBackToApp;
-
-  /// Title for unsupported-platform paywall state
-  ///
-  /// In en, this message translates to:
-  /// **'Mobile Only'**
-  String get paywallMobileOnlyTitle;
-
-  /// Message for unsupported-platform paywall state
-  ///
-  /// In en, this message translates to:
-  /// **'Subscriptions are only available on iOS and Android. All features are unlocked on desktop.'**
-  String get paywallMobileOnlyMessage;
-
-  /// Title when no subscription offers are available
-  ///
-  /// In en, this message translates to:
-  /// **'No Offers Available'**
-  String get paywallNoOffersTitle;
-
-  /// Message when no subscription offers are available
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load subscription offers. Please try again later.'**
-  String get paywallNoOffersMessage;
-
-  /// Main premium headline
-  ///
-  /// In en, this message translates to:
-  /// **'InflaBasket Premium'**
-  String get paywallProductTitle;
-
-  /// Premium features list
-  ///
-  /// In en, this message translates to:
-  /// **'AI receipt scanning • Auto-categorization • Price alerts'**
-  String get paywallFeatures;
-
-  /// Snackbar after successful premium purchase
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to Premium!'**
-  String get paywallWelcome;
-
-  /// Button to restore purchases
-  ///
-  /// In en, this message translates to:
-  /// **'Restore Purchases'**
-  String get paywallRestorePurchases;
-
-  /// Loading title for offers
-  ///
-  /// In en, this message translates to:
-  /// **'Loading Offers'**
-  String get paywallLoadingOffersTitle;
-
-  /// Loading message for offers
-  ///
-  /// In en, this message translates to:
-  /// **'Fetching available subscription plans.'**
-  String get paywallLoadingOffersMessage;
-
-  /// Error title for offers
-  ///
-  /// In en, this message translates to:
-  /// **'Could Not Load Offers'**
-  String get paywallLoadOffersError;
-
   /// Subtitle line for category spend totals
   ///
   /// In en, this message translates to:
@@ -1756,17 +1600,71 @@ abstract class AppLocalizations {
   /// **'Add Manually'**
   String get addManually;
 
-  /// Label for premium-gated features
+  /// Toggle label for automatic database backup
   ///
   /// In en, this message translates to:
-  /// **'Premium feature'**
-  String get premiumFeature;
+  /// **'Enable automatic backups'**
+  String get autoBackupEnable;
 
-  /// Message when feature unavailable on desktop
+  /// Description for automatic backup toggle
   ///
   /// In en, this message translates to:
-  /// **'Not available on desktop'**
-  String get notAvailableDesktop;
+  /// **'Keep local rolling backups and optionally copy them to an external folder.'**
+  String get autoBackupEnableDesc;
+
+  /// Action to trigger immediate auto backup
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get autoBackupBackupNow;
+
+  /// Status when no automatic backup has run yet
+  ///
+  /// In en, this message translates to:
+  /// **'No automatic backup yet'**
+  String get autoBackupNoBackupYet;
+
+  /// Status line showing timestamp of last automatic backup
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup: {dateTime}'**
+  String autoBackupLastBackup(String dateTime);
+
+  /// Snackbar after successful manual backup run
+  ///
+  /// In en, this message translates to:
+  /// **'Backup completed successfully'**
+  String get autoBackupManualSuccess;
+
+  /// Snackbar when manual backup run fails
+  ///
+  /// In en, this message translates to:
+  /// **'Backup could not be completed'**
+  String get autoBackupManualFailure;
+
+  /// Label for external backup directory chooser
+  ///
+  /// In en, this message translates to:
+  /// **'External backup folder'**
+  String get autoBackupExternalFolder;
+
+  /// Placeholder when no external backup folder is configured
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get autoBackupExternalFolderNotSet;
+
+  /// Guidance explaining why users should choose an external backup folder
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a folder outside the app container (iCloud Drive, Files, SD card, or network storage) so backups remain available after app uninstall.'**
+  String get autoBackupExternalFolderHint;
+
+  /// Snackbar after clearing configured external backup folder
+  ///
+  /// In en, this message translates to:
+  /// **'External backup folder removed'**
+  String get autoBackupFolderCleared;
 
   /// Dialog title for export format selection
   ///

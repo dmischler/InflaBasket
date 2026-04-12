@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:inflabasket/core/router/navigation_extensions.dart';
 import 'package:inflabasket/core/widgets/ai_consent_dialog.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
@@ -22,7 +23,7 @@ class ReceiptScanButton extends ConsumerWidget {
               content: Text(l10n.settingsConfigureApiKey),
             ),
           );
-          context.push('/settings');
+          context.go('/home?tab=3');
           return;
         }
 
@@ -34,7 +35,7 @@ class ReceiptScanButton extends ConsumerWidget {
           await ref.read(settingsControllerProvider.notifier).acceptAiConsent();
         }
         if (!context.mounted) return;
-        context.push('/scanner');
+        context.pushScanner();
       },
       icon: const Icon(Icons.document_scanner, color: Colors.purple),
       label: Text(l10n.scanReceipt),

@@ -275,27 +275,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
-  String get settingsSubscription => 'Subscription';
-
-  @override
-  String get settingsPremiumActive => 'Premium Active';
-
-  @override
-  String get settingsFreeTier => 'Free Tier';
-
-  @override
-  String get settingsPremiumSubtitle => 'AI receipt scanning';
-
-  @override
-  String get settingsFreeSubtitle => 'Unlock AI scanning';
-
-  @override
-  String get settingsRestore => 'Restore';
-
-  @override
-  String get settingsUpgrade => 'Upgrade';
-
-  @override
   String get settingsAppearance => 'Appearance';
 
   @override
@@ -547,12 +526,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Uncheck items you don\'t want to save. Tap names, prices, quantities, or categories to edit.';
 
   @override
-  String get settingsMobileOnly => 'Mobile only';
-
-  @override
-  String get settingsDebugUnlock => 'Debug unlock';
-
-  @override
   String get categoryInflationTitle => 'Inflation by Category';
 
   @override
@@ -731,64 +704,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsDebugPremiumSubtitle =>
-      'Debug: Premium unlocked for testing.';
-
-  @override
-  String get settingsMobileOnlySubtitle =>
-      'Subscriptions are only available on iOS and Android.';
-
-  @override
-  String get paywallTitle => 'Go Premium';
-
-  @override
-  String get paywallDebugTitle => 'Debug Mode';
-
-  @override
-  String get paywallDebugMessage =>
-      'Premium features are unlocked for testing.';
-
-  @override
-  String get paywallBackToApp => 'Back to App';
-
-  @override
-  String get paywallMobileOnlyTitle => 'Mobile Only';
-
-  @override
-  String get paywallMobileOnlyMessage =>
-      'Subscriptions are only available on iOS and Android. All features are unlocked on desktop.';
-
-  @override
-  String get paywallNoOffersTitle => 'No Offers Available';
-
-  @override
-  String get paywallNoOffersMessage =>
-      'Could not load subscription offers. Please try again later.';
-
-  @override
-  String get paywallProductTitle => 'InflaBasket Premium';
-
-  @override
-  String get paywallFeatures =>
-      'AI receipt scanning • Auto-categorization • Price alerts';
-
-  @override
-  String get paywallWelcome => 'Welcome to Premium!';
-
-  @override
-  String get paywallRestorePurchases => 'Restore Purchases';
-
-  @override
-  String get paywallLoadingOffersTitle => 'Loading Offers';
-
-  @override
-  String get paywallLoadingOffersMessage =>
-      'Fetching available subscription plans.';
-
-  @override
-  String get paywallLoadOffersError => 'Could Not Load Offers';
-
-  @override
   String categoryTotalSpend(String amount) {
     return 'Total: $amount';
   }
@@ -929,10 +844,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addManually => 'Add Manually';
 
   @override
-  String get premiumFeature => 'Premium feature';
+  String get autoBackupEnable => 'Enable automatic backups';
 
   @override
-  String get notAvailableDesktop => 'Not available on desktop';
+  String get autoBackupEnableDesc =>
+      'Keep local rolling backups and optionally copy them to an external folder.';
+
+  @override
+  String get autoBackupBackupNow => 'Back up now';
+
+  @override
+  String get autoBackupNoBackupYet => 'No automatic backup yet';
+
+  @override
+  String autoBackupLastBackup(String dateTime) {
+    return 'Last backup: $dateTime';
+  }
+
+  @override
+  String get autoBackupManualSuccess => 'Backup completed successfully';
+
+  @override
+  String get autoBackupManualFailure => 'Backup could not be completed';
+
+  @override
+  String get autoBackupExternalFolder => 'External backup folder';
+
+  @override
+  String get autoBackupExternalFolderNotSet => 'Not set';
+
+  @override
+  String get autoBackupExternalFolderHint =>
+      'Choose a folder outside the app container (iCloud Drive, Files, SD card, or network storage) so backups remain available after app uninstall.';
+
+  @override
+  String get autoBackupFolderCleared => 'External backup folder removed';
 
   @override
   String get exportFormatTitle => 'Choose Export Format';

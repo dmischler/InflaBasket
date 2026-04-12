@@ -16,59 +16,14 @@ class SettingsRepository {
 
   SettingsRepository(this._db);
 
-  Stream<List<Setting>> watchAllSettings() {
-    return _db.select(_db.settings).watch();
-  }
-
   Future<List<Setting>> getAllSettings() async {
     return _db.select(_db.settings).get();
-  }
-
-  Future<String?> getSetting(String key) async {
-    final query = _db.select(_db.settings)..where((t) => t.key.equals(key));
-    final result = await query.getSingleOrNull();
-    return result?.value;
-  }
-
-  Stream<String?> watchSetting(String key) {
-    final query = _db.select(_db.settings)..where((t) => t.key.equals(key));
-    return query.watchSingleOrNull().map((row) => row?.value);
   }
 
   Future<void> setSetting(String key, String value) async {
     await _db.into(_db.settings).insertOnConflictUpdate(
           SettingsCompanion.insert(key: key, value: value),
         );
-  }
-
-  Future<void> deleteSetting(String key) async {
-    await (_db.delete(_db.settings)..where((t) => t.key.equals(key))).go();
-  }
-
-  Future<void> setApiKey(String provider, String apiKey) async {
-    final key = provider == 'gemini' ? 'gemini_api_key' : 'openai_api_key';
-    await setSetting(key, apiKey);
-  }
-
-  Future<void> seedDefaults() async {
-    await _db.seedDefaultSettings();
-  }
-
-  Future<void> factoryReset({bool keepApiKeys = true}) async {
-    if (keepApiKeys) {
-      final apiKeys = await (_db.select(_db.settings)
-            ..where((t) => t.key.isIn(['gemini_api_key', 'openai_api_key'])))
-          .get();
-      await _db.delete(_db.settings).go();
-      if (apiKeys.isNotEmpty) {
-        await _db.batch((b) {
-          b.insertAll(_db.settings, apiKeys);
-        });
-      }
-    } else {
-      await _db.delete(_db.settings).go();
-    }
-    await _db.seedDefaultSettings();
   }
 
   Future<void> migrateFromSharedPreferences(SharedPreferences prefs) async {
@@ -113,6 +68,12 @@ class SettingsRepository {
     addIfNotExists('ai_provider', 'gemini');
     addIfNotExists('gemini_api_key', '');
     addIfNotExists('openai_api_key', '');
+    addIfNotExists('auto_backup_enabled',
+        (prefs.getBool('settings_auto_save_enabled') ?? true).toString());
+    addIfNotExists('auto_backup_external_path',
+        prefs.getString('settings_auto_save_path') ?? '');
+    addIfNotExists('auto_backup_last_at',
+        prefs.getString('settings_last_backup_at') ?? '');
 
     if (migrations.isNotEmpty) {
       await _db.batch((b) {

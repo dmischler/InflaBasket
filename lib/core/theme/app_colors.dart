@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Design Token System: Premium Luxe
+/// Design token system for the app.
 /// All colors used across the application are centralized here.
 class AppColors {
   // Surface Tokens — Dark

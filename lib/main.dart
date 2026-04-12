@@ -11,6 +11,7 @@ import 'package:inflabasket/core/router/app_router.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
 import 'package:inflabasket/core/services/price_update_reminder_service.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
+import 'package:inflabasket/core/services/database_backup_service.dart';
 import 'package:inflabasket/core/theme/app_theme.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
@@ -77,6 +78,7 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
   bool _didRunInitialDuplicateCleanup = false;
   bool _isShowingReminderPopup = false;
   int _duplicateCleanupCount = 0;
+  bool _isRunningAutoBackup = false;
 
   @override
   void initState() {
@@ -106,6 +108,7 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
         _repairMissingEntrySats(),
         _syncReminderSchedule(),
         _cleanupDuplicateEntries(),
+        _runAutoBackupIfEnabled(),
       ]);
 
       if (NotificationService.consumeDidLaunchFromPriceUpdateNotification()) {
@@ -133,6 +136,7 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
           return;
         }
         _syncReminderSchedule();
+        _runAutoBackupIfEnabled();
         _checkPendingPopup();
       });
     }
@@ -169,6 +173,22 @@ class _InflaBasketAppState extends ConsumerState<InflaBasketApp>
     } catch (error, stackTrace) {
       debugPrint('Failed to cleanup duplicate entries: $error');
       debugPrintStack(stackTrace: stackTrace);
+    }
+  }
+
+  Future<void> _runAutoBackupIfEnabled() async {
+    if (_isRunningAutoBackup) return;
+    final settings = ref.read(settingsControllerProvider);
+    if (!settings.autoBackupEnabled) return;
+
+    _isRunningAutoBackup = true;
+    try {
+      await ref.read(databaseBackupServiceProvider.notifier).runAutoBackup();
+    } catch (error, stackTrace) {
+      debugPrint('Failed to run auto backup: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    } finally {
+      _isRunningAutoBackup = false;
     }
   }
 

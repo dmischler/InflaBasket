@@ -21,7 +21,11 @@ GoRouter appRouter(AppRouterRef ref) {
     routes: [
       GoRoute(
         path: '/home',
-        builder: (context, state) => const DashboardScreen(),
+        builder: (context, state) {
+          final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '');
+          final tabIndex = (tab != null && tab >= 0 && tab <= 3) ? tab : 0;
+          return DashboardScreen(initialIndex: tabIndex);
+        },
         routes: [
           GoRoute(
             path: 'add',

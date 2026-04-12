@@ -30,6 +30,8 @@ extension TypedNavigation on BuildContext {
       GoRouter.of(this).push('/scanner', extra: ScannerExtras.source(source));
     } else if (file != null) {
       GoRouter.of(this).push('/scanner', extra: ScannerExtras.file(file));
+    } else {
+      GoRouter.of(this).push('/scanner');
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/services/notification_service.dart';
 import 'package:inflabasket/core/services/price_update_reminder_service.dart';
-import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
 import 'package:inflabasket/features/settings/data/settings_repository.dart';
 
 part 'settings_provider.g.dart';
@@ -36,6 +36,9 @@ class AppSettings {
   final AiProvider aiProvider;
   final String geminiApiKey;
   final String openaiApiKey;
+  final bool autoBackupEnabled;
+  final String autoBackupExternalPath;
+  final DateTime? autoBackupLastAt;
 
   const AppSettings({
     this.currency = 'CHF',
@@ -50,6 +53,9 @@ class AppSettings {
     this.aiProvider = AiProvider.gemini,
     this.geminiApiKey = '',
     this.openaiApiKey = '',
+    this.autoBackupEnabled = true,
+    this.autoBackupExternalPath = '',
+    this.autoBackupLastAt,
   });
 
   String get currentApiKey =>
@@ -70,6 +76,9 @@ class AppSettings {
     AiProvider? aiProvider,
     String? geminiApiKey,
     String? openaiApiKey,
+    bool? autoBackupEnabled,
+    String? autoBackupExternalPath,
+    DateTime? autoBackupLastAt,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
@@ -87,6 +96,10 @@ class AppSettings {
       aiProvider: aiProvider ?? this.aiProvider,
       geminiApiKey: geminiApiKey ?? this.geminiApiKey,
       openaiApiKey: openaiApiKey ?? this.openaiApiKey,
+      autoBackupEnabled: autoBackupEnabled ?? this.autoBackupEnabled,
+      autoBackupExternalPath:
+          autoBackupExternalPath ?? this.autoBackupExternalPath,
+      autoBackupLastAt: autoBackupLastAt ?? this.autoBackupLastAt,
     );
   }
 }
@@ -100,31 +113,30 @@ String resolveAppLanguageCode([String? languageCode]) {
 @Riverpod(keepAlive: true)
 class SettingsController extends _$SettingsController {
   static const supportedLocales = <String>['en', 'de'];
-  static const aiConsentAcceptedKey = 'ai_consent_accepted';
 
   @override
   AppSettings build() {
-    final repo = ref.watch(settingsRepositoryProvider);
-    final settingsStream = repo.watchAllSettings();
-
-    final subscription = settingsStream.listen((_) {});
-    ref.onDispose(() => subscription.cancel());
-
     return const AppSettings();
   }
 
   Future<void> initializeFromDatabase() async {
     final repo = ref.read(settingsRepositoryProvider);
+    try {
+      final prefs = ref.read(sharedPreferencesProvider);
+      await repo.migrateFromSharedPreferences(prefs);
+    } on UnimplementedError {
+      // Ignored in tests that don't override sharedPreferencesProvider.
+    }
+
     final settingsList = await repo.getAllSettings();
     final settingsMap = {for (final s in settingsList) s.key: s.value};
 
-    final legacyThemeIndex = settingsMap.remove('settings_theme_type');
-    bool isDarkMode =
+    settingsMap.remove('settings_theme_type');
+    final isDarkMode =
         _parseBool(settingsMap['is_dark_mode'], defaultValue: true);
-
-    if (legacyThemeIndex != null) {
-      // Legacy theme migration handled - dark mode is default
-    }
+    final rawLastAutoBackup = settingsMap['auto_backup_last_at'] ?? '';
+    final autoBackupLastAt =
+        rawLastAutoBackup.isEmpty ? null : DateTime.tryParse(rawLastAutoBackup);
 
     state = AppSettings(
       currency: settingsMap['currency'] ?? 'CHF',
@@ -144,6 +156,10 @@ class SettingsController extends _$SettingsController {
           : AiProvider.gemini,
       geminiApiKey: settingsMap['gemini_api_key'] ?? '',
       openaiApiKey: settingsMap['openai_api_key'] ?? '',
+      autoBackupEnabled:
+          _parseBool(settingsMap['auto_backup_enabled'], defaultValue: true),
+      autoBackupExternalPath: settingsMap['auto_backup_external_path'] ?? '',
+      autoBackupLastAt: autoBackupLastAt,
     );
   }
 
@@ -205,6 +221,27 @@ class SettingsController extends _$SettingsController {
     state = state.copyWith(openaiApiKey: apiKey);
   }
 
+  Future<void> setAutoBackupEnabled(bool enabled) async {
+    await _set('auto_backup_enabled', enabled.toString());
+    state = state.copyWith(autoBackupEnabled: enabled);
+  }
+
+  Future<void> setAutoBackupExternalPath(String path) async {
+    await _set('auto_backup_external_path', path);
+    state = state.copyWith(autoBackupExternalPath: path);
+  }
+
+  Future<void> clearAutoBackupExternalPath() async {
+    await _set('auto_backup_external_path', '');
+    state = state.copyWith(autoBackupExternalPath: '');
+  }
+
+  Future<void> setAutoBackupLastAt(DateTime? dateTime) async {
+    final serialized = dateTime?.toIso8601String() ?? '';
+    await _set('auto_backup_last_at', serialized);
+    state = state.copyWith(autoBackupLastAt: dateTime);
+  }
+
   Future<bool> setPriceUpdateReminder(bool enabled) async {
     if (enabled) {
       if (defaultTargetPlatform == TargetPlatform.iOS ||
@@ -236,11 +273,9 @@ class SettingsController extends _$SettingsController {
     }
   }
 
-  Future<void> factoryReset(AppDatabase database,
-      {bool keepApiKeys = true}) async {
+  Future<void> factoryReset({bool keepApiKeys = true}) async {
+    final database = ref.read(entryRepositoryProvider).database;
     await database.resetDatabase(keepApiKeys: keepApiKeys);
-    final repo = ref.read(settingsRepositoryProvider);
-    await repo.factoryReset(keepApiKeys: keepApiKeys);
     await initializeFromDatabase();
   }
 }

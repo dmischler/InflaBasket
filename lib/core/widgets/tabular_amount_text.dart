@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Ensures financial numbers are perfectly aligned tabularly for the Premium Dark Luxe design.
+/// Ensures financial numbers are perfectly aligned tabularly.
 class TabularAmountText extends StatelessWidget {
   final String text;
   final TextStyle? style;

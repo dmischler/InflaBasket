@@ -147,7 +147,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
   // ─── Duplicate detection ──────────────────────────────────────────────────
 
   /// Checks for a similar product name in the same category using a simple
-  /// normalised-string similarity heuristic. For Premium users we additionally
+  /// normalised-string similarity heuristic. For scanner-assisted flows we additionally
   /// call the OpenAI API (via VisionClient chat endpoint) for semantic
   /// matching; here we keep it as a lightweight edit-distance check since
   /// VisionClient is primarily an image model and adding a full chat call
@@ -328,7 +328,7 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Barcode scan button (always visible, no premium gate)
+                  // Barcode scan button (always visible)
                   if (!lockSharedFields &&
                       supportsBarcodeScannerOnCurrentPlatform)
                     Padding(

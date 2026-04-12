@@ -13,9 +13,8 @@ Personal inflation tracking app that compares user's custom basket against offic
 - **Charts:** `fl_chart`
 - **Loading States:** `shimmer`
 - **Illustrations:** `lottie`
-- **Icons/Fonts:** `lucide_icons`, `google_fonts`
-- **Device Features:** `camera`, `image_picker`, `image_cropper`, `mobile_scanner`
-- **Subscriptions:** `purchases_flutter` (RevenueCat)
+- **Icons/Fonts:** `lucide_icons`
+- **Device Features:** `image_picker`, `desktop_drop`, `mobile_scanner`
 - **Network:** `dio`, `retrofit`, `openfoodfacts` (official package)
 - **Images:** `cached_network_image` (favicon/logo loading with caching)
 
@@ -55,12 +54,11 @@ class PurchaseEntries extends Table {
 }
 ```
 
-**Additional Tables (Schema v11):**
-- `category_weights` — Custom basket weighting
-- `entry_templates` — Recurring purchase templates
+**Additional Tables (Schema v14):**
 - `price_alerts` — Per-product threshold alerts
 - `external_series_cache` — CPI/M2 cached data
-- `price_histories` — Monthly price history per product (NEW)
+- `price_histories` — Monthly price history per product
+- `settings` — App settings, onboarding state, AI provider, and API keys
 
 ---
 
@@ -83,7 +81,7 @@ lib/
 │   │   └── data/
 │   ├── entry_management/
 │   ├── ai_scanner/
-│   ├── subscription/
+│   ├── barcode/
 │   └── settings/
 ```
 
@@ -93,16 +91,16 @@ lib/
 
 | Route | Screen | Description |
 |-------|--------|-------------|
-| `/` | Splash | Initialize DB, check RevenueCat |
+| `/` | Startup | Initialize DB, restore pending backup, and warm services |
 | `/home` | Dashboard | 4 tabs: Overview, History, Categories, Settings |
 | `/home/add` | Add Entry | Manual entry form |
 | `/home/product/:productId` | Product Detail | Product-level view with inline shared-field edits, chart, and history |
 | `/scanner` | Scanner | Camera/Gallery → AI processing → Review |
-| `/paywall` | Paywall | Premium upgrade (mobile only) |
-| `/settings` | Settings | Subscription, categories, templates, alerts, export |
+| `/home?tab=3` | Settings Tab | Appearance, AI config, categories, alerts, backup/export |
 | `/settings/categories` | Category Management | Add/Delete custom categories |
 | `/settings/price-alerts` | Price Alerts | Per-product thresholds |
-| `/settings/weights` | Weight Editor | Category weights for basket |
+| `/settings/price-updates` | Price Updates | Products that need refresh |
+| `/settings/price-updates/settings` | Reminder Settings | Reminder toggle and cadence |
 
 ---
 
@@ -183,19 +181,16 @@ lib/
 
 ---
 
-## 7. Subscription Strategy (RevenueCat)
+## 7. AI Provider Strategy (User-Provided Keys)
 
-1. Create entitlement `premium` in RevenueCat
-2. Initialize RevenueCat on Android/iOS only
-3. Gate premium features via `isPremiumProvider`
-4. Desktop/web show graceful mobile-only message
+1. Users select provider in Settings (`gemini` or `openai`)
+2. App stores provider choice and API keys in Drift `settings` table
+3. Scanner resolves active client via `aiClientProvider`
+4. If no key is configured, scanner CTA deep-links to Settings tab
 
-```dart
-final isPremiumProvider = Provider<bool>((ref) {
-  final customerInfo = ref.watch(customerInfoProvider).valueOrNull;
-  return customerInfo?.entitlements.all['premium']?.isActive ?? false;
-});
-```
+Supported models:
+- Gemini: `gemini-2.5-flash` with `gemini-3-flash-preview` fallback
+- OpenAI: `gpt-4o` with `gpt-4o-mini` fallback
 
 ---
 
@@ -217,19 +212,17 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Macro comparison overlay (CPI/M2)
 - External series caching for offline fallback
 
-**AI Scanner & Monetization**
-- RevenueCat integration (mobile-only)
-- Paywall UI with desktop fallback
+**AI Scanner & Open Access**
 - Camera/image picker implementation
-- Vision API client (OpenAI/GPT-4o)
+- Provider-based AI clients (Gemini + OpenAI)
+- User-provided API key flow in Settings
 - Receipt review & edit screen
 - Bulk transaction save with rollback
 
 **Settings & Polish**
-- Settings tab with premium status
+- Settings tab with AI configuration and API key status
 - Category management (add/delete)
 - CSV export
-- Recurring purchase templates
 - Price alerts with notifications
 - Dark/Light mode support
 - Desktop (Linux) support
@@ -246,7 +239,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 **Sprint 4A-4B**
 - Desktop drag & drop for receipts
-- Debug premium override
+- Debug feature-flag override
 - StateMessageCard UX polish
 - Macro overlay source notes
 - Full UI localization (13 screens)
@@ -257,7 +250,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 **Sprint 6 (iOS Launch)**
 - Manual entry date restriction (5 years max)
-- Premium testing bypass (`FORCE_PREMIUM` flag)
+- Feature-gate testing bypass (`FORCE_PREMIUM` flag, legacy)
 - Barcode scanner crash fix (iOS permissions)
 - Dark mode chart legend color fix
 - Curve baseline alignment
@@ -339,7 +332,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Toggle UI added to Settings screen with `SwitchListTile.adaptive` and `Icons.dark_mode`
 - Localization: `settingsDarkMode` ("Dark Mode" / "Dunkler Modus") and `settingsDarkModeDesc` ("Use dark theme" / "Dunkles Design verwenden")
 - Conditional shadows: card shadows use 0.4 opacity in dark mode, 0.15 in light mode
-- Note: `paywall_screen.dart` deferred to separate subscription feature work (still has hardcoded dark-mode references)
+- Note: legacy note predates the open-model migration; paywall code is removed in v2.x
 
 **v1.34.0 Settings Reorganization**
 - Reorganized settings screen into logical sections: Subscription, Appearance, Data Options, About
@@ -440,7 +433,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 **v1.16.1 Animated Empty States**
 - Added bundled Lottie-based empty, loading, and error illustrations with localized accessibility labels and icon fallbacks in `StateMessageCard`
-- Rolled the new illustration system across dashboard, scanner, product detail, templates, paywall, alerts, and price-update empty states using a shared asset registry for future theming
+- Rolled the new illustration system across dashboard, scanner, product detail, templates, alerts, and price-update empty states using a shared asset registry for future theming
 - Preserved offline reliability with local animation assets and one-shot error playback while keeping future fiat/bitcoin illustration swapping centralized
 
 **v1.16.2 Responsive Chart Sizing**
@@ -599,6 +592,23 @@ final isPremiumProvider = Provider<bool>((ref) {
 - Fully localized (EN + DE)
 - Created `ai_consent_dialog.dart` widget in `core/widgets/`
 
+**v2.0.0 Open Model (User API Keys, No Premium Gate)**
+- Removed RevenueCat, paywall routes/screens, and premium gating for core features
+- Added AI provider selection in Settings (Gemini/OpenAI) with per-provider key storage in SQLite settings table
+- Migrated settings from SharedPreferences to Drift (`settings` table, schema v14), including onboarding flag persistence across backup import
+- Export flow now warns that backups include API keys; factory reset preserves API keys by default
+
+**v2.0.1 Scanner-to-Settings Routing Fix**
+- Fixed broken scanner CTA when API key is missing by routing to dashboard Settings tab via `/home?tab=3`
+- Added query-param-aware dashboard tab initialization so deep links can open a specific tab
+- Added widget test coverage for missing-key scanner behavior (`receipt_scan_button_test.dart`)
+
+**v2.0.2 Open-Model Cleanup + Auto-Backup Hardening**
+- Removed stale premium/paywall localization keys and updated docs/README references to the open model
+- Added automatic SQLite backups into app documents (`Documents/backups/auto`) with retention and optional external folder copy
+- Added Settings controls for auto-backup (enable toggle, manual run, external folder pick/clear, last backup timestamp)
+- Hardened iOS container-path handling: stale app-container external paths are ignored and cleared to prevent `PathAccessException` after reinstall
+
 ---
 
 ### 🔄 In Progress / Partially Complete
@@ -611,7 +621,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### 🐛 Known Issues
 
-*(None currently)*
+- iOS external-folder backup depends on user-selected File Provider permissions; if provider access is revoked, the app keeps local auto-backups and skips the external copy.
 
 ---
 
@@ -640,27 +650,27 @@ final isPremiumProvider = Provider<bool>((ref) {
 
 ### Long-Term (Platform Expansion)
 
-| Feature | Status | Tier |
-|---------|--------|------|
-| AI Weekly Insights | Planned | Premium |
-| Price Forecasts (ML) | Planned | Premium |
-| Home-Screen Widgets | Planned | Free |
-| Family Sharing | Planned | Premium |
-| Cloud Backup (iCloud/GDrive) | Planned | Free |
-| User Auth & Cross-Device Sync | Planned | Premium |
-| Voice Entry | Planned | Premium |
-| Loyalty Card Scanner | Planned | Premium |
-| Seasonal/Location Insights | Planned | Premium |
-| CSV Import | Planned | Free |
-| History Search & Advanced Filters | Planned | Free |
-| Batch Operations in History | Planned | Free |
+| Feature | Status |
+|---------|--------|
+| AI Weekly Insights | Planned |
+| Price Forecasts (ML) | Planned |
+| Home-Screen Widgets | Planned |
+| Family Sharing | Planned |
+| Cloud Backup (iCloud/GDrive) | Planned |
+| User Auth & Cross-Device Sync | Planned |
+| Voice Entry | Planned |
+| Loyalty Card Scanner | Planned |
+| Seasonal/Location Insights | Planned |
+| CSV Import | Planned |
+| History Search & Advanced Filters | Planned |
+| Batch Operations in History | Planned |
 
 ---
 
 ## 10. Production Checklist
 
-- [ ] Replace RevenueCat API key placeholder in `subscription_providers.dart`
-- [ ] Replace Vision API key in `vision_client.dart` (move to backend proxy recommended)
+- [ ] Verify AI provider key UX on iOS/Android and desktop fallback flows
+- [ ] Add integration tests for Settings DB migration from SharedPreferences
 - [ ] Complete onboarding flow
 
 ---
@@ -670,7 +680,7 @@ final isPremiumProvider = Provider<bool>((ref) {
 ```bash
 flutter create --org com.yourdomain inflabasket --platforms ios,android
 cd inflabasket
-flutter pub add flutter_riverpod riverpod_annotation go_router drift sqlite3_flutter_libs path_provider path fl_chart google_fonts dio purchases_flutter camera image_picker
+flutter pub add flutter_riverpod riverpod_annotation go_router drift sqlite3_flutter_libs path_provider path fl_chart google_fonts dio image_picker
 flutter pub add -d build_runner drift_dev riverpod_generator custom_lint riverpod_lint
 dart run build_runner build -d
 ```

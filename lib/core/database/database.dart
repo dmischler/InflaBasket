@@ -56,7 +56,7 @@ class PurchaseEntries extends Table {
 
 /// Per-product price-change alert configuration.
 /// When a new entry is saved and the price rise exceeds [thresholdPercent],
-/// a local notification is triggered (Premium only).
+/// a local notification is triggered.
 @DataClassName('PriceAlert')
 class PriceAlerts extends Table {
   IntColumn get productId => integer().references(Products, #id)();
@@ -308,10 +308,17 @@ class AppDatabase extends _$AppDatabase {
       SettingsCompanion.insert(key: 'ai_provider', value: 'gemini'),
       SettingsCompanion.insert(key: 'gemini_api_key', value: ''),
       SettingsCompanion.insert(key: 'openai_api_key', value: ''),
+      SettingsCompanion.insert(key: 'auto_backup_enabled', value: 'true'),
+      SettingsCompanion.insert(key: 'auto_backup_external_path', value: ''),
+      SettingsCompanion.insert(key: 'auto_backup_last_at', value: ''),
     ];
 
     await batch((batch) {
-      batch.insertAll(settings, defaultSettings);
+      batch.insertAll(
+        settings,
+        defaultSettings,
+        mode: InsertMode.insertOrIgnore,
+      );
     });
   }
 }

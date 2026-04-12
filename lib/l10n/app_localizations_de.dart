@@ -281,27 +281,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsTitle => 'Einstellungen';
 
   @override
-  String get settingsSubscription => 'Abonnement';
-
-  @override
-  String get settingsPremiumActive => 'Premium aktiv';
-
-  @override
-  String get settingsFreeTier => 'Kostenlos';
-
-  @override
-  String get settingsPremiumSubtitle => 'KI-Belegscannen';
-
-  @override
-  String get settingsFreeSubtitle => 'KI-Scannen freischalten';
-
-  @override
-  String get settingsRestore => 'Wiederherstellen';
-
-  @override
-  String get settingsUpgrade => 'Upgrade';
-
-  @override
   String get settingsAppearance => 'Darstellung';
 
   @override
@@ -554,12 +533,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Abwählen was nicht gespeichert werden soll. Namen, Preise, Mengen oder Kategorien antippen zum Bearbeiten.';
 
   @override
-  String get settingsMobileOnly => 'Nur Mobile';
-
-  @override
-  String get settingsDebugUnlock => 'Debug Entsperrung';
-
-  @override
   String get categoryInflationTitle => 'Inflation nach Kategorie';
 
   @override
@@ -725,64 +698,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get settingsDebugPremiumSubtitle =>
-      'Debug: Premium für Tests freigeschaltet.';
-
-  @override
-  String get settingsMobileOnlySubtitle =>
-      'Abonnements sind nur unter iOS und Android verfügbar.';
-
-  @override
-  String get paywallTitle => 'Premium werden';
-
-  @override
-  String get paywallDebugTitle => 'Debug-Modus';
-
-  @override
-  String get paywallDebugMessage =>
-      'Premium-Funktionen sind für Tests freigeschaltet.';
-
-  @override
-  String get paywallBackToApp => 'Zurück zur App';
-
-  @override
-  String get paywallMobileOnlyTitle => 'Nur Mobile';
-
-  @override
-  String get paywallMobileOnlyMessage =>
-      'Abonnements sind nur unter iOS und Android verfügbar. Auf dem Desktop sind alle Funktionen freigeschaltet.';
-
-  @override
-  String get paywallNoOffersTitle => 'Keine Angebote verfügbar';
-
-  @override
-  String get paywallNoOffersMessage =>
-      'Abonnement-Angebote konnten nicht geladen werden. Bitte später erneut versuchen.';
-
-  @override
-  String get paywallProductTitle => 'InflaBasket Premium';
-
-  @override
-  String get paywallFeatures =>
-      'KI-Belegscannen • Automatische Kategorisierung • Preisalarme';
-
-  @override
-  String get paywallWelcome => 'Willkommen bei Premium!';
-
-  @override
-  String get paywallRestorePurchases => 'Käufe wiederherstellen';
-
-  @override
-  String get paywallLoadingOffersTitle => 'Angebote werden geladen';
-
-  @override
-  String get paywallLoadingOffersMessage =>
-      'Verfügbare Abonnements werden abgerufen.';
-
-  @override
-  String get paywallLoadOffersError => 'Angebote konnten nicht geladen werden';
-
-  @override
   String categoryTotalSpend(String amount) {
     return 'Gesamt: $amount';
   }
@@ -924,10 +839,42 @@ class AppLocalizationsDe extends AppLocalizations {
   String get addManually => 'Manuell hinzufügen';
 
   @override
-  String get premiumFeature => 'Premium-Funktion';
+  String get autoBackupEnable => 'Automatische Backups aktivieren';
 
   @override
-  String get notAvailableDesktop => 'Auf Desktop nicht verfügbar';
+  String get autoBackupEnableDesc =>
+      'Lokale rotierende Backups behalten und optional in einen externen Ordner kopieren.';
+
+  @override
+  String get autoBackupBackupNow => 'Jetzt sichern';
+
+  @override
+  String get autoBackupNoBackupYet => 'Noch kein automatisches Backup';
+
+  @override
+  String autoBackupLastBackup(String dateTime) {
+    return 'Letztes Backup: $dateTime';
+  }
+
+  @override
+  String get autoBackupManualSuccess => 'Backup erfolgreich abgeschlossen';
+
+  @override
+  String get autoBackupManualFailure =>
+      'Backup konnte nicht abgeschlossen werden';
+
+  @override
+  String get autoBackupExternalFolder => 'Externer Backup-Ordner';
+
+  @override
+  String get autoBackupExternalFolderNotSet => 'Nicht gesetzt';
+
+  @override
+  String get autoBackupExternalFolderHint =>
+      'Wählen Sie einen Ordner ausserhalb des App-Containers (iCloud Drive, Dateien, SD-Karte oder Netzlaufwerk), damit Backups nach einer Deinstallation erhalten bleiben.';
+
+  @override
+  String get autoBackupFolderCleared => 'Externer Backup-Ordner entfernt';
 
   @override
   String get exportFormatTitle => 'Exportformat wählen';

@@ -137,8 +137,7 @@ lib/
     │   ├── application/               # Riverpod providers
     │   └── presentation/               # UI screens
     ├── entry_management/              # Purchase entry CRUD
-    ├── ai_scanner/                   # Receipt scanning (Premium)
-    ├── subscription/                  # RevenueCat paywall
+    ├── ai_scanner/                   # Receipt scanning (user API key)
     └── settings/                     # App settings
 ```
 
@@ -150,23 +149,9 @@ lib/
 | `drift` | Local SQLite database |
 | `go_router` | Declarative routing |
 | `fl_chart` | Charts and graphs |
-| `purchases_flutter` | RevenueCat subscriptions |
+| `google_generative_ai` / `dart_openai` | AI receipt parsing (user-provided API keys) |
 | `dio` | HTTP client for AI APIs |
 | `image_picker` | Camera/gallery access |
-
----
-
-## Environment Variables
-
-Create a `.env` file in the project root for API keys:
-
-```env
-# OpenAI API (for receipt scanning)
-OPENAI_API_KEY=sk-...
-
-# RevenueCat (optional - uses test mode by default)
-REVENUECAT_API_KEY=...
-```
 
 ---
 
@@ -199,20 +184,11 @@ Error: Generator ... was not found
 ```
 **Fix:** Run `flutter pub get` then `dart run build_runner build -d`
 
-### RevenueCat on Linux
-```
-MissingPluginException: purchases_flutter
-```
-**Expected:** RevenueCat only works on iOS/Android. The app gracefully falls back to free tier on Linux.
-
----
-
 ## Additional Resources
 
 - [Flutter Documentation](https://docs.flutter.dev/)
 - [Riverpod Docs](https://riverpod.dev/)
 - [Drift (SQLite) Docs](https://drift.so/)
-- [RevenueCat Docs](https://docs.revenuecat.com/)
 
 ---
 

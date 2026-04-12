@@ -153,11 +153,4 @@ class _LuxuryTextFieldState extends State<LuxuryTextField> {
       ),
     );
   }
-
-  static void dismissKeyboard(BuildContext context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
-      currentFocus.focusedChild!.unfocus();
-    }
-  }
 }

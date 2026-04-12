@@ -253,57 +253,6 @@ class _OverviewTabState extends ConsumerState<OverviewTab> {
     return const SizedBox.shrink();
   }
 
-  void _showOverlaySourceInfo(
-    BuildContext context,
-    AppLocalizations l,
-    ComparisonOverlayType overlayType,
-    String currency,
-  ) {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                overlayType == ComparisonOverlayType.snbCoreInflation
-                    ? l.cpiSourceTitle
-                    : l.moneySupplySourceTitle,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _overlaySourceDescription(l, overlayType, currency),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  String _overlaySourceDescription(
-    AppLocalizations l,
-    ComparisonOverlayType overlayType,
-    String currency,
-  ) {
-    return switch (overlayType) {
-      ComparisonOverlayType.moneySupply => switch (currency) {
-          'CHF' => l.moneySupplySourceChfDescription,
-          'EUR' => l.moneySupplySourceEurDescription,
-          'USD' => l.moneySupplySourceUsdDescription,
-          'GBP' => l.moneySupplySourceGbpDescription,
-          _ => l.moneySupplySourceUnavailableDescription,
-        },
-      ComparisonOverlayType.snbCoreInflation => l.cpiSourceChfDescription,
-    };
-  }
-
   Widget _buildChartLegend(BuildContext context, AppLocalizations l,
       ComparisonOverlayType overlayType, bool isLuxeMode) {
     return Row(

@@ -261,27 +261,6 @@
   "settingsTitle": "Settings",
   "@settingsTitle": { "description": "Settings screen AppBar title" },
 
-  "settingsSubscription": "Subscription",
-  "@settingsSubscription": { "description": "Settings section header" },
-
-  "settingsPremiumActive": "Premium Active",
-  "@settingsPremiumActive": { "description": "Status for active premium subscription" },
-
-  "settingsFreeTier": "Free Tier",
-  "@settingsFreeTier": { "description": "Status for free tier" },
-
-  "settingsPremiumSubtitle": "AI receipt scanning",
-  "@settingsPremiumSubtitle": { "description": "Subtitle for premium status" },
-
-  "settingsFreeSubtitle": "Unlock AI scanning",
-  "@settingsFreeSubtitle": { "description": "Subtitle for free tier status" },
-
-  "settingsRestore": "Restore",
-  "@settingsRestore": { "description": "Button to restore purchases" },
-
-  "settingsUpgrade": "Upgrade",
-  "@settingsUpgrade": { "description": "Button to upgrade to premium" },
-
   "settingsAppearance": "Appearance",
   "@settingsAppearance": { "description": "Settings section header for UI settings" },
 
@@ -539,12 +518,6 @@
   "scannerReviewInstructions": "Uncheck items you don't want to save. Tap names, prices, quantities, or categories to edit.",
   "@scannerReviewInstructions": { "description": "Instructions on receipt review screen" },
 
-  "settingsMobileOnly": "Mobile only",
-  "@settingsMobileOnly": { "description": "Badge for mobile-only features" },
-
-  "settingsDebugUnlock": "Debug unlock",
-  "@settingsDebugUnlock": { "description": "Badge for debug premium unlock" },
-
   "categoryInflationTitle": "Inflation by Category",
   "@categoryInflationTitle": { "description": "Title for inflation by category section" },
 
@@ -716,57 +689,6 @@
     "placeholders": { "error": { "type": "String" } }
   },
 
-  "settingsDebugPremiumSubtitle": "Debug: Premium unlocked for testing.",
-  "@settingsDebugPremiumSubtitle": { "description": "Debug subtitle on the subscription card" },
-
-  "settingsMobileOnlySubtitle": "Subscriptions are only available on iOS and Android.",
-  "@settingsMobileOnlySubtitle": { "description": "Unsupported-platform subtitle on the subscription card" },
-
-  "paywallTitle": "Go Premium",
-  "@paywallTitle": { "description": "AppBar title for paywall screen" },
-
-  "paywallDebugTitle": "Debug Mode",
-  "@paywallDebugTitle": { "description": "Title for debug paywall state" },
-
-  "paywallDebugMessage": "Premium features are unlocked for testing.",
-  "@paywallDebugMessage": { "description": "Message for debug paywall state" },
-
-  "paywallBackToApp": "Back to App",
-  "@paywallBackToApp": { "description": "Action button to close the paywall" },
-
-  "paywallMobileOnlyTitle": "Mobile Only",
-  "@paywallMobileOnlyTitle": { "description": "Title for unsupported-platform paywall state" },
-
-  "paywallMobileOnlyMessage": "Subscriptions are only available on iOS and Android. All features are unlocked on desktop.",
-  "@paywallMobileOnlyMessage": { "description": "Message for unsupported-platform paywall state" },
-
-  "paywallNoOffersTitle": "No Offers Available",
-  "@paywallNoOffersTitle": { "description": "Title when no subscription offers are available" },
-
-  "paywallNoOffersMessage": "Could not load subscription offers. Please try again later.",
-  "@paywallNoOffersMessage": { "description": "Message when no subscription offers are available" },
-
-  "paywallProductTitle": "InflaBasket Premium",
-  "@paywallProductTitle": { "description": "Main premium headline" },
-
-  "paywallFeatures": "AI receipt scanning • Auto-categorization • Price alerts",
-  "@paywallFeatures": { "description": "Premium features list" },
-
-  "paywallWelcome": "Welcome to Premium!",
-  "@paywallWelcome": { "description": "Snackbar after successful premium purchase" },
-
-  "paywallRestorePurchases": "Restore Purchases",
-  "@paywallRestorePurchases": { "description": "Button to restore purchases" },
-
-  "paywallLoadingOffersTitle": "Loading Offers",
-  "@paywallLoadingOffersTitle": { "description": "Loading title for offers" },
-
-  "paywallLoadingOffersMessage": "Fetching available subscription plans.",
-  "@paywallLoadingOffersMessage": { "description": "Loading message for offers" },
-
-  "paywallLoadOffersError": "Could Not Load Offers",
-  "@paywallLoadOffersError": { "description": "Error title for offers" },
-
   "categoryTotalSpend": "Total: {amount}",
   "@categoryTotalSpend": {
     "description": "Subtitle line for category spend totals",
@@ -910,11 +832,41 @@
   "addManually": "Add Manually",
   "@addManually": { "description": "Option to add entry manually" },
 
-  "premiumFeature": "Premium feature",
-  "@premiumFeature": { "description": "Label for premium-gated features" },
+  "autoBackupEnable": "Enable automatic backups",
+  "@autoBackupEnable": { "description": "Toggle label for automatic database backup" },
 
-  "notAvailableDesktop": "Not available on desktop",
-  "@notAvailableDesktop": { "description": "Message when feature unavailable on desktop" },
+  "autoBackupEnableDesc": "Keep local rolling backups and optionally copy them to an external folder.",
+  "@autoBackupEnableDesc": { "description": "Description for automatic backup toggle" },
+
+  "autoBackupBackupNow": "Back up now",
+  "@autoBackupBackupNow": { "description": "Action to trigger immediate auto backup" },
+
+  "autoBackupNoBackupYet": "No automatic backup yet",
+  "@autoBackupNoBackupYet": { "description": "Status when no automatic backup has run yet" },
+
+  "autoBackupLastBackup": "Last backup: {dateTime}",
+  "@autoBackupLastBackup": {
+    "description": "Status line showing timestamp of last automatic backup",
+    "placeholders": { "dateTime": { "type": "String" } }
+  },
+
+  "autoBackupManualSuccess": "Backup completed successfully",
+  "@autoBackupManualSuccess": { "description": "Snackbar after successful manual backup run" },
+
+  "autoBackupManualFailure": "Backup could not be completed",
+  "@autoBackupManualFailure": { "description": "Snackbar when manual backup run fails" },
+
+  "autoBackupExternalFolder": "External backup folder",
+  "@autoBackupExternalFolder": { "description": "Label for external backup directory chooser" },
+
+  "autoBackupExternalFolderNotSet": "Not set",
+  "@autoBackupExternalFolderNotSet": { "description": "Placeholder when no external backup folder is configured" },
+
+  "autoBackupExternalFolderHint": "Choose a folder outside the app container (iCloud Drive, Files, SD card, or network storage) so backups remain available after app uninstall.",
+  "@autoBackupExternalFolderHint": { "description": "Guidance explaining why users should choose an external backup folder" },
+
+  "autoBackupFolderCleared": "External backup folder removed",
+  "@autoBackupFolderCleared": { "description": "Snackbar after clearing configured external backup folder" },
 
   "exportFormatTitle": "Choose Export Format",
   "@exportFormatTitle": { "description": "Dialog title for export format selection" },

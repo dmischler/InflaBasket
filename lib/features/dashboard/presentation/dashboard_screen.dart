@@ -13,14 +13,30 @@ import 'package:inflabasket/features/settings/presentation/settings_screen.dart'
 import 'package:inflabasket/l10n/app_localizations.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
-  const DashboardScreen({super.key});
+  final int initialIndex;
+
+  const DashboardScreen({super.key, this.initialIndex = 0});
 
   @override
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
+
+  @override
+  void didUpdateWidget(covariant DashboardScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialIndex != widget.initialIndex) {
+      _currentIndex = widget.initialIndex;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
