@@ -100,15 +100,65 @@ flutter build appbundle --release
 
 Output: `build/app/outputs/flutter-apk/app.apk`
 
-### iOS
+### iOS (Sideloading with Sideloadly)
 
-```bash
-# For simulator (no signing required)
-flutter build ios --simulator --no-codesign
+Sideloadly lets you install apps on iPhone/iPad without a paid Apple Developer account ($99/year). It uses your free Apple ID for code signing.
 
-# For device (requires Apple Developer account)
-flutter build ios --release
-```
+#### Prerequisites
+
+- [Sideloadly](https://sideloadly.fun/) installed on macOS or Windows
+- iPhone/iPad running iOS 13 or later
+- USB cable to connect iPhone to computer
+- Free Apple ID
+
+#### Build Steps
+
+1. **Build the iOS app:**
+   ```bash
+   flutter build ios --release --no-codesign
+   ```
+
+2. **Export to .ipa:**
+   ```bash
+   xcodebuild -exportArchive -archive_path build/ios/archive/Runner.xcarchive \
+     -exportOptionsPlist ios/ExportOptions.plist \
+     -exportPath build/ios/release
+   ```
+   Or use Flutter's built-in export:
+   ```bash
+   flutter build ios --release
+   # The .ipa will be in build/ios/iphoneos/Runner.ipa
+   ```
+
+3. **Sideload with Sideloadly:**
+   - Connect your iPhone via USB
+   - Open Sideloadly on your computer
+   - Select the exported `.ipa` file
+   - Enter your Apple ID email and password
+   - Click **Start** to install the app
+
+4. **Trust the app on your iPhone:**
+   - Go to **Settings → General → VPN & Device Management**
+   - Find your Apple ID under "Developer App"
+   - Tap it and select **Trust**
+
+#### Certificate Renewal
+
+The free Apple ID signing certificate expires after **7 days**. To continue using the app:
+1. Reconnect your iPhone to your computer
+2. Open Sideloadly with the same .ipa
+3. Click Start again - the app will be re-signed automatically
+
+#### Limitations
+
+- No push notifications
+- Certificate expires every 7 days (requires re-sideloading)
+- One app per Apple ID at a time (use different Apple IDs for multiple apps)
+
+#### Resources
+
+- [Sideloadly Download](https://sideloadly.fun/)
+- [Official Sideloadly Usage Guide](https://sideloadly.fun/#how-to-use)
 
 ### Linux Desktop
 
