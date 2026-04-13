@@ -11,7 +11,8 @@ import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/widgets/store_logo_widget.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
-import 'package:inflabasket/features/entry_management/data/entry_repository.dart';
+import 'package:inflabasket/features/entry_management/data/entry_repository.dart'
+    hide allStoresProvider;
 import 'package:inflabasket/features/settings/application/settings_provider.dart';
 import 'package:inflabasket/l10n/app_localizations.dart';
 import 'package:inflabasket/core/widgets/tabular_amount_text.dart';
@@ -62,6 +63,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     final l10n = AppLocalizations.of(context)!;
     final entries = ref.watch(filteredEntriesProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
+    final storesAsync = ref.watch(allStoresProvider);
     final filter = ref.watch(historyFilterControllerProvider);
     final settings = ref.watch(settingsControllerProvider);
 
@@ -127,7 +129,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
                 tooltip: l10n.filter,
                 icon: const Icon(Icons.filter_list),
                 onPressed: () => _showFilterSheet(
-                    context, l10n, ref, categoriesAsync, filter),
+                    context, l10n, ref, categoriesAsync, storesAsync, filter),
               ),
             ],
           ),
@@ -149,6 +151,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
       final filter = ref.watch(historyFilterControllerProvider);
       final hasActiveFilter = filter.range != HistoryDateRange.allTime ||
           filter.categoryId != null ||
+          filter.storeName != null ||
           (filter.searchQuery != null && filter.searchQuery!.isNotEmpty);
       return StateMessageCard(
         icon: hasActiveFilter ? Icons.filter_alt_off : Icons.receipt_long,
@@ -436,6 +439,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     AppLocalizations l10n,
     WidgetRef ref,
     AsyncValue<List<Category>> categoriesAsync,
+    AsyncValue<List<String>> storesAsync,
     HistoryFilter filter,
   ) {
     showModalBottomSheet(
@@ -514,6 +518,34 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
                 loading: () => const CircularProgressIndicator(),
                 error: (e, st) =>
                     Text(sheetL10n.errorLoadingCategories(e.toString())),
+              ),
+              const SizedBox(height: 16),
+              Text(sheetL10n.filterStore,
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              storesAsync.when(
+                data: (stores) {
+                  return DropdownButtonFormField<String?>(
+                    initialValue: filter.storeName,
+                    decoration:
+                        const InputDecoration(border: OutlineInputBorder()),
+                    items: [
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text(sheetL10n.filterAllStores),
+                      ),
+                      ...stores.map((s) => DropdownMenuItem<String?>(
+                            value: s,
+                            child: Text(s),
+                          )),
+                    ],
+                    onChanged: (value) => ref
+                        .read(historyFilterControllerProvider.notifier)
+                        .setStore(value),
+                  );
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (e, st) => Text(e.toString()),
               ),
               const SizedBox(height: 16),
               Align(

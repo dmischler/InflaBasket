@@ -267,6 +267,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get filterAllCategories => 'Alle Kategorien';
 
   @override
+  String get filterStore => 'Geschäft';
+
+  @override
+  String get filterAllStores => 'Alle Geschäfte';
+
+  @override
   String get applyFilters => 'Anwenden';
 
   @override

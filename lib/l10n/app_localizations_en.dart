@@ -263,6 +263,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterAllCategories => 'All Categories';
 
   @override
+  String get filterStore => 'Store';
+
+  @override
+  String get filterAllStores => 'All Stores';
+
+  @override
   String get applyFilters => 'Apply';
 
   @override

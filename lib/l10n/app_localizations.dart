@@ -590,6 +590,18 @@ abstract class AppLocalizations {
   /// **'All Categories'**
   String get filterAllCategories;
 
+  /// Section header for store filter
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get filterStore;
+
+  /// Option for no store filter
+  ///
+  /// In en, this message translates to:
+  /// **'All Stores'**
+  String get filterAllStores;
+
   /// Button to apply filters
   ///
   /// In en, this message translates to:

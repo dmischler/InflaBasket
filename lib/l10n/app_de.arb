@@ -134,6 +134,8 @@
   "filterAllTime": "Gesamter Zeitraum",
   "filterCategory": "Kategorie",
   "filterAllCategories": "Alle Kategorien",
+  "filterStore": "Geschäft",
+  "filterAllStores": "Alle Geschäfte",
   "applyFilters": "Anwenden",
   "clearFilters": "Löschen",
   "overviewTitle": "Ø Jahresinflation",

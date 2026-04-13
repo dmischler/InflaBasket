@@ -50,31 +50,36 @@ enum HistoryDateRange { last30Days, last6Months, allTime }
 /// Using a plain `null` default in `copyWith` makes it impossible to
 /// distinguish "not provided" from "set to null".
 const _clearCategory = Object();
+const _clearStore = Object();
 
 class HistoryFilter {
   final HistoryDateRange range;
   final int? categoryId;
+  final String? storeName;
   final String? searchQuery;
 
   const HistoryFilter({
     this.range = HistoryDateRange.allTime,
     this.categoryId,
+    this.storeName,
     this.searchQuery,
   });
 
   HistoryFilter copyWith({
     HistoryDateRange? range,
     Object? categoryId = _clearCategory,
+    Object? storeName = _clearStore,
     String? searchQuery,
     bool clearSearch = false,
   }) {
     return HistoryFilter(
       range: range ?? this.range,
-      // If caller passed categoryId explicitly (even null), use it;
-      // otherwise keep the current value.
       categoryId: identical(categoryId, _clearCategory)
           ? this.categoryId
           : categoryId as int?,
+      storeName: identical(storeName, _clearStore)
+          ? this.storeName
+          : storeName as String?,
       searchQuery: clearSearch ? null : (searchQuery ?? this.searchQuery),
     );
   }
@@ -91,6 +96,10 @@ class HistoryFilterController extends _$HistoryFilterController {
 
   void setCategory(int? categoryId) {
     state = HistoryFilter(range: state.range, categoryId: categoryId);
+  }
+
+  void setStore(String? storeName) {
+    state = state.copyWith(storeName: storeName);
   }
 
   void setSearchQuery(String? query) {
@@ -130,6 +139,8 @@ List<EntryWithDetails> filteredEntries(FilteredEntriesRef ref) {
         cutoff == null || entry.entry.purchaseDate.isAfter(cutoff);
     final matchesCategory =
         filter.categoryId == null || entry.category.id == filter.categoryId;
+    final matchesStore =
+        filter.storeName == null || entry.entry.storeName == filter.storeName;
 
     bool matchesSearch = true;
     if (useFuzzySearch) {
@@ -140,7 +151,7 @@ List<EntryWithDetails> filteredEntries(FilteredEntriesRef ref) {
       matchesSearch = score >= 70 || substringMatch;
     }
 
-    return matchesDate && matchesCategory && matchesSearch;
+    return matchesDate && matchesCategory && matchesStore && matchesSearch;
   }).toList();
 }
 

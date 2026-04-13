@@ -249,6 +249,12 @@
   "filterAllCategories": "All Categories",
   "@filterAllCategories": { "description": "Option for no category filter" },
 
+  "filterStore": "Store",
+  "@filterStore": { "description": "Section header for store filter" },
+
+  "filterAllStores": "All Stores",
+  "@filterAllStores": { "description": "Option for no store filter" },
+
   "applyFilters": "Apply",
   "@applyFilters": { "description": "Button to apply filters" },
 
