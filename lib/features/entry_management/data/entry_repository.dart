@@ -259,6 +259,11 @@ class EntryRepository {
     return stores.whereType<String>().toSet().toList()..sort();
   }
 
+  Future<void> updateProductCategory(int productId, int categoryId) async {
+    await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
+        .write(ProductsCompanion(categoryId: Value(categoryId)));
+  }
+
   Future<void> updateProductStore(int productId, String storeName) async {
     await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
         .write(ProductsCompanion(storeName: Value(storeName)));

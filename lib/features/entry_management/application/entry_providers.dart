@@ -414,6 +414,11 @@ class AddEntryController extends _$AddEntryController {
             notes: notes,
           ),
         );
+
+        // Update product category if it changed
+        if (candidateProduct != null && candidateProduct.categoryId != catId) {
+          await repo.updateProductCategory(productId, catId);
+        }
       } else {
         await repo.addPurchaseEntry(
           productId: productId,
