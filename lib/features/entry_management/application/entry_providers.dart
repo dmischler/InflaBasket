@@ -247,8 +247,8 @@ List<ChartTimeRange> availableTimeRanges(Iterable<EntryWithDetails> entries) {
     return [ChartTimeRange.custom];
   }
 
-  final grouped =
-      groupBy<EntryWithDetails, int>(entryList, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entryList, (e) => '${e.product.id}_${e.entry.storeName}');
 
   bool hasSpan(double years) {
     for (final productEntries in grouped.values) {

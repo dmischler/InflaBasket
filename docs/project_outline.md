@@ -115,6 +115,9 @@ lib/
   - **Baseline**: closest entry BEFORE the selected range start
   - **Current**: latest entry INSIDE the selected range
   - Both entries must have compatible units.
+- **Store separation**: Inflation is calculated per (product, store) combination.
+  Entries for the same product at different stores are tracked as separate
+  inflation series. This prevents cross-store price mixing.
 
 `normalizedUnitPrice = price / (quantity × toBaseMultiplier)`
 
@@ -206,6 +209,7 @@ Supported models:
 
 **Analytics & Dashboard**
 - Inflation calculation engine (item, category, basket levels)
+- Store-separated inflation (per product per store, not per product only)
 - Line chart (basket index history), Bar chart (category comparison)
 - Top inflators/deflators list
 - Date range & category filtering
@@ -624,6 +628,17 @@ Supported models:
 - Removed `AiProvider` enum, `geminiApiKey`/`openaiApiKey` fields from `AppSettings`; added `activeApiKeyProvider` and `allApiKeysProvider` Riverpod providers
 - `ReceiptScanButton` now uses `activeApiKeyProvider` instead of `settings.hasApiKey`
 - Factory reset preserves keys from `api_keys` table instead of settings
+
+**v2.0.5 Store-Separated Inflation Calculation**
+- Inflation is now calculated per (product, store) instead of per product only
+- Entries for the same product at different stores are tracked as separate inflation series
+- Prevents cross-store price mixing that produced incorrect inflation rates
+- All groupBy logic in inflation providers now uses composite key `(productId, storeName)`
+- `TrackedProduct` name displays include store (e.g., "Milk (Coop)")
+- `ItemInflation` and `ItemInflationSats` classes now include `storeName` field
+- `InflationListItem` base class exposes `storeName` for display in inflation lists
+- `categoryInflationList` spend tracking updated to use store-aware composite keys
+- `availableTimeRanges` in entry providers also uses store-aware grouping
 
 ---
 

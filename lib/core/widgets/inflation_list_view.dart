@@ -105,7 +105,7 @@ class InflationListView extends StatelessWidget {
             ? const EdgeInsets.symmetric(horizontal: 16)
             : EdgeInsets.zero,
         title: Text(
-          item.product.name,
+          '${item.product.name} (${item.storeName})',
           style:
               isLuxeMode ? const TextStyle(fontWeight: FontWeight.w600) : null,
         ),

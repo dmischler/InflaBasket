@@ -30,6 +30,7 @@ class ItemInflation {
   ItemInflation({
     required this.product,
     required this.category,
+    required this.storeName,
     required this.baseUnitPrice,
     required this.currentUnitPrice,
     required this.baseUnit,
@@ -40,6 +41,7 @@ class ItemInflation {
 
   final Product product;
   final Category category;
+  final String storeName;
   final double baseUnitPrice;
   final double currentUnitPrice;
   final UnitType baseUnit;
@@ -52,6 +54,7 @@ class ItemInflationSats {
   ItemInflationSats({
     required this.product,
     required this.category,
+    required this.storeName,
     required this.baseSatsPrice,
     required this.currentSatsPrice,
     required this.baseUnit,
@@ -63,6 +66,7 @@ class ItemInflationSats {
 
   final Product product;
   final Category category;
+  final String storeName;
   final int baseSatsPrice;
   final int currentSatsPrice;
   final UnitType baseUnit;
@@ -77,6 +81,7 @@ sealed class InflationListItem {
 
   Product get product;
   Category get category;
+  String get storeName;
   double get inflationPercent;
   bool get isPartialPeriod;
   UnitType get baseUnit;
@@ -92,6 +97,9 @@ class FiatInflationItem extends InflationListItem {
 
   @override
   Category get category => _item.category;
+
+  @override
+  String get storeName => _item.storeName;
 
   @override
   double get inflationPercent => _item.inflationPercent;
@@ -119,6 +127,9 @@ class SatsInflationItem extends InflationListItem {
 
   @override
   Category get category => _item.category;
+
+  @override
+  String get storeName => _item.storeName;
 
   @override
   double get inflationPercent => _item.inflationPercent;
@@ -276,7 +287,8 @@ List<YearlyInflationEntry> entriesForYearlyInflation(
   if (entries.isEmpty) return [];
 
   final range = ref.watch(activeInflationRangeProvider);
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final result = <YearlyInflationEntry>[];
 
   for (final productEntries in grouped.values) {
@@ -311,7 +323,8 @@ List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
   final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return const [];
 
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final products = <TrackedProduct>[];
   for (final productEntries in grouped.values) {
     final first = productEntries.first;
@@ -327,7 +340,7 @@ List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
     if (priceHistory.first.date == priceHistory.last.date) continue;
 
     products.add(TrackedProduct(
-      name: first.product.name,
+      name: '${first.product.name} (${first.entry.storeName})',
       isActive: true,
       priceHistory: priceHistory,
     ));
@@ -387,7 +400,8 @@ YearlyInflationSummary overallYearlyInflationSummary(
   final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return const YearlyInflationSummary.empty();
 
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final yearlyRates = <double>[];
 
   for (final productEntries in grouped.values) {
@@ -467,7 +481,8 @@ List<ItemInflation> overallItemInflationList(OverallItemInflationListRef ref) {
   final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return [];
 
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final result = <ItemInflation>[];
 
   for (final list in grouped.values) {
@@ -497,6 +512,7 @@ List<ItemInflation> overallItemInflationList(OverallItemInflationListRef ref) {
     result.add(ItemInflation(
       product: first.product,
       category: first.category,
+      storeName: first.entry.storeName,
       baseUnitPrice: basePrice,
       currentUnitPrice: currentPrice,
       baseUnit: unitTypeFromString(base.entry.unit),
@@ -515,7 +531,8 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
   final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return [];
 
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final result = <ItemInflation>[];
 
   for (final list in grouped.values) {
@@ -545,6 +562,7 @@ List<ItemInflation> itemInflationList(ItemInflationListRef ref) {
     result.add(ItemInflation(
       product: first.product,
       category: first.category,
+      storeName: first.entry.storeName,
       baseUnitPrice: basePrice,
       currentUnitPrice: currentPrice,
       baseUnit: unitTypeFromString(base.entry.unit),
@@ -564,10 +582,10 @@ List<CategoryInflation> categoryInflationList(CategoryInflationListRef ref) {
   final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (items.isEmpty || entries.isEmpty) return [];
 
-  final spendByProduct = <int, double>{};
+  final spendByProductStore = <String, double>{};
   for (final e in entries) {
-    spendByProduct[e.product.id] =
-        (spendByProduct[e.product.id] ?? 0) + e.entry.price;
+    final key = '${e.product.id}_${e.entry.storeName}';
+    spendByProductStore[key] = (spendByProductStore[key] ?? 0) + e.entry.price;
   }
 
   final grouped = groupBy<ItemInflation, int>(items, (i) => i.category.id);
@@ -577,7 +595,7 @@ List<CategoryInflation> categoryInflationList(CategoryInflationListRef ref) {
     var spend = 0.0;
     var weighted = 0.0;
     for (final i in group) {
-      final s = spendByProduct[i.product.id] ?? 0;
+      final s = spendByProductStore['${i.product.id}_${i.storeName}'] ?? 0;
       spend += s;
       weighted += i.inflationPercent * (s <= 0 ? 1 : s);
     }
@@ -605,7 +623,8 @@ Future<List<ItemInflationSats>> overallItemInflationListSats(
   if (entries.isEmpty) return [];
   final btc = await ref.watch(btcPriceCacheProvider.future);
 
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final out = <ItemInflationSats>[];
   for (final list in grouped.values) {
     final sorted = List<EntryWithDetails>.from(list)
@@ -645,6 +664,7 @@ Future<List<ItemInflationSats>> overallItemInflationListSats(
     out.add(ItemInflationSats(
       product: first.product,
       category: first.category,
+      storeName: first.entry.storeName,
       baseSatsPrice: baseSats,
       currentSatsPrice: currentSats,
       baseUnit: unitTypeFromString(base.entry.unit),
@@ -666,7 +686,8 @@ Future<List<ItemInflationSats>> itemInflationListSats(
   if (entries.isEmpty) return [];
   final btc = await ref.watch(btcPriceCacheProvider.future);
 
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final out = <ItemInflationSats>[];
   for (final list in grouped.values) {
     final sorted = List<EntryWithDetails>.from(list)
@@ -706,6 +727,7 @@ Future<List<ItemInflationSats>> itemInflationListSats(
     out.add(ItemInflationSats(
       product: first.product,
       category: first.category,
+      storeName: first.entry.storeName,
       baseSatsPrice: baseSats,
       currentSatsPrice: currentSats,
       baseUnit: unitTypeFromString(base.entry.unit),
@@ -734,7 +756,8 @@ Future<YearlyInflationSummary> overallYearlyInflationSummarySats(
   if (entries.isEmpty) return const YearlyInflationSummary.empty();
 
   final btc = await ref.watch(btcPriceCacheProvider.future);
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final yearlyRates = <double>[];
 
   for (final productEntries in grouped.values) {
@@ -847,7 +870,8 @@ Future<List<MonthlyIndex>> dynamicLaspeyresIndexSats(
   if (entries.isEmpty) return [];
   final btc = await ref.watch(btcPriceCacheProvider.future);
 
-  final grouped = groupBy<EntryWithDetails, int>(entries, (e) => e.product.id);
+  final grouped = groupBy<EntryWithDetails, String>(
+      entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final products = <TrackedProduct>[];
   for (final list in grouped.values) {
     final first = list.first;
@@ -869,7 +893,9 @@ Future<List<MonthlyIndex>> dynamicLaspeyresIndexSats(
     if (history.first.date == history.last.date) continue;
 
     products.add(TrackedProduct(
-        name: first.product.name, isActive: true, priceHistory: history));
+        name: '${first.product.name} (${first.entry.storeName})',
+        isActive: true,
+        priceHistory: history));
   }
 
   if (products.isEmpty) return [];
