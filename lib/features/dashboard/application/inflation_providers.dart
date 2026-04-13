@@ -323,11 +323,13 @@ List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
   final entries = ref.watch(entriesWithDetailsProvider).valueOrNull ?? [];
   if (entries.isEmpty) return const [];
 
+  final settings = ref.watch(settingsControllerProvider);
+  final gapThresholdDays = settings.priceUpdateReminderMonths * 30.44;
+
   final grouped = groupBy<EntryWithDetails, String>(
       entries, (e) => '${e.product.id}_${e.entry.storeName}');
   final products = <TrackedProduct>[];
   for (final productEntries in grouped.values) {
-    final first = productEntries.first;
     final priceHistory = productEntries
         .map((e) => PriceEntry(
               date: e.entry.purchaseDate,
@@ -336,11 +338,20 @@ List<TrackedProduct> trackedProducts(TrackedProductsRef ref) {
         .where((e) => e.price > 0 && e.price.isFinite)
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
+
     if (priceHistory.length < 2) continue;
-    if (priceHistory.first.date == priceHistory.last.date) continue;
+
+    final baseline = priceHistory.first;
+    final secondEntry = priceHistory[1];
+
+    if (secondEntry.price == baseline.price) {
+      final gapDays = secondEntry.date.difference(baseline.date).inDays;
+      if (gapDays < gapThresholdDays) continue;
+    }
 
     products.add(TrackedProduct(
-      name: '${first.product.name} (${first.entry.storeName})',
+      name:
+          '${productEntries.first.product.name} (${productEntries.first.entry.storeName})',
       isActive: true,
       priceHistory: priceHistory,
     ));

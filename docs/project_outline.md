@@ -115,6 +115,12 @@ lib/
   - **Baseline**: closest entry BEFORE the selected range start
   - **Current**: latest entry INSIDE the selected range
   - Both entries must have compatible units.
+- **Tracked product eligibility**: A product is tracked (contributes to the inflation chart) if:
+  - It has at least 2 price entries, AND
+  - Either the 2nd entry has a different price from the baseline (direct price change), OR
+  - The 2nd entry has the same price but the gap is ≥ `priceUpdateReminderMonths` (default 6 months)
+- **Coverage threshold removed**: The 65% coverage gate has been removed — all dates with at least 1 contributing product are plotted.
+- **Baseline inflation**: The first date's average inflation serves as the 0% baseline for the chart.
 - **Store separation**: Inflation is calculated per (product, store) combination.
   Entries for the same product at different stores are tracked as separate
   inflation series. This prevents cross-store price mixing.
@@ -628,6 +634,12 @@ Supported models:
 - Removed `AiProvider` enum, `geminiApiKey`/`openaiApiKey` fields from `AppSettings`; added `activeApiKeyProvider` and `allApiKeysProvider` Riverpod providers
 - `ReceiptScanButton` now uses `activeApiKeyProvider` instead of `settings.hasApiKey`
 - Factory reset preserves keys from `api_keys` table instead of settings
+
+**v2.4.0 Fix Inflation Chart Single-Point Bug**
+- Removed 65% coverage threshold that was discarding most chart data points
+- Rewrote trackedProducts filter: products tracked if 2nd entry price differs from baseline OR gap ≥ reminderMonths
+- Products with same price as baseline but short gap are now correctly excluded
+- Baseline inflation now uses first date in range instead of first date with ≥65% coverage
 
 **v2.0.5 Store-Separated Inflation Calculation**
 - Inflation is now calculated per (product, store) instead of per product only
