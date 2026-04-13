@@ -82,7 +82,16 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      final client = ref.read(aiClientProvider)!;
+      final client = ref.read(aiClientProvider);
+      if (client == null) {
+        if (!mounted) return;
+        setState(() => _isProcessing = false);
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.settingsConfigureApiKey)),
+        );
+        return;
+      }
       final categories =
           ref.read(categoriesProvider).valueOrNull ?? <Category>[];
       final customCategoryNames = categories

@@ -44,13 +44,21 @@ class ApiKeysRepository {
     required String name,
     required String key,
   }) async {
+    final existingKeys = await _db.select(_db.apiKeys).get();
+    final shouldActivate = existingKeys.isEmpty;
     final id = await _db.into(_db.apiKeys).insert(
           ApiKeysCompanion.insert(
             provider: provider,
             name: name,
             key: key,
+            isActive: Value(shouldActivate),
           ),
         );
+    if (shouldActivate) {
+      await _db.into(_db.settings).insertOnConflictUpdate(
+            SettingsCompanion.insert(key: 'ai_provider', value: provider),
+          );
+    }
     final inserted = await (_db.select(_db.apiKeys)
           ..where((t) => t.id.equals(id)))
         .getSingle();
