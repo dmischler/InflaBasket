@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:inflabasket/core/api/openfoodfacts_client.dart';
 import 'package:inflabasket/core/database/database.dart';
+import 'package:inflabasket/core/localization/category_localization.dart';
 import 'package:inflabasket/core/models/unit.dart';
 import 'package:inflabasket/core/services/store_logo_cache.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
@@ -302,6 +303,14 @@ class _AddEntryScreenState extends ConsumerState<AddEntryScreen> {
     // Set default category if none selected and categories are available
     if (_selectedCategoryName == null && categories.isNotEmpty) {
       _selectedCategoryName = categories.first.name;
+    }
+
+    // Ensure the controller text reflects the selected category
+    if (_categoryController.text.isEmpty && _selectedCategoryName != null) {
+      _categoryController.text = CategoryLocalization.displayNameForContext(
+        context,
+        _selectedCategoryName!,
+      );
     }
 
     return Scaffold(

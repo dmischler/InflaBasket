@@ -851,7 +851,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
       context,
       _selectedCategoryName!,
     );
-    if (_categoryController.text == displayName) {
+    if (_categoryController.text.isEmpty ||
+        _categoryController.text == displayName) {
       setState(() {
         _isEditingCategorySearch = true;
         _categoryController.clear();

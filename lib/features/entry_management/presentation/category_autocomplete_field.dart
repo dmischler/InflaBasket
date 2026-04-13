@@ -65,7 +65,8 @@ class _CategoryAutocompleteFieldState
       context,
       widget.selectedCategoryName!,
     );
-    if (widget.controller.text == displayName) {
+    if (widget.controller.text.isEmpty ||
+        widget.controller.text == displayName) {
       setState(() {
         _isEditingCategorySearch = true;
         widget.controller.clear();
