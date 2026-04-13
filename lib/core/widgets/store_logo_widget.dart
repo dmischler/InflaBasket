@@ -32,8 +32,19 @@ class _StoreLogoWidgetState extends ConsumerState<StoreLogoWidget> {
     _resolveWebsite();
   }
 
+  @override
+  void didUpdateWidget(StoreLogoWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.storeName != widget.storeName ||
+        oldWidget.website != widget.website) {
+      _loadFailed = false;
+      _resolveWebsite();
+    }
+  }
+
   Future<void> _resolveWebsite() async {
     if (widget.website != null && widget.website!.isNotEmpty) {
+      if (!mounted) return;
       setState(() {
         _resolvedWebsite = widget.website;
         _isLoading = false;
@@ -43,6 +54,7 @@ class _StoreLogoWidgetState extends ConsumerState<StoreLogoWidget> {
 
     final cache = ref.read(storeLogoCacheProvider);
     final website = await cache.getWebsite(widget.storeName);
+    if (!mounted) return;
     setState(() {
       _resolvedWebsite = website;
       _isLoading = false;
