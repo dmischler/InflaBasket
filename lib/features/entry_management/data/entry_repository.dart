@@ -251,11 +251,10 @@ class EntryRepository {
   }
 
   Future<List<String>> getAllStores() async {
-    final query = _db.selectOnly(_db.products, distinct: true)
-      ..addColumns([_db.products.storeName])
-      ..where(_db.products.storeName.isNotNull());
+    final query = _db.selectOnly(_db.purchaseEntries, distinct: true)
+      ..addColumns([_db.purchaseEntries.storeName]);
     final stores =
-        await query.map((row) => row.read(_db.products.storeName)).get();
+        await query.map((row) => row.read(_db.purchaseEntries.storeName)).get();
     return stores.whereType<String>().toSet().toList()..sort();
   }
 
