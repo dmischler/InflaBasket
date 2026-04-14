@@ -10,6 +10,7 @@ import 'package:inflabasket/core/utils/sats_converter.dart';
 import 'package:inflabasket/core/widgets/state_illustrations.dart';
 import 'package:inflabasket/core/widgets/state_message_card.dart';
 import 'package:inflabasket/core/widgets/store_logo_widget.dart';
+import 'package:inflabasket/features/dashboard/application/inflation_providers.dart';
 import 'package:inflabasket/features/entry_management/application/entry_providers.dart';
 import 'package:inflabasket/features/entry_management/data/entry_repository.dart'
     hide allStoresProvider;
@@ -66,6 +67,9 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     final storesAsync = ref.watch(allStoresProvider);
     final filter = ref.watch(historyFilterControllerProvider);
     final settings = ref.watch(settingsControllerProvider);
+    final btcCacheAsync = settings.isBitcoinMode
+        ? ref.watch(btcPriceCacheProvider)
+        : const AsyncData<Map<String, double>>(<String, double>{});
 
     return Column(
       children: [
@@ -135,7 +139,13 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
           ),
         ),
         Expanded(
-          child: _buildEntryList(context, entries, l10n, settings),
+          child: _buildEntryList(
+            context,
+            entries,
+            l10n,
+            settings,
+            btcCacheAsync.valueOrNull ?? const {},
+          ),
         ),
       ],
     );
@@ -146,6 +156,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     List<EntryWithDetails> entries,
     AppLocalizations l10n,
     AppSettings settings,
+    Map<String, double> btcCache,
   ) {
     if (entries.isEmpty) {
       final filter = ref.watch(historyFilterControllerProvider);
@@ -251,6 +262,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
                 dateFormat: dateFormat,
                 currencyFormat: currencyFormat,
                 categoryName: categoryName,
+                btcCache: btcCache,
               ),
             );
           },
@@ -267,6 +279,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     required DateFormat dateFormat,
     required NumberFormat currencyFormat,
     required String categoryName,
+    required Map<String, double> btcCache,
   }) {
     final entry = entryDetails.entry;
     final product = entryDetails.product;
@@ -314,7 +327,7 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
               _formatPrice(entry, settings),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-          _buildUnitPriceLabel(entry, settings.currency),
+          _buildUnitPriceLabel(entry, settings, btcCache),
         ],
       ),
     );
@@ -413,13 +426,33 @@ class _HistoryTabState extends ConsumerState<HistoryTab> {
     }
   }
 
-  Widget _buildUnitPriceLabel(PurchaseEntry entry, String currency) {
+  Widget _buildUnitPriceLabel(
+    PurchaseEntry entry,
+    AppSettings settings,
+    Map<String, double> btcCache,
+  ) {
     final unit = unitTypeFromString(entry.unit);
     if (unit == UnitType.count && entry.quantity == 1.0) {
       return const SizedBox.shrink();
     }
-    final label =
-        unit.formattedUnitPrice(entry.price, entry.quantity, currency);
+    String label;
+    if (settings.isBitcoinMode) {
+      final btcPrice =
+          btcCache['${entry.purchaseDate.year}-${entry.purchaseDate.month}'];
+      if (btcPrice != null && btcPrice > 0) {
+        final normalizedFiat =
+            unit.normalizedPrice(entry.price, entry.quantity);
+        final sats = SatsConverter.fiatToSats(normalizedFiat, btcPrice);
+        final displayUnit = unit.baseUnitLabel == 'g' ? 'kg' : 'l';
+        label =
+            '${NumberFormat('#,###').format(sats * 1000)} sats/$displayUnit';
+      } else {
+        label = '-';
+      }
+    } else {
+      label = unit.formattedUnitPrice(
+          entry.price, entry.quantity, settings.currency);
+    }
     return Text(
       label,
       style: const TextStyle(fontSize: 11, color: Colors.grey),
