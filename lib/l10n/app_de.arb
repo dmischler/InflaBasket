@@ -600,41 +600,8 @@
   "addManually": "Manuell hinzufügen",
   "@addManually": { "description": "Option to add entry manually" },
 
-  "autoBackupEnable": "Automatische Backups aktivieren",
-  "@autoBackupEnable": { "description": "Toggle label for automatic database backup" },
-
-  "autoBackupEnableDesc": "Lokale rotierende Backups behalten und optional in einen externen Ordner kopieren.",
-  "@autoBackupEnableDesc": { "description": "Description for automatic backup toggle" },
-
-  "autoBackupBackupNow": "Jetzt sichern",
-  "@autoBackupBackupNow": { "description": "Action to trigger immediate auto backup" },
-
-  "autoBackupNoBackupYet": "Noch kein automatisches Backup",
-  "@autoBackupNoBackupYet": { "description": "Status when no automatic backup has run yet" },
-
-  "autoBackupLastBackup": "Letztes Backup: {dateTime}",
-  "@autoBackupLastBackup": {
-    "description": "Status line showing timestamp of last automatic backup",
-    "placeholders": { "dateTime": { "type": "String" } }
-  },
-
-  "autoBackupManualSuccess": "Backup erfolgreich abgeschlossen",
-  "@autoBackupManualSuccess": { "description": "Snackbar after successful manual backup run" },
-
-  "autoBackupManualFailure": "Backup konnte nicht abgeschlossen werden",
-  "@autoBackupManualFailure": { "description": "Snackbar when manual backup run fails" },
-
-  "autoBackupExternalFolder": "Externer Backup-Ordner",
-  "@autoBackupExternalFolder": { "description": "Label for external backup directory chooser" },
-
-  "autoBackupExternalFolderNotSet": "Nicht gesetzt",
-  "@autoBackupExternalFolderNotSet": { "description": "Placeholder when no external backup folder is configured" },
-
-  "autoBackupExternalFolderHint": "Wählen Sie einen Ordner ausserhalb des App-Containers (iCloud Drive, Dateien, SD-Karte oder Netzlaufwerk), damit Backups nach einer Deinstallation erhalten bleiben.",
-  "@autoBackupExternalFolderHint": { "description": "Guidance explaining why users should choose an external backup folder" },
-
-  "autoBackupFolderCleared": "Externer Backup-Ordner entfernt",
-  "@autoBackupFolderCleared": { "description": "Snackbar after clearing configured external backup folder" },
+  "settingsDataManagement": "Datenverwaltung",
+  "@settingsDataManagement": { "description": "Settings section header for data management" },
 
   "exportFormatTitle": "Exportformat wählen",
   "@exportFormatTitle": { "description": "Dialog title for export format selection" },

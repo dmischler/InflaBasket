@@ -178,57 +178,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _handleRunAutoBackup(WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
-
-    final success = await ref
-        .read(databaseBackupServiceProvider.notifier)
-        .runAutoBackup(force: true);
-    if (!mounted) return;
-
-    if (success) {
-      HapticFeedback.mediumImpact();
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.autoBackupManualSuccess)),
-      );
-      return;
-    }
-
-    messenger.showSnackBar(
-      SnackBar(content: Text(l10n.autoBackupManualFailure)),
-    );
-  }
-
-  Future<void> _handlePickExternalBackupFolder(WidgetRef ref) async {
-    await ref
-        .read(databaseBackupServiceProvider.notifier)
-        .pickExternalBackupDirectory();
-    if (!mounted) return;
-    HapticFeedback.selectionClick();
-  }
-
-  Future<void> _handleClearExternalBackupFolder(WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context)!;
-    await ref
-        .read(settingsControllerProvider.notifier)
-        .clearAutoBackupExternalPath();
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.autoBackupFolderCleared)),
-    );
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    final material = MaterialLocalizations.of(context);
-    final date = material.formatMediumDate(dateTime);
-    final time = material.formatTimeOfDay(
-      TimeOfDay.fromDateTime(dateTime),
-      alwaysUse24HourFormat: MediaQuery.of(context).alwaysUse24HourFormat,
-    );
-    return '$date $time';
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -236,12 +185,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final exportState = ref.watch(exportServiceProvider);
     final versionAsync = ref.watch(appVersionProvider);
     final hasApiKey = ref.watch(activeApiKeyProvider).valueOrNull != null;
-    final externalBackupPath = settings.autoBackupExternalPath.trim();
-    final externalPathSet = externalBackupPath.isNotEmpty;
-    final lastBackupSubtitle = settings.autoBackupLastAt == null
-        ? l10n.autoBackupNoBackupYet
-        : l10n
-            .autoBackupLastBackup(_formatDateTime(settings.autoBackupLastAt!));
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
@@ -384,55 +327,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 12),
           SettingsSection(
-            title: l10n.settingsBackupRestore,
+            title: l10n.settingsDataManagement,
             children: [
-              ActionRow(
-                variant: ActionRowVariant.toggle,
-                icon: Icons.auto_awesome_motion,
-                title: l10n.autoBackupEnable,
-                subtitle: l10n.autoBackupEnableDesc,
-                toggleValue: settings.autoBackupEnabled,
-                onToggleChanged: (value) => ref
-                    .read(settingsControllerProvider.notifier)
-                    .setAutoBackupEnabled(value),
-              ),
-              if (settings.autoBackupEnabled) ...[
-                const Divider(height: 1),
-                ActionRow(
-                  variant: ActionRowVariant.action,
-                  icon: Icons.backup,
-                  title: l10n.autoBackupBackupNow,
-                  subtitle: lastBackupSubtitle,
-                  onTap: () => _handleRunAutoBackup(ref),
-                ),
-                const Divider(height: 1),
-                ActionRow(
-                  variant: ActionRowVariant.navigation,
-                  icon: Icons.folder_open,
-                  title: l10n.autoBackupExternalFolder,
-                  subtitle: externalPathSet
-                      ? externalBackupPath
-                      : l10n.autoBackupExternalFolderNotSet,
-                  trailing: externalPathSet
-                      ? IconButton(
-                          tooltip: l10n.delete,
-                          onPressed: () =>
-                              _handleClearExternalBackupFolder(ref),
-                          icon: const Icon(Icons.clear),
-                        )
-                      : null,
-                  onTap: () => _handlePickExternalBackupFolder(ref),
-                ),
-                const Divider(height: 1),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                  child: Text(
-                    l10n.autoBackupExternalFolderHint,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ],
-              const Divider(height: 1),
               ActionRow(
                 variant: ActionRowVariant.action,
                 icon: Icons.upload_outlined,

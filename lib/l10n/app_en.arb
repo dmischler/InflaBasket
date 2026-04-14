@@ -886,41 +886,8 @@
   "addManually": "Add Manually",
   "@addManually": { "description": "Option to add entry manually" },
 
-  "autoBackupEnable": "Enable automatic backups",
-  "@autoBackupEnable": { "description": "Toggle label for automatic database backup" },
-
-  "autoBackupEnableDesc": "Keep local rolling backups and optionally copy them to an external folder.",
-  "@autoBackupEnableDesc": { "description": "Description for automatic backup toggle" },
-
-  "autoBackupBackupNow": "Back up now",
-  "@autoBackupBackupNow": { "description": "Action to trigger immediate auto backup" },
-
-  "autoBackupNoBackupYet": "No automatic backup yet",
-  "@autoBackupNoBackupYet": { "description": "Status when no automatic backup has run yet" },
-
-  "autoBackupLastBackup": "Last backup: {dateTime}",
-  "@autoBackupLastBackup": {
-    "description": "Status line showing timestamp of last automatic backup",
-    "placeholders": { "dateTime": { "type": "String" } }
-  },
-
-  "autoBackupManualSuccess": "Backup completed successfully",
-  "@autoBackupManualSuccess": { "description": "Snackbar after successful manual backup run" },
-
-  "autoBackupManualFailure": "Backup could not be completed",
-  "@autoBackupManualFailure": { "description": "Snackbar when manual backup run fails" },
-
-  "autoBackupExternalFolder": "External backup folder",
-  "@autoBackupExternalFolder": { "description": "Label for external backup directory chooser" },
-
-  "autoBackupExternalFolderNotSet": "Not set",
-  "@autoBackupExternalFolderNotSet": { "description": "Placeholder when no external backup folder is configured" },
-
-  "autoBackupExternalFolderHint": "Choose a folder outside the app container (iCloud Drive, Files, SD card, or network storage) so backups remain available after app uninstall.",
-  "@autoBackupExternalFolderHint": { "description": "Guidance explaining why users should choose an external backup folder" },
-
-  "autoBackupFolderCleared": "External backup folder removed",
-  "@autoBackupFolderCleared": { "description": "Snackbar after clearing configured external backup folder" },
+  "settingsDataManagement": "Data Management",
+  "@settingsDataManagement": { "description": "Settings section header for data management" },
 
   "exportFormatTitle": "Choose Export Format",
   "@exportFormatTitle": { "description": "Dialog title for export format selection" },

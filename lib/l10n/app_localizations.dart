@@ -1708,71 +1708,11 @@ abstract class AppLocalizations {
   /// **'Add Manually'**
   String get addManually;
 
-  /// Toggle label for automatic database backup
+  /// Settings section header for data management
   ///
   /// In en, this message translates to:
-  /// **'Enable automatic backups'**
-  String get autoBackupEnable;
-
-  /// Description for automatic backup toggle
-  ///
-  /// In en, this message translates to:
-  /// **'Keep local rolling backups and optionally copy them to an external folder.'**
-  String get autoBackupEnableDesc;
-
-  /// Action to trigger immediate auto backup
-  ///
-  /// In en, this message translates to:
-  /// **'Back up now'**
-  String get autoBackupBackupNow;
-
-  /// Status when no automatic backup has run yet
-  ///
-  /// In en, this message translates to:
-  /// **'No automatic backup yet'**
-  String get autoBackupNoBackupYet;
-
-  /// Status line showing timestamp of last automatic backup
-  ///
-  /// In en, this message translates to:
-  /// **'Last backup: {dateTime}'**
-  String autoBackupLastBackup(String dateTime);
-
-  /// Snackbar after successful manual backup run
-  ///
-  /// In en, this message translates to:
-  /// **'Backup completed successfully'**
-  String get autoBackupManualSuccess;
-
-  /// Snackbar when manual backup run fails
-  ///
-  /// In en, this message translates to:
-  /// **'Backup could not be completed'**
-  String get autoBackupManualFailure;
-
-  /// Label for external backup directory chooser
-  ///
-  /// In en, this message translates to:
-  /// **'External backup folder'**
-  String get autoBackupExternalFolder;
-
-  /// Placeholder when no external backup folder is configured
-  ///
-  /// In en, this message translates to:
-  /// **'Not set'**
-  String get autoBackupExternalFolderNotSet;
-
-  /// Guidance explaining why users should choose an external backup folder
-  ///
-  /// In en, this message translates to:
-  /// **'Choose a folder outside the app container (iCloud Drive, Files, SD card, or network storage) so backups remain available after app uninstall.'**
-  String get autoBackupExternalFolderHint;
-
-  /// Snackbar after clearing configured external backup folder
-  ///
-  /// In en, this message translates to:
-  /// **'External backup folder removed'**
-  String get autoBackupFolderCleared;
+  /// **'Data Management'**
+  String get settingsDataManagement;
 
   /// Dialog title for export format selection
   ///

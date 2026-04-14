@@ -624,6 +624,14 @@ Supported models:
 - Added Settings controls for auto-backup (enable toggle, manual run, external folder pick/clear, last backup timestamp)
 - Hardened iOS container-path handling: stale app-container external paths are ignored and cleared to prevent `PathAccessException` after reinstall
 
+**v2.4.5 Removed Auto-Backup Feature**
+- Removed automatic backup feature (enable toggle, manual run, external folder pick/clear, last backup timestamp)
+- Auto-backup was non-functional and causing issues; users can still manually export database via Export option
+- Changed settings section title from "Backup & Restore" to "Data Management"
+- Removed auto-backup related code: `runAutoBackup()`, `pickExternalBackupDirectory()`, `_copyAutoBackupToExternal()`, `_pruneOldInternalAutoBackups()` from `DatabaseBackupService`
+- Removed auto-backup settings from `AppSettings` class
+- Removed `_runAutoBackupIfEnabled()` from main.dart
+
 **v2.0.4 API Keys Submenu**
 - Moved API key management from inline settings to a dedicated API Keys submenu (`/settings/api-keys`)
 - New `api_keys` database table (schema v15) with fields: id, provider, name, key, is_active, created_at
@@ -664,7 +672,7 @@ Supported models:
 
 ### 🐛 Known Issues
 
-- iOS external-folder backup depends on user-selected File Provider permissions; if provider access is revoked, the app keeps local auto-backups and skips the external copy (with warning log).
+None
 
 ---
 

@@ -895,42 +895,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get addManually => 'Manuell hinzufügen';
 
   @override
-  String get autoBackupEnable => 'Automatische Backups aktivieren';
-
-  @override
-  String get autoBackupEnableDesc =>
-      'Lokale rotierende Backups behalten und optional in einen externen Ordner kopieren.';
-
-  @override
-  String get autoBackupBackupNow => 'Jetzt sichern';
-
-  @override
-  String get autoBackupNoBackupYet => 'Noch kein automatisches Backup';
-
-  @override
-  String autoBackupLastBackup(String dateTime) {
-    return 'Letztes Backup: $dateTime';
-  }
-
-  @override
-  String get autoBackupManualSuccess => 'Backup erfolgreich abgeschlossen';
-
-  @override
-  String get autoBackupManualFailure =>
-      'Backup konnte nicht abgeschlossen werden';
-
-  @override
-  String get autoBackupExternalFolder => 'Externer Backup-Ordner';
-
-  @override
-  String get autoBackupExternalFolderNotSet => 'Nicht gesetzt';
-
-  @override
-  String get autoBackupExternalFolderHint =>
-      'Wählen Sie einen Ordner ausserhalb des App-Containers (iCloud Drive, Dateien, SD-Karte oder Netzlaufwerk), damit Backups nach einer Deinstallation erhalten bleiben.';
-
-  @override
-  String get autoBackupFolderCleared => 'Externer Backup-Ordner entfernt';
+  String get settingsDataManagement => 'Datenverwaltung';
 
   @override
   String get exportFormatTitle => 'Exportformat wählen';

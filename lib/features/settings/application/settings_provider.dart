@@ -31,9 +31,6 @@ class AppSettings {
   final int priceUpdateReminderMonths;
   final bool aiConsentAccepted;
   final bool hasCompletedOnboarding;
-  final bool autoBackupEnabled;
-  final String autoBackupExternalPath;
-  final DateTime? autoBackupLastAt;
 
   const AppSettings({
     this.currency = 'CHF',
@@ -45,9 +42,6 @@ class AppSettings {
     this.priceUpdateReminderMonths = 6,
     this.aiConsentAccepted = false,
     this.hasCompletedOnboarding = false,
-    this.autoBackupEnabled = true,
-    this.autoBackupExternalPath = '',
-    this.autoBackupLastAt,
   });
 
   AppSettings copyWith({
@@ -60,9 +54,6 @@ class AppSettings {
     int? priceUpdateReminderMonths,
     bool? aiConsentAccepted,
     bool? hasCompletedOnboarding,
-    bool? autoBackupEnabled,
-    String? autoBackupExternalPath,
-    DateTime? autoBackupLastAt,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
@@ -77,10 +68,6 @@ class AppSettings {
       aiConsentAccepted: aiConsentAccepted ?? this.aiConsentAccepted,
       hasCompletedOnboarding:
           hasCompletedOnboarding ?? this.hasCompletedOnboarding,
-      autoBackupEnabled: autoBackupEnabled ?? this.autoBackupEnabled,
-      autoBackupExternalPath:
-          autoBackupExternalPath ?? this.autoBackupExternalPath,
-      autoBackupLastAt: autoBackupLastAt ?? this.autoBackupLastAt,
     );
   }
 }
@@ -115,9 +102,6 @@ class SettingsController extends _$SettingsController {
     settingsMap.remove('settings_theme_type');
     final isDarkMode =
         _parseBool(settingsMap['is_dark_mode'], defaultValue: true);
-    final rawLastAutoBackup = settingsMap['auto_backup_last_at'] ?? '';
-    final autoBackupLastAt =
-        rawLastAutoBackup.isEmpty ? null : DateTime.tryParse(rawLastAutoBackup);
 
     state = AppSettings(
       currency: settingsMap['currency'] ?? 'CHF',
@@ -132,10 +116,6 @@ class SettingsController extends _$SettingsController {
       aiConsentAccepted: _parseBool(settingsMap['ai_consent_accepted']),
       hasCompletedOnboarding:
           _parseBool(settingsMap['has_completed_onboarding']),
-      autoBackupEnabled:
-          _parseBool(settingsMap['auto_backup_enabled'], defaultValue: true),
-      autoBackupExternalPath: settingsMap['auto_backup_external_path'] ?? '',
-      autoBackupLastAt: autoBackupLastAt,
     );
   }
 
@@ -180,27 +160,6 @@ class SettingsController extends _$SettingsController {
   Future<void> acceptAiConsent() async {
     await _set('ai_consent_accepted', true.toString());
     state = state.copyWith(aiConsentAccepted: true);
-  }
-
-  Future<void> setAutoBackupEnabled(bool enabled) async {
-    await _set('auto_backup_enabled', enabled.toString());
-    state = state.copyWith(autoBackupEnabled: enabled);
-  }
-
-  Future<void> setAutoBackupExternalPath(String path) async {
-    await _set('auto_backup_external_path', path);
-    state = state.copyWith(autoBackupExternalPath: path);
-  }
-
-  Future<void> clearAutoBackupExternalPath() async {
-    await _set('auto_backup_external_path', '');
-    state = state.copyWith(autoBackupExternalPath: '');
-  }
-
-  Future<void> setAutoBackupLastAt(DateTime? dateTime) async {
-    final serialized = dateTime?.toIso8601String() ?? '';
-    await _set('auto_backup_last_at', serialized);
-    state = state.copyWith(autoBackupLastAt: dateTime);
   }
 
   Future<bool> setPriceUpdateReminder(bool enabled) async {

@@ -13,171 +13,21 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:inflabasket/core/database/database.dart';
-import 'package:inflabasket/features/settings/application/settings_provider.dart';
 
 part 'database_backup_service.g.dart';
 
 @riverpod
 class DatabaseBackupService extends _$DatabaseBackupService {
-  static const _autoBackupPrefix = 'InflaBasket_AutoBackup_';
-  static const _maxAutoBackupsToKeep = 14;
-  bool _isAutoBackupRunning = false;
-
   @override
   FutureOr<void> build() => null;
 
   String get _dbFilename =>
       'InflaBasket_Backup_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.sqlite';
 
-  String get _autoBackupFilename =>
-      '$_autoBackupPrefix${DateFormat('yyyy-MM-dd_HH-mm-ss-SSS').format(DateTime.now())}.sqlite';
-
   Future<File> _dbFile() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final dbPath = p.join(dbFolder.path, 'db.sqlite');
     return File(dbPath);
-  }
-
-  Future<Directory> _internalAutoBackupDir() async {
-    final docsDir = await getApplicationDocumentsDirectory();
-    final backupsDir = Directory(p.join(docsDir.path, 'backups', 'auto'));
-    if (!await backupsDir.exists()) {
-      await backupsDir.create(recursive: true);
-    }
-    return backupsDir;
-  }
-
-  bool _isLikelyStaleAppContainerPath(
-    String configuredPath,
-    String currentDocsPath,
-  ) {
-    const marker = '/Containers/Data/Application/';
-
-    String? extractAppContainerUuid(String path) {
-      final index = path.indexOf(marker);
-      if (index == -1) return null;
-      final afterMarker = path.substring(index + marker.length);
-      final slashIndex = afterMarker.indexOf('/');
-      return slashIndex == -1
-          ? afterMarker
-          : afterMarker.substring(0, slashIndex);
-    }
-
-    final configuredUuid = extractAppContainerUuid(configuredPath);
-    final currentUuid = extractAppContainerUuid(currentDocsPath);
-
-    if (configuredUuid == null || currentUuid == null) return false;
-
-    return configuredUuid != currentUuid;
-  }
-
-  Future<void> _copyAutoBackupToExternal(File sourceBackupFile) async {
-    final settings = ref.read(settingsControllerProvider);
-    final externalPath = settings.autoBackupExternalPath.trim();
-    if (externalPath.isEmpty) return;
-
-    final docsDir = await getApplicationDocumentsDirectory();
-    if (_isLikelyStaleAppContainerPath(externalPath, docsDir.path)) {
-      debugPrint(
-          'External backup path appears stale (app reinstalled). Clearing.');
-      await ref
-          .read(settingsControllerProvider.notifier)
-          .clearAutoBackupExternalPath();
-      return;
-    }
-
-    final externalDir = Directory(externalPath);
-    if (!await externalDir.exists()) {
-      try {
-        await externalDir.create(recursive: true);
-      } catch (e) {
-        debugPrint('Cannot create external backup directory: $e');
-        return;
-      }
-    }
-
-    final targetPath =
-        p.join(externalDir.path, p.basename(sourceBackupFile.path));
-    try {
-      await sourceBackupFile.copy(targetPath);
-    } on FileSystemException catch (e) {
-      debugPrint('Failed to copy backup to external directory: $e');
-    }
-  }
-
-  Future<void> _pruneOldInternalAutoBackups(Directory backupDir) async {
-    final all = await backupDir
-        .list()
-        .where((entry) =>
-            entry is File &&
-            p.basename(entry.path).startsWith(_autoBackupPrefix))
-        .cast<File>()
-        .toList();
-
-    if (all.length <= _maxAutoBackupsToKeep) {
-      return;
-    }
-
-    all.sort((a, b) => b.path.compareTo(a.path));
-    final toDelete = all.skip(_maxAutoBackupsToKeep);
-    for (final file in toDelete) {
-      try {
-        await file.delete();
-      } catch (_) {
-        // Best-effort cleanup only.
-      }
-    }
-  }
-
-  Future<String?> pickExternalBackupDirectory() async {
-    final selectedPath = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Select backup folder',
-    );
-    if (selectedPath == null || selectedPath.isEmpty) {
-      return null;
-    }
-
-    await ref
-        .read(settingsControllerProvider.notifier)
-        .setAutoBackupExternalPath(selectedPath);
-    return selectedPath;
-  }
-
-  Future<bool> runAutoBackup({bool force = false}) async {
-    if (_isAutoBackupRunning) return false;
-
-    final settings = ref.read(settingsControllerProvider);
-    if (!force && !settings.autoBackupEnabled) return false;
-
-    _isAutoBackupRunning = true;
-    try {
-      final dbFile = await _dbFile();
-      if (!await dbFile.exists()) {
-        return false;
-      }
-
-      final backupDir = await _internalAutoBackupDir();
-      final backupPath = p.join(backupDir.path, _autoBackupFilename);
-      final localBackup = await dbFile.copy(backupPath);
-
-      try {
-        await _copyAutoBackupToExternal(localBackup);
-      } on FileSystemException catch (error) {
-        debugPrint('External auto backup failed: $error');
-      }
-
-      await _pruneOldInternalAutoBackups(backupDir);
-      await ref
-          .read(settingsControllerProvider.notifier)
-          .setAutoBackupLastAt(DateTime.now());
-      return true;
-    } catch (error, stackTrace) {
-      debugPrint('Auto backup failed: $error');
-      debugPrintStack(stackTrace: stackTrace);
-      return false;
-    } finally {
-      _isAutoBackupRunning = false;
-    }
   }
 
   Future<String> exportDatabase() async {
