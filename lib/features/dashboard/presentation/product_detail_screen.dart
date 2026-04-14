@@ -1053,8 +1053,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
         ref.read(productWithCategoryProvider(widget.productId)).valueOrNull;
     if (productData == null) return;
 
+    final repo = ref.read(entryRepositoryProvider);
+    final latestEntry = await repo.getLatestEntryForProduct(widget.productId);
+
     final priceController = TextEditingController();
     DateTime selectedDate = DateTime.now();
+    final defaultQuantity = latestEntry?.quantity ?? 1.0;
+    UnitType? defaultUnit;
+    if (latestEntry?.unit != null) {
+      defaultUnit = unitTypeFromString(latestEntry!.unit);
+    }
 
     final result = await showDialog<bool>(
       context: context,
@@ -1127,8 +1135,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen>
             storeName: productData.product.storeName ?? '',
             purchaseDate: selectedDate,
             price: price,
-            quantity: 1.0,
-            unit: null,
+            quantity: defaultQuantity,
+            unit: defaultUnit,
           );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
