@@ -155,23 +155,6 @@ class StoreLogoCache {
     }
   }
 
-  Future<void> clearWebsite(String storeName) async {
-    await _loadCache();
-    final normalized = _normalizeStoreName(storeName);
-    _cache!.remove(normalized);
-    await _saveCache();
-  }
-
-  Future<void> clearAll() async {
-    _cache = {};
-    await _prefs.remove(_storeWebsitesKey);
-  }
-
-  Future<Map<String, String>> getAll() async {
-    await _loadCache();
-    return Map.unmodifiable(_cache!);
-  }
-
   String extractDomain(String website) {
     String domain = website.trim();
 

@@ -81,7 +81,6 @@ class EntryRepository {
 
   AppDatabase get database => _db;
 
-  static const metricCpi = 'cpi';
   static const metricMoneySupplyM2 = 'money_supply_m2';
   static const metricSnbCoreInflation1 = 'snb_core_inflation_1';
 

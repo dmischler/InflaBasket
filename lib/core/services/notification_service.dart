@@ -204,15 +204,4 @@ class NotificationService {
       debugPrint('NotificationService.cancelPriceUpdateReminder error: $e');
     }
   }
-
-  Future<void> cancelAllReminders() async {
-    if (!_initialized) return;
-
-    try {
-      await _plugin.cancelAll();
-      debugPrint('NotificationService: Cancelled all notifications');
-    } catch (e) {
-      debugPrint('NotificationService.cancelAllReminders error: $e');
-    }
-  }
 }

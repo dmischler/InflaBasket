@@ -37,18 +37,6 @@ class ChartPoint {
   final List<String> jumpDrivers;
 }
 
-class ReceiptItem {
-  const ReceiptItem({
-    required this.name,
-    required this.price,
-    this.isActive = true,
-  });
-
-  final String name;
-  final double price;
-  final bool isActive;
-}
-
 class InflationCalculator {
   static double _normalizedUnitPrice(PurchaseEntry e) {
     final price = e.price;
@@ -220,45 +208,6 @@ class InflationCalculator {
         jumpDrivers: p.jumpDrivers,
       );
     }).toList();
-  }
-
-  static List<TrackedProduct> importReceiptMonth(
-    DateTime receiptDate,
-    List<ReceiptItem> scannedItems,
-    List<TrackedProduct> existingProducts,
-  ) {
-    final byName = {
-      for (final p in existingProducts) p.name.trim().toLowerCase(): p,
-    };
-
-    for (final item in scannedItems) {
-      final normalizedName = item.name.trim();
-      if (normalizedName.isEmpty || !item.price.isFinite || item.price <= 0) {
-        continue;
-      }
-
-      final key = normalizedName.toLowerCase();
-      final existing = byName[key];
-      if (existing == null) {
-        byName[key] = TrackedProduct(
-          name: normalizedName,
-          isActive: item.isActive,
-          priceHistory: [PriceEntry(date: receiptDate, price: item.price)],
-        );
-      } else {
-        final history = List<PriceEntry>.from(existing.priceHistory)
-          ..add(PriceEntry(date: receiptDate, price: item.price))
-          ..sort((a, b) => a.date.compareTo(b.date));
-        byName[key] = TrackedProduct(
-          name: existing.name,
-          isActive: existing.isActive,
-          priceHistory: history,
-        );
-      }
-    }
-
-    return byName.values.toList()
-      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   }
 
   static TrackedProduct toTrackedProduct(
