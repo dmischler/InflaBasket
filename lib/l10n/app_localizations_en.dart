@@ -340,7 +340,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguage => 'Language';
 
   @override
-  String get settingsMetricSystem => 'Use Metric System';
+  String get settingsUnits => 'Units';
+
+  @override
+  String get settingsMetric => 'Metric';
+
+  @override
+  String get settingsImperial => 'Imperial';
 
   @override
   String get settingsDarkMode => 'Dark Mode';

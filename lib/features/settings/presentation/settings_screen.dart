@@ -269,13 +269,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const Divider(height: 1),
               ActionRow(
-                variant: ActionRowVariant.toggle,
+                variant: ActionRowVariant.dropdown,
                 icon: Icons.straighten,
-                title: l10n.settingsMetricSystem,
-                toggleValue: settings.isMetric,
-                onToggleChanged: (val) => ref
-                    .read(settingsControllerProvider.notifier)
-                    .setMetric(val),
+                title: l10n.settingsUnits,
+                trailing: DropdownButton<String>(
+                  value: settings.units,
+                  underline: const SizedBox(),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'metric',
+                      child: Text(l10n.settingsMetric),
+                    ),
+                    DropdownMenuItem(
+                      value: 'imperial',
+                      child: Text(l10n.settingsImperial),
+                    ),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      ref
+                          .read(settingsControllerProvider.notifier)
+                          .setUnits(val);
+                    }
+                  },
+                ),
               ),
             ],
           ),

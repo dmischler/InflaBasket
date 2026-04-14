@@ -324,8 +324,14 @@
   "settingsLanguage": "Language",
   "@settingsLanguage": { "description": "Language setting label" },
 
-  "settingsMetricSystem": "Use Metric System",
-  "@settingsMetricSystem": { "description": "Toggle label for metric/imperial" },
+  "settingsUnits": "Units",
+  "@settingsUnits": { "description": "Units setting label" },
+
+  "settingsMetric": "Metric",
+  "@settingsMetric": { "description": "Metric units option" },
+
+  "settingsImperial": "Imperial",
+  "@settingsImperial": { "description": "Imperial units option" },
 
   "settingsDarkMode": "Dark Mode",
   "@settingsDarkMode": { "description": "Toggle label for dark/light mode" },

@@ -161,7 +161,11 @@
 
   "settingsCurrency": "Währung",
   "settingsLanguage": "Sprache",
-  "settingsMetricSystem": "Metrisches System verwenden",
+  "settingsUnits": "Einheiten",
+
+  "settingsMetric": "Metrisch",
+
+  "settingsImperial": "Imperial",
 
   "settingsDarkMode": "Dunkler Modus",
   "@settingsDarkMode": { "description": "Toggle label for dark/light mode" },

@@ -23,7 +23,7 @@ SharedPreferences sharedPreferences(SharedPreferencesRef ref) {
 
 class AppSettings {
   final String currency;
-  final bool isMetric;
+  final String units;
   final String locale;
   final bool isBitcoinMode;
   final bool isDarkMode;
@@ -34,7 +34,7 @@ class AppSettings {
 
   const AppSettings({
     this.currency = 'CHF',
-    this.isMetric = true,
+    this.units = 'metric',
     this.locale = 'en',
     this.isBitcoinMode = false,
     this.isDarkMode = true,
@@ -44,9 +44,11 @@ class AppSettings {
     this.hasCompletedOnboarding = false,
   });
 
+  bool get isMetric => units == 'metric';
+
   AppSettings copyWith({
     String? currency,
-    bool? isMetric,
+    String? units,
     String? locale,
     bool? isBitcoinMode,
     bool? isDarkMode,
@@ -57,7 +59,7 @@ class AppSettings {
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
-      isMetric: isMetric ?? this.isMetric,
+      units: units ?? this.units,
       locale: locale ?? this.locale,
       isBitcoinMode: isBitcoinMode ?? this.isBitcoinMode,
       isDarkMode: isDarkMode ?? this.isDarkMode,
@@ -105,7 +107,7 @@ class SettingsController extends _$SettingsController {
 
     state = AppSettings(
       currency: settingsMap['currency'] ?? 'CHF',
-      isMetric: _parseBool(settingsMap['is_metric'], defaultValue: true),
+      units: settingsMap['units'] ?? 'metric',
       locale: resolveAppLanguageCode(settingsMap['locale']),
       isBitcoinMode: _parseBool(settingsMap['is_bitcoin_mode']),
       isDarkMode: isDarkMode,
@@ -134,9 +136,9 @@ class SettingsController extends _$SettingsController {
     state = state.copyWith(currency: currency);
   }
 
-  Future<void> setMetric(bool isMetric) async {
-    await _set('is_metric', isMetric.toString());
-    state = state.copyWith(isMetric: isMetric);
+  Future<void> setUnits(String units) async {
+    await _set('units', units);
+    state = state.copyWith(units: units);
   }
 
   Future<void> setLocale(String locale) async {

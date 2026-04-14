@@ -346,7 +346,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsLanguage => 'Sprache';
 
   @override
-  String get settingsMetricSystem => 'Metrisches System verwenden';
+  String get settingsUnits => 'Einheiten';
+
+  @override
+  String get settingsMetric => 'Metrisch';
+
+  @override
+  String get settingsImperial => 'Imperial';
 
   @override
   String get settingsDarkMode => 'Dunkler Modus';

@@ -740,11 +740,23 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get settingsLanguage;
 
-  /// Toggle label for metric/imperial
+  /// Units setting label
   ///
   /// In en, this message translates to:
-  /// **'Use Metric System'**
-  String get settingsMetricSystem;
+  /// **'Units'**
+  String get settingsUnits;
+
+  /// Metric units option
+  ///
+  /// In en, this message translates to:
+  /// **'Metric'**
+  String get settingsMetric;
+
+  /// Imperial units option
+  ///
+  /// In en, this message translates to:
+  /// **'Imperial'**
+  String get settingsImperial;
 
   /// Toggle label for dark/light mode
   ///
