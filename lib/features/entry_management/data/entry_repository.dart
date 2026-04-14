@@ -229,6 +229,7 @@ class EntryRepository {
         ProductsCompanion(
           name: Value(name),
           categoryId: Value(categoryId),
+          storeName: Value(storeName),
         ),
       );
 
