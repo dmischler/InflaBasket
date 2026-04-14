@@ -86,30 +86,3 @@ class ConfirmDialog extends StatelessWidget {
     );
   }
 }
-
-class ConfirmDialogHelpers {
-  static Future<bool?> showDelete(
-    BuildContext context, {
-    required String itemName,
-    String? customMessage,
-  }) {
-    return ConfirmDialog.show(
-      context,
-      title: 'Delete',
-      message: customMessage ?? 'Are you sure you want to delete "$itemName"?',
-      confirmLabel: 'Delete',
-      isDestructive: true,
-    );
-  }
-
-  static Future<bool?> showDiscardChanges(BuildContext context) {
-    return ConfirmDialog.show(
-      context,
-      title: 'Discard Changes',
-      message:
-          'You have unsaved changes. Are you sure you want to discard them?',
-      confirmLabel: 'Discard',
-      isDestructive: true,
-    );
-  }
-}

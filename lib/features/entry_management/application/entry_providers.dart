@@ -19,12 +19,6 @@ class ExactDuplicateDiscardedException implements Exception {
 }
 
 @riverpod
-Stream<List<PurchaseEntry>> purchaseEntries(PurchaseEntriesRef ref) {
-  final repo = ref.watch(entryRepositoryProvider);
-  return repo.watchEntries();
-}
-
-@riverpod
 Stream<List<EntryWithDetails>> entriesWithDetails(EntriesWithDetailsRef ref) {
   final repo = ref.watch(entryRepositoryProvider);
   return repo.watchEntriesWithDetails();

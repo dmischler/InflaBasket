@@ -82,19 +82,6 @@ double? parseDoubleValue(Object? raw) {
   return double.tryParse(raw.toString());
 }
 
-/// Returns the appropriate [CpiSource] for a given currency code, or null
-/// if no CPI comparison is available for that currency.
-CpiSource? cpiSourceForCurrency(String currency) {
-  switch (currency.toUpperCase()) {
-    case 'CHF':
-      return CpiSource.swissBfs;
-    case 'EUR':
-      return CpiSource.eurostat;
-    default:
-      return null; // USD, GBP – no supported CPI source
-  }
-}
-
 /// Fetches and caches national CPI data from the appropriate source.
 ///
 /// **Swiss CPI:** Uses Eurostat's monthly HICP index endpoint scoped to

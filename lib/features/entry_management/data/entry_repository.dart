@@ -35,16 +35,6 @@ class EntryWithDetails {
       {required this.entry, required this.product, required this.category});
 }
 
-class EntryEditRequest {
-  final EntryWithDetails entry;
-  final bool lockSharedFields;
-
-  const EntryEditRequest({
-    required this.entry,
-    this.lockSharedFields = false,
-  });
-}
-
 class ProductWithCategory {
   final Product product;
   final Category category;
@@ -650,12 +640,6 @@ class EntryRepository {
             isEnabled: Value(isEnabled),
           ),
         );
-  }
-
-  Future<int> deletePriceAlert(int productId) {
-    return (_db.delete(_db.priceAlerts)
-          ..where((a) => a.productId.equals(productId)))
-        .go();
   }
 
   /// Returns all enabled price alerts with their products.

@@ -127,10 +127,6 @@ class PriceHistoryService {
         .getSingleOrNull();
   }
 
-  Future<int> deletePriceHistory(int id) {
-    return (_db.delete(_db.priceHistories)..where((t) => t.id.equals(id))).go();
-  }
-
   DateTime _getCutoffDate(int months) {
     final now = DateTime.now();
     int year = now.year;

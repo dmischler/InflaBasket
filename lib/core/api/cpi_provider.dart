@@ -87,10 +87,6 @@ ComparisonRequestWindow _comparisonWindow(List<MonthlyIndex> history) {
 }
 
 @riverpod
-CpiClient cpiClient(CpiClientRef ref) =>
-    CpiClient(Dio(BaseOptions(headers: {'User-Agent': 'InflaBasket/1.0'})));
-
-@riverpod
 SnbClient snbClient(SnbClientRef ref) =>
     SnbClient(Dio(BaseOptions(headers: {'User-Agent': 'InflaBasket/1.0'})));
 

@@ -13,7 +13,7 @@ Personal inflation tracking app that compares user's custom basket against offic
 - **Charts:** `fl_chart`
 - **Loading States:** `shimmer`
 - **Illustrations:** `lottie`
-- **Icons/Fonts:** `lucide_icons`
+- **Icons/Fonts:** Material Icons (built-in)
 - **Device Features:** `image_picker`, `desktop_drop`, `mobile_scanner`
 - **Network:** `dio`, `retrofit`, `openfoodfacts` (official package)
 - **Images:** `cached_network_image` (favicon/logo loading with caching)

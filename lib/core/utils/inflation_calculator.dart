@@ -1,6 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:inflabasket/core/database/database.dart';
-import 'package:inflabasket/core/models/unit.dart';
 
 class PriceEntry {
   const PriceEntry({required this.date, required this.price});
@@ -38,15 +36,6 @@ class ChartPoint {
 }
 
 class InflationCalculator {
-  static double _normalizedUnitPrice(PurchaseEntry e) {
-    final price = e.price;
-    final quantity = e.quantity;
-    if (!price.isFinite || !quantity.isFinite || quantity <= 0 || price <= 0) {
-      return 0;
-    }
-    return unitTypeFromString(e.unit).normalizedPrice(price, quantity);
-  }
-
   static PriceEntry? _lastEntryOnOrBefore(
       List<PriceEntry> sorted, DateTime target) {
     return sorted.lastWhereOrNull((e) => !e.date.isAfter(target));
@@ -208,23 +197,5 @@ class InflationCalculator {
         jumpDrivers: p.jumpDrivers,
       );
     }).toList();
-  }
-
-  static TrackedProduct toTrackedProduct(
-    Product product,
-    List<PurchaseEntry> entries,
-  ) {
-    final sorted = List<PurchaseEntry>.from(entries)
-      ..sort((a, b) => a.purchaseDate.compareTo(b.purchaseDate));
-    final history = sorted
-        .map((e) =>
-            PriceEntry(date: e.purchaseDate, price: _normalizedUnitPrice(e)))
-        .where((e) => e.price > 0)
-        .toList();
-    return TrackedProduct(
-      name: product.name,
-      isActive: true,
-      priceHistory: history,
-    );
   }
 }

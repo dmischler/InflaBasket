@@ -4,17 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:inflabasket/core/api/cpi_client.dart';
 
-/// Identifies which SNB data series to fetch.
-enum SnbDataSeries {
-  /// Official observed inflation (CPI) - from snbiprogq cube.
-  /// Quarterly frequency.
-  observedInflation,
-
-  /// Core Inflation 1 (excludes energy, fresh food) - from plkoprex cube.
-  /// Monthly frequency.
-  coreInflation1,
-}
-
 /// Fetches Swiss inflation data from the SNB Data Portal API.
 ///
 /// **SNB Data Portal:** Free, public API returning clean JSON.
